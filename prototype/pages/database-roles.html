@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Roles — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const roles = [
+  ['postgres', '✓', 'pg_read_all_data, pg_write_all_data', '✓', 'Superuser; reserved for admin tools'],
+  ['authenticated', '—', '—', '✓', 'Standard role for signed-in users'],
+  ['anon', '—', '—', '✓', 'Standard role for anonymous (unauthenticated) requests'],
+  ['service_role', '✓', 'pg_read_all_data, pg_write_all_data', '✓', 'Bypass RLS; never expose client-side'],
+  ['platform_readonly', '—', '—', '✓', 'Read-only for analytics tools']
+];
+
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('roles'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Roles</h1><div class="subtitle">Database roles · used by API key scopes</div></div>
+        <div class="page-header-actions"><button class="btn btn-primary btn-sm">+ New role</button></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Login</th><th>Member of</th><th>Inherits</th><th>Description</th></tr></thead>
+          <tbody>
+            ${roles.map(r => `<tr><td class="mono">${r[0]}</td><td class="text-tertiary">${r[1]}</td><td class="text-secondary text-xs">${r[2]}</td><td class="text-tertiary">${r[3]}</td><td class="text-secondary text-xs">${r[4]}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

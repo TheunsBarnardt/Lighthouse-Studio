@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Approval Routing — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const gates = [
+  ['Stage 2 · PRD sections', 'Business Analyst', 'all_of', '1 of 1 approvers'],
+  ['Stage 3 · Design tokens', 'Designer or Workspace Owner', 'any_of', '1 of 2 approvers'],
+  ['Stage 4 · Schema synthesis', 'Architect', 'all_of', '1 of 1 approvers'],
+  ['Stage 6 · UI generation', 'Developer or Workspace Owner', 'any_of', '1 of 2 approvers'],
+  ['Stage 7 · Code generation', 'Architect, Developer', 'all_of', '2 of 2 approvers'],
+  ['Stage 9 · Deploy to staging', 'QA, Developer', 'all_of', '2 of 2 approvers'],
+  ['Stage 9 · Deploy to production', 'Workspace Owner, Architect', 'all_of', '2 of 2 approvers']
+];
+
+Shell.render({
+  mode: 'auth',
+  contextNav: authContextNav('approval-routing'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Approval Routing</h1><div class="subtitle">Configure approvers per pipeline stage</div></div>
+        <div class="page-header-actions"><button class="btn btn-secondary btn-sm">Reset to defaults</button></div>
+      </div>
+      <div class="card mb-4" style="background: var(--bg-info-subtle);">
+        <div class="text-sm">
+          <strong>Solo workflows:</strong> route to project owner, mode=any. <strong>Enterprise workflows:</strong> route by role, mode=all. The pipeline doesn't know which is configured — same machinery either way.
+        </div>
+      </div>
+      ${gates.map(([gate, approvers, mode, count]) => `
+        <div class="card mb-3">
+          <div class="flex justify-between items-center">
+            <div>
+              <strong>${gate}</strong>
+              <div class="text-secondary text-sm mt-1">${approvers} · Mode: <span class="mono">${mode}</span></div>
+            </div>
+            <div class="flex gap-2 items-center">
+              <span class="badge badge-default">${count}</span>
+              <button class="btn btn-secondary btn-sm">Edit</button>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `
+});
+</script>
+</body>
+</html>

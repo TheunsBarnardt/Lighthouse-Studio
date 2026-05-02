@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workspace Assets — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+.asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.asset-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; cursor: pointer; transition: all 100ms cubic-bezier(0.2, 0, 0, 1); }
+.asset-card:hover { border-color: var(--accent-primary); box-shadow: var(--shadow-sm); }
+.asset-thumb { height: 110px; background: var(--bg-canvas); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.asset-thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.asset-thumb .placeholder { color: var(--fg-tertiary); font-size: 32px; opacity: 0.4; }
+.asset-meta { padding: 10px 12px; border-top: 1px solid var(--border-default); }
+.asset-name { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.asset-info { font-size: 10px; color: var(--fg-tertiary); margin-top: 2px; }
+.color-swatch { width: 100%; aspect-ratio: 1; border-radius: var(--radius-sm); }
+</style>
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Workspace Assets',
+  sections: [
+    { heading: 'Brand', items: [
+      { id: 'overview', label: 'All assets', active: true, href: '#' },
+      { id: 'logos', label: 'Logos', href: '#' },
+      { id: 'colors', label: 'Brand colors', href: '#' },
+      { id: 'fonts', label: 'Fonts', href: '#' },
+      { id: 'images', label: 'Images', href: '#' },
+      { id: 'icons', label: 'Icons', href: '#' }
+    ]},
+    { heading: 'Documents', items: [
+      { id: 'docs', label: 'Reference docs', href: '#' },
+      { id: 'voice', label: 'Brand voice samples', href: '#' },
+      { id: 'specs', label: 'Specifications', href: '#' }
+    ]},
+    { heading: 'Used by AI', items: [
+      { id: 'context', label: 'Pipeline context', href: '#' }
+    ]}
+  ]
+};
+
+const logos = [
+  { name: 'logo-primary.svg', size: '4.2 KB', dim: '120 × 40' },
+  { name: 'logo-mark.svg', size: '1.8 KB', dim: '40 × 40' },
+  { name: 'logo-mono-dark.svg', size: '4.4 KB', dim: '120 × 40' },
+  { name: 'logo-mono-light.svg', size: '4.4 KB', dim: '120 × 40' }
+];
+
+const colors = [
+  { name: 'Brand primary', hex: '#2D5BFF', oklch: 'oklch(0.50 0.20 250)', usedIn: '14 components' },
+  { name: 'Brand accent', hex: '#7C3AED', oklch: 'oklch(0.55 0.18 285)', usedIn: '6 components' },
+  { name: 'Success', hex: '#16A34A', oklch: 'oklch(0.55 0.16 145)', usedIn: '12 components' },
+  { name: 'Warning', hex: '#EAB308', oklch: 'oklch(0.55 0.16 75)', usedIn: '8 components' },
+  { name: 'Danger', hex: '#DC2626', oklch: 'oklch(0.55 0.18 25)', usedIn: '10 components' },
+  { name: 'Surface', hex: '#FFFFFF', oklch: 'oklch(1 0 0)', usedIn: 'all' }
+];
+
+const fonts = [
+  { family: 'Inter', use: 'UI · Body', weights: '400, 500, 600, 700', loaded: 'Variable, woff2', size: '124 KB' },
+  { family: 'JetBrains Mono', use: 'Code · Numerics', weights: '400, 500', loaded: 'Variable, woff2', size: '87 KB' }
+];
+
+const images = [
+  { name: 'hero-product-screenshot.png', size: '847 KB', dim: '1920 × 1080', usedIn: 'Marketing landing' },
+  { name: 'team-photo.jpg', size: '412 KB', dim: '1600 × 900', usedIn: 'About page' },
+  { name: 'feature-1-illustration.svg', size: '24 KB', dim: '480 × 320', usedIn: 'Features grid' },
+  { name: 'feature-2-illustration.svg', size: '28 KB', dim: '480 × 320', usedIn: 'Features grid' },
+  { name: 'feature-3-illustration.svg', size: '22 KB', dim: '480 × 320', usedIn: 'Features grid' },
+  { name: 'og-image.png', size: '187 KB', dim: '1200 × 630', usedIn: 'OG meta tags' }
+];
+
+const documents = [
+  { name: 'Brand voice guidelines.md', size: '14 KB', uploaded: '14 days ago', summary: 'Tone, vocabulary, do\'s and don\'ts. AI uses this for all generated copy.', usedBy: 'PRD · UI gen · Code gen' },
+  { name: 'Acme product strategy 2026.pdf', size: '2.4 MB', uploaded: '21 days ago', summary: 'Annual strategy doc. AI references for context when generating PRDs.', usedBy: 'Stage 2 (PRD)' },
+  { name: 'Existing CRM screenshots.zip', size: '8.2 MB', uploaded: '21 days ago', summary: '14 screenshots of the legacy system to replace. Visual reference.', usedBy: 'Stage 6 (UI gen)' },
+  { name: 'Microsoft 365 OAuth scopes.md', size: '4 KB', uploaded: '18 days ago', summary: 'Required Outlook integration scopes. AI references when generating integrations.', usedBy: 'Stage 7 (Code gen)' },
+  { name: 'Compliance requirements.pdf', size: '1.1 MB', uploaded: '47 days ago', summary: 'GDPR + internal data handling requirements. AI uses for RLS + retention policies.', usedBy: 'Stage 4 (Schema) · Stage 7' }
+];
+
+Shell.render({
+  mode: 'assets',
+  contextNav,
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1400px;">
+      <div class="page-header">
+        <div>
+          <h1>Workspace Assets</h1>
+          <div class="subtitle">Brand assets, reference documents, and context the AI Pipeline uses to generate consistent output · ${MOCK.workspace.name}</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Settings</button>
+          <button class="btn btn-secondary btn-sm">Audit log</button>
+          <button class="btn btn-primary btn-sm">+ Upload</button>
+        </div>
+      </div>
+
+      <div class="card mb-4" style="background: var(--bg-info-subtle);">
+        <div class="text-sm">
+          <strong>How the AI Pipeline uses these assets.</strong>
+          Logos and colors flow into Stage 3 (Design Tokens). Reference documents are added to the AI's context window for relevant stages.
+          The pipeline always knows your brand voice (from voice guidelines), your visual identity (from logos and colors), and your existing material (from reference docs).
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Logos</div><div class="stat-value">${logos.length}</div><div class="stat-delta text-secondary">SVG · web-optimised</div></div>
+        <div class="stat-card"><div class="stat-label">Brand colors</div><div class="stat-value">${colors.length}</div><div class="stat-delta text-secondary">OKLCH · WCAG AA passing</div></div>
+        <div class="stat-card"><div class="stat-label">Documents</div><div class="stat-value">${documents.length}</div><div class="stat-delta text-secondary">11.7 MB · feeding pipeline</div></div>
+        <div class="stat-card"><div class="stat-label">Total storage</div><div class="stat-value">12.4 MB</div><div class="stat-delta text-secondary">of 1 GB workspace allowance</div></div>
+      </div>
+
+      <h2 class="text-base font-semibold mb-3 mt-6">Logos</h2>
+      <div class="asset-grid mb-6">
+        ${logos.map(l => `
+          <div class="asset-card">
+            <div class="asset-thumb"><div class="placeholder">▢</div></div>
+            <div class="asset-meta">
+              <div class="asset-name mono">${l.name}</div>
+              <div class="asset-info">${l.dim} · ${l.size}</div>
+            </div>
+          </div>
+        `).join('')}
+        <div class="asset-card" style="display: flex; align-items: center; justify-content: center; min-height: 180px; cursor: pointer; border-style: dashed;">
+          <div style="text-align: center; color: var(--fg-tertiary); font-size: 12px;">
+            <div style="font-size: 24px; margin-bottom: 8px;">＋</div>
+            Add logo
+          </div>
+        </div>
+      </div>
+
+      <h2 class="text-base font-semibold mb-3 mt-6">Brand colors</h2>
+      <div class="card mb-6">
+        <table class="data-table">
+          <thead><tr><th style="width: 60px;"></th><th>Name</th><th>Hex</th><th>OKLCH</th><th>Used in</th><th></th></tr></thead>
+          <tbody>
+            ${colors.map(c => `
+              <tr>
+                <td><div class="color-swatch" style="background: ${c.hex}; width: 36px; height: 36px;"></div></td>
+                <td class="font-medium">${c.name}</td>
+                <td class="mono text-xs">${c.hex}</td>
+                <td class="mono text-xs text-secondary">${c.oklch}</td>
+                <td class="text-xs text-secondary">${c.usedIn}</td>
+                <td class="flex gap-1"><button class="btn btn-ghost btn-xs">Copy</button><button class="btn btn-ghost btn-xs">Edit</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="text-base font-semibold mb-3 mt-6">Fonts</h2>
+      <div class="card mb-6">
+        <table class="data-table">
+          <thead><tr><th>Family</th><th>Use</th><th>Weights</th><th>Format</th><th class="tabular">Size</th></tr></thead>
+          <tbody>
+            ${fonts.map(f => `
+              <tr>
+                <td class="font-medium" style="font-family: ${f.family.includes('Mono') ? 'JetBrains Mono' : 'Inter'}, sans-serif;">${f.family}</td>
+                <td class="text-secondary text-sm">${f.use}</td>
+                <td class="text-xs text-secondary">${f.weights}</td>
+                <td class="text-xs text-secondary">${f.loaded}</td>
+                <td class="tabular text-xs">${f.size}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="text-base font-semibold mb-3 mt-6">Images</h2>
+      <div class="asset-grid mb-6">
+        ${images.map(i => `
+          <div class="asset-card">
+            <div class="asset-thumb"><div class="placeholder">${i.name.endsWith('.svg') ? '◇' : '⊞'}</div></div>
+            <div class="asset-meta">
+              <div class="asset-name mono">${i.name}</div>
+              <div class="asset-info">${i.dim} · ${i.size}</div>
+              <div class="asset-info">used in ${i.usedIn}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <h2 class="text-base font-semibold mb-3 mt-6">Reference documents</h2>
+      <div class="card mb-4" style="background: var(--bg-info-subtle);">
+        <div class="text-sm">These documents are added to the AI's context window for relevant pipeline stages. Each document shows which stages reference it.</div>
+      </div>
+      <div class="card">
+        ${documents.map(d => `
+          <div class="audit-row" style="padding: 16px 0;">
+            <div class="audit-icon pass" style="background: var(--bg-info-subtle); color: var(--accent-primary);">⎙</div>
+            <div style="flex: 1;">
+              <div class="flex justify-between items-start mb-1">
+                <div class="font-medium" style="font-size: 13px;">${d.name}</div>
+                <div class="text-xs text-tertiary">${d.size} · uploaded ${d.uploaded}</div>
+              </div>
+              <div class="text-xs text-secondary mb-2">${d.summary}</div>
+              <div class="text-xs"><span class="text-tertiary">Used by:</span> <span class="badge badge-accent" style="font-size: 9px;">${d.usedBy}</span></div>
+            </div>
+            <div class="flex gap-1">
+              <button class="btn btn-ghost btn-xs">View</button>
+              <button class="btn btn-ghost btn-xs">Replace</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foreign Data Wrappers — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('wrappers'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Foreign Data Wrappers</h1><div class="subtitle">Connect external sources as foreign tables</div></div>
+      </div>
+      
+      <div class="grid grid-3">
+        ${[
+          ['Stripe', 'Connected', 'success'],
+          ['Firebase', 'Available', 'default'],
+          ['BigQuery', 'Available', 'default'],
+          ['ClickHouse', 'Available', 'default'],
+          ['MSSQL', 'Available', 'default'],
+          ['MongoDB', 'Available', 'default']
+        ].map(([n, s, b]) => `
+          <div class="card">
+            <div class="flex justify-between items-center"><strong>${n}</strong><span class="badge badge-${b}">${s}</span></div>
+          </div>
+        `).join('')}
+      </div>
+   
+    </div>
+  `
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Code Generation — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const fnGroups = [
+  ['HTTP', [['updateDealStage','pending'],['searchContacts','pending'],['exportDealsCSV','pending']]],
+  ['Scheduled', [['nightlyDealStaleness','pending']]],
+  ['Event', [['onContactCreated','pending'],['onDealWon','pending']]],
+  ['Integration', [['outlookCalendarSync','pending']]]
+];
+
+Shell.render({
+  mode: 'ai-pipeline',
+  contextNav: aiPipelineContextNav('code-gen'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page-fullbleed">
+      ${Shell.pipelineStepper('code-gen')}
+      <div class="three-pane" style="height: calc(100vh - 44px - 44px);">
+        <div class="pane-left">
+          <div class="font-semibold mb-3">Server functions</div>
+          <div class="text-xs text-tertiary mb-3">7 functions · 2 integrations</div>
+          ${fnGroups.map(([g, items]) => `
+            <div class="text-xs font-medium text-tertiary mt-3 mb-1" style="text-transform:uppercase; letter-spacing: 0.05em;">${g}</div>
+            ${items.map(([n]) => `
+              <div class="contextnav-item ${n === 'updateDealStage' ? 'active' : ''}" style="padding: 4px 8px; font-size: 12px;">
+                <span style="background: var(--border-emphasis); width:6px; height:6px; border-radius: 50%; flex-shrink:0;"></span>
+                <span class="mono">${n}</span>
+              </div>
+            `).join('')}
+          `).join('')}
+        </div>
+        <div class="pane-center">
+          <div class="page-header" style="margin-bottom: 16px;">
+            <div><h1 style="font-size: 18px;" class="mono">updateDealStage</h1><div class="subtitle">HTTP · POST /deals/:id/stage · Sandboxed</div></div>
+            <div class="page-header-actions">
+              <button class="btn btn-secondary btn-sm">Regenerate</button>
+              <button class="btn btn-primary btn-sm" onclick="Shell.toast('Function approved.', 'success')">Approve</button>
+            </div>
+          </div>
+          <div class="tabs">
+            <div class="tab active">Code</div>
+            <div class="tab">Manifest</div>
+            <div class="tab">Static analysis</div>
+            <div class="tab">Tests preview</div>
+          </div>
+          <div class="code-block">import type { FunctionContext } from '@platform/runtime';
+
+interface Input {
+  dealId: string;
+  newStage: 'lead' | 'qualified' | 'proposal' | 'negotiation' | 'won' | 'lost';
+}
+
+export async function updateDealStage(input: Input, ctx: FunctionContext) {
+  const { sdk, logger } = ctx;
+  const deal = await sdk.data('deals').where({ id: { _eq: input.dealId } }).one();
+  if (!deal) throw new NotFoundError(\`Deal \${input.dealId} not found\`);
+  const previousStage = deal.stage;
+  await sdk.data('deals').where({ id: { _eq: input.dealId } }).update({ stage: input.newStage });
+  if (input.newStage === 'won' && previousStage !== 'won') {
+    await sdk.functions.onDealWon({ dealId: input.dealId });
+  }
+  logger.info('Deal stage updated', { dealId: input.dealId, from: previousStage, to: input.newStage });
+  return { success: true, dealId: input.dealId, previousStage };
+}</div>
+        </div>
+        <div class="pane-right">
+          <div class="inspector-section">
+            <div class="inspector-label">Reasoning</div>
+            <div class="text-sm text-secondary">Generated because UI's DealKanbanPage calls platform.functions.updateDealStage(). The "won" trigger derives from PRD FR-7.</div>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-label">Static analysis</div>
+            <div class="inspector-row"><span class="key">eval / Function()</span><span class="val text-success">✓ None</span></div>
+            <div class="inspector-row"><span class="key">child_process</span><span class="val text-success">✓ None</span></div>
+            <div class="inspector-row"><span class="key">fs/net direct</span><span class="val text-success">✓ None</span></div>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-label">Sandbox limits</div>
+            <div class="inspector-row"><span class="key">Timeout</span><span class="val tabular">30s</span></div>
+            <div class="inspector-row"><span class="key">Memory</span><span class="val tabular">256MB</span></div>
+            <div class="inspector-row"><span class="key">Network</span><span class="val">none</span></div>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-label">Permissions</div>
+            <div class="inspector-row"><span class="key">deals.read</span><span class="val text-success">✓</span></div>
+            <div class="inspector-row"><span class="key">deals.update</span><span class="val text-success">✓</span></div>
+            <div class="inspector-row"><span class="key">functions.invoke</span><span class="val text-success">✓</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

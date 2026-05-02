@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Users — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const users = [
+  ['Joana de Klerk', 'joana@acme.com', 'Workspace Owner', 'Email', 'TOTP', 'Just now', 'JD'],
+  ['Marcus Acker', 'marcus@acme.com', 'Architect', 'Entra ID', 'TOTP', '12 min ago', 'MA'],
+  ['Priya Singh', 'priya@acme.com', 'Business Analyst', 'Entra ID', 'TOTP', '1 hour ago', 'PS'],
+  ['Tom Müller', 'tom@acme.com', 'Developer', 'Entra ID', 'TOTP', '2 hours ago', 'TM'],
+  ['Sara Chen', 'sara@acme.com', 'QA', 'Email', '—', 'Yesterday', 'SC'],
+  ['Liam Walsh', 'liam@acme.com', 'Reviewer', 'Entra ID', 'TOTP', '3 days ago', 'LW']
+];
+
+Shell.render({
+  mode: 'auth',
+  contextNav: authContextNav('users'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Users</h1><div class="subtitle">${users.length} members · Identity provider: Microsoft Entra ID</div></div>
+        <div class="page-header-actions">
+          <input class="input input-h28" placeholder="Search users..." style="width: 220px;" />
+          <button class="btn btn-primary btn-sm">+ Invite user</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Provider</th><th>MFA</th><th>Last sign-in</th><th></th></tr></thead>
+          <tbody>
+            ${users.map(([name, email, role, prov, mfa, last, init]) => `
+              <tr>
+                <td><div class="flex items-center gap-2"><div class="avatar">${init}</div><strong>${name}</strong></div></td>
+                <td class="text-secondary">${email}</td>
+                <td><span class="badge badge-default">${role}</span></td>
+                <td class="text-secondary text-xs">${prov}</td>
+                <td>${mfa==='—'?'<span class="text-tertiary">—</span>':`<span class="text-success">✓ ${mfa}</span>`}</td>
+                <td class="text-tertiary text-xs">${last}</td>
+                <td><button class="icon-btn">⋯</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

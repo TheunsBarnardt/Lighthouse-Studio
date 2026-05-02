@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Identity Providers — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const providers = [
+  ['Email + Password', 'configured', 'success', 'Built-in. Argon2id hashing. TOTP MFA available.'],
+  ['Microsoft Entra ID', 'configured', 'success', 'Tenant: acme.onmicrosoft.com'],
+  ['Magic Link', 'configured', 'success', 'Email-based passwordless'],
+  ['Google OAuth', 'available', 'default', 'Configure with Google Cloud client ID'],
+  ['Generic OIDC', 'available', 'default', 'Connect any OIDC-compliant provider'],
+  ['SAML 2.0', 'available', 'default', 'For enterprise identity systems']
+];
+
+Shell.render({
+  mode: 'auth',
+  contextNav: authContextNav('identity-providers'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Identity Providers</h1><div class="subtitle">Configured: ${providers.filter(p => p[1]==='configured').length} · Available: ${providers.filter(p => p[1]==='available').length}</div></div>
+      </div>
+      <div class="grid grid-2">
+        ${providers.map(([n, status, badge, desc]) => `
+          <div class="card">
+            <div class="flex justify-between items-center mb-2">
+              <strong>${n}</strong>
+              <span class="badge badge-${badge}">${status === 'configured' ? 'Configured' : 'Available'}</span>
+            </div>
+            <div class="text-secondary text-sm">${desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

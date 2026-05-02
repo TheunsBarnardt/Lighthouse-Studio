@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const sections = [
+  { name: '1. Overview', status: 'approved' },
+  { name: '2. Goals & Success Metrics', status: 'approved' },
+  { name: '3. Target Users & Personas', status: 'approved' },
+  { name: '4. User Stories', status: 'approved' },
+  { name: '5. Functional Requirements', status: 'in_review' },
+  { name: '6. Non-Functional Requirements', status: 'in_review' },
+  { name: '7. Constraints & Assumptions', status: 'approved' },
+  { name: '8. Out of Scope', status: 'approved' },
+  { name: '9. Open Questions', status: 'pending' },
+  { name: '10. Risks & Mitigations', status: 'pending' }
+];
+
+const requirements = [
+  ['FR-1', 'Contact management', 'Reps create, edit, view, and search contacts.', 'must', ['As a sales rep, I want to add a new contact in under 30 seconds and have it sync to Outlook contacts.']],
+  ['FR-2', 'Deal pipeline', 'Reps move deals through 6 stages.', 'must', ['Given a deal in "qualified", when I drag to "proposal", then the deal updates and an audit entry is recorded.']],
+  ['FR-3', 'Call notes attached to contacts', 'Reps add timestamped notes; searchable.', 'must', null],
+  ['FR-4', 'Outlook calendar integration', 'Meetings sync into deal timeline.', 'should', null],
+  ['FR-5', 'Pipeline view (Kanban)', 'Reps see deals as a Kanban board.', 'must', null]
+];
+
+Shell.render({
+  mode: 'ai-pipeline',
+  contextNav: aiPipelineContextNav('prd'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page-fullbleed">
+      ${Shell.pipelineStepper('prd')}
+      <div class="three-pane" style="height: calc(100vh - 44px - 44px);">
+        <div class="pane-left">
+          <div class="font-semibold mb-3">Sections</div>
+          ${sections.map((s, i) => `
+            <div class="contextnav-item ${i === 4 ? 'active' : ''}" style="margin-bottom: 2px;">
+              <span class="status-dot" style="background: ${s.status==='approved'?'var(--fg-success)':s.status==='in_review'?'var(--fg-warning)':'var(--border-emphasis)'}; width: 8px; height: 8px; border-radius: 50%;"></span>
+              <span>${s.name}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="pane-center">
+          <div class="page-header" style="margin-bottom: 16px;">
+            <div><h1 style="font-size: 18px;">5. Functional Requirements</h1><div class="subtitle">12 requirements · 3 traced to intent · In Review</div></div>
+            <div class="page-header-actions">
+              <button class="btn btn-secondary btn-sm">Regenerate</button>
+              <button class="btn btn-primary btn-sm" onclick="Shell.toast('Section approved', 'success')">Approve section</button>
+            </div>
+          </div>
+          ${requirements.map(([id, t, d, p, ac]) => `
+            <div class="card mb-3">
+              <div class="flex justify-between items-center mb-2">
+                <div class="flex items-center gap-3">
+                  <span class="badge badge-accent mono">${id}</span>
+                  <strong>${t}</strong>
+                  <span class="badge ${p==='must'?'badge-danger':'badge-warning'}">${p.toUpperCase()}</span>
+                </div>
+              </div>
+              <div class="text-sm text-secondary mb-3">${d}</div>
+              ${ac ? `<div class="text-xs font-medium mb-2 text-tertiary">ACCEPTANCE CRITERIA</div>${ac.map(a => `<div class="code-block mb-2" style="font-size: 11px;">${a}</div>`).join('')}` : ''}
+              <div class="text-xs text-tertiary mt-2">Traces to: <a href="#">Goal-1</a>, <a href="#">User Story US-3</a></div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="pane-right">
+          <div class="inspector-section">
+            <div class="inspector-label">Reasoning</div>
+            <div class="text-sm text-secondary">Extracted from user stories. Each FR is the minimum surface needed to support the workflow.</div>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-label">Approval routing</div>
+            <div class="card" style="background: var(--bg-canvas);">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="avatar">JD</div>
+                <div><div class="text-sm">Joana de Klerk</div><div class="text-xs text-tertiary">Owner</div></div>
+                <span class="badge badge-success" style="margin-left:auto;">✓</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="avatar">MA</div>
+                <div><div class="text-sm">Marcus Acker</div><div class="text-xs text-tertiary">Architect</div></div>
+                <span class="badge badge-warning" style="margin-left:auto;">Pending</span>
+              </div>
+            </div>
+            <div class="text-xs text-tertiary mt-2">Mode: All approvers required</div>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-label">Cost</div>
+            <div class="inspector-row"><span class="key">This section</span><span class="val tabular">$0.42</span></div>
+            <div class="inspector-row"><span class="key">Total PRD</span><span class="val tabular">$2.10</span></div>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-label">Quality signals</div>
+            <div class="inspector-row"><span class="key">Coverage of intent</span><span class="val text-success">100%</span></div>
+            <div class="inspector-row"><span class="key">Cross-section consistency</span><span class="val text-success">No conflicts</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

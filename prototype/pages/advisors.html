@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advisors — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const advisorsContextNav = (active) => ({
+  title: 'Advisors',
+  sections: [
+    { heading: 'Overview', items: [
+      { id: 'all', label: 'All advisors', active: active === 'all', href: 'advisors.html' }
+    ]},
+    { heading: 'Quality', items: [
+      { id: 'seo', label: 'SEO', active: active === 'seo', href: 'advisors-seo.html' },
+      { id: 'lighthouse', label: 'Lighthouse / Performance', active: active === 'lighthouse', href: 'advisors-lighthouse.html' },
+      { id: 'a11y', label: 'Accessibility', active: active === 'a11y', href: 'advisors-a11y.html' },
+      { id: 'best-practices', label: 'Best Practices', active: active === 'best-practices', href: 'advisors-best-practices.html' }
+    ]},
+    { heading: 'Security', items: [
+      { id: 'cve', label: 'CVE / Dependencies', active: active === 'cve', href: 'advisors-cve.html' },
+      { id: 'pentest', label: 'Pentest / DAST', active: active === 'pentest', href: 'advisors-pentest.html' },
+      { id: 'sast', label: 'SAST / Static analysis', active: active === 'sast', href: 'advisors-sast.html' }
+    ]},
+    { heading: 'Database', items: [
+      { id: 'db-security', label: 'DB Security', active: active === 'db-security', href: 'database-security-advisor.html' },
+      { id: 'db-perf', label: 'DB Performance', active: active === 'db-perf', href: 'database-performance-advisor.html' },
+      { id: 'query-perf', label: 'Query Performance', active: active === 'query-perf', href: 'database-query-performance.html' }
+    ]},
+    { heading: 'Cost', items: [
+      { id: 'cost', label: 'Cost optimisation', active: active === 'cost', href: 'advisors-cost.html' }
+    ]}
+  ]
+});
+
+window.advisorsContextNav = advisorsContextNav;
+
+const groups = [
+  { title: 'Quality', items: [
+    ['SEO', 'seo', '78', 'medium', '6 issues', 'advisors-seo.html', 'Meta tags, structured data, sitemap, OG cards'],
+    ['Lighthouse / Performance', 'lighthouse', '92', 'good', '3 opportunities', 'advisors-lighthouse.html', 'LCP 1.8s · CLS 0.04 · INP 187ms'],
+    ['Accessibility', 'a11y', '96', 'good', '2 issues', 'advisors-a11y.html', 'WCAG 2.1 AA · 2 contrast warnings'],
+    ['Best Practices', 'best-practices', '100', 'good', '0 issues', 'advisors-best-practices.html', 'HTTPS · no console errors · modern APIs']
+  ]},
+  { title: 'Security', items: [
+    ['CVE / Dependencies', 'cve', '—', 'attention', '4 vulns', 'advisors-cve.html', '1 high · 2 medium · 1 low across 412 deps'],
+    ['Pentest / DAST', 'pentest', '—', 'good', '0 high', 'advisors-pentest.html', 'OWASP Top 10 · last scan 4 days ago'],
+    ['SAST / Static analysis', 'sast', '—', 'good', '0 critical', 'advisors-sast.html', 'No eval, no child_process, no fs/net direct']
+  ]},
+  { title: 'Database', items: [
+    ['DB Security', 'db-security', '—', 'attention', '3 issues', 'database-security-advisor.html', 'RLS disabled on 22 tables'],
+    ['DB Performance', 'db-perf', '—', 'medium', '7 optimisations', 'database-performance-advisor.html', 'Missing indexes, bloat, unused indexes'],
+    ['Query Performance', 'query-perf', '—', 'good', 'normal', 'database-query-performance.html', 'p95 < 200ms across all routes']
+  ]},
+  { title: 'Cost', items: [
+    ['Cost optimisation', 'cost', '—', 'medium', '$23/mo savings', 'advisors-cost.html', 'AI token usage, idle resources']
+  ]}
+];
+
+function statusColor(s) {
+  if (s === 'good') return 'success';
+  if (s === 'medium') return 'warning';
+  if (s === 'attention') return 'danger';
+  return 'default';
+}
+
+Shell.render({
+  mode: 'advisors',
+  contextNav: advisorsContextNav('all'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Advisors</h1>
+          <div class="subtitle">Quality, security, performance, cost — across the entire platform. Last full scan 12 minutes ago.</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Settings</button>
+          <button class="btn btn-secondary btn-sm">Schedule scan</button>
+          <button class="btn btn-primary btn-sm" onclick="Shell.toast('Re-running all advisor scans...', 'info')">▶ Re-scan all</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-6">
+        <div class="stat-card">
+          <div class="stat-label">Quality score</div>
+          <div class="stat-value">91</div>
+          <div class="stat-delta stat-up">+3 vs last week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Open security issues</div>
+          <div class="stat-value text-warning">7</div>
+          <div class="stat-delta text-secondary">1 high · 4 medium · 2 low</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">DB advisories</div>
+          <div class="stat-value">10</div>
+          <div class="stat-delta text-secondary">3 sec · 7 perf</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Cost savings available</div>
+          <div class="stat-value">$23<span style="font-size: 13px; color: var(--fg-secondary); font-weight: 400;">/mo</span></div>
+          <div class="stat-delta text-secondary">12% of current spend</div>
+        </div>
+      </div>
+
+      ${groups.map(g => `
+        <div style="margin-bottom: 32px;">
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-tertiary); margin-bottom: 12px;">${g.title}</div>
+          <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
+            ${g.items.map(([title, id, score, status, finding, href, desc]) => `
+              <a href="${href}" class="card" style="text-decoration: none; color: inherit; cursor: pointer; transition: all 100ms cubic-bezier(0.2, 0, 0, 1);" onmouseover="this.style.borderColor='var(--accent-primary)'" onmouseout="this.style.borderColor=''">
+                <div class="flex justify-between items-start mb-3">
+                  <div>
+                    <div class="font-semibold" style="font-size: 13px;">${title}</div>
+                    <div class="text-xs text-tertiary mt-1">${desc}</div>
+                  </div>
+                  ${score !== '—' ? `<div style="font-size: 22px; font-weight: 600; color: var(--fg-${status === 'good' ? 'success' : status === 'medium' ? 'warning' : 'danger'}); font-variant-numeric: tabular-nums;">${score}</div>` : ''}
+                </div>
+                <div class="flex items-center gap-2 pt-2" style="border-top: 1px solid var(--border-default);">
+                  <span class="badge badge-${statusColor(status)}" style="font-size: 9px;">${status === 'good' ? 'Good' : status === 'medium' ? 'Watch' : status === 'attention' ? 'Attention' : '—'}</span>
+                  <span class="text-xs text-secondary">${finding}</span>
+                </div>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `
+});
+</script>
+</body>
+</html>

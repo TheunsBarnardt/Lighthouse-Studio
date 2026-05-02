@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uptime — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+.uptime-bar { display: flex; gap: 1px; height: 28px; }
+.uptime-bar .day {
+  flex: 1; min-width: 4px; border-radius: 1px;
+  background: var(--fg-success); cursor: pointer;
+}
+.uptime-bar .day.degraded { background: var(--fg-warning); }
+.uptime-bar .day.outage { background: var(--fg-danger); }
+.uptime-bar .day:hover { transform: scaleY(1.1); }
+</style>
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+function uptimeBar(days = 90, outages = []) {
+  return `<div class="uptime-bar">${Array(days).fill(0).map((_, i) => {
+    const idx = days - 1 - i;
+    let cls = '';
+    if (outages.includes(idx)) cls = 'outage';
+    else if (idx === 14 || idx === 47) cls = 'degraded';
+    return `<div class="day ${cls}" title="Day -${idx}"></div>`;
+  }).join('')}</div>`;
+}
+
+const services = [
+  ['API · REST', '99.97%', uptimeBar(90, [3])],
+  ['API · GraphQL', '99.99%', uptimeBar(90, [])],
+  ['Database · primary', '100%', uptimeBar(90, [])],
+  ['Database · read replica', '99.92%', uptimeBar(90, [12, 47])],
+  ['Edge functions', '99.94%', uptimeBar(90, [22])],
+  ['Storage', '100%', uptimeBar(90, [])],
+  ['Realtime', '99.98%', uptimeBar(90, [3])],
+  ['Auth', '100%', uptimeBar(90, [])]
+];
+
+Shell.render({
+  mode: 'observability',
+  contextNav: observabilityContextNav('uptime'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Uptime / Status</h1>
+          <div class="subtitle">All systems operational · Last incident 3 days ago · Public status: status.acme.platform.local</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Public status page</button>
+          <button class="btn btn-secondary btn-sm">Incident history</button>
+          <button class="btn btn-primary btn-sm">+ Incident</button>
+        </div>
+      </div>
+
+      <div class="card mb-4" style="background: var(--bg-success-subtle); border-color: var(--fg-success);">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-3">
+            <div style="width: 12px; height: 12px; background: var(--fg-success); border-radius: 50%; flex-shrink: 0;"></div>
+            <div>
+              <div class="font-semibold">All systems operational</div>
+              <div class="text-sm text-secondary">8 of 8 services responding normally · last check 30 seconds ago</div>
+            </div>
+          </div>
+          <div class="text-2xl font-bold text-success" style="font-variant-numeric: tabular-nums;">99.97%</div>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">90-day uptime</div><div class="stat-value text-success">99.97%</div><div class="stat-delta text-secondary">SLA: 99.9%</div></div>
+        <div class="stat-card"><div class="stat-label">30-day uptime</div><div class="stat-value text-success">99.99%</div><div class="stat-delta text-secondary">no incidents</div></div>
+        <div class="stat-card"><div class="stat-label">Total downtime · 90d</div><div class="stat-value">37m</div><div class="stat-delta text-secondary">3 incidents</div></div>
+        <div class="stat-card"><div class="stat-label">MTTR</div><div class="stat-value">12m</div><div class="stat-delta stat-up">−4m vs prior</div></div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">Service status · last 90 days</div>
+          <div class="text-xs text-tertiary">
+            <span style="display: inline-flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; background: var(--fg-success); border-radius: 1px;"></span>Up</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; margin-left: 12px;"><span style="width: 8px; height: 8px; background: var(--fg-warning); border-radius: 1px;"></span>Degraded</span>
+            <span style="display: inline-flex; align-items: center; gap: 4px; margin-left: 12px;"><span style="width: 8px; height: 8px; background: var(--fg-danger); border-radius: 1px;"></span>Down</span>
+          </div>
+        </div>
+        ${services.map(([name, pct, bar]) => `
+          <div style="margin-bottom: 16px;">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-medium text-sm">${name}</span>
+              <span class="text-success font-semibold tabular text-sm">${pct}</span>
+            </div>
+            ${bar}
+          </div>
+        `).join('')}
+        <div class="flex justify-between text-xs text-tertiary mt-2">
+          <span>90 days ago</span>
+          <span>Today</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Incident history</div></div>
+        <table class="data-table">
+          <thead><tr><th>When</th><th>Service</th><th>Type</th><th>Duration</th><th>Impact</th><th>Resolution</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="text-tertiary text-xs">3 days ago</td>
+              <td>API · REST</td>
+              <td><span class="badge badge-warning">Degraded</span></td>
+              <td class="tabular text-xs">14m</td>
+              <td class="text-sm">Elevated latency on /functions/v1/*</td>
+              <td class="text-secondary text-xs">Edge function pool restart</td>
+            </tr>
+            <tr>
+              <td class="text-tertiary text-xs">14 days ago</td>
+              <td>DB · read replica</td>
+              <td><span class="badge badge-warning">Degraded</span></td>
+              <td class="tabular text-xs">8m</td>
+              <td class="text-sm">Replica lag spike</td>
+              <td class="text-secondary text-xs">Auto-failover succeeded</td>
+            </tr>
+            <tr>
+              <td class="text-tertiary text-xs">22 days ago</td>
+              <td>Edge functions</td>
+              <td><span class="badge badge-danger">Outage</span></td>
+              <td class="tabular text-xs">4m</td>
+              <td class="text-sm">All edge function invocations failed</td>
+              <td class="text-secondary text-xs">Bad deploy rolled back</td>
+            </tr>
+            <tr>
+              <td class="text-tertiary text-xs">47 days ago</td>
+              <td>DB · read replica</td>
+              <td><span class="badge badge-warning">Degraded</span></td>
+              <td class="tabular text-xs">11m</td>
+              <td class="text-sm">High connection pool usage</td>
+              <td class="text-secondary text-xs">Pool size increased</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Generation — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+.app-preview-frame { background: var(--bg-canvas); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; height: calc(100vh - 44px - 44px - 200px); display: flex; flex-direction: column; }
+.app-preview-bar { background: var(--bg-surface); padding: 8px 12px; border-bottom: 1px solid var(--border-default); display: flex; align-items: center; gap: 12px; font-size: 11px; color: var(--fg-tertiary); }
+.url-bar { flex: 1; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-sm); padding: 4px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--fg-secondary); }
+</style>
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const componentGroups = [
+  ['Pages', [['ContactsListPage','approved'],['ContactDetailPage','approved'],['DealKanbanPage','in_review'],['DealDetailPage','in_review']]],
+  ['Forms', [['ContactForm','approved'],['DealForm','in_review'],['ActivityForm','pending']]],
+  ['Tables', [['ContactsTable','approved'],['ActivitiesTimeline','approved']]],
+  ['Workflows', [['DealStageTransition','in_review'],['CSVContactImport','pending']]],
+  ['Auth', [['SignInPage','approved'],['MFASetup','approved']]]
+];
+
+Shell.render({
+  mode: 'ai-pipeline',
+  contextNav: aiPipelineContextNav('ui-gen'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page-fullbleed">
+      ${Shell.pipelineStepper('ui-gen')}
+      <div class="three-pane" style="height: calc(100vh - 44px - 44px);">
+        <div class="pane-left">
+          <div class="font-semibold mb-3">Generated components</div>
+          <div class="text-xs text-tertiary mb-3">14 · Permission-aware · WCAG AA</div>
+          ${componentGroups.map(([g, items]) => `
+            <div class="text-xs font-medium text-tertiary mt-3 mb-1" style="text-transform:uppercase; letter-spacing: 0.05em;">${g}</div>
+            ${items.map(([name, s]) => `
+              <div class="contextnav-item ${name === 'DealKanbanPage' ? 'active' : ''}" style="padding: 4px 8px; font-size: 12px;">
+                <span style="background: ${s==='approved'?'var(--fg-success)':s==='in_review'?'var(--fg-warning)':'var(--border-emphasis)'}; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;"></span>
+                <span class="mono">${name}</span>
+              </div>
+            `).join('')}
+          `).join('')}
+        </div>
+        <div class="pane-center">
+          <div class="page-header" style="margin-bottom: 16px;">
+            <div><h1 style="font-size: 18px;">DealKanbanPage</h1><div class="subtitle">142 lines · React + Tailwind · 0 lint errors · 0 a11y failures</div></div>
+            <div class="page-header-actions">
+              <a class="btn btn-secondary btn-sm" href="designer.html" title="Edit this in the Page Designer · same canvas">Edit in Designer →</a>
+              <button class="btn btn-secondary btn-sm">Regenerate</button>
+              <button class="btn btn-primary btn-sm" onclick="Shell.toast('Component approved.', 'success')">Approve</button>
+            </div>
+          </div>
+          <div class="tabs">
+            <div class="tab active">Preview</div>
+            <div class="tab">Code</div>
+            <div class="tab">Storybook</div>
+            <div class="tab">A11y</div>
+          </div>
+          <div class="app-preview-frame">
+            <div class="app-preview-bar">
+              <span style="display: inline-flex; gap: 4px;">
+                <span style="width:10px;height:10px;border-radius:50%;background:#FF5F57"></span>
+                <span style="width:10px;height:10px;border-radius:50%;background:#FFBD2E"></span>
+                <span style="width:10px;height:10px;border-radius:50%;background:#28C840"></span>
+              </span>
+              <div class="url-bar">app.acme.example.com/deals</div>
+              <span class="text-xs">Mock · 14 deals</span>
+            </div>
+            <div style="flex: 1; overflow: auto; background: oklch(0.99 0.002 145); padding: 16px; font-family: 'Inter', sans-serif;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div>
+                  <div style="font-size: 20px; font-weight: 600; color: oklch(0.20 0.01 145);">Deal Pipeline</div>
+                  <div style="font-size: 12px; color: oklch(0.50 0.005 145);">14 active · $387,420</div>
+                </div>
+                <button style="background: oklch(0.50 0.16 145); color: white; padding: 8px 14px; border-radius: 6px; border: none; font-size: 13px; font-weight: 500;">+ New deal</button>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px;">
+                ${['Lead','Qualified','Proposal','Negotiation','Won','Lost'].map((stage, i) => `
+                  <div style="background: oklch(0.96 0.005 145); border-radius: 6px; padding: 10px;">
+                    <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: oklch(0.40 0.005 145); margin-bottom: 8px;">${stage}</div>
+                    ${[1,2,3].slice(0, [3,2,3,2,1,1][i]).map(j => `
+                      <div style="background: white; border: 1px solid oklch(0.90 0.005 145); border-radius: 4px; padding: 8px; margin-bottom: 6px;">
+                        <div style="font-size: 12px; font-weight: 500; color: oklch(0.20 0.01 145);">${['Acme','Beta','Globex','Initech','Pied Piper','Hooli'][((i*3)+j)%6]}</div>
+                        <div style="font-size: 11px; color: oklch(0.50 0.005 145); margin-top: 2px;">$${[12,24,47,89,130,56][((i*3)+j)%6]}k</div>
+                      </div>
+                    `).join('')}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="pane-right">
+          <div class="inspector-section">
+            <div class="inspector-label">Reasoning</div>
+            <div class="text-sm text-secondary">Kanban generated because PRD FR-5 specified drag-between-stages.</div>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-label">Quality</div>
+            <div class="inspector-row"><span class="key">TypeScript</span><span class="val text-success">✓</span></div>
+            <div class="inspector-row"><span class="key">ESLint</span><span class="val text-success">✓</span></div>
+            <div class="inspector-row"><span class="key">axe-core</span><span class="val text-success">✓ AA</span></div>
+            <div class="inspector-row"><span class="key">Mobile</span><span class="val text-success">✓</span></div>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-label">Permissions</div>
+            <div class="inspector-row"><span class="key">View deals</span><span class="val mono text-xs">deals.read</span></div>
+            <div class="inspector-row"><span class="key">Edit deals</span><span class="val mono text-xs">deals.update</span></div>
+          </div>
+          <div class="inspector-section">
+            <div class="inspector-label">Cost</div>
+            <div class="inspector-row"><span class="key">This component</span><span class="val tabular">$1.84</span></div>
+            <div class="inspector-row"><span class="key">Total project</span><span class="val tabular">$18.50</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

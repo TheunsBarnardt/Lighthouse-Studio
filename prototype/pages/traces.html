@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traces — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+.span-row { display: grid; grid-template-columns: 240px 1fr 80px; gap: 12px; align-items: center; padding: 4px 0; font-size: 11px; }
+.span-bar { height: 16px; background: var(--bg-canvas); border-radius: 2px; position: relative; }
+.span-fill { position: absolute; top: 0; bottom: 0; background: var(--accent-primary); border-radius: 2px; }
+.span-fill.db { background: oklch(0.55 0.16 145); }
+.span-fill.fn { background: oklch(0.55 0.16 75); }
+.span-fill.ext { background: oklch(0.55 0.18 25); }
+</style>
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const traces = [
+  ['trace_a3f291c', 'POST /functions/v1/exportDealsCSV', 1247, 'success', '12 min ago', 8],
+  ['trace_b8e147a', 'GET /rest/v1/deals?stage=eq.WON', 187, 'success', '14 min ago', 3],
+  ['trace_4d92e3c', 'POST /functions/v1/syncCalendarEvent', 8421, 'error', '47 min ago', 12],
+  ['trace_7c2f9eb', 'PATCH /rest/v1/deals/d2a8-...', 94, 'success', '1h ago', 4],
+  ['trace_2a14d6e', 'GET /rest/v1/contacts/search', 312, 'success', '1h ago', 5]
+];
+
+Shell.render({
+  mode: 'observability',
+  contextNav: observabilityContextNav('traces'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1400px;">
+      <div class="page-header">
+        <div>
+          <h1>Traces</h1>
+          <div class="subtitle">Distributed tracing · OpenTelemetry · 1.2M spans · last 24 hours</div>
+        </div>
+        <div class="page-header-actions">
+          <input class="input input-h28" placeholder="trace ID, endpoint, or filter..." style="width: 280px;" />
+          <select class="select input-h28" style="width: 120px;"><option>Last hour</option><option>Last 24h</option></select>
+          <button class="btn btn-primary btn-sm">Search</button>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 2fr; gap: 16px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Recent traces</div></div>
+          <table class="data-table">
+            <thead><tr><th>Endpoint</th><th class="tabular">Duration</th><th>Status</th></tr></thead>
+            <tbody>
+              ${traces.map(([id, ep, dur, status, when, spans]) => `
+                <tr style="cursor: pointer;" onclick="Shell.toast('Loading ' + '${id}', 'info')">
+                  <td>
+                    <div class="font-medium text-xs mono">${ep}</div>
+                    <div class="text-xs text-tertiary">${id} · ${spans} spans · ${when}</div>
+                  </td>
+                  <td class="tabular text-xs ${dur > 1000 ? 'text-warning' : ''} ${dur > 5000 ? 'text-danger' : ''}">${dur}ms</td>
+                  <td>${status === 'success' ? '<span class="badge badge-success">OK</span>' : '<span class="badge badge-danger">Error</span>'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Trace · trace_a3f291c</div>
+            <span class="text-xs text-tertiary">POST /functions/v1/exportDealsCSV · 1,247ms · 8 spans</span>
+          </div>
+
+          <div style="padding: 12px 0;">
+            <div class="span-row" style="font-weight: 600; color: var(--fg-tertiary); font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em;">
+              <span>Span</span>
+              <span>Timing</span>
+              <span class="tabular" style="text-align: right;">Duration</span>
+            </div>
+            <div class="span-row" style="border-top: 1px solid var(--border-default); margin-top: 4px; padding-top: 8px;">
+              <span class="mono">edge_function.invoke</span>
+              <div class="span-bar"><div class="span-fill fn" style="left: 0%; width: 100%;"></div></div>
+              <span class="tabular" style="text-align: right;">1,247ms</span>
+            </div>
+            <div class="span-row" style="padding-left: 12px;">
+              <span class="mono text-secondary">└ auth.verify_jwt</span>
+              <div class="span-bar"><div class="span-fill" style="left: 0%; width: 1.2%;"></div></div>
+              <span class="tabular" style="text-align: right;">15ms</span>
+            </div>
+            <div class="span-row" style="padding-left: 12px;">
+              <span class="mono text-secondary">└ db.query</span>
+              <div class="span-bar"><div class="span-fill db" style="left: 1.5%; width: 18%;"></div></div>
+              <span class="tabular" style="text-align: right;">224ms</span>
+            </div>
+            <div class="span-row" style="padding-left: 24px;">
+              <span class="mono text-secondary">  └ pg.select deals</span>
+              <div class="span-bar"><div class="span-fill db" style="left: 1.5%; width: 18%;"></div></div>
+              <span class="tabular" style="text-align: right;">218ms</span>
+            </div>
+            <div class="span-row" style="padding-left: 12px;">
+              <span class="mono text-secondary">└ csv.serialize</span>
+              <div class="span-bar"><div class="span-fill fn" style="left: 20%; width: 8%;"></div></div>
+              <span class="tabular" style="text-align: right;">94ms</span>
+            </div>
+            <div class="span-row" style="padding-left: 12px;">
+              <span class="mono text-secondary">└ storage.upload</span>
+              <div class="span-bar"><div class="span-fill ext" style="left: 28%; width: 70%;"></div></div>
+              <span class="tabular" style="text-align: right;">874ms</span>
+            </div>
+            <div class="span-row" style="padding-left: 24px;">
+              <span class="mono text-secondary">  └ b2.put_object</span>
+              <div class="span-bar"><div class="span-fill ext" style="left: 28%; width: 68%;"></div></div>
+              <span class="tabular" style="text-align: right;">847ms</span>
+            </div>
+            <div class="span-row" style="padding-left: 12px;">
+              <span class="mono text-secondary">└ storage.sign_url</span>
+              <div class="span-bar"><div class="span-fill" style="left: 98%; width: 2%;"></div></div>
+              <span class="tabular" style="text-align: right;">28ms</span>
+            </div>
+          </div>
+
+          <div class="card mt-3" style="background: var(--bg-canvas);">
+            <div class="text-xs font-medium mb-2" style="text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-tertiary);">Insights</div>
+            <div class="text-sm">
+              <strong>70% of total time spent in Backblaze B2 upload.</strong>
+              Consider streaming the response instead of buffering. Could reduce p95 from 1.2s to ~400ms.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

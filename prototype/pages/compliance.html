@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compliance — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Compliance',
+  sections: [
+    { heading: 'Frameworks', items: [
+      { id: 'overview', label: 'Overview', active: true, href: '#' },
+      { id: 'soc2', label: 'SOC 2', href: '#' },
+      { id: 'gdpr', label: 'GDPR', href: '#' },
+      { id: 'hipaa', label: 'HIPAA', href: '#' },
+      { id: 'iso27001', label: 'ISO 27001', href: '#' }
+    ]},
+    { heading: 'Evidence', items: [
+      { id: 'audit-log', label: 'Audit log', href: '#' },
+      { id: 'data-residency', label: 'Data residency', href: '#' },
+      { id: 'data-retention', label: 'Retention policies', href: '#' }
+    ]},
+    { heading: 'DSAR', items: [
+      { id: 'dsar-export', label: 'Export user data', href: '#' },
+      { id: 'dsar-delete', label: 'Delete user data', href: '#' }
+    ]}
+  ]
+};
+
+const frameworks = [
+  ['SOC 2 Type II', 'Type II report · auditor: SecureAuditCo · valid through 2026-09', '94%', 'mostly-ready', 'Annual audit · last attestation 8 months ago'],
+  ['GDPR', 'Active across all EU customer data', '100%', 'compliant', 'DPO assigned · DPA available · DSAR endpoint live'],
+  ['HIPAA', 'Not enabled (no PHI in current schema)', '—', 'not-applicable', 'Enable when PHI categories added to schema'],
+  ['ISO 27001:2022', 'Pre-audit · gap analysis complete', '78%', 'in-progress', 'Estimated 4 months to certification']
+];
+
+const controls = [
+  ['Encryption at rest', 'pass', 'AES-256 across all PostgreSQL data, storage, and backups'],
+  ['Encryption in transit', 'pass', 'TLS 1.3 enforced · HSTS preload · no plaintext anywhere'],
+  ['MFA enforced', 'pass', '47/47 admin accounts · 142/142 user accounts'],
+  ['Access reviews quarterly', 'pass', 'Last review: 22 days ago · next: 68 days'],
+  ['Incident response plan', 'pass', 'Documented · tested 47 days ago · MTTR 12m'],
+  ['Vendor risk assessment', 'pass', 'All 8 sub-processors reviewed last quarter'],
+  ['Data retention policy', 'warn', 'Some logs retained 47d · policy says 30d max'],
+  ['Backup testing', 'pass', 'Auto-drill every 7 days · last: succeeded'],
+  ['Vulnerability scanning', 'pass', 'CVE + DAST + SAST · all running · 2 medium open'],
+  ['Audit log integrity', 'pass', 'Hash-chained · cryptographically verifiable']
+];
+
+Shell.render({
+  mode: 'settings',
+  contextNav,
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Compliance</h1>
+          <div class="subtitle">Continuous compliance monitoring · Evidence collection automated · Last refresh 12 minutes ago</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Evidence pack</button>
+          <button class="btn btn-secondary btn-sm">Audit log</button>
+          <button class="btn btn-primary btn-sm">Run assessment</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        ${frameworks.map(([name, desc, score, status, foot]) => `
+          <div class="card">
+            <div class="font-semibold mb-1" style="font-size: 13px;">${name}</div>
+            <div class="text-xs text-secondary mb-3" style="line-height: 1.5;">${desc}</div>
+            ${score !== '—' ? `
+              <div class="flex items-baseline gap-2 mb-2">
+                <div class="text-2xl font-bold ${status === 'compliant' ? 'text-success' : status === 'mostly-ready' ? 'text-warning' : 'text-warning'} tabular">${score}</div>
+                <div class="text-xs text-tertiary">controls met</div>
+              </div>
+            ` : ''}
+            <div>${status === 'compliant' ? '<span class="badge badge-success">Compliant</span>' : status === 'mostly-ready' ? '<span class="badge badge-warning">Audit-ready</span>' : status === 'in-progress' ? '<span class="badge badge-info">In progress</span>' : '<span class="badge badge-default">Not enabled</span>'}</div>
+            <div class="text-xs text-tertiary mt-2">${foot}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Control checks · automated evidence</div></div>
+        <table class="data-table">
+          <thead><tr><th style="width: 40px;"></th><th>Control</th><th>Evidence</th><th>Last verified</th><th></th></tr></thead>
+          <tbody>
+            ${controls.map(([name, status, evidence]) => `
+              <tr>
+                <td><div class="audit-icon ${status === 'pass' ? 'pass' : 'warn'}" style="margin: 0 auto;">${status === 'pass' ? '✓' : '!'}</div></td>
+                <td class="font-medium text-sm">${name}</td>
+                <td class="text-xs text-secondary">${evidence}</td>
+                <td class="text-tertiary text-xs">12 min ago</td>
+                <td><button class="btn btn-ghost btn-xs">Evidence</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Data residency</div></div>
+          <div class="inspector-row"><span class="key">Primary database</span><span class="val">us-east-1</span></div>
+          <div class="inspector-row"><span class="key">Read replicas</span><span class="val">eu-west-1, ap-south-1</span></div>
+          <div class="inspector-row"><span class="key">Backup storage</span><span class="val">us-east-1 · eu-west-1</span></div>
+          <div class="inspector-row"><span class="key">EU customer data pinned to EU</span><span class="val text-success">Yes (RLS)</span></div>
+          <div class="inspector-row"><span class="key">Cross-border transfers</span><span class="val">SCCs in place</span></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Sub-processors</div></div>
+          <div class="inspector-row"><span class="key">Anthropic</span><span class="val text-secondary">AI inference · DPA signed</span></div>
+          <div class="inspector-row"><span class="key">Backblaze B2</span><span class="val text-secondary">Object storage · DPA signed</span></div>
+          <div class="inspector-row"><span class="key">PostgreSQL host</span><span class="val text-secondary">Self-hosted on Coolify</span></div>
+          <div class="inspector-row"><span class="key">Email</span><span class="val text-secondary">Resend · DPA signed</span></div>
+          <div class="inspector-row"><span class="key">Microsoft 365</span><span class="val text-secondary">Customer integration · varies</span></div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

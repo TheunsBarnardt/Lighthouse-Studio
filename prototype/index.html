@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Prototype — Index</title>
+<link rel="stylesheet" href="shared/tokens.css">
+<link rel="stylesheet" href="shared/components.css">
+<style>
+.index-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 32px;
+}
+.index-header {
+  margin-bottom: 48px;
+}
+.index-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--fg-primary);
+}
+.index-header .subtitle {
+  font-size: 15px;
+  color: var(--fg-secondary);
+  max-width: 720px;
+  line-height: 22px;
+}
+.index-section {
+  margin-bottom: 40px;
+}
+.index-section-heading {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-tertiary);
+  margin-bottom: 16px;
+}
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+.index-card {
+  display: block;
+  padding: 16px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: inherit;
+  transition: all 100ms cubic-bezier(0.2, 0, 0, 1);
+}
+.index-card:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-hover);
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+.index-card .icon {
+  font-size: 18px;
+  margin-bottom: 10px;
+  display: inline-block;
+  color: var(--accent-primary);
+}
+.index-card .title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.index-card .desc {
+  font-size: 12px;
+  color: var(--fg-secondary);
+  line-height: 16px;
+}
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+}
+</style>
+</head>
+<body>
+<button class="btn btn-secondary btn-sm theme-toggle" onclick="toggleTheme()">Toggle theme</button>
+
+<div class="index-page">
+  <div class="index-header">
+    <h1>Platform Prototype</h1>
+    <div class="subtitle">
+      Click-through prototype for the AI-driven app platform. Two surfaces:
+      the <strong>AI pipeline</strong> (light/dark with our deep blue brand) and the
+      <strong>data plane</strong> (Supabase-fidelity dark, our brand overlaid).
+      Each page is standalone — open them directly or use the icon nav inside any page.
+    </div>
+  </div>
+
+  <div class="index-section">
+    <div class="index-section-heading">Workspace · Assets, Chrome, Blocks</div>
+    <div class="index-grid">
+      <a class="index-card" href="pages/assets.html"><span class="icon">◈</span><div class="title">Workspace Assets</div><div class="desc">Logos, brand colors, fonts, reference docs · feeds AI Pipeline.</div></a>
+      <a class="index-card" href="pages/blocks-library.html"><span class="icon">▤</span><div class="title">Blocks Library</div><div class="desc">Workspace catalog with Design / Code tabs.</div></a>
+      <a class="index-card" href="pages/app-chrome.html"><span class="icon">◱</span><div class="title">App Chrome</div><div class="desc">Configure header, footer, sidenav once for the whole app.</div></a>
+      <a class="index-card" href="pages/designer.html"><span class="icon">◰</span><div class="title">Page Designer</div><div class="desc">Edit existing pages · same canvas as Stage 6 · AI always on.</div></a>
+    </div>
+  </div>
+
+  <div class="index-section">
+    <div class="index-section-heading">Documentation</div>
+    <div class="index-grid">
+      <a class="index-card" href="pages/project-docs.html"><span class="icon">⎙</span><div class="title">Project Documentation</div><div class="desc">Live integrated docs · 60% auto-generated · standalone export.</div></a>
+      <a class="index-card" href="pages/docs.html"><span class="icon">?</span><div class="title">Platform Help & Docs</div><div class="desc">Quickstart, reference, architecture for the platform itself.</div></a>
+    </div>
+  </div>
+
+  <div class="index-section">
+    <div class="index-section-heading">Home & Pipeline</div>
+    <div class="index-grid">
+      <a class="index-card" href="pages/home.html"><span class="icon">⌂</span><div class="title">Home</div><div class="desc">Workspace overview, recent projects, quick actions.</div></a>
+      <a class="index-card" href="pages/ai-pipeline-overview.html"><span class="icon">✦</span><div class="title">AI Pipeline · Project</div><div class="desc">Active project at-a-glance with stage progress.</div></a>
+      <a class="index-card" href="pages/ai-pipeline-intent.html"><span class="icon">1</span><div class="title">Stage 1 · Intent</div><div class="desc">Conversational capture; brief on the right.</div></a>
+      <a class="index-card" href="pages/ai-pipeline-prd.html"><span class="icon">2</span><div class="title">Stage 2 · PRD</div><div class="desc">Section-by-section requirements with reasoning.</div></a>
+      <a class="index-card" href="pages/ai-pipeline-design-tokens.html"><span class="icon">3</span><div class="title">Stage 3 · Design Tokens</div><div class="desc">Brand-derived tokens with WCAG checks.</div></a>
+      <a class="index-card" href="pages/ai-pipeline-schema-synthesis.html"><span class="icon">4</span><div class="title">Stage 4 · Schema Synthesis</div><div class="desc">Tables + relationships, with PII detection.</div></a>
+      <a class="index-card" href="pages/ai-pipeline-data-migration.html"><span class="icon">5</span><div class="title">Stage 5 · Data Migration</div><div class="desc">Optional stage for legacy data import.</div></a>
+      <a class="index-card" href="pages/ai-pipeline-ui-gen.html"><span class="icon">6</span><div class="title">Stage 6 · UI Generation</div><div class="desc">Component browser with live preview.</div></a>
+      <a class="index-card" href="pages/ai-pipeline-code-gen.html"><span class="icon">7</span><div class="title">Stage 7 · Code Generation</div><div class="desc">Server functions with sandbox limits.</div></a>
+      <a class="index-card" href="pages/ai-pipeline-test-gen.html"><span class="icon">8</span><div class="title">Stage 8 · Tests</div><div class="desc">Generated tests with AC coverage.</div></a>
+      <a class="index-card" href="pages/ai-pipeline-deployment.html"><span class="icon">9</span><div class="title">Stage 9 · Deployment</div><div class="desc">Multi-env promotion with audit trail.</div></a>
+      <a class="index-card" href="pages/ai-pipeline-maintenance.html"><span class="icon">10</span><div class="title">Stage 10 · Maintenance</div><div class="desc">Production signals → change requests.</div></a>
+    </div>
+  </div>
+
+  <div class="index-section">
+    <div class="index-section-heading">Data Plane (Supabase-fidelity)</div>
+    <div class="index-grid">
+      <a class="index-card" href="pages/table-editor.html"><span class="icon">▦</span><div class="title">Table Editor</div><div class="desc">Tabbed grid with action bar, RLS badges, inline column types.</div></a>
+      <a class="index-card" href="pages/sql-editor.html"><span class="icon">▶_</span><div class="title">SQL Editor</div><div class="desc">Saved queries panel + Run pill with results panel.</div></a>
+      <a class="index-card" href="pages/database-schema-visualizer.html"><span class="icon">◷</span><div class="title">Schema Visualizer</div><div class="desc">Canvas with table cards and FK lines.</div></a>
+      <a class="index-card" href="pages/database-tables.html"><span class="icon">≣</span><div class="title">Database Tables</div><div class="desc">Admin view: rows, columns, size, realtime status.</div></a>
+      <a class="index-card" href="pages/database-functions.html"><span class="icon">ƒ</span><div class="title">Database Functions</div><div class="desc">PostgreSQL functions with arguments and volatility.</div></a>
+      <a class="index-card" href="pages/database-triggers.html"><span class="icon">⚡</span><div class="title">Triggers</div><div class="desc">Database triggers per table.</div></a>
+      <a class="index-card" href="pages/database-indexes.html"><span class="icon">⊞</span><div class="title">Indexes</div><div class="desc">Index inventory with sizes.</div></a>
+      <a class="index-card" href="pages/database-extensions.html"><span class="icon">⊕</span><div class="title">Extensions</div><div class="desc">PostgreSQL extension catalog.</div></a>
+      <a class="index-card" href="pages/database-roles.html"><span class="icon">◯</span><div class="title">Roles</div><div class="desc">Database roles and privileges.</div></a>
+      <a class="index-card" href="pages/database-migrations.html"><span class="icon">↗</span><div class="title">Migrations</div><div class="desc">Applied migration history.</div></a>
+    </div>
+  </div>
+
+  <div class="index-section">
+    <div class="index-section-heading">Authentication</div>
+    <div class="index-grid">
+      <a class="index-card" href="pages/auth-users.html"><span class="icon">◯</span><div class="title">Users</div><div class="desc">Workspace members with MFA status.</div></a>
+      <a class="index-card" href="pages/auth-roles.html"><span class="icon">◑</span><div class="title">Roles & Permissions</div><div class="desc">Role catalog with permission counts.</div></a>
+      <a class="index-card" href="pages/auth-approval-routing.html"><span class="icon">⤴</span><div class="title">Approval Routing</div><div class="desc">Configure approvers per pipeline gate.</div></a>
+      <a class="index-card" href="pages/auth-identity-providers.html"><span class="icon">⊞</span><div class="title">Identity Providers</div><div class="desc">Email, Entra ID, OIDC, SAML configuration.</div></a>
+    </div>
+  </div>
+
+  <div class="index-section">
+    <div class="index-section-heading">Approvals & History</div>
+    <div class="index-grid">
+      <a class="index-card" href="pages/approvals.html"><span class="icon">✓</span><div class="title">Approvals queue</div><div class="desc">Single inbox of pending approvals across all gates.</div></a>
+      <a class="index-card" href="pages/generation-history.html"><span class="icon">⟲</span><div class="title">Generation history</div><div class="desc">Every AI call: prompts, outputs, costs, outcomes.</div></a>
+    </div>
+  </div>
+
+  <div class="index-section">
+    <div class="index-section-heading">APIs</div>
+    <div class="index-grid">
+      <a class="index-card" href="pages/apis-rest.html"><span class="icon">⊟</span><div class="title">REST API</div><div class="desc">Auto-generated endpoints, OpenAPI 3.1.</div></a>
+      <a class="index-card" href="pages/apis-graphql.html"><span class="icon">◈</span><div class="title">GraphQL</div><div class="desc">GraphiQL-style explorer with persisted queries.</div></a>
+      <a class="index-card" href="pages/apis-sdk.html"><span class="icon">{ }</span><div class="title">Client SDKs</div><div class="desc">JS/TS, Python, Go — type-safe, auto-generated.</div></a>
+      <a class="index-card" href="pages/apis-keys.html"><span class="icon">⚿</span><div class="title">API Keys</div><div class="desc">Issue, scope, rotate service keys.</div></a>
+      <a class="index-card" href="pages/apis-webhooks-outgoing.html"><span class="icon">↗</span><div class="title">Webhooks · outgoing</div><div class="desc">Notify external systems on events.</div></a>
+      <a class="index-card" href="pages/apis-webhooks-incoming.html"><span class="icon">↙</span><div class="title">Webhooks · incoming</div><div class="desc">Receive events, route to functions.</div></a>
+    </div>
+  </div>
+
+  <div class="index-section">
+    <div class="index-section-heading">Advisors (Quality, Security, Cost)</div>
+    <div class="index-grid">
+      <a class="index-card" href="pages/advisors.html"><span class="icon">◐</span><div class="title">Advisors hub</div><div class="desc">Overview of all advisors across categories.</div></a>
+      <a class="index-card" href="pages/advisors-seo.html"><span class="icon">★</span><div class="title">SEO</div><div class="desc">Lighthouse-style: meta, structured data, crawlability.</div></a>
+      <a class="index-card" href="pages/advisors-lighthouse.html"><span class="icon">⚡</span><div class="title">Lighthouse / Performance</div><div class="desc">Core Web Vitals, opportunities, diagnostics.</div></a>
+      <a class="index-card" href="pages/advisors-a11y.html"><span class="icon">♿</span><div class="title">Accessibility</div><div class="desc">WCAG 2.1 AA · axe-core checks.</div></a>
+      <a class="index-card" href="pages/advisors-best-practices.html"><span class="icon">✓</span><div class="title">Best Practices</div><div class="desc">HTTPS, modern APIs, console hygiene.</div></a>
+      <a class="index-card" href="pages/advisors-cve.html"><span class="icon">⚠</span><div class="title">CVE / Dependencies</div><div class="desc">Snyk/Dependabot-style vuln scanning.</div></a>
+      <a class="index-card" href="pages/advisors-pentest.html"><span class="icon">⊙</span><div class="title">Pentest / DAST</div><div class="desc">OWASP Top 10 dynamic scans.</div></a>
+      <a class="index-card" href="pages/advisors-sast.html"><span class="icon">⊞</span><div class="title">SAST</div><div class="desc">Static analysis: CodeQL + Semgrep.</div></a>
+      <a class="index-card" href="pages/advisors-cost.html"><span class="icon">$</span><div class="title">Cost optimisation</div><div class="desc">Spend breakdown + savings opportunities.</div></a>
+    </div>
+  </div>
+
+  <div class="index-section">
+    <div class="index-section-heading">Observability</div>
+    <div class="index-grid">
+      <a class="index-card" href="pages/metrics.html"><span class="icon">◉</span><div class="title">Metrics</div><div class="desc">Time-series telemetry, OpenTelemetry.</div></a>
+      <a class="index-card" href="pages/traces.html"><span class="icon">≡</span><div class="title">Traces</div><div class="desc">Distributed tracing, span timeline.</div></a>
+      <a class="index-card" href="pages/logs.html"><span class="icon">≡</span><div class="title">Logs</div><div class="desc">Live streams + audit trail.</div></a>
+      <a class="index-card" href="pages/alerts.html"><span class="icon">!</span><div class="title">Alerts</div><div class="desc">Rules, currently firing, history.</div></a>
+      <a class="index-card" href="pages/uptime.html"><span class="icon">◉</span><div class="title">Uptime / Status</div><div class="desc">90-day uptime per service · SLAs.</div></a>
+    </div>
+  </div>
+
+  <div class="index-section">
+    <div class="index-section-heading">Operations</div>
+    <div class="index-grid">
+      <a class="index-card" href="pages/cost-dashboard.html"><span class="icon">$</span><div class="title">Cost & Usage</div><div class="desc">Spend across sources, projects, stages.</div></a>
+      <a class="index-card" href="pages/backups.html"><span class="icon">⎘</span><div class="title">Backups</div><div class="desc">Snapshots, PITR, restore drills.</div></a>
+      <a class="index-card" href="pages/compliance.html"><span class="icon">◈</span><div class="title">Compliance</div><div class="desc">SOC 2, GDPR, ISO 27001, HIPAA.</div></a>
+      <a class="index-card" href="pages/workspaces.html"><span class="icon">◫</span><div class="title">Workspaces</div><div class="desc">Members, roles, plan & billing.</div></a>
+    </div>
+  </div>
+
+  <div class="index-section">
+    <div class="index-section-heading">Other Surfaces</div>
+    <div class="index-grid">
+      <a class="index-card" href="pages/storage.html"><span class="icon">⊞</span><div class="title">Storage</div><div class="desc">Buckets and files.</div></a>
+      <a class="index-card" href="pages/edge-functions.html"><span class="icon">⌥</span><div class="title">Edge Functions</div><div class="desc">Sandboxed serverless functions.</div></a>
+      <a class="index-card" href="pages/realtime.html"><span class="icon">⟳</span><div class="title">Realtime</div><div class="desc">Live connections, channels, presence.</div></a>
+      <a class="index-card" href="pages/integrations.html"><span class="icon">◇</span><div class="title">Integrations</div><div class="desc">External service connections.</div></a>
+      <a class="index-card" href="pages/onboarding.html"><span class="icon">→</span><div class="title">Onboarding wizard</div><div class="desc">First-run setup walkthrough.</div></a>
+      <a class="index-card" href="pages/docs.html"><span class="icon">?</span><div class="title">Docs & Help</div><div class="desc">Quickstart, reference, support.</div></a>
+      <a class="index-card" href="pages/settings.html"><span class="icon">⚙</span><div class="title">Settings</div><div class="desc">Workspace, billing, defaults.</div></a>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleTheme() {
+  const cur = localStorage.getItem('platform-theme') || 'light';
+  const next = cur === 'light' ? 'dark' : 'light';
+  localStorage.setItem('platform-theme', next);
+  document.documentElement.setAttribute('data-theme', next);
+}
+document.documentElement.setAttribute('data-theme', localStorage.getItem('platform-theme') || 'light');
+</script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security Advisor — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('security-advisor'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Security Advisor</h1><div class="subtitle">3 issues · Last scan 12 min ago</div></div>
+      </div>
+      
+      ${[
+        ['high', 'RLS disabled on 22 tables', 'Service-layer auth is in place but DB-level RLS recommended.'],
+        ['medium', 'Function `handle_new_user` has SECURITY DEFINER', 'Functions with SECURITY DEFINER bypass RLS.'],
+        ['low', 'Postgres role `service_role` has broad permissions', 'Restrict to API server only.']
+      ].map(([sev, t, d]) => `
+        <div class="card mb-3">
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center gap-3">
+              <span class="badge badge-${sev==='high'?'danger':sev==='medium'?'warning':'default'}">${sev.toUpperCase()}</span>
+              <strong>${t}</strong>
+            </div>
+            <button class="btn btn-secondary btn-sm">Review</button>
+          </div>
+          <div class="text-secondary text-sm">${d}</div>
+        </div>
+      `).join('')}
+   
+    </div>
+  `
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storage — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Storage',
+  sections: [
+    { heading: 'Buckets', items: [
+      { id: 'all', label: 'All buckets', active: true, href: '#' },
+      { id: 'b1', label: 'contacts-uploads', href: '#' },
+      { id: 'b2', label: 'deals-attachments', href: '#' },
+      { id: 'b3', label: 'user-avatars', href: '#' }
+    ]},
+    { heading: 'Configure', items: [
+      { id: 'pol', label: 'Storage Policies', href: '#' },
+      { id: 'prov', label: 'Storage Providers', href: '#' },
+      { id: 'q', label: 'Quotas', href: '#' }
+    ]}
+  ]
+};
+
+const fileNames = ['contract-acme.pdf', 'logo-final.png', 'proposal-q3.docx', 'metrics.xlsx', 'demo-recording.mp4', 'invoice-1247.pdf', 'archive.zip', 'export.csv', 'agreement.pdf', 'header-banner.png', 'rates.xlsx', 'redacted.pdf'];
+const fileSizes = [120, 847, 42, 219, 12300, 180, 2400, 89, 150, 220, 330, 540];
+const fileIcons = ['📄','🖼','📋','📊','🎬','📑','📦','📤','📁','📎','💼','📃'];
+
+const mainContent = `
+  <div style="padding: 16px 24px;">
+    <div class="page-header">
+      <div><h1 style="font-size: 18px;">Storage</h1><div class="subtitle">3 buckets · 247 files · 1.2 GB / 5 GB</div></div>
+      <div class="page-header-actions">
+        <button class="btn btn-secondary btn-sm">+ New bucket</button>
+        <button class="btn btn-primary btn-sm">Upload</button>
+      </div>
+    </div>
+    <div class="grid grid-3 mb-4">
+      <div class="card"><div class="card-header"><div class="card-title">contacts-uploads</div><span class="badge badge-default">Public</span></div><div class="text-secondary text-xs">147 files · 624 MB</div></div>
+      <div class="card"><div class="card-header"><div class="card-title">deals-attachments</div><span class="badge badge-success">Private</span></div><div class="text-secondary text-xs">82 files · 412 MB</div></div>
+      <div class="card"><div class="card-header"><div class="card-title">user-avatars</div><span class="badge badge-default">Public</span></div><div class="text-secondary text-xs">18 files · 184 MB</div></div>
+    </div>
+    <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px;">
+      ${fileNames.map((name, i) => `
+        <div class="card" style="padding: 12px;">
+          <div style="aspect-ratio: 1; background: var(--bg-canvas); border-radius: var(--radius-sm); margin-bottom: 8px; display: flex; align-items: center; justify-content: center; color: var(--fg-tertiary); font-size: 24px;">${fileIcons[i]}</div>
+          <div class="text-xs font-medium" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${name}</div>
+          <div class="text-xs text-tertiary tabular">${fileSizes[i]} KB</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+`;
+
+Shell.render({ mode: 'storage', contextNav, dataPlane: true, mainContent });
+</script>
+</body>
+</html>

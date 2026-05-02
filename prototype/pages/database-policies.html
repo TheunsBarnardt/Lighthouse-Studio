@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RLS Policies — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('policies'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">RLS Policies</h1><div class="subtitle">Defense-in-depth row-level security</div></div>
+      </div>
+      
+      <div class="card" style="background: var(--bg-warning-subtle); border-color: var(--fg-warning);">
+        <div class="text-sm flex items-center gap-2">
+          <span class="text-warning">⚠</span>
+          <span><strong>22 tables have RLS disabled.</strong> Service-layer authorization is in place; DB-level RLS is recommended as defense in depth.</span>
+        </div>
+      </div>
+      <div class="text-tertiary text-sm mt-4" style="text-align: center; padding: 32px;">No policies yet. Create one to start.</div>
+   
+    </div>
+  `
+});
+</script>
+</body>
+</html>

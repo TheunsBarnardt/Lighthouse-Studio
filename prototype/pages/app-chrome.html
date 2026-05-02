@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App Chrome — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+.chrome-shell { display: grid; grid-template-columns: 280px 1fr 320px; height: calc(100vh - 44px); }
+.chrome-rail { background: var(--bg-surface); border-right: 1px solid var(--border-default); padding: 12px; overflow-y: auto; }
+.chrome-canvas-wrap { background: var(--bg-canvas); padding: 32px; overflow: auto; display: flex; flex-direction: column; align-items: center; }
+.chrome-frame { background: white; border: 1px solid var(--border-default); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); width: 1100px; max-width: 100%; overflow: hidden; }
+[data-theme="dark"] .chrome-frame { background: oklch(0.20 0.005 250); }
+.chrome-region { position: relative; border: 2px dashed transparent; }
+.chrome-region.selected { border-color: var(--accent-primary); }
+.chrome-region:hover { border-color: oklch(0.50 0.20 250 / 0.4); }
+.chrome-region .label { position: absolute; top: 4px; left: 4px; background: var(--accent-primary); color: var(--accent-primary-fg); font-size: 10px; padding: 2px 6px; border-radius: 2px; z-index: 5; opacity: 0; pointer-events: none; }
+.chrome-region:hover .label, .chrome-region.selected .label { opacity: 1; }
+.chrome-content-area { padding: 32px; min-height: 240px; background: oklch(0.99 0.002 250); display: flex; align-items: center; justify-content: center; color: var(--fg-tertiary); font-size: 13px; font-family: 'Inter', sans-serif; }
+[data-theme="dark"] .chrome-content-area { background: oklch(0.18 0.005 250); }
+.chrome-region-empty { padding: 24px; background: oklch(0.97 0.005 250); border: 2px dashed oklch(0.85 0.01 250); border-radius: 4px; margin: 16px; text-align: center; color: oklch(0.55 0.005 250); font-size: 12px; cursor: pointer; }
+.chrome-inspector { background: var(--bg-surface); border-left: 1px solid var(--border-default); padding: 16px; overflow-y: auto; }
+.chrome-block-pick { padding: 8px 10px; border: 1px solid var(--border-default); border-radius: var(--radius-sm); margin-bottom: 6px; cursor: pointer; font-size: 12px; }
+.chrome-block-pick:hover { background: var(--bg-hover); border-color: var(--accent-primary); }
+.chrome-block-pick.selected { background: var(--bg-info-subtle); border-color: var(--accent-primary); }
+.chrome-mini-shell { display: grid; grid-template-rows: auto auto 1fr auto; height: 100%; }
+.chrome-mini-shell.with-sidenav { grid-template-columns: 200px 1fr; grid-template-rows: auto 1fr auto; }
+.chrome-mini-shell.with-sidenav .header { grid-column: 1 / -1; }
+.chrome-mini-shell.with-sidenav .footer { grid-column: 1 / -1; }
+.chrome-mini-shell.with-sidenav .breadcrumb { grid-column: 2; }
+.chrome-mini-shell.with-sidenav .content { grid-column: 2; }
+.chrome-mini-shell.with-sidenav .sidenav { grid-row: 2 / span 2; grid-column: 1; }
+</style>
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const state = {
+  selected: 'header',
+  layout: 'sidenav', // 'sidenav' | 'topnav-only'
+  chrome: {
+    header: { blockId: 'chrome-header-app', config: { productName: 'Acme CRM', logoUrl: null, navItems: ['Dashboard', 'Deals', 'Contacts'], showSearch: true } },
+    sidenav: { blockId: 'chrome-sidenav-vertical', config: { collapsible: true, showWorkspaceSwitcher: false } },
+    breadcrumb: { blockId: 'chrome-breadcrumb', config: { separator: '›', auto: true } },
+    footer: { blockId: 'chrome-footer-standard', config: { companyName: 'Acme Corporation', copyrightText: '© 2026 Acme. All rights reserved.' } }
+  },
+  pages: ['/', '/dashboard', '/deals', '/contacts', '/sign-in']
+};
+
+// Available chrome blocks per region
+const chromeBlocks = {
+  header: [
+    { id: 'chrome-header-app', name: 'App Header · Standard', desc: 'Logo, primary nav, search, user menu' },
+    { id: 'chrome-header-marketing', name: 'Header · Marketing', desc: 'Logo, marketing nav, sign-in, CTA' },
+    { id: 'chrome-header-minimal', name: 'Header · Minimal', desc: 'Just a logo and back-button' },
+    { id: 'none', name: 'No header', desc: 'Pages render without a header' }
+  ],
+  sidenav: [
+    { id: 'chrome-sidenav-vertical', name: 'Side nav · Vertical', desc: 'Collapsible, sectioned, with icons' },
+    { id: 'chrome-sidenav-icon-only', name: 'Side nav · Icon-only', desc: 'Compact icon strip with tooltips' },
+    { id: 'none', name: 'No side nav', desc: 'Top-nav layout only' }
+  ],
+  breadcrumb: [
+    { id: 'chrome-breadcrumb', name: 'Breadcrumb · Default', desc: 'Auto-generated from page tree' },
+    { id: 'chrome-breadcrumb-tabbed', name: 'Tabs · Section', desc: 'Section-level tabs instead' },
+    { id: 'none', name: 'No breadcrumb', desc: 'Pages render without breadcrumbs' }
+  ],
+  footer: [
+    { id: 'chrome-footer-standard', name: 'Footer · Standard', desc: 'Link groups, copyright, social' },
+    { id: 'chrome-footer-minimal', name: 'Footer · Minimal', desc: 'Just copyright and a few links' },
+    { id: 'none', name: 'No footer', desc: 'Pages render without a footer' }
+  ]
+};
+
+function selectRegion(r) { state.selected = r; rerender(); }
+function setLayout(l) { state.layout = l; rerender(); }
+
+function renderHeaderPreview() {
+  const h = state.chrome.header;
+  if (h.blockId === 'none') return '';
+  return `
+    <div style="background: white; padding: 12px 24px; border-bottom: 1px solid oklch(0.90 0.01 250); display: flex; align-items: center; gap: 24px; font-family: 'Inter', sans-serif;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="width: 28px; height: 28px; background: oklch(0.50 0.20 250); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">A</div>
+        <div style="font-weight: 600; font-size: 14px;">${h.config.productName || 'App Name'}</div>
+      </div>
+      <nav style="display: flex; gap: 16px; flex: 1;">
+        ${(h.config.navItems || []).map((n, i) => `<a style="font-size: 12px; color: ${i === 0 ? 'oklch(0.20 0.01 250); font-weight: 500' : 'oklch(0.45 0.005 250)'};">${n}</a>`).join('')}
+      </nav>
+      ${h.config.showSearch ? `<input style="height: 28px; padding: 0 10px; background: oklch(0.97 0.005 250); border: 1px solid oklch(0.90 0.01 250); border-radius: 4px; font-size: 11px; width: 180px;" placeholder="Search..." />` : ''}
+      <div style="width: 28px; height: 28px; background: oklch(0.92 0.04 250); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: oklch(0.40 0.20 250); font-weight: 600;">JD</div>
+    </div>
+  `;
+}
+
+function renderSidenavPreview() {
+  if (state.chrome.sidenav.blockId === 'none' || state.layout === 'topnav-only') return '';
+  return `
+    <div style="background: oklch(0.97 0.005 250); border-right: 1px solid oklch(0.90 0.01 250); padding: 12px; display: flex; flex-direction: column; gap: 4px; font-family: 'Inter', sans-serif;">
+      <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: oklch(0.55 0.005 250); padding: 4px 6px; margin-top: 4px;">MAIN</div>
+      <div style="padding: 5px 8px; background: oklch(0.94 0.06 250); color: oklch(0.40 0.20 250); border-radius: 4px; font-size: 12px; font-weight: 500;">▦ Dashboard</div>
+      <div style="padding: 5px 8px; color: oklch(0.30 0.01 250); font-size: 12px;">⊞ Deals</div>
+      <div style="padding: 5px 8px; color: oklch(0.30 0.01 250); font-size: 12px;">◯ Contacts</div>
+      <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: oklch(0.55 0.005 250); padding: 4px 6px; margin-top: 8px;">SETUP</div>
+      <div style="padding: 5px 8px; color: oklch(0.30 0.01 250); font-size: 12px;">⚙ Settings</div>
+    </div>
+  `;
+}
+
+function renderBreadcrumbPreview() {
+  if (state.chrome.breadcrumb.blockId === 'none') return '';
+  return `<div style="padding: 10px 24px; font-family: 'Inter', sans-serif; font-size: 11px; color: oklch(0.45 0.005 250); border-bottom: 1px solid oklch(0.94 0.005 250);"><a style="color: oklch(0.50 0.20 250);">Home</a> ${state.chrome.breadcrumb.config.separator} <a style="color: oklch(0.50 0.20 250);">Deals</a> ${state.chrome.breadcrumb.config.separator} <span style="color: oklch(0.20 0.01 250);">Acme renewal</span></div>`;
+}
+
+function renderFooterPreview() {
+  const f = state.chrome.footer;
+  if (f.blockId === 'none') return '';
+  return `
+    <div style="background: oklch(0.97 0.005 250); padding: 24px 24px 12px; font-family: 'Inter', sans-serif; border-top: 1px solid oklch(0.90 0.01 250);">
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 24px; margin-bottom: 16px;">
+        <div><div style="font-weight: 600; font-size: 13px; margin-bottom: 4px;">${f.config.companyName || 'Company'}</div><div style="font-size: 10px; color: oklch(0.50 0.005 250);">Tagline.</div></div>
+        <div><div style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: oklch(0.45 0.005 250); margin-bottom: 4px;">Product</div><div style="font-size: 10px;">Features</div><div style="font-size: 10px;">Pricing</div></div>
+        <div><div style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: oklch(0.45 0.005 250); margin-bottom: 4px;">Company</div><div style="font-size: 10px;">About</div><div style="font-size: 10px;">Blog</div></div>
+        <div><div style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: oklch(0.45 0.005 250); margin-bottom: 4px;">Legal</div><div style="font-size: 10px;">Privacy</div><div style="font-size: 10px;">Terms</div></div>
+      </div>
+      <div style="font-size: 9px; color: oklch(0.55 0.005 250); padding-top: 8px; border-top: 1px solid oklch(0.90 0.01 250);">${f.config.copyrightText}</div>
+    </div>
+  `;
+}
+
+function renderInspector() {
+  const region = state.selected;
+  const blocks = chromeBlocks[region];
+  const current = state.chrome[region];
+
+  return `
+    <div class="inspector-section">
+      <div class="inspector-label">Region · ${region}</div>
+      <div class="text-xs text-secondary mb-3">Choose which block fills the <strong>${region}</strong> region. The selection applies to every page in this app.</div>
+      ${blocks.map(b => `
+        <div class="chrome-block-pick ${current.blockId === b.id ? 'selected' : ''}" onclick="state.chrome['${region}'].blockId = '${b.id}'; rerender()">
+          <div class="font-medium">${b.name}</div>
+          <div class="text-xs text-tertiary mt-1">${b.desc}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    ${current.blockId !== 'none' ? `
+      <div class="inspector-section">
+        <div class="inspector-label">Configuration</div>
+        ${region === 'header' ? `
+          <div class="dz-prop-row" style="margin-bottom: 10px;">
+            <div class="text-xs font-medium mb-1">Product name</div>
+            <input class="input input-h28" value="${current.config.productName || ''}" oninput="state.chrome.header.config.productName = this.value; rerender()" />
+          </div>
+          <div class="dz-prop-row">
+            <label class="flex items-center gap-2 text-xs">
+              <input type="checkbox" ${current.config.showSearch ? 'checked' : ''} onchange="state.chrome.header.config.showSearch = this.checked; rerender()" />
+              Show search input
+            </label>
+          </div>
+        ` : ''}
+        ${region === 'breadcrumb' ? `
+          <div class="dz-prop-row">
+            <div class="text-xs font-medium mb-1">Separator</div>
+            <select class="select input-h28" onchange="state.chrome.breadcrumb.config.separator = this.value; rerender()">
+              <option ${current.config.separator === '›' ? 'selected' : ''}>›</option>
+              <option ${current.config.separator === '/' ? 'selected' : ''}>/</option>
+              <option ${current.config.separator === '→' ? 'selected' : ''}>→</option>
+            </select>
+          </div>
+        ` : ''}
+        ${region === 'footer' ? `
+          <div class="dz-prop-row" style="margin-bottom: 10px;">
+            <div class="text-xs font-medium mb-1">Company name</div>
+            <input class="input input-h28" value="${current.config.companyName || ''}" oninput="state.chrome.footer.config.companyName = this.value; rerender()" />
+          </div>
+          <div class="dz-prop-row">
+            <div class="text-xs font-medium mb-1">Copyright text</div>
+            <input class="input input-h28" value="${current.config.copyrightText || ''}" oninput="state.chrome.footer.config.copyrightText = this.value; rerender()" />
+          </div>
+        ` : ''}
+        ${region === 'sidenav' ? `
+          <div class="dz-prop-row" style="margin-bottom: 10px;">
+            <label class="flex items-center gap-2 text-xs">
+              <input type="checkbox" ${current.config.collapsible ? 'checked' : ''} onchange="state.chrome.sidenav.config.collapsible = this.checked; rerender()" />
+              Collapsible
+            </label>
+          </div>
+          <div class="dz-prop-row">
+            <label class="flex items-center gap-2 text-xs">
+              <input type="checkbox" ${current.config.showWorkspaceSwitcher ? 'checked' : ''} onchange="state.chrome.sidenav.config.showWorkspaceSwitcher = this.checked; rerender()" />
+              Workspace switcher at bottom
+            </label>
+          </div>
+        ` : ''}
+      </div>
+    ` : ''}
+
+    <div class="inspector-section">
+      <div class="inspector-label">Page-level overrides</div>
+      <div class="text-xs text-secondary mb-2">Override chrome on specific pages.</div>
+      <div class="text-xs text-tertiary"><span class="mono">/sign-in</span> → no sidenav (full-page)</div>
+      <div class="text-xs text-tertiary"><span class="mono">/embed/*</span> → no chrome at all</div>
+      <button class="btn btn-secondary btn-sm mt-2" style="width: 100%;">+ Add override</button>
+    </div>
+
+    <div class="inspector-section">
+      <div class="inspector-label">Affects</div>
+      <div class="text-xs text-secondary">All ${state.pages.length} pages will render with this chrome (after page-level overrides).</div>
+    </div>
+  `;
+}
+
+function rerender() {
+  Shell.render({
+    mode: 'app-chrome',
+    contextNav: null,
+    dataPlane: false,
+    mainContent: `
+      <div class="chrome-shell">
+        <div class="chrome-rail">
+          <div class="text-xs font-medium text-tertiary mb-3" style="text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;">Layout</div>
+          <div class="flex gap-2 mb-4">
+            <button class="btn ${state.layout === 'sidenav' ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="setLayout('sidenav')" style="flex: 1;">Side nav</button>
+            <button class="btn ${state.layout === 'topnav-only' ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="setLayout('topnav-only')" style="flex: 1;">Top nav only</button>
+          </div>
+
+          <div class="text-xs font-medium text-tertiary mb-3" style="text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;">Chrome regions</div>
+          <div class="chrome-block-pick ${state.selected === 'header' ? 'selected' : ''}" onclick="selectRegion('header')">
+            <div class="font-medium">Header</div>
+            <div class="text-xs text-tertiary mt-1">${state.chrome.header.blockId === 'none' ? 'None' : chromeBlocks.header.find(b => b.id === state.chrome.header.blockId)?.name}</div>
+          </div>
+          ${state.layout === 'sidenav' ? `
+            <div class="chrome-block-pick ${state.selected === 'sidenav' ? 'selected' : ''}" onclick="selectRegion('sidenav')">
+              <div class="font-medium">Side nav</div>
+              <div class="text-xs text-tertiary mt-1">${state.chrome.sidenav.blockId === 'none' ? 'None' : chromeBlocks.sidenav.find(b => b.id === state.chrome.sidenav.blockId)?.name}</div>
+            </div>
+          ` : ''}
+          <div class="chrome-block-pick ${state.selected === 'breadcrumb' ? 'selected' : ''}" onclick="selectRegion('breadcrumb')">
+            <div class="font-medium">Breadcrumb</div>
+            <div class="text-xs text-tertiary mt-1">${state.chrome.breadcrumb.blockId === 'none' ? 'None' : chromeBlocks.breadcrumb.find(b => b.id === state.chrome.breadcrumb.blockId)?.name}</div>
+          </div>
+          <div class="chrome-block-pick ${state.selected === 'footer' ? 'selected' : ''}" onclick="selectRegion('footer')">
+            <div class="font-medium">Footer</div>
+            <div class="text-xs text-tertiary mt-1">${state.chrome.footer.blockId === 'none' ? 'None' : chromeBlocks.footer.find(b => b.id === state.chrome.footer.blockId)?.name}</div>
+          </div>
+
+          <div class="card mt-4" style="background: var(--bg-info-subtle); padding: 10px; font-size: 11px;">
+            <strong>Want a custom block?</strong> Build it in <a href="blocks-library.html">Blocks Library</a> with category set to <span class="mono">Chrome</span>, and it'll appear here.
+          </div>
+        </div>
+
+        <div class="chrome-canvas-wrap">
+          <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1100px; margin-bottom: 16px;">
+            <div>
+              <div class="font-semibold">App Chrome preview</div>
+              <div class="text-xs text-tertiary">Live preview · changes apply to all pages</div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-ghost btn-sm">Page-level overrides</button>
+              <button class="btn btn-secondary btn-sm">Discard</button>
+              <button class="btn btn-primary btn-sm" onclick="Shell.toast('Chrome saved · all pages updated', 'success')">Save</button>
+            </div>
+          </div>
+
+          <div class="chrome-frame">
+            <div class="chrome-mini-shell ${state.layout === 'sidenav' ? 'with-sidenav' : ''}" style="min-height: 600px;">
+              <div class="chrome-region header ${state.selected === 'header' ? 'selected' : ''}" onclick="selectRegion('header')">
+                <span class="label">HEADER</span>
+                ${renderHeaderPreview()}
+              </div>
+              ${state.layout === 'sidenav' ? `
+                <div class="chrome-region sidenav ${state.selected === 'sidenav' ? 'selected' : ''}" onclick="selectRegion('sidenav')">
+                  <span class="label">SIDE NAV</span>
+                  ${renderSidenavPreview()}
+                </div>
+              ` : ''}
+              <div class="chrome-region breadcrumb ${state.selected === 'breadcrumb' ? 'selected' : ''}" onclick="selectRegion('breadcrumb')">
+                <span class="label">BREADCRUMB</span>
+                ${renderBreadcrumbPreview()}
+              </div>
+              <div class="chrome-region content">
+                <div class="chrome-content-area">page content renders here · this region is per-page in the Designer</div>
+              </div>
+              <div class="chrome-region footer ${state.selected === 'footer' ? 'selected' : ''}" onclick="selectRegion('footer')">
+                <span class="label">FOOTER</span>
+                ${renderFooterPreview()}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chrome-inspector">
+          ${renderInspector()}
+        </div>
+      </div>
+    `
+  });
+}
+
+rerender();
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best Practices — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+function ring(score) {
+  const cls = score >= 90 ? 'score-good' : score >= 50 ? 'score-medium' : 'score-bad';
+  const C = 2 * Math.PI * 44;
+  const offset = C - (C * score / 100);
+  return `<div class="score-ring"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="44" /><circle class="ring-fg ${cls}" cx="50" cy="50" r="44" stroke-dasharray="${C}" stroke-dashoffset="${offset}" /></svg><div class="num ${cls}">${score}</div></div>`;
+}
+
+const groups = [
+  { cat: 'Trust and safety', items: [
+    { name: 'Uses HTTPS', status: 'pass' },
+    { name: 'No mixed content (HTTPS pages don\'t load HTTP resources)', status: 'pass' },
+    { name: 'Has a Content Security Policy', status: 'pass', desc: 'CSP header detected · strict-dynamic with nonces' },
+    { name: 'Has a strong HSTS policy', status: 'pass', desc: 'max-age=31536000; includeSubDomains; preload' }
+  ]},
+  { cat: 'Browser compatibility', items: [
+    { name: 'No browser errors logged to the console', status: 'pass' },
+    { name: 'Page has the HTML doctype', status: 'pass' },
+    { name: 'Properly defines charset', status: 'pass', desc: 'UTF-8' },
+    { name: 'Source maps available for production', status: 'pass' }
+  ]},
+  { cat: 'Modern web standards', items: [
+    { name: 'Avoids deprecated APIs', status: 'pass' },
+    { name: 'Avoids document.write()', status: 'pass' },
+    { name: 'Uses passive listeners for scroll-blocking events', status: 'pass' },
+    { name: 'Avoids requesting geolocation/notifications on page load', status: 'pass' }
+  ]},
+  { cat: 'User trust', items: [
+    { name: 'Images have explicit width and height', status: 'pass', desc: 'Prevents layout shifts' },
+    { name: 'Avoids requesting permissions out of context', status: 'pass' },
+    { name: 'Page has valid <noindex> for unindexable pages', status: 'pass' },
+    { name: 'No use of unload event listener', status: 'pass' }
+  ]}
+];
+
+const passCount = groups.flatMap(g => g.items).filter(i => i.status === 'pass').length;
+const total = groups.flatMap(g => g.items).length;
+
+Shell.render({
+  mode: 'advisors',
+  contextNav: advisorsContextNav('best-practices'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Best Practices</h1>
+          <div class="subtitle">HTTPS, modern APIs, console hygiene · Last scan 12 minutes ago</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-primary btn-sm" onclick="Shell.toast('Re-scanning...', 'info')">Re-scan</button>
+        </div>
+      </div>
+
+      <div class="card mb-4" style="display: flex; align-items: center; gap: 24px;">
+        ${ring(100)}
+        <div style="flex: 1;">
+          <div class="text-xs text-tertiary" style="text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;">Best Practices score</div>
+          <div class="font-semibold mt-1" style="font-size: 16px;">Excellent — all checks passing</div>
+          <div class="text-secondary text-sm mt-1">${passCount} of ${total} checks passed across HTTPS, browser compatibility, modern web standards, and user trust.</div>
+        </div>
+      </div>
+
+      ${groups.map(g => `
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-title">${g.cat}</div>
+            <div class="text-xs text-tertiary">${g.items.filter(i => i.status === 'pass').length} of ${g.items.length}</div>
+          </div>
+          ${g.items.map(item => `
+            <div class="audit-row">
+              <div class="audit-icon ${item.status}">${item.status === 'pass' ? '✓' : item.status === 'fail' ? '✕' : '!'}</div>
+              <div style="flex: 1;">
+                <div class="font-medium" style="font-size: 13px;">${item.name}</div>
+                ${item.desc ? `<div class="text-xs text-secondary mt-1">${item.desc}</div>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+    </div>
+  `
+});
+</script>
+</body>
+</html>

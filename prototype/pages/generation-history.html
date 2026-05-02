@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generation History — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const calls = [
+  ['gen_a3f291c', 'Stage 6 · UI gen', 'DealKanbanPage', 'opus-4.7', 18412, 6247, 0.087, '12 min ago', 'Approved', 'Marcus Acker'],
+  ['gen_b8e147a', 'Stage 7 · Code gen', 'updateDealStage function', 'sonnet-4.6', 8421, 1872, 0.038, '47 min ago', 'Approved', 'Tom Müller'],
+  ['gen_4d92e3c', 'Stage 4 · Schema synthesis', 'Initial schema · 21 tables', 'sonnet-4.6', 12047, 8924, 0.078, '2h ago', 'Approved', 'Joana, Marcus'],
+  ['gen_7c2f9eb', 'Stage 6 · UI gen', 'ContactsTable v2', 'opus-4.7', 14782, 5421, 0.072, '4h ago', 'Rejected', 'Joana de Klerk'],
+  ['gen_2a14d6e', 'Stage 6 · UI gen', 'ContactsTable v3', 'opus-4.7', 19204, 6892, 0.094, '3h ago', 'Approved', 'Joana de Klerk'],
+  ['gen_5b29f8d', 'Stage 2 · PRD', 'FR-1 through FR-5 expansion', 'sonnet-4.6', 4287, 2841, 0.024, 'Yesterday', 'Approved', 'Joana de Klerk'],
+  ['gen_8f37a2e', 'Stage 10 · Maintenance', 'Auto-fix CR for SIG-122', 'sonnet-4.6', 3142, 1247, 0.014, 'Yesterday', 'Auto-merged', 'AI'],
+  ['gen_1e84b6c', 'Stage 3 · Tokens', 'Brand-derived tokens v2', 'sonnet-4.6', 2147, 4214, 0.027, '2 days ago', 'Approved', 'Joana de Klerk']
+];
+
+Shell.render({
+  mode: 'ai-pipeline',
+  contextNav: aiPipelineContextNav('history'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1400px;">
+      <div class="page-header">
+        <div>
+          <h1>Generation History</h1>
+          <div class="subtitle">Every AI call · prompts · outputs · cost · approval · 412 generations across all projects</div>
+        </div>
+        <div class="page-header-actions">
+          <input class="input input-h28" placeholder="Search generations..." style="width: 240px;" />
+          <select class="select input-h28" style="width: 140px;"><option>All stages</option></select>
+          <select class="select input-h28" style="width: 140px;"><option>All outcomes</option></select>
+          <button class="btn btn-secondary btn-sm">Export</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Total generations · 30d</div><div class="stat-value">412</div><div class="stat-delta text-secondary">~14/day avg</div></div>
+        <div class="stat-card"><div class="stat-label">Approval rate</div><div class="stat-value text-success">87%</div><div class="stat-delta text-secondary">8% rejected · 5% pending</div></div>
+        <div class="stat-card"><div class="stat-label">Total cost · 30d</div><div class="stat-value">$23.40</div><div class="stat-delta text-secondary">$0.057 avg per call</div></div>
+        <div class="stat-card"><div class="stat-label">Avg time-to-approve</div><div class="stat-value">1h 47m</div><div class="stat-delta stat-up">−12m vs prior</div></div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">Recent generations</div>
+          <div class="text-xs text-tertiary">Click any row to see prompt, output, and reasoning</div>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Stage</th><th>Artifact</th><th>Model</th><th class="tabular">Input</th><th class="tabular">Output</th><th class="tabular">Cost</th><th>When</th><th>Outcome</th><th>By</th></tr></thead>
+          <tbody>
+            ${calls.map(([id, stage, artifact, model, inTok, outTok, cost, when, status, by]) => `
+              <tr style="cursor: pointer;" onclick="Shell.toast('Opening ' + '${id}', 'info')">
+                <td class="mono text-xs">${id}</td>
+                <td class="text-xs text-secondary">${stage}</td>
+                <td class="text-sm">${artifact}</td>
+                <td class="mono text-xs">${model}</td>
+                <td class="tabular text-xs">${inTok.toLocaleString()}</td>
+                <td class="tabular text-xs">${outTok.toLocaleString()}</td>
+                <td class="tabular text-xs">$${cost.toFixed(3)}</td>
+                <td class="text-tertiary text-xs">${when}</td>
+                <td>${status === 'Approved' || status === 'Auto-merged' ? `<span class="badge badge-success">${status}</span>` : status === 'Rejected' ? '<span class="badge badge-danger">Rejected</span>' : '<span class="badge badge-warning">Pending</span>'}</td>
+                <td class="text-secondary text-xs">${by}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Token usage by model · 30d</div></div>
+          <table class="data-table">
+            <thead><tr><th>Model</th><th class="tabular">Calls</th><th class="tabular">Input tokens</th><th class="tabular">Output tokens</th><th class="tabular">Cost</th></tr></thead>
+            <tbody>
+              <tr><td class="mono text-xs">opus-4.7</td><td class="tabular">147</td><td class="tabular">1.8M</td><td class="tabular">847K</td><td class="tabular">$14.80</td></tr>
+              <tr><td class="mono text-xs">sonnet-4.6</td><td class="tabular">231</td><td class="tabular">2.4M</td><td class="tabular">1.4M</td><td class="tabular">$7.60</td></tr>
+              <tr><td class="mono text-xs">haiku-4.5</td><td class="tabular">34</td><td class="tabular">42K</td><td class="tabular">12K</td><td class="tabular">$1.00</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Outcomes</div></div>
+          <div class="grid grid-3">
+            <div>
+              <div class="text-xs text-tertiary mb-1">APPROVED</div>
+              <div class="stat-value text-success">358</div>
+              <div class="text-xs text-secondary">87%</div>
+            </div>
+            <div>
+              <div class="text-xs text-tertiary mb-1">REJECTED</div>
+              <div class="stat-value text-danger">33</div>
+              <div class="text-xs text-secondary">8%</div>
+            </div>
+            <div>
+              <div class="text-xs text-tertiary mb-1">PENDING</div>
+              <div class="stat-value text-warning">21</div>
+              <div class="text-xs text-secondary">5%</div>
+            </div>
+          </div>
+          <div class="text-xs text-tertiary mt-3">Rejected calls feed back as learning signal. The next generation in the same conversation incorporates rejection notes.</div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

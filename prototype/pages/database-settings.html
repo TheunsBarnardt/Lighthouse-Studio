@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Settings — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('db-settings'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Database Settings</h1><div class="subtitle">Connection and pool configuration</div></div>
+      </div>
+      
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Connection</div></div>
+          <div class="inspector-row"><span class="key">Host</span><span class="val mono text-xs">db.acme.platform.local</span></div>
+          <div class="inspector-row"><span class="key">Port</span><span class="val tabular">5432</span></div>
+          <div class="inspector-row"><span class="key">Database</span><span class="val mono">postgres</span></div>
+          <div class="inspector-row"><span class="key">SSL</span><span class="val text-success">Required</span></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Pooler</div></div>
+          <div class="inspector-row"><span class="key">PgBouncer</span><span class="val text-success">Enabled</span></div>
+          <div class="inspector-row"><span class="key">Mode</span><span class="val">Transaction</span></div>
+          <div class="inspector-row"><span class="key">Max connections</span><span class="val tabular">100</span></div>
+        </div>
+      </div>
+   
+    </div>
+  `
+});
+</script>
+</body>
+</html>

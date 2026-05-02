@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metrics — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+.metric-chart { height: 140px; background: var(--bg-canvas); border-radius: var(--radius-sm); padding: 8px; position: relative; }
+.metric-chart svg { width: 100%; height: 100%; }
+.metric-chart .grid-line { stroke: var(--border-default); stroke-width: 0.5; }
+.metric-chart .axis-label { font-size: 9px; fill: var(--fg-tertiary); font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+function chart(values, color, max) {
+  const w = 600, h = 120;
+  max = max || Math.max(...values) * 1.1;
+  const points = values.map((v, i) => {
+    const x = (i / (values.length - 1)) * w;
+    const y = h - (v / max) * h;
+    return `${x},${y}`;
+  }).join(' ');
+  const area = `0,${h} ${points} ${w},${h}`;
+  return `
+    <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+      <defs><linearGradient id="g${color}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${color}" stop-opacity="0.25"/><stop offset="100%" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+      <line class="grid-line" x1="0" y1="0" x2="${w}" y2="0" />
+      <line class="grid-line" x1="0" y1="${h/2}" x2="${w}" y2="${h/2}" />
+      <line class="grid-line" x1="0" y1="${h}" x2="${w}" y2="${h}" />
+      <polygon points="${area}" fill="url(#g${color})" />
+      <polyline points="${points}" fill="none" stroke="${color}" stroke-width="1.5" />
+    </svg>
+  `;
+}
+
+const requestsData = Array(60).fill(0).map((_, i) => 80 + Math.sin(i / 5) * 20 + Math.random() * 20);
+const latencyData = Array(60).fill(0).map(() => 150 + Math.random() * 80);
+const errorData = Array(60).fill(0).map((_, i) => i === 32 ? 3.2 : i === 47 ? 1.8 : Math.random() * 0.5);
+const cpuData = Array(60).fill(0).map((_, i) => 35 + Math.sin(i / 3) * 12 + Math.random() * 5);
+const memData = Array(60).fill(0).map((_, i) => 62 + Math.sin(i / 8) * 8);
+const dbConnData = Array(60).fill(0).map(() => 14 + Math.random() * 6);
+
+Shell.render({
+  mode: 'observability',
+  contextNav: observabilityContextNav('metrics'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1400px;">
+      <div class="page-header">
+        <div>
+          <h1>Metrics</h1>
+          <div class="subtitle">Time-series telemetry · OpenTelemetry · Last 60 minutes · Refresh in 30s</div>
+        </div>
+        <div class="page-header-actions">
+          <select class="select input-h28" style="width: 140px;"><option>Last hour</option><option>Last 6 hours</option><option>Last 24 hours</option><option>Last 7 days</option></select>
+          <select class="select input-h28" style="width: 140px;"><option>All projects</option><option>Internal CRM</option><option>Marketing Blog</option></select>
+          <button class="btn btn-secondary btn-sm">Auto-refresh</button>
+          <button class="btn btn-primary btn-sm">+ Dashboard</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Requests / min</div><div class="stat-value">${Math.round(requestsData[requestsData.length - 1])}</div><div class="stat-delta stat-up">+12% vs avg</div></div>
+        <div class="stat-card"><div class="stat-label">p95 latency</div><div class="stat-value">${Math.round(latencyData[latencyData.length - 1])}ms</div><div class="stat-delta text-secondary">SLA: <500ms</div></div>
+        <div class="stat-card"><div class="stat-label">Error rate</div><div class="stat-value">0.12%</div><div class="stat-delta stat-up">SLA: <1%</div></div>
+        <div class="stat-card"><div class="stat-label">Active users</div><div class="stat-value">147</div><div class="stat-delta text-secondary">peak today: 312</div></div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 16px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Requests / min</div>
+            <span class="text-xs text-tertiary">All endpoints</span>
+          </div>
+          <div class="metric-chart">${chart(requestsData, 'oklch(0.50 0.20 250)')}</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">p95 latency · ms</div></div>
+          <div class="metric-chart">${chart(latencyData, 'oklch(0.55 0.16 145)')}</div>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Error rate · %</div>
+            <span class="text-xs text-tertiary">2 spikes today</span>
+          </div>
+          <div class="metric-chart">${chart(errorData, 'oklch(0.55 0.18 25)')}</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">CPU · %</div></div>
+          <div class="metric-chart">${chart(cpuData, 'oklch(0.55 0.16 75)')}</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Memory · %</div></div>
+          <div class="metric-chart">${chart(memData, 'oklch(0.50 0.18 285)')}</div>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Database connections · active</div></div>
+          <div class="metric-chart">${chart(dbConnData, 'oklch(0.50 0.20 250)', 30)}</div>
+          <div class="text-xs text-tertiary mt-2">Pool max: 25 · current: ${Math.round(dbConnData[dbConnData.length - 1])} · idle: 6</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Top endpoints by traffic</div></div>
+          <table class="data-table" style="margin-top: -8px;">
+            <thead><tr><th>Endpoint</th><th class="tabular">RPS</th><th class="tabular">p50</th><th class="tabular">p95</th><th class="tabular">Errors</th></tr></thead>
+            <tbody>
+              <tr><td class="mono text-xs">GET /rest/v1/deals</td><td class="tabular">14.2</td><td class="tabular text-xs">42ms</td><td class="tabular text-xs">187ms</td><td class="tabular text-xs">0</td></tr>
+              <tr><td class="mono text-xs">GET /rest/v1/contacts</td><td class="tabular">8.7</td><td class="tabular text-xs">38ms</td><td class="tabular text-xs">142ms</td><td class="tabular text-xs">0</td></tr>
+              <tr><td class="mono text-xs">POST /functions/v1/searchContacts</td><td class="tabular">4.2</td><td class="tabular text-xs">87ms</td><td class="tabular text-xs">312ms</td><td class="tabular text-xs">0</td></tr>
+              <tr><td class="mono text-xs">PATCH /rest/v1/deals/:id</td><td class="tabular">2.1</td><td class="tabular text-xs">28ms</td><td class="tabular text-xs">94ms</td><td class="tabular text-xs">0</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

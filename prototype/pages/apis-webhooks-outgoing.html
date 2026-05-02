@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webhooks (outgoing) — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const webhooks = [
+  ['hook_4d92e3', 'Slack notifications · #sales', 'https://hooks.slack.com/services/T0•••/B0•••', '3 events', 'enabled', '99.7%', '12 min ago', 142],
+  ['hook_8e147a', 'Salesforce sync', 'https://acme.my.salesforce.com/services/apexrest/platform/webhook', '5 events', 'enabled', '94.2%', '47 min ago', 1247],
+  ['hook_a3f291', 'Customer.io · audience updates', 'https://track.customer.io/api/v1/customers/{id}', '2 events', 'enabled', '99.9%', '2h ago', 847],
+  ['hook_b8214c', 'Internal accounting', 'https://accounting.acme.local/webhook', '1 event', 'paused', '—', 'Yesterday', 12],
+  ['hook_c9362d', 'Legacy CRM bridge', 'https://legacy-crm.acme.local/api/v1/sync', '4 events', 'failing', '12.4%', '3 hours ago', 47]
+];
+
+Shell.render({
+  mode: 'apis',
+  contextNav: apisContextNav('webhooks-out'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Webhooks · Outgoing</h1>
+          <div class="subtitle">Notify external systems on data changes · 5 hooks · 4 active · 1 paused</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Templates</button>
+          <button class="btn btn-secondary btn-sm">Audit log</button>
+          <button class="btn btn-primary btn-sm">+ New webhook</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Active hooks</div><div class="stat-value">4</div><div class="stat-delta text-secondary">1 paused</div></div>
+        <div class="stat-card"><div class="stat-label">Deliveries · 30d</div><div class="stat-value">2,295</div><div class="stat-delta stat-up">+12% vs prior</div></div>
+        <div class="stat-card"><div class="stat-label">Success rate</div><div class="stat-value text-warning">97.2%</div><div class="stat-delta text-secondary">SLA: 99%</div></div>
+        <div class="stat-card"><div class="stat-label">Failing hooks</div><div class="stat-value text-danger">1</div><div class="stat-delta text-secondary">Legacy CRM bridge</div></div>
+      </div>
+
+      <div class="card mb-4" style="background: var(--bg-danger-subtle); border-color: var(--fg-danger);">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="font-semibold mb-1">Legacy CRM bridge is failing</div>
+            <div class="text-sm text-secondary">12.4% success rate over the last 24 hours · 41 of 47 deliveries returned 503. Endpoint may be down.</div>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-secondary btn-sm">View deliveries</button>
+            <button class="btn btn-secondary btn-sm">Pause</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Configured webhooks</div></div>
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Name</th><th>URL</th><th>Events</th><th>Status</th><th>Success · 24h</th><th>Last delivery</th><th class="tabular">Total</th><th></th></tr></thead>
+          <tbody>
+            ${webhooks.map(([id, name, url, events, status, success, last, total]) => `
+              <tr>
+                <td class="mono text-xs">${id}</td>
+                <td class="font-medium text-sm">${name}</td>
+                <td class="mono text-xs text-secondary" style="max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${url}</td>
+                <td class="text-xs text-secondary">${events}</td>
+                <td>${status === 'enabled' ? '<span class="badge badge-success">Enabled</span>' : status === 'paused' ? '<span class="badge badge-warning">Paused</span>' : '<span class="badge badge-danger">Failing</span>'}</td>
+                <td class="tabular text-xs ${parseFloat(success) < 90 ? 'text-danger' : ''}">${success}</td>
+                <td class="text-tertiary text-xs">${last}</td>
+                <td class="tabular">${total}</td>
+                <td><button class="btn btn-ghost btn-xs">Logs</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">Recent deliveries</div>
+          <div class="text-xs text-tertiary">Last 50 events · all hooks</div>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>When</th><th>Hook</th><th>Event</th><th>Status</th><th class="tabular">Latency</th><th>Attempts</th></tr></thead>
+          <tbody>
+            <tr><td class="text-tertiary text-xs">12 min ago</td><td class="text-sm">Slack notifications</td><td class="mono text-xs">deal.won</td><td><span class="badge badge-success">200</span></td><td class="tabular text-xs">142ms</td><td class="text-xs">1</td></tr>
+            <tr><td class="text-tertiary text-xs">28 min ago</td><td class="text-sm">Salesforce sync</td><td class="mono text-xs">contact.updated</td><td><span class="badge badge-success">200</span></td><td class="tabular text-xs">847ms</td><td class="text-xs">1</td></tr>
+            <tr><td class="text-tertiary text-xs">47 min ago</td><td class="text-sm">Salesforce sync</td><td class="mono text-xs">deal.created</td><td><span class="badge badge-success">200</span></td><td class="tabular text-xs">312ms</td><td class="text-xs">1</td></tr>
+            <tr><td class="text-tertiary text-xs">3h ago</td><td class="text-sm">Legacy CRM bridge</td><td class="mono text-xs">deal.updated</td><td><span class="badge badge-danger">503</span></td><td class="tabular text-xs">8.2s</td><td class="text-xs">3 of 5</td></tr>
+            <tr><td class="text-tertiary text-xs">3h ago</td><td class="text-sm">Legacy CRM bridge</td><td class="mono text-xs">contact.created</td><td><span class="badge badge-danger">503</span></td><td class="tabular text-xs">8.4s</td><td class="text-xs">3 of 5</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Delivery guarantees</div></div>
+        <div class="grid grid-3">
+          <div>
+            <div class="font-medium mb-1">At-least-once delivery</div>
+            <div class="text-xs text-secondary">Each event is retried with exponential backoff up to 5 times.</div>
+          </div>
+          <div>
+            <div class="font-medium mb-1">Signed payloads</div>
+            <div class="text-xs text-secondary">All requests include an HMAC-SHA256 signature in the <span class="mono">X-Platform-Signature</span> header.</div>
+          </div>
+          <div>
+            <div class="font-medium mb-1">Idempotency</div>
+            <div class="text-xs text-secondary">Each delivery has a unique ID via the <span class="mono">X-Platform-Event-Id</span> header.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

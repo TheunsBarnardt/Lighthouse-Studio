@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CVE / Dependencies — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const vulns = [
+  { id: 'GHSA-jf85-cpcp-j695', cve: 'CVE-2020-8203', pkg: 'lodash', current: '4.17.20', fixed: '4.17.21', severity: 'high', cvss: 7.4, type: 'Prototype Pollution', desc: 'Versions of lodash prior to 4.17.21 are vulnerable to Prototype Pollution. The function zipObjectDeep allows a malicious user to modify the prototype of Object.', exploitable: true, age: '2 days ago', via: 'direct dependency' },
+  { id: 'GHSA-72xf-g2v4-qvf3', cve: 'CVE-2024-28849', pkg: 'follow-redirects', current: '1.15.4', fixed: '1.15.6', severity: 'medium', cvss: 6.5, type: 'Information Exposure', desc: 'follow-redirects leaks the proxy authorization header on cross-origin redirects.', exploitable: false, age: '5 days ago', via: 'transitive · axios → follow-redirects' },
+  { id: 'GHSA-c2qf-rxjj-qqgw', cve: 'CVE-2023-26159', pkg: 'follow-redirects', current: '1.15.4', fixed: '1.15.4', severity: 'medium', cvss: 5.3, type: 'Improper Input Validation', desc: 'Improper Input Validation in follow-redirects.', exploitable: false, age: '1 week ago', via: 'transitive · axios → follow-redirects' },
+  { id: 'GHSA-cwfw-4gq5-mrqx', cve: 'CVE-2024-21484', pkg: 'jose', current: '4.15.4', fixed: '4.15.5', severity: 'low', cvss: 3.7, type: 'DoS', desc: 'Denial of Service via memory exhaustion when parsing tokens with deeply nested structures.', exploitable: false, age: '2 weeks ago', via: 'direct dependency' }
+];
+
+const ecosystem = [
+  { name: 'npm (production)', deps: 142, vulns: 2, audited: '2 min ago' },
+  { name: 'npm (dev)', deps: 270, vulns: 2, audited: '2 min ago' },
+  { name: 'PostgreSQL extensions', deps: 5, vulns: 0, audited: 'daily' },
+  { name: 'Container base images', deps: 3, vulns: 0, audited: '4 hours ago' }
+];
+
+Shell.render({
+  mode: 'advisors',
+  contextNav: advisorsContextNav('cve'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>CVE / Dependencies</h1>
+          <div class="subtitle">Continuous vulnerability monitoring · GHSA · NVD · OSV.dev · Last scan 2 minutes ago</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">SBOM export</button>
+          <button class="btn btn-secondary btn-sm">Settings</button>
+          <button class="btn btn-primary btn-sm" onclick="Shell.toast('Re-scanning all manifests...', 'info')">Re-scan</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Total vulnerabilities</div><div class="stat-value">4</div><div class="stat-delta text-secondary">across 412 deps</div></div>
+        <div class="stat-card"><div class="stat-label">High</div><div class="stat-value text-danger">1</div><div class="stat-delta text-secondary">CVSS ≥ 7.0</div></div>
+        <div class="stat-card"><div class="stat-label">Medium</div><div class="stat-value text-warning">2</div><div class="stat-delta text-secondary">4.0–6.9</div></div>
+        <div class="stat-card"><div class="stat-label">Auto-fixable</div><div class="stat-value">3</div><div class="stat-delta stat-up">via patch update</div></div>
+      </div>
+
+      <div class="card mb-4" style="background: var(--bg-danger-subtle); border-color: var(--fg-danger);">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="font-semibold mb-1">1 high-severity vulnerability requires action</div>
+            <div class="text-sm text-secondary"><span class="mono">lodash@4.17.20</span> has a known Prototype Pollution vulnerability. Patch available: <span class="mono">4.17.21</span>. AI can auto-create a CR.</div>
+          </div>
+          <button class="btn btn-primary btn-sm">✦ Auto-create CR</button>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Open advisories</div></div>
+        ${vulns.map(v => `
+          <div style="padding: 16px 0; border-bottom: 1px solid var(--border-default);">
+            <div class="flex justify-between items-start mb-2">
+              <div class="flex items-center gap-3">
+                <span class="badge badge-${v.severity === 'high' ? 'danger' : v.severity === 'medium' ? 'warning' : 'default'}">${v.severity.toUpperCase()} · CVSS ${v.cvss}</span>
+                <span class="mono text-xs">${v.id}</span>
+                <span class="mono text-xs text-tertiary">${v.cve}</span>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-ghost btn-sm">Snooze</button>
+                <button class="btn btn-secondary btn-sm">Suppress</button>
+                <button class="btn btn-primary btn-sm">Auto-fix</button>
+              </div>
+            </div>
+            <div class="font-medium mb-1" style="font-size: 13px;">${v.type} in <span class="mono">${v.pkg}</span></div>
+            <div class="text-sm text-secondary mb-2">${v.desc}</div>
+            <div class="grid grid-4" style="gap: 12px;">
+              <div><div class="text-xs text-tertiary">Package</div><div class="text-xs mono">${v.pkg}</div></div>
+              <div><div class="text-xs text-tertiary">Current</div><div class="text-xs mono text-danger">${v.current}</div></div>
+              <div><div class="text-xs text-tertiary">Fixed in</div><div class="text-xs mono text-success">${v.fixed}</div></div>
+              <div><div class="text-xs text-tertiary">Path</div><div class="text-xs">${v.via}</div></div>
+            </div>
+            <div class="flex gap-3 mt-2 text-xs text-tertiary">
+              ${v.exploitable ? '<span class="text-danger">⚠ Reachable in our code</span>' : '<span>Not reachable in our code</span>'}
+              <span>·</span>
+              <span>Detected ${v.age}</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Ecosystems</div></div>
+        <table class="data-table">
+          <thead><tr><th>Source</th><th class="tabular">Dependencies</th><th class="tabular">Vulnerabilities</th><th>Last audit</th></tr></thead>
+          <tbody>
+            ${ecosystem.map(e => `<tr><td>${e.name}</td><td class="tabular">${e.deps}</td><td class="tabular">${e.vulns > 0 ? `<span class="text-warning">${e.vulns}</span>` : `<span class="text-success">${e.vulns}</span>`}</td><td class="text-xs text-tertiary">${e.audited}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Vulnerability trend · 90 days</div></div>
+        <div style="height: 100px; background: var(--bg-canvas); border-radius: var(--radius-sm); padding: 12px; display: flex; align-items: end; gap: 2px;">
+          ${[8,9,7,8,10,12,11,9,8,7,6,7,8,9,7,6,5,7,8,9,8,7,6,5,6,7,5,4,5,6,5,4,3,4,5,6,5,4,5,4,3,4,5,4,3,4,4,3,4,5,4,3,4,3,4,5,4,3,4,5,4,3,4,3,4,3,4,5,4,3,4,3,4,5,4,4,3,4,5,4,5,6,5,4,5,4,3,4,5,4].map(v => `
+            <div style="flex: 1; height: ${v * 8}%; background: ${v >= 8 ? 'var(--fg-danger)' : v >= 5 ? 'var(--fg-warning)' : 'var(--fg-success)'}; border-radius: 1px 1px 0 0; opacity: 0.85;"></div>
+          `).join('')}
+        </div>
+        <div class="flex justify-between text-xs text-tertiary mt-2"><span>90 days ago · 8 open</span><span>Today · 4 open</span></div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

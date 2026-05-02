@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accessibility — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+function ring(score) {
+  const cls = score >= 90 ? 'score-good' : score >= 50 ? 'score-medium' : 'score-bad';
+  const C = 2 * Math.PI * 44;
+  const offset = C - (C * score / 100);
+  return `<div class="score-ring"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="44" /><circle class="ring-fg ${cls}" cx="50" cy="50" r="44" stroke-dasharray="${C}" stroke-dashoffset="${offset}" /></svg><div class="num ${cls}">${score}</div></div>`;
+}
+
+const groups = [
+  { cat: 'Names and labels', items: [
+    { name: 'Buttons have accessible names', status: 'pass', count: '47/47' },
+    { name: 'Form elements have associated labels', status: 'pass', count: '23/23' },
+    { name: 'Links have discernible names', status: 'pass', count: '142/142' },
+    { name: 'Image elements have [alt] attributes', status: 'warn', count: '14/16', desc: '2 decorative images missing alt=""' }
+  ]},
+  { cat: 'Contrast', items: [
+    { name: 'Background and foreground have sufficient contrast', status: 'warn', count: '—', desc: 'Warning chip text fails AA on light theme · ratio 4.2 : 1 (need 4.5)' },
+    { name: 'Text on images is legible', status: 'pass', count: '—' }
+  ]},
+  { cat: 'Keyboard', items: [
+    { name: 'All interactive elements are keyboard-focusable', status: 'pass', count: '189/189' },
+    { name: 'Focus order matches visual order', status: 'pass', count: '—' },
+    { name: 'Visible focus indicator on all elements', status: 'pass', count: '—' },
+    { name: 'No keyboard traps', status: 'pass', count: '—' }
+  ]},
+  { cat: 'ARIA', items: [
+    { name: 'ARIA attributes are valid and not deprecated', status: 'pass', count: '—' },
+    { name: '[role] values are valid', status: 'pass', count: '—' },
+    { name: 'aria-* attributes match their roles', status: 'pass', count: '—' },
+    { name: 'Hidden content not focusable', status: 'pass', count: '—' }
+  ]},
+  { cat: 'Best practices', items: [
+    { name: '<html> has [lang] attribute', status: 'pass', count: '—' },
+    { name: 'Document has a title', status: 'pass', count: '—' },
+    { name: 'Heading levels are sequential (no skips)', status: 'pass', count: '—' },
+    { name: 'Page has at least one <h1>', status: 'pass', count: '—' }
+  ]}
+];
+
+Shell.render({
+  mode: 'advisors',
+  contextNav: advisorsContextNav('a11y'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Accessibility Advisor</h1>
+          <div class="subtitle">WCAG 2.1 Level AA · axe-core + Lighthouse · Last scan 12 minutes ago</div>
+        </div>
+        <div class="page-header-actions">
+          <select class="select input-h28" style="width: 140px;"><option>WCAG 2.1 AA</option><option>WCAG 2.1 AAA</option><option>WCAG 2.2 AA</option></select>
+          <button class="btn btn-primary btn-sm" onclick="Shell.toast('Re-scanning...', 'info')">Re-scan</button>
+        </div>
+      </div>
+
+      <div class="card mb-4" style="display: flex; align-items: center; gap: 24px;">
+        ${ring(96)}
+        <div style="flex: 1;">
+          <div class="text-xs text-tertiary" style="text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;">Accessibility score</div>
+          <div class="font-semibold mt-1" style="font-size: 16px;">Almost perfect — 2 contrast warnings to fix</div>
+          <div class="text-secondary text-sm mt-1">Score is based on axe-core's automated checks. Manual testing recommended for complete coverage.</div>
+          <div class="flex gap-3 mt-3">
+            <span class="text-sm"><span class="text-success font-semibold">17</span> passed</span>
+            <span class="text-sm"><span class="text-warning font-semibold">2</span> warnings</span>
+            <span class="text-sm"><span class="text-danger font-semibold">0</span> failed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4" style="background: var(--bg-warning-subtle); border-color: var(--fg-warning);">
+        <div class="font-semibold mb-2">Top finding · contrast</div>
+        <div class="text-sm text-secondary mb-3">
+          Warning chip text (<span class="mono text-xs" style="background: var(--bg-surface); padding: 1px 5px; border-radius: 3px;">color: oklch(0.45 0.14 75)</span>) on warning background fails WCAG AA on light theme.
+          Contrast ratio <strong>4.2 : 1</strong>, requires <strong>4.5 : 1</strong> for normal text.
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-secondary btn-sm">Open in token editor</button>
+          <button class="btn btn-secondary btn-sm">Suppress (1 instance)</button>
+          <button class="btn btn-primary btn-sm">Auto-fix</button>
+        </div>
+      </div>
+
+      ${groups.map(g => `
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-title">${g.cat}</div>
+            <div class="text-xs text-tertiary">${g.items.filter(i => i.status === 'pass').length} of ${g.items.length} passing</div>
+          </div>
+          ${g.items.map(item => `
+            <div class="audit-row">
+              <div class="audit-icon ${item.status}">${item.status === 'pass' ? '✓' : item.status === 'fail' ? '✕' : '!'}</div>
+              <div style="flex: 1;">
+                <div class="flex justify-between">
+                  <div class="font-medium" style="font-size: 13px;">${item.name}</div>
+                  ${item.count ? `<div class="text-xs text-tertiary tabular">${item.count}</div>` : ''}
+                </div>
+                ${item.desc ? `<div class="text-xs text-secondary mt-1">${item.desc}</div>` : ''}
+              </div>
+              ${item.status !== 'pass' ? `<button class="btn btn-secondary btn-sm">Fix</button>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+    </div>
+  `
+});
+</script>
+</body>
+</html>

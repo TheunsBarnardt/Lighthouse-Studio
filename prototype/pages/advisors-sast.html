@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAST — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const groups = [
+  { cat: 'Dangerous APIs', items: [
+    { name: 'No use of eval() or Function()', status: 'pass', count: '0 occurrences across 7 functions' },
+    { name: 'No use of child_process', status: 'pass', count: '0 occurrences' },
+    { name: 'No direct fs.* or net.* calls', status: 'pass', count: '0 occurrences' },
+    { name: 'No use of process.env outside config', status: 'pass', count: '0 violations' }
+  ]},
+  { cat: 'Secrets in code', items: [
+    { name: 'No hardcoded API keys', status: 'pass', count: '0 detected (TruffleHog rules)' },
+    { name: 'No hardcoded passwords', status: 'pass', count: '0 detected' },
+    { name: 'No hardcoded JWTs', status: 'pass', count: '0 detected' },
+    { name: 'No private keys in repo', status: 'pass', count: '0 detected' }
+  ]},
+  { cat: 'Common vulnerabilities', items: [
+    { name: 'No SQL string concatenation', status: 'warn', count: '1 finding · /api/search ORDER BY clause', desc: 'Identified by SAST · also flagged by DAST as PT-014. Use a whitelist of valid sort columns.' },
+    { name: 'No XSS sinks (innerHTML, dangerouslySetInnerHTML)', status: 'pass', count: '0 violations' },
+    { name: 'No insecure regex (ReDoS)', status: 'pass', count: '0 violations' },
+    { name: 'No path traversal patterns', status: 'pass', count: '0 violations' }
+  ]},
+  { cat: 'Code quality (security-adjacent)', items: [
+    { name: 'No unhandled promise rejections', status: 'pass' },
+    { name: 'No catch-and-ignore patterns', status: 'pass' },
+    { name: 'Logging sensitive data', status: 'pass', count: 'No PII or tokens in log statements' },
+    { name: 'Cryptographic operations use approved libs', status: 'pass', count: 'argon2, jose, crypto.subtle only' }
+  ]}
+];
+
+Shell.render({
+  mode: 'advisors',
+  contextNav: advisorsContextNav('sast'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>SAST · Static analysis</h1>
+          <div class="subtitle">CodeQL + Semgrep + custom rules · Runs on every commit · Last run 12 minutes ago</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Rules</button>
+          <button class="btn btn-secondary btn-sm">SARIF export</button>
+          <button class="btn btn-primary btn-sm" onclick="Shell.toast('Re-running static analysis...', 'info')">Re-scan</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Files scanned</div><div class="stat-value">142</div><div class="stat-delta text-secondary">42K LOC</div></div>
+        <div class="stat-card"><div class="stat-label">Rules active</div><div class="stat-value">347</div><div class="stat-delta text-secondary">CodeQL + Semgrep + custom</div></div>
+        <div class="stat-card"><div class="stat-label">Open findings</div><div class="stat-value text-warning">1</div><div class="stat-delta text-secondary">1 medium</div></div>
+        <div class="stat-card"><div class="stat-label">Critical / High</div><div class="stat-value text-success">0</div><div class="stat-delta stat-up">none open</div></div>
+      </div>
+
+      <div class="card mb-4" style="background: var(--bg-info-subtle); border-color: var(--accent-primary);">
+        <div class="text-sm">
+          <strong>Defense in depth.</strong> SAST analyses your source code without running it; DAST attacks the running app.
+          Findings often correlate — the SQL injection found here (<span class="mono">/api/search</span>) is also flagged by the
+          <a href="advisors-pentest.html">Pentest advisor</a> as PT-014.
+        </div>
+      </div>
+
+      ${groups.map(g => `
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-title">${g.cat}</div>
+            <div class="text-xs text-tertiary">${g.items.filter(i => i.status === 'pass').length} of ${g.items.length}</div>
+          </div>
+          ${g.items.map(item => `
+            <div class="audit-row">
+              <div class="audit-icon ${item.status}">${item.status === 'pass' ? '✓' : item.status === 'fail' ? '✕' : '!'}</div>
+              <div style="flex: 1;">
+                <div class="flex justify-between">
+                  <div class="font-medium" style="font-size: 13px;">${item.name}</div>
+                  ${item.count ? `<div class="text-xs text-tertiary">${item.count}</div>` : ''}
+                </div>
+                ${item.desc ? `<div class="text-xs text-secondary mt-1">${item.desc}</div>` : ''}
+              </div>
+              ${item.status !== 'pass' ? `<button class="btn btn-secondary btn-sm">View</button>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Findings · 30 days</div></div>
+        <div style="height: 100px; background: var(--bg-canvas); border-radius: var(--radius-sm); padding: 12px; display: flex; align-items: end; gap: 3px;">
+          ${[3,2,4,3,2,1,2,3,2,1,1,2,1,2,1,1,2,1,1,1,2,1,1,2,1,1,1,1,1,1].map(v => `
+            <div style="flex: 1; height: ${v * 22}%; background: ${v >= 3 ? 'var(--fg-warning)' : 'var(--fg-success)'}; border-radius: 2px 2px 0 0; opacity: 0.85;"></div>
+          `).join('')}
+        </div>
+        <div class="flex justify-between text-xs text-tertiary mt-2"><span>30 days ago · 3 open</span><span>Today · 1 open</span></div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

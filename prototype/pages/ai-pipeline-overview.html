@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Pipeline — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const proj = MOCK.projects.find(p => p.id === MOCK.currentProjectId);
+
+const stages = [
+  ['Intent capture','approved','5 turns · $0.34 · Approved by Joana'],
+  ['Requirements (PRD)','approved','10 sections · $2.10 · Approved by Marcus'],
+  ['Design tokens','approved','Light + dark · WCAG AA · $0.85'],
+  ['Schema synthesis','approved','8 tables · 47 columns · 12 PII flags · $1.20'],
+  ['Data migration','pending','Greenfield project — no migration needed'],
+  ['UI generation','in_review','14 components · 4 awaiting review · $18.50'],
+  ['Code generation','pending','7 functions inventoried · 0 generated'],
+  ['Tests','pending',''],
+  ['Deployment','pending',''],
+  ['Maintenance','pending','']
+];
+
+Shell.render({
+  mode: 'ai-pipeline',
+  contextNav: aiPipelineContextNav('project-overview'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page-fullbleed">
+      ${Shell.pipelineStepper(proj.stage)}
+      <div class="page" style="max-width: 1280px;">
+        <div class="page-header">
+          <div><h1>${proj.name}</h1><div class="subtitle">${proj.description} · Created ${proj.created}</div></div>
+          <div class="page-header-actions">
+            <button class="btn btn-secondary btn-sm">Settings</button>
+            <a class="btn btn-primary btn-sm" href="ai-pipeline-${proj.stage}.html">Continue at ${proj.stage}</a>
+          </div>
+        </div>
+        <div class="grid grid-4 mb-6">
+          <div class="stat-card"><div class="stat-label">Stages complete</div><div class="stat-value">${proj.stagesComplete} / 10</div></div>
+          <div class="stat-card"><div class="stat-label">Total cost</div><div class="stat-value">$${proj.cost.toFixed(2)}</div></div>
+          <div class="stat-card"><div class="stat-label">Components</div><div class="stat-value">14</div></div>
+          <div class="stat-card"><div class="stat-label">Tests passing</div><div class="stat-value">87 / 87</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Stage progress</div></div>
+          ${stages.map(([n, s, d], i) => `
+            <div class="flex justify-between items-center mb-3" style="padding-bottom: 12px; border-bottom: 1px solid var(--border-default);">
+              <div class="flex items-center gap-3">
+                <div style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: ${s==='approved'?'var(--bg-success-subtle)':s==='in_review'?'var(--bg-warning-subtle)':'var(--bg-canvas)'}; color: ${s==='approved'?'var(--fg-success)':s==='in_review'?'var(--fg-warning)':'var(--fg-tertiary)'}; font-size: 12px;">${i+1}</div>
+                <div><strong>${n}</strong><div class="text-tertiary text-xs">${d || 'Not started'}</div></div>
+              </div>
+              ${Shell.statusBadge(s)}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

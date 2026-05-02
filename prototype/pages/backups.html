@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Backups — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Backups',
+  sections: [
+    { heading: 'Backup', items: [
+      { id: 'snapshots', label: 'Snapshots', active: true, href: '#' },
+      { id: 'pitr', label: 'Point-in-time recovery', href: '#' },
+      { id: 'storage', label: 'Storage backups', href: '#' }
+    ]},
+    { heading: 'Restore', items: [
+      { id: 'history', label: 'Restore history', href: '#' }
+    ]}
+  ]
+};
+
+const snapshots = [
+  ['snap_20260502_0200', '2026-05-02 02:00 UTC', 'auto · daily', '38.2 GB', 'completed', '7d retention', 'us-east-1, eu-west-1'],
+  ['snap_20260501_0200', '2026-05-01 02:00 UTC', 'auto · daily', '38.1 GB', 'completed', '7d retention', 'us-east-1, eu-west-1'],
+  ['snap_20260430_1247', '2026-04-30 12:47 UTC', 'manual · before migration', '37.9 GB', 'completed', '30d retention', 'us-east-1, eu-west-1'],
+  ['snap_20260430_0200', '2026-04-30 02:00 UTC', 'auto · daily', '37.8 GB', 'completed', '7d retention', 'us-east-1, eu-west-1'],
+  ['snap_20260429_0200', '2026-04-29 02:00 UTC', 'auto · daily', '37.7 GB', 'completed', '7d retention', 'us-east-1, eu-west-1'],
+  ['snap_20260428_0200', '2026-04-28 02:00 UTC', 'auto · daily', '37.5 GB', 'completed', '7d retention', 'us-east-1, eu-west-1'],
+  ['snap_20260501_W', '2026-04-27 02:00 UTC', 'auto · weekly', '37.2 GB', 'completed', '12w retention', 'us-east-1, eu-west-1, glacier']
+];
+
+Shell.render({
+  mode: 'database',
+  contextNav,
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Backups & Recovery</h1>
+          <div class="subtitle">PostgreSQL · Last backup 8 hours ago · PITR window: 7 days · Cross-region replicated</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Restore wizard</button>
+          <button class="btn btn-secondary btn-sm">Settings</button>
+          <button class="btn btn-primary btn-sm" onclick="Shell.toast('Manual snapshot started...', 'info')">+ Manual snapshot</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Last backup</div><div class="stat-value">8h ago</div><div class="stat-delta text-secondary">02:00 UTC daily</div></div>
+        <div class="stat-card"><div class="stat-label">PITR window</div><div class="stat-value">7d</div><div class="stat-delta text-secondary">restore to any second</div></div>
+        <div class="stat-card"><div class="stat-label">Total snapshots</div><div class="stat-value">21</div><div class="stat-delta text-secondary">7 daily · 12 weekly · 2 manual</div></div>
+        <div class="stat-card"><div class="stat-label">Backup storage</div><div class="stat-value">847 GB</div><div class="stat-delta text-secondary">$8.20 / mo</div></div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Backup policy</div></div>
+        <div class="grid grid-3">
+          <div class="inspector-row"><span class="key">Daily snapshot</span><span class="val">02:00 UTC · 7d retention</span></div>
+          <div class="inspector-row"><span class="key">Weekly snapshot</span><span class="val">Sun 02:00 UTC · 12w retention</span></div>
+          <div class="inspector-row"><span class="key">Monthly snapshot</span><span class="val">1st of month · 12 months</span></div>
+          <div class="inspector-row"><span class="key">PITR</span><span class="val">WAL streaming · 7d window</span></div>
+          <div class="inspector-row"><span class="key">Replication</span><span class="val">us-east-1 · eu-west-1 · Glacier (cold)</span></div>
+          <div class="inspector-row"><span class="key">Encryption</span><span class="val">AES-256 at rest · TLS in transit</span></div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Snapshots</div></div>
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Created</th><th>Type</th><th class="tabular">Size</th><th>Status</th><th>Retention</th><th>Replicated to</th><th></th></tr></thead>
+          <tbody>
+            ${snapshots.map(([id, when, type, size, status, ret, repl]) => `
+              <tr>
+                <td class="mono text-xs">${id}</td>
+                <td class="text-xs">${when}</td>
+                <td class="text-xs text-secondary">${type}</td>
+                <td class="tabular text-xs">${size}</td>
+                <td><span class="badge badge-success">Completed</span></td>
+                <td class="text-xs text-secondary">${ret}</td>
+                <td class="text-xs text-tertiary">${repl}</td>
+                <td class="flex gap-1">
+                  <button class="btn btn-ghost btn-xs">Download</button>
+                  <button class="btn btn-secondary btn-xs">Restore</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Point-in-time recovery</div></div>
+          <div class="text-sm mb-3">Restore to any second within the last 7 days.</div>
+          <div class="text-xs text-tertiary mb-1">RECOVERY POINT</div>
+          <input type="datetime-local" class="input input-h28" value="2026-05-01T18:00" style="width: 100%; margin-bottom: 12px;" />
+          <div class="text-xs text-tertiary mb-1">RESTORE TARGET</div>
+          <select class="select input-h28" style="width: 100%; margin-bottom: 12px;"><option>New database (recommended)</option><option>Replace primary (destructive)</option></select>
+          <button class="btn btn-primary btn-sm" style="width: 100%;">Start restore</button>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Recent restore drills</div></div>
+          <table class="data-table">
+            <thead><tr><th>When</th><th>From</th><th>Duration</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="text-tertiary text-xs">7 days ago</td><td class="mono text-xs">snap_20260424_W</td><td class="tabular text-xs">14m</td><td><span class="badge badge-success">OK</span></td></tr>
+              <tr><td class="text-tertiary text-xs">14 days ago</td><td class="mono text-xs">snap_20260417_W</td><td class="tabular text-xs">12m</td><td><span class="badge badge-success">OK</span></td></tr>
+              <tr><td class="text-tertiary text-xs">21 days ago</td><td class="mono text-xs">PITR · point</td><td class="tabular text-xs">8m</td><td><span class="badge badge-success">OK</span></td></tr>
+            </tbody>
+          </table>
+          <div class="text-xs text-tertiary mt-3">Auto-drills every 7 days verify backups can actually be restored.</div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

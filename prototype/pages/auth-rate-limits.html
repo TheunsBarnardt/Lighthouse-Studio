@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rate Limits — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'auth',
+  contextNav: authContextNav('rate-limits'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Rate Limits</h1><div class="subtitle">Per-IP and per-user request limits</div></div>
+      </div>
+      
+      <div class="card">
+        <div class="inspector-row"><span class="key">Sign-in attempts</span><span class="val tabular">5 per 15 min</span></div>
+        <div class="inspector-row"><span class="key">Password reset</span><span class="val tabular">3 per hour</span></div>
+        <div class="inspector-row"><span class="key">Magic link send</span><span class="val tabular">5 per hour</span></div>
+        <div class="inspector-row"><span class="key">API key issuance</span><span class="val tabular">10 per day</span></div>
+        <div class="inspector-row"><span class="key">Workspace invitations</span><span class="val tabular">50 per day</span></div>
+      </div>
+   
+    </div>
+  `
+});
+</script>
+</body>
+</html>

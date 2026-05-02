@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webhooks (incoming) — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const incoming = [
+  ['ihook_241a', 'Stripe payments', 'https://api.acme.platform.local/webhooks/in/ihook_241a', 'invokes processStripeEvent', 12, 'live'],
+  ['ihook_142b', 'Outlook calendar push', 'https://api.acme.platform.local/webhooks/in/ihook_142b', 'invokes syncCalendarEvent', 47, 'live'],
+  ['ihook_8e23c', 'GitHub deploy notifications', 'https://api.acme.platform.local/webhooks/in/ihook_8e23c', 'invokes recordDeployment', 4, 'live']
+];
+
+Shell.render({
+  mode: 'apis',
+  contextNav: apisContextNav('webhooks-in'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Webhooks · Incoming</h1>
+          <div class="subtitle">Receive events from external systems · 3 endpoints · 63 events / day average</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Audit log</button>
+          <button class="btn btn-primary btn-sm">+ New endpoint</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Endpoints</div><div class="stat-value">3</div><div class="stat-delta text-secondary">all live</div></div>
+        <div class="stat-card"><div class="stat-label">Events · 30d</div><div class="stat-value">1,892</div><div class="stat-delta stat-up">+8% vs prior</div></div>
+        <div class="stat-card"><div class="stat-label">Verification failures</div><div class="stat-value text-success">0</div><div class="stat-delta text-secondary">all signatures valid</div></div>
+        <div class="stat-card"><div class="stat-label">Function errors</div><div class="stat-value">2</div><div class="stat-delta text-secondary">last 30 days</div></div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Configured endpoints</div></div>
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Source</th><th>URL</th><th>Triggers</th><th class="tabular">Events · 30d</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${incoming.map(([id, src, url, trig, evts, status]) => `
+              <tr>
+                <td class="mono text-xs">${id}</td>
+                <td class="font-medium text-sm">${src}</td>
+                <td class="mono text-xs text-secondary" style="max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${url}</td>
+                <td class="mono text-xs">${trig}</td>
+                <td class="tabular">${evts}</td>
+                <td><span class="badge badge-success">Live</span></td>
+                <td class="flex gap-1"><button class="btn btn-ghost btn-xs">Logs</button><button class="btn btn-ghost btn-xs">Settings</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Verification</div></div>
+        <div class="grid grid-2">
+          <div>
+            <div class="font-medium mb-2">Signature requirements</div>
+            <div class="text-sm text-secondary mb-2">Each endpoint requires the source to sign the request body. Unsigned or invalid requests are rejected with 401.</div>
+            <div class="code-block" style="font-size: 11px;">X-Platform-Signature: t=1714627847,v1=5257a869e7...</div>
+          </div>
+          <div>
+            <div class="font-medium mb-2">Per-source secrets</div>
+            <div class="inspector-row"><span class="key">Stripe</span><span class="val mono">whsec_•••a3f2</span></div>
+            <div class="inspector-row"><span class="key">Outlook</span><span class="val mono">whsec_•••8e14</span></div>
+            <div class="inspector-row"><span class="key">GitHub</span><span class="val mono">whsec_•••b821</span></div>
+            <div class="text-xs text-tertiary mt-2">Rotate secrets every 90 days.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent events</div></div>
+        <table class="data-table">
+          <thead><tr><th>When</th><th>Source</th><th>Event type</th><th>Triggered function</th><th>Status</th><th>Latency</th></tr></thead>
+          <tbody>
+            <tr><td class="text-tertiary text-xs">3 min ago</td><td>Outlook</td><td class="mono text-xs">calendar.event.created</td><td class="mono text-xs">syncCalendarEvent</td><td><span class="badge badge-success">Success</span></td><td class="tabular text-xs">87ms</td></tr>
+            <tr><td class="text-tertiary text-xs">14 min ago</td><td>Stripe</td><td class="mono text-xs">payment_intent.succeeded</td><td class="mono text-xs">processStripeEvent</td><td><span class="badge badge-success">Success</span></td><td class="tabular text-xs">142ms</td></tr>
+            <tr><td class="text-tertiary text-xs">47 min ago</td><td>Outlook</td><td class="mono text-xs">calendar.event.updated</td><td class="mono text-xs">syncCalendarEvent</td><td><span class="badge badge-success">Success</span></td><td class="tabular text-xs">94ms</td></tr>
+            <tr><td class="text-tertiary text-xs">2h ago</td><td>GitHub</td><td class="mono text-xs">deployment_status</td><td class="mono text-xs">recordDeployment</td><td><span class="badge badge-success">Success</span></td><td class="tabular text-xs">42ms</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

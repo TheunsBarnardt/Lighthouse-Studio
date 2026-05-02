@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cost & Usage — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Cost & Usage',
+  sections: [
+    { heading: 'Overview', items: [
+      { id: 'dashboard', label: 'Dashboard', active: true, href: '#' },
+      { id: 'forecasts', label: 'Forecasts', href: '#' }
+    ]},
+    { heading: 'Breakdown', items: [
+      { id: 'by-source', label: 'By source', href: '#' },
+      { id: 'by-project', label: 'By project', href: '#' },
+      { id: 'by-stage', label: 'By pipeline stage', href: '#' }
+    ]},
+    { heading: 'Optimisation', items: [
+      { id: 'optimise', label: 'Optimisation advisor', href: 'advisors-cost.html' },
+      { id: 'budgets', label: 'Budgets & alerts', href: '#' }
+    ]}
+  ]
+};
+
+const stages = [
+  ['Stage 1 · Intent', 0.40, 12, '$0.033 avg'],
+  ['Stage 2 · PRD', 1.80, 47, '$0.038 avg'],
+  ['Stage 3 · Design tokens', 0.80, 23, '$0.035 avg'],
+  ['Stage 4 · Schema synthesis', 1.20, 34, '$0.035 avg'],
+  ['Stage 6 · UI generation', 12.40, 142, '$0.087 avg · Opus 4.7'],
+  ['Stage 7 · Code generation', 4.20, 87, '$0.048 avg'],
+  ['Stage 8 · Tests', 1.40, 47, '$0.030 avg'],
+  ['Stage 9 · Deployment', 0.60, 47, '$0.013 avg · pre-flight check'],
+  ['Stage 10 · Maintenance', 0.60, 18, '$0.033 avg · auto-triage']
+];
+
+const projects = [
+  ['Internal Sales CRM', 38.20, 77.5, 412],
+  ['Marketing Blog', 11.10, 22.5, 98]
+];
+
+Shell.render({
+  mode: 'cost',
+  contextNav,
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1400px;">
+      <div class="page-header">
+        <div>
+          <h1>Cost & Usage</h1>
+          <div class="subtitle">Spend across all sources · This month: $49.30 / $50 budget · Forecast: $54.20</div>
+        </div>
+        <div class="page-header-actions">
+          <select class="select input-h28" style="width: 140px;"><option>This month</option><option>Last 30 days</option><option>Last quarter</option><option>YTD</option></select>
+          <button class="btn btn-secondary btn-sm">Export CSV</button>
+          <button class="btn btn-secondary btn-sm">Set budget</button>
+          <a class="btn btn-primary btn-sm" href="advisors-cost.html">Optimisation →</a>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Current month</div><div class="stat-value">$49.30</div><div class="stat-delta text-secondary">99% of budget</div></div>
+        <div class="stat-card"><div class="stat-label">Forecast end of month</div><div class="stat-value text-warning">$54.20</div><div class="stat-delta text-warning">+8.4% over budget</div></div>
+        <div class="stat-card"><div class="stat-label">vs prior month</div><div class="stat-value">+12%</div><div class="stat-delta text-secondary">$5.40 increase</div></div>
+        <div class="stat-card"><div class="stat-label">Top driver</div><div class="stat-value">AI</div><div class="stat-delta text-secondary">$23.40 · 47.5%</div></div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Spend trend · 90 days</div></div>
+        <div style="height: 160px; background: var(--bg-canvas); border-radius: var(--radius-sm); padding: 12px; display: flex; align-items: end; gap: 2px;">
+          ${[28,30,32,34,32,35,38,36,40,42,40,44,46,44,46,48,46,48,49,46,48,49,47,49,46,48,50,48,49].map(v => `
+            <div style="flex: 1; height: ${(v - 20) * 3}%; background: var(--accent-primary); border-radius: 2px 2px 0 0; opacity: 0.85;" title="$${v}"></div>
+          `).join('')}
+        </div>
+        <div class="flex justify-between text-xs text-tertiary mt-2"><span>90 days ago</span><span>Today · $49.30 MTD</span></div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">By project</div></div>
+          <table class="data-table">
+            <thead><tr><th>Project</th><th class="tabular">Spend</th><th class="tabular">Share</th><th class="tabular">AI calls</th></tr></thead>
+            <tbody>
+              ${projects.map(([n, amt, pct, calls]) => `
+                <tr>
+                  <td class="font-medium text-sm">${n}</td>
+                  <td class="tabular">$${amt.toFixed(2)}</td>
+                  <td class="tabular text-xs text-secondary">${pct}%</td>
+                  <td class="tabular">${calls}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">AI spend by pipeline stage</div></div>
+          <table class="data-table">
+            <thead><tr><th>Stage</th><th class="tabular">Spend</th><th class="tabular">Calls</th><th>Notes</th></tr></thead>
+            <tbody>
+              ${stages.map(([n, amt, calls, note]) => `
+                <tr>
+                  <td class="text-sm">${n}</td>
+                  <td class="tabular text-xs">$${amt.toFixed(2)}</td>
+                  <td class="tabular text-xs">${calls}</td>
+                  <td class="text-xs text-tertiary">${note}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <div class="card-header">
+          <div class="card-title">Budget alerts</div>
+          <button class="btn btn-secondary btn-sm">+ Alert rule</button>
+        </div>
+        <div class="inspector-row"><span class="key">Monthly budget</span><span class="val">$50.00</span></div>
+        <div class="inspector-row"><span class="key">Alert at 80% spend</span><span class="val text-success">→ Email + Slack #ops</span></div>
+        <div class="inspector-row"><span class="key">Alert at 100%</span><span class="val text-success">→ Email + Slack #ops + PagerDuty</span></div>
+        <div class="inspector-row"><span class="key">Forecast alert</span><span class="val text-warning">⚠ Forecast exceeds budget by $4.20</span></div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

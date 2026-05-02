@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Webhooks — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('webhooks'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Database Webhooks</h1><div class="subtitle">HTTP requests on database events</div></div>
+      </div>
+      
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Table</th><th>Event</th><th>Endpoint</th></tr></thead>
+          <tbody>
+            <tr><td>deal_won_notification</td><td class="mono text-xs">deals</td><td><span class="badge badge-default">UPDATE</span></td><td class="mono text-xs">https://hooks.acme.com/deal-won</td></tr>
+            <tr><td>contact_to_crm_sync</td><td class="mono text-xs">contacts</td><td><span class="badge badge-default">INSERT</span></td><td class="mono text-xs">https://api.salesforce.com/sync</td></tr>
+          </tbody>
+        </table>
+      </div>
+   
+    </div>
+  `
+});
+</script>
+</body>
+</html>

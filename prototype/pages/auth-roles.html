@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roles & Permissions — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const roles = [
+  ['Workspace Owner', 1, 'All permissions', 'Full access including billing and workspace deletion'],
+  ['Admin', 1, '127 permissions', 'Most actions; cannot delete workspace or change billing'],
+  ['Architect', 1, '94 permissions', 'Schema and deployment access; full data plane'],
+  ['Business Analyst', 1, '42 permissions', 'Intent and PRD authorship; review and approve requirements'],
+  ['Developer', 1, '78 permissions', 'Code generation and deployment'],
+  ['QA', 1, '38 permissions', 'Test generation and approval; read access to all stages'],
+  ['Reviewer', 1, '24 permissions', 'Read-only with approval rights at configured gates']
+];
+
+Shell.render({
+  mode: 'auth',
+  contextNav: authContextNav('roles'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Roles & Permissions</h1><div class="subtitle">${roles.length} roles · 142 permissions defined</div></div>
+        <div class="page-header-actions"><button class="btn btn-primary btn-sm">+ New role</button></div>
+      </div>
+      <div class="grid grid-2">
+        ${roles.map(([role, count, perms, desc]) => `
+          <div class="card">
+            <div class="flex justify-between items-center mb-2">
+              <strong>${role}</strong>
+              <span class="badge badge-default">${count} member</span>
+            </div>
+            <div class="text-secondary text-sm mb-2">${desc}</div>
+            <div class="text-tertiary text-xs">${perms}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

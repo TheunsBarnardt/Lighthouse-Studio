@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lighthouse / Performance — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+function ring(score) {
+  const cls = score >= 90 ? 'score-good' : score >= 50 ? 'score-medium' : 'score-bad';
+  const C = 2 * Math.PI * 44;
+  const offset = C - (C * score / 100);
+  return `<div class="score-ring"><svg viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="44" /><circle class="ring-fg ${cls}" cx="50" cy="50" r="44" stroke-dasharray="${C}" stroke-dashoffset="${offset}" /></svg><div class="num ${cls}">${score}</div></div>`;
+}
+
+const cwv = [
+  { name: 'Largest Contentful Paint (LCP)', value: '1.8s', target: '< 2.5s', status: 'good', desc: 'Time until largest visible element renders.' },
+  { name: 'Cumulative Layout Shift (CLS)', value: '0.04', target: '< 0.1', status: 'good', desc: 'Visual stability — sum of layout shift scores.' },
+  { name: 'Interaction to Next Paint (INP)', value: '187ms', target: '< 200ms', status: 'good', desc: 'Latency of user interactions.' },
+  { name: 'First Contentful Paint (FCP)', value: '0.9s', target: '< 1.8s', status: 'good', desc: 'Time to first visible text or image.' },
+  { name: 'Time to First Byte (TTFB)', value: '210ms', target: '< 600ms', status: 'good', desc: 'Network + server response time.' },
+  { name: 'Total Blocking Time (TBT)', value: '420ms', target: '< 200ms', status: 'medium', desc: 'Sum of long tasks blocking main thread.' }
+];
+
+const opportunities = [
+  { name: 'Defer offscreen images', savings: '0.8s', desc: '5 images below the fold load eagerly. Add loading="lazy".', evidence: 'product-1.jpg (240KB), hero-bg.png (480KB), feature-2.jpg (180KB)…' },
+  { name: 'Eliminate render-blocking resources', savings: '0.4s', desc: '2 stylesheets and 1 script block first paint.', evidence: '/css/main.css (24KB) · /js/analytics.js (12KB)' },
+  { name: 'Properly size images', savings: '180KB', desc: 'Serve images at displayed dimensions.', evidence: 'logo.png served at 800x600, displayed at 200x150' }
+];
+
+const diagnostics = [
+  { name: 'Avoid enormous network payloads', status: 'pass', value: '1.2MB total', target: '< 1.5MB' },
+  { name: 'Minimise main-thread work', status: 'warn', value: '2.4s', target: '< 2.0s' },
+  { name: 'Reduce JavaScript execution time', status: 'pass', value: '1.8s', target: '< 2.0s' },
+  { name: 'Avoid serving legacy JavaScript to modern browsers', status: 'pass', value: '0KB', target: '0KB' },
+  { name: 'Image formats: serve WebP/AVIF', status: 'warn', value: '4 images in JPG', target: 'all WebP+' },
+  { name: 'Use HTTP/2 or HTTP/3', status: 'pass', value: 'h2', target: 'h2 or h3' }
+];
+
+Shell.render({
+  mode: 'advisors',
+  contextNav: advisorsContextNav('lighthouse'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Lighthouse / Performance</h1>
+          <div class="subtitle">Core Web Vitals · Last scan 12 minutes ago · Tested with Mobile · Slow 4G · 4× CPU throttle</div>
+        </div>
+        <div class="page-header-actions">
+          <select class="select input-h28" style="width: 180px;"><option>/dashboard</option><option>/deals</option><option>/contacts</option><option>/</option></select>
+          <select class="select input-h28" style="width: 120px;"><option>Mobile</option><option>Desktop</option></select>
+          <button class="btn btn-primary btn-sm" onclick="Shell.toast('Running Lighthouse audit...', 'info')">Re-scan</button>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+        <div class="card" style="text-align: center;">
+          ${ring(92)}
+          <div class="font-semibold mt-2" style="font-size: 13px;">Performance</div>
+          <div class="text-xs text-tertiary">Speed and responsiveness</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          ${ring(96)}
+          <div class="font-semibold mt-2" style="font-size: 13px;">Accessibility</div>
+          <div class="text-xs text-tertiary">WCAG 2.1 AA</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          ${ring(100)}
+          <div class="font-semibold mt-2" style="font-size: 13px;">Best Practices</div>
+          <div class="text-xs text-tertiary">HTTPS, console, modern APIs</div>
+        </div>
+        <div class="card" style="text-align: center;">
+          ${ring(78)}
+          <div class="font-semibold mt-2" style="font-size: 13px;">SEO</div>
+          <div class="text-xs text-tertiary">Crawlability, meta, structured data</div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">Core Web Vitals · field data (real users · last 28d)</div>
+          <span class="badge badge-success">Passing</span>
+        </div>
+        <div class="grid grid-3">
+          ${cwv.map(m => `
+            <div style="padding: 12px; border: 1px solid var(--border-default); border-radius: var(--radius-sm);">
+              <div class="flex items-center gap-2 mb-2">
+                <div style="width: 8px; height: 8px; border-radius: 50%; background: var(--fg-${m.status === 'good' ? 'success' : m.status === 'medium' ? 'warning' : 'danger'});"></div>
+                <div class="text-xs font-medium" style="text-transform: uppercase; letter-spacing: 0.04em;">${m.name}</div>
+              </div>
+              <div class="flex items-baseline gap-2 mb-1">
+                <div class="text-${m.status === 'good' ? 'success' : m.status === 'medium' ? 'warning' : 'danger'}" style="font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums;">${m.value}</div>
+                <div class="text-xs text-tertiary">target ${m.target}</div>
+              </div>
+              <div class="text-xs text-secondary">${m.desc}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">Opportunities</div>
+          <span class="badge badge-warning">3 found · ~1.4s savings</span>
+        </div>
+        ${opportunities.map(o => `
+          <div class="audit-row">
+            <div class="audit-icon warn">!</div>
+            <div style="flex: 1;">
+              <div class="flex justify-between items-start">
+                <div class="font-medium" style="font-size: 13px;">${o.name}</div>
+                <div class="text-xs text-success font-semibold">Save ${o.savings}</div>
+              </div>
+              <div class="text-xs text-secondary mt-1">${o.desc}</div>
+              <div class="text-xs text-tertiary mt-1 mono">${o.evidence}</div>
+            </div>
+            <button class="btn btn-secondary btn-sm">Open CR</button>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Diagnostics</div></div>
+        ${diagnostics.map(d => `
+          <div class="audit-row">
+            <div class="audit-icon ${d.status}">${d.status === 'pass' ? '✓' : d.status === 'fail' ? '✕' : '!'}</div>
+            <div style="flex: 1;">
+              <div class="flex justify-between">
+                <div class="font-medium" style="font-size: 13px;">${d.name}</div>
+                <div class="text-xs text-tertiary">${d.value} · target ${d.target}</div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Trend · 30 days</div></div>
+        <div style="height: 100px; background: var(--bg-canvas); border-radius: var(--radius-sm); padding: 12px; display: flex; align-items: end; gap: 3px;">
+          ${[78,80,82,81,84,86,84,87,89,87,88,86,89,90,89,91,90,92,91,90,92,93,91,92,90,92,91,93,92,92].map(v => `
+            <div style="flex: 1; height: ${v - 70}%; background: var(--accent-primary); border-radius: 2px 2px 0 0;" title="${v}"></div>
+          `).join('')}
+        </div>
+        <div class="flex justify-between text-xs text-tertiary mt-2"><span>30 days ago</span><span>Today · 92</span></div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tests — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const coverage = [
+  ['FR-1', 'Contact management', 4, 'covered'],
+  ['FR-2', 'Deal pipeline', 6, 'covered'],
+  ['FR-3', 'Call notes', 3, 'covered'],
+  ['FR-4', 'Outlook integration', 0, 'gap'],
+  ['FR-5', 'Pipeline view', 5, 'covered']
+];
+const recentRuns = [
+  ['test_run_127', 'PR #243 · main', 'passed', '2m 14s', '12 min ago', 87, 87, 0],
+  ['test_run_126', 'main · auto', 'passed', '2m 09s', '47 min ago', 87, 87, 0],
+  ['test_run_125', 'manual · Joana', 'failed', '1m 38s', '2 hours ago', 86, 87, 1],
+  ['test_run_124', 'PR #242 · feature/outlook-sync', 'passed', '2m 22s', '4 hours ago', 87, 87, 0],
+  ['test_run_123', 'main · scheduled (nightly)', 'passed', '2m 31s', 'Yesterday 02:00', 87, 87, 0],
+  ['test_run_122', 'main · auto', 'passed', '2m 08s', 'Yesterday', 87, 87, 0]
+];
+const flakyTests = [
+  ['DealKanbanPage › drag-and-drop reorders cards', 3, 'last 14 days', 'race condition on drag end'],
+  ['outlookCalendarSync › retries on 429', 2, 'last 7 days', 'token refresh timing'],
+  ['ContactsTable › virtualised scroll', 1, 'last 30 days', 'flaky once']
+];
+
+Shell.render({
+  mode: 'ai-pipeline',
+  contextNav: aiPipelineContextNav('test-gen'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page-fullbleed">
+      ${Shell.pipelineStepper('test-gen')}
+      <div class="page" style="max-width: 1400px;">
+        <div class="page-header">
+          <div>
+            <h1 style="font-size: 18px;">Tests · Continuous</h1>
+            <div class="subtitle">Tests run on every change. AC coverage stays in sync with the PRD as it evolves. Last update 12 min ago.</div>
+          </div>
+          <div class="page-header-actions">
+            <button class="btn btn-secondary btn-sm">Schedules</button>
+            <button class="btn btn-secondary btn-sm">Settings</button>
+            <button class="btn btn-primary btn-sm" onclick="Shell.toast('Triggering full test run on main...', 'info')">▶ Run all</button>
+          </div>
+        </div>
+
+        <div class="grid grid-4 mb-4">
+          <div class="stat-card"><div class="stat-label">Suite size</div><div class="stat-value">87</div><div class="stat-delta text-secondary">42 unit · 28 component · 11 int · 6 e2e</div></div>
+          <div class="stat-card"><div class="stat-label">Pass rate · 30d</div><div class="stat-value">98.4%</div><div class="stat-delta stat-up">+0.8% vs prior 30d</div></div>
+          <div class="stat-card"><div class="stat-label">AC coverage (must)</div><div class="stat-value">100%</div><div class="stat-delta stat-up">5/5 must-FRs</div></div>
+          <div class="stat-card"><div class="stat-label">Flake rate · 30d</div><div class="stat-value">0.7%</div><div class="stat-delta stat-up">−0.3% vs prior</div></div>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 16px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Recent runs</div>
+              <div class="text-xs text-tertiary">Auto-runs on push · PR · nightly</div>
+            </div>
+            <table class="data-table">
+              <thead><tr><th>Run</th><th>Trigger</th><th>Status</th><th class="tabular">Pass</th><th class="tabular">Duration</th><th>When</th></tr></thead>
+              <tbody>
+                ${recentRuns.map(([id, trigger, status, dur, when, p, t, f]) => `
+                  <tr>
+                    <td class="mono text-xs">${id}</td>
+                    <td class="text-xs text-secondary">${trigger}</td>
+                    <td>${status === 'passed' ? '<span class="badge badge-success">Passed</span>' : '<span class="badge badge-danger">Failed</span>'}</td>
+                    <td class="tabular text-xs">${p}/${t}${f > 0 ? ` <span class="text-danger">(${f} failed)</span>` : ''}</td>
+                    <td class="tabular text-xs">${dur}</td>
+                    <td class="text-tertiary text-xs">${when}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div>
+            <div class="card mb-3">
+              <div class="card-header">
+                <div class="card-title">AC coverage</div>
+                <span class="badge badge-success">100% MUST</span>
+              </div>
+              ${coverage.map(([id, n, c, s]) => `
+                <div class="flex justify-between items-center mb-2">
+                  <div class="flex items-center gap-2">
+                    <span class="badge badge-accent mono" style="font-size: 9px;">${id}</span>
+                    <span class="text-xs">${n}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs tabular">${c}</span>
+                    <span class="badge ${s==='covered'?'badge-success':'badge-warning'}" style="font-size: 9px;">${s==='covered'?'✓':'⚠'}</span>
+                  </div>
+                </div>
+              `).join('')}
+              <div class="text-xs text-tertiary mt-2">FR-4 awaits Outlook API integration before tests can be written.</div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><div class="card-title">Active gates</div></div>
+              <div class="inspector-row"><span class="key">On push to main</span><span class="val text-success">Enabled</span></div>
+              <div class="inspector-row"><span class="key">On PR open/update</span><span class="val text-success">Enabled</span></div>
+              <div class="inspector-row"><span class="key">Nightly e2e</span><span class="val tabular">02:00 UTC</span></div>
+              <div class="inspector-row"><span class="key">Pre-deploy gate</span><span class="val text-success">Required</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-header">
+            <div class="card-title">Flaky tests · last 30 days</div>
+            <span class="badge badge-warning">3 flagged</span>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>Test</th><th class="tabular">Failures</th><th>Window</th><th>Likely cause</th><th></th></tr></thead>
+            <tbody>
+              ${flakyTests.map(([t, f, w, c]) => `
+                <tr>
+                  <td class="mono text-xs">${t}</td>
+                  <td class="tabular">${f}</td>
+                  <td class="text-tertiary text-xs">${w}</td>
+                  <td class="text-secondary text-xs">${c}</td>
+                  <td><button class="btn btn-secondary btn-xs">Quarantine</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-header"><div class="card-title">Coverage trend · 30 days</div></div>
+          <div style="height: 120px; background: var(--bg-canvas); border-radius: var(--radius-sm); padding: 12px; display: flex; align-items: end; gap: 4px;">
+            ${[82,84,83,86,87,86,88,87,89,87,88,90,91,90,92,91,93,92,94,93,95,94,95,96,95,97,96,98,97,98].map(v => `
+              <div style="flex: 1; height: ${(v - 80) * 5}%; background: var(--accent-primary); border-radius: 2px 2px 0 0; opacity: 0.85;" title="${v}%"></div>
+            `).join('')}
+          </div>
+          <div class="flex justify-between text-xs text-tertiary mt-2">
+            <span>30 days ago</span>
+            <span>Today · 98%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

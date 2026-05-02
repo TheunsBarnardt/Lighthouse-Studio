@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intent — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+.chat { display: flex; flex-direction: column; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.chat-message { max-width: 720px; }
+.chat-message.user { align-self: flex-end; }
+.chat-message .role { font-size: 11px; font-weight: 600; color: var(--fg-tertiary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.chat-message .bubble { padding: 12px 16px; border-radius: var(--radius-md); background: var(--bg-surface); border: 1px solid var(--border-default); font-size: 14px; line-height: 22px; color: var(--fg-primary); }
+.chat-message.user .bubble { background: var(--accent-primary-subtle); border-color: var(--accent-primary-subtle); color: var(--fg-primary); }
+.chat-message .reasoning { font-size: 11px; color: var(--fg-tertiary); margin-top: 4px; cursor: pointer; }
+.chat-message .reasoning:hover { color: var(--accent-primary); }
+.chat-input-bar { padding: 12px 16px; border-top: 1px solid var(--border-default); display: flex; gap: 8px; background: var(--bg-surface); }
+.brief-section { padding: 10px 12px; border: 1px solid var(--border-default); border-radius: var(--radius-md); margin-bottom: 8px; background: var(--bg-surface); }
+.brief-section.confident { border-color: var(--fg-success); background: var(--bg-success-subtle); }
+.brief-section.tentative { border-color: var(--fg-warning); background: var(--bg-warning-subtle); }
+.brief-section.empty { opacity: 0.5; }
+.brief-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.brief-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-secondary); }
+.brief-section-content { font-size: 12px; color: var(--fg-primary); line-height: 18px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; }
+.brief-section.confident .status-dot { background: var(--fg-success); }
+.brief-section.tentative .status-dot { background: var(--fg-warning); }
+.brief-section.empty .status-dot { background: var(--border-emphasis); }
+</style>
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const briefFields = {
+  goals: 'confident',
+  target_users: 'confident',
+  success_criteria: 'tentative',
+  constraints: 'confident',
+  in_scope: 'confident',
+  out_of_scope: 'tentative',
+  assumptions: 'tentative',
+  risks: 'empty',
+  references: 'empty',
+  estimated_scope: 'tentative'
+};
+
+const briefContent = [
+  ['goals', 'Goals', 'Build a CRM to replace spreadsheet tracking; consolidate contacts, deals, call notes for an 8-person sales team.'],
+  ['target_users', 'Target users', '8 sales reps; collaborative (all see all). Possibly read access for finance.'],
+  ['success_criteria', 'Success criteria', 'Reps abandon spreadsheets within 3 months; pipeline visible at a glance.'],
+  ['constraints', 'Constraints', 'Microsoft 365 ecosystem. Internal-only.'],
+  ['in_scope', 'In scope', 'Contacts, deals (6 stages), call notes, basic reporting, Outlook integration.'],
+  ['out_of_scope', 'Out of scope', 'Marketing automation, public portal. (Tentative)'],
+  ['assumptions', 'Assumptions', 'Reps will adopt; Microsoft 365 SSO.'],
+  ['risks', 'Risks', null],
+  ['references', 'References', null],
+  ['estimated_scope', 'Estimated scope', 'Medium (10-15 tables; 4-6 weeks of pipeline).']
+];
+
+Shell.render({
+  mode: 'ai-pipeline',
+  contextNav: aiPipelineContextNav('intent'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page-fullbleed">
+      ${Shell.pipelineStepper('intent')}
+      <div style="display: grid; grid-template-columns: 1fr 360px; height: calc(100vh - 44px - 44px);">
+        <div class="chat" style="border-right: 1px solid var(--border-default); background: var(--bg-surface);">
+          <div class="chat-messages">
+            <div class="chat-message">
+              <div class="role">AI</div>
+              <div class="bubble">Welcome — let's capture what you want to build. To start, can you describe in your own words what this tool needs to do, and who it's for?</div>
+              <div class="reasoning">▸ Why this question</div>
+            </div>
+            <div class="chat-message user">
+              <div class="role">You</div>
+              <div class="bubble">I want to build a CRM for our sales team. About 8 reps. They need to track contacts, deals through stages, and notes from calls. Currently using spreadsheets.</div>
+            </div>
+            <div class="chat-message">
+              <div class="role">AI</div>
+              <div class="bubble">Helpful. A few clarifying questions:<br><br>1. What "stages" do deals move through?<br>2. Do reps need to see <em>each other's</em> deals, or only their own?<br>3. Any integration requirements?</div>
+              <div class="reasoning">▸ Identifying scope: workflow + permissions + integrations</div>
+            </div>
+            <div class="chat-message user">
+              <div class="role">You</div>
+              <div class="bubble">Stages: lead, qualified, proposal sent, negotiation, won, lost. Reps see all deals. Need email and calendar — Microsoft 365.</div>
+            </div>
+            <div class="chat-message">
+              <div class="role">AI</div>
+              <div class="bubble">Got it. Two more:<br><br>1. Does any sales data need to be visible to non-sales (e.g., finance)?<br>2. What does "success" look like 3 months in?</div>
+              <div class="reasoning">▸ Cross-functional access + success criteria</div>
+            </div>
+          </div>
+          <div class="chat-input-bar">
+            <textarea class="textarea" placeholder="Type your response..." style="min-height: 36px;"></textarea>
+            <button class="btn btn-primary" onclick="Shell.toast('Message would send', 'info')">Send</button>
+          </div>
+        </div>
+        <div style="overflow: auto; padding: 16px; background: var(--bg-canvas);">
+          <div class="flex justify-between items-center mb-3">
+            <div class="font-semibold">Intent Brief</div>
+            <a class="btn btn-primary btn-sm" href="ai-pipeline-prd.html">Generate brief →</a>
+          </div>
+          <div class="text-tertiary text-xs mb-4">Updates as we talk.</div>
+          ${briefContent.map(([k, label, content]) => `
+            <div class="brief-section ${briefFields[k]}">
+              <div class="brief-section-header">
+                <div class="brief-section-title">${label}</div>
+                <div class="status-dot"></div>
+              </div>
+              <div class="brief-section-content">${content || 'Not yet discussed.'}</div>
+            </div>
+          `).join('')}
+          <div class="text-xs text-tertiary mt-4">Cost so far: $0.34 of $50 monthly budget</div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Approvals — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Approvals',
+  sections: [
+    { heading: 'Queue', items: [
+      { id: 'pending', label: 'Pending (4)', active: true, href: '#' },
+      { id: 'mine', label: 'Awaiting me (2)', href: '#' },
+      { id: 'requested', label: 'Requested by me', href: '#' }
+    ]},
+    { heading: 'History', items: [
+      { id: 'approved', label: 'Approved', href: '#' },
+      { id: 'rejected', label: 'Rejected', href: '#' }
+    ]},
+    { heading: 'Configure', items: [
+      { id: 'routing', label: 'Approval routing', href: 'auth-approval-routing.html' }
+    ]}
+  ]
+};
+
+const pending = [
+  { id: 'AP-247', stage: 'Stage 9 · Production deploy', project: 'Internal Sales CRM', requester: 'Marcus Acker', requested: '12 min ago', mode: 'all_of', approved: 1, total: 2, urgent: true, summary: 'v0.1.3 → production. 14 components, 7 functions, 3 schema migrations. Tests passing.' },
+  { id: 'AP-246', stage: 'Stage 7 · Code generation', project: 'Internal Sales CRM', requester: 'AI', requested: '47 min ago', mode: 'all_of', approved: 0, total: 2, urgent: false, summary: 'Generated `outlookCalendarSync` integration function. 142 lines, sandboxed, OAuth scoped to read+write calendar.' },
+  { id: 'AP-245', stage: 'Stage 6 · UI generation', project: 'Marketing Blog', requester: 'AI', requested: '2 hours ago', mode: 'any_of', approved: 0, total: 2, urgent: false, summary: 'Generated `BlogPostPage` and `RelatedPostsList`. 2 new components.' },
+  { id: 'AP-244', stage: 'Stage 2 · PRD section', project: 'Internal Sales CRM', requester: 'Joana de Klerk', requested: '4 hours ago', mode: 'all_of', approved: 0, total: 1, urgent: false, summary: 'Functional Requirements section · 12 FRs · 3 traced to intent.' }
+];
+
+Shell.render({
+  mode: 'approvals',
+  contextNav,
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Approvals</h1>
+          <div class="subtitle">Single inbox of pending approvals across all projects · 4 pending · 2 awaiting you</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Settings</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-value">4</div><div class="stat-delta text-secondary">across 2 projects</div></div>
+        <div class="stat-card"><div class="stat-label">Awaiting you</div><div class="stat-value text-warning">2</div><div class="stat-delta text-secondary">1 urgent</div></div>
+        <div class="stat-card"><div class="stat-label">Approved · 7d</div><div class="stat-value">23</div><div class="stat-delta text-secondary">avg time-to-approve 1h 47m</div></div>
+        <div class="stat-card"><div class="stat-label">Rejected · 7d</div><div class="stat-value">2</div><div class="stat-delta text-secondary">all returned for changes</div></div>
+      </div>
+
+      ${pending.map(a => `
+        <div class="card mb-3" style="${a.urgent ? 'border-color: var(--fg-warning);' : ''}">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex items-center gap-3">
+              <span class="badge badge-accent mono">${a.id}</span>
+              <span class="badge badge-default">${a.stage}</span>
+              <span class="text-secondary text-sm">${a.project}</span>
+              ${a.urgent ? '<span class="badge badge-warning">Urgent</span>' : ''}
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-ghost btn-sm">View details</button>
+              <button class="btn btn-secondary btn-sm">Reject</button>
+              <button class="btn btn-primary btn-sm">Approve</button>
+            </div>
+          </div>
+          <div class="font-medium mb-2" style="font-size: 13px;">${a.summary}</div>
+          <div class="flex items-center gap-3 text-xs text-tertiary">
+            <span>Requested by ${a.requester}</span>
+            <span>·</span>
+            <span>${a.requested}</span>
+            <span>·</span>
+            <span>Mode: <span class="mono">${a.mode}</span> · ${a.approved} of ${a.total} approved</span>
+          </div>
+        </div>
+      `).join('')}
+
+      <div class="card mt-4">
+        <div class="card-header"><div class="card-title">Recently approved · 7 days</div></div>
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>What</th><th>Project</th><th>Approved by</th><th>When</th><th>TTA</th></tr></thead>
+          <tbody>
+            <tr><td class="mono text-xs">AP-243</td><td class="text-sm">Stage 4 · Schema synthesis</td><td class="text-secondary text-xs">Internal Sales CRM</td><td class="text-secondary text-xs">Marcus, Joana</td><td class="text-tertiary text-xs">5h ago</td><td class="tabular text-xs">42m</td></tr>
+            <tr><td class="mono text-xs">AP-242</td><td class="text-sm">Stage 3 · Design tokens</td><td class="text-secondary text-xs">Internal Sales CRM</td><td class="text-secondary text-xs">Joana</td><td class="text-tertiary text-xs">7h ago</td><td class="tabular text-xs">2h 4m</td></tr>
+            <tr><td class="mono text-xs">AP-241</td><td class="text-sm">Stage 9 · Staging deploy</td><td class="text-secondary text-xs">Marketing Blog</td><td class="text-secondary text-xs">Sara, Tom</td><td class="text-tertiary text-xs">Yesterday</td><td class="tabular text-xs">18m</td></tr>
+            <tr><td class="mono text-xs">AP-240</td><td class="text-sm">Stage 7 · Code generation</td><td class="text-secondary text-xs">Internal Sales CRM</td><td class="text-secondary text-xs">Marcus, Tom</td><td class="text-tertiary text-xs">Yesterday</td><td class="tabular text-xs">1h 12m</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

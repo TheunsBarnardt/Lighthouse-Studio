@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDKs — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'apis',
+  contextNav: apisContextNav('sdk'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Client SDKs</h1>
+          <div class="subtitle">Type-safe client libraries auto-generated from your schema · Updated when schema changes</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Changelog</button>
+          <button class="btn btn-primary btn-sm">Regenerate</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="card">
+          <div class="font-semibold mb-1">JavaScript / TypeScript</div>
+          <div class="text-xs text-tertiary mb-2">@acme/platform-js · v0.1.3</div>
+          <div class="code-block" style="font-size: 11px;">npm i @acme/platform-js</div>
+        </div>
+        <div class="card">
+          <div class="font-semibold mb-1">Python</div>
+          <div class="text-xs text-tertiary mb-2">acme-platform · v0.1.3</div>
+          <div class="code-block" style="font-size: 11px;">pip install acme-platform</div>
+        </div>
+        <div class="card">
+          <div class="font-semibold mb-1">Go</div>
+          <div class="text-xs text-tertiary mb-2">github.com/acme/platform-go</div>
+          <div class="code-block" style="font-size: 11px;">go get github.com/acme/platform-go</div>
+        </div>
+        <div class="card">
+          <div class="font-semibold mb-1">cURL</div>
+          <div class="text-xs text-tertiary mb-2">No SDK needed</div>
+          <div class="text-xs text-secondary">REST endpoints work with any HTTP client</div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Quick start</div></div>
+        <div class="tabs">
+          <div class="tab active">TypeScript</div>
+          <div class="tab">Python</div>
+          <div class="tab">Go</div>
+          <div class="tab">cURL</div>
+        </div>
+        <div class="code-block" style="margin-top: 12px; font-size: 12px; line-height: 1.6;">import { createClient } from '@acme/platform-js';
+
+const platform = createClient({
+  url: 'https://api.acme.platform.local',
+  apiKey: process.env.PLATFORM_API_KEY
+});
+
+// List deals — type-safe, filter inferred from schema
+const { data: deals, error } = await platform
+  .from('deals')
+  .select('id, title, amount, owner(name)')
+  .eq('stage', 'NEGOTIATION')
+  .order('updated_at', { ascending: false })
+  .limit(10);
+
+if (error) throw error;
+console.log(deals);  // typed as Deal[]</div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Subscribe to changes</div></div>
+        <div class="code-block" style="font-size: 12px; line-height: 1.6;">// Subscribe to deal updates in realtime
+const channel = platform
+  .channel('deals')
+  .on('postgres_changes', {
+    event: 'UPDATE',
+    schema: 'public',
+    table: 'deals',
+    filter: 'stage=eq.WON'
+  }, (payload) => {
+    console.log('Deal won:', payload.new);
+  })
+  .subscribe();</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Call a server function</div></div>
+        <div class="code-block" style="font-size: 12px; line-height: 1.6;">// Server functions are typed end-to-end
+const { data, error } = await platform.functions.invoke('exportDealsCSV', {
+  body: { stage: 'WON', from: '2026-01-01' }
+});
+
+// Returns: { url: string, expiresAt: string }
+window.open(data.url);</div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

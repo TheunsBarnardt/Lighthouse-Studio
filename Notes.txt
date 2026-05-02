@@ -1,0 +1,5 @@
+need the full plan overfiew
+need the fill implementation plan
+All the plans must be at this level then doing the Brd
+what happens when there is an external db that needs to be called 
+add https://coolify.io/ clone into solution

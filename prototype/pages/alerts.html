@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alerts — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const firing = [
+  ['ALERT-247', 'high', 'Error rate above threshold', 'Error rate has been > 1% for 5 minutes', '47 min ago', 'Error rate · /functions/v1/syncCalendarEvent', 'critical'],
+  ['ALERT-246', 'medium', 'Database connection pool nearly full', 'Active connections: 22/25 for 3 minutes', '12 min ago', 'db.connections.active', 'warning']
+];
+
+const rules = [
+  ['Error rate > 1%', 'p95 over 5 min', '1%', 'Slack #ops-alerts, PagerDuty', 'enabled', 12],
+  ['Latency p95 > 500ms', 'p95 over 5 min', '500ms', 'Slack #ops-alerts', 'enabled', 4],
+  ['DB connection pool > 80%', 'gauge', '80%', 'Slack #ops-alerts', 'enabled', 1],
+  ['Failed deploys', 'count over 1h', '1', 'Email · Slack #ops-alerts, PagerDuty', 'enabled', 0],
+  ['Disk usage > 85%', 'gauge', '85%', 'Email', 'enabled', 0],
+  ['CVE high severity detected', 'event', 'high+', 'Email · Slack', 'enabled', 0],
+  ['Approval pending > 24h', 'duration', '24h', 'Email', 'enabled', 0],
+  ['Suspicious auth failures', 'rate over 1h', '10/min', 'PagerDuty', 'enabled', 0],
+  ['SSL cert expires < 14d', 'days', '14d', 'Email', 'enabled', 0]
+];
+
+Shell.render({
+  mode: 'observability',
+  contextNav: observabilityContextNav('alerts'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Alerts</h1>
+          <div class="subtitle">2 currently firing · 9 rules configured · 17 alerts in last 30 days</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Notification channels</button>
+          <button class="btn btn-secondary btn-sm">History</button>
+          <button class="btn btn-primary btn-sm">+ New rule</button>
+        </div>
+      </div>
+
+      ${firing.length > 0 ? `
+        <div class="card mb-4" style="background: var(--bg-danger-subtle); border-color: var(--fg-danger);">
+          <div class="card-header"><div class="card-title">Currently firing</div></div>
+          ${firing.map(([id, sev, title, desc, when, metric, status]) => `
+            <div style="padding: 12px 0; border-bottom: 1px solid var(--border-default);">
+              <div class="flex justify-between items-start mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="badge badge-${status === 'critical' ? 'danger' : 'warning'}">${sev.toUpperCase()}</span>
+                  <span class="mono text-xs">${id}</span>
+                  <span class="font-medium">${title}</span>
+                </div>
+                <div class="flex gap-2">
+                  <button class="btn btn-ghost btn-sm">Acknowledge</button>
+                  <button class="btn btn-secondary btn-sm">Silence 1h</button>
+                  <button class="btn btn-primary btn-sm">View metric</button>
+                </div>
+              </div>
+              <div class="text-sm text-secondary mb-1">${desc}</div>
+              <div class="text-xs text-tertiary">Firing since ${when} · Metric: <span class="mono">${metric}</span></div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Alert rules</div></div>
+        <table class="data-table">
+          <thead><tr><th>Rule</th><th>Type</th><th class="tabular">Threshold</th><th>Channels</th><th>Status</th><th class="tabular">Triggered · 30d</th><th></th></tr></thead>
+          <tbody>
+            ${rules.map(([n, t, th, ch, status, count]) => `
+              <tr>
+                <td class="font-medium text-sm">${n}</td>
+                <td class="text-xs text-secondary">${t}</td>
+                <td class="tabular text-xs mono">${th}</td>
+                <td class="text-xs text-secondary">${ch}</td>
+                <td>${status === 'enabled' ? '<span class="badge badge-success">Enabled</span>' : '<span class="badge badge-default">Off</span>'}</td>
+                <td class="tabular ${count > 5 ? 'text-warning' : ''}">${count}</td>
+                <td class="flex gap-1"><button class="btn btn-ghost btn-xs">Edit</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Notification channels</div></div>
+        <div class="grid grid-3">
+          <div>
+            <div class="font-medium mb-1">Slack</div>
+            <div class="text-xs text-secondary mb-1">#ops-alerts · #sec-alerts</div>
+            <span class="badge badge-success">Connected</span>
+          </div>
+          <div>
+            <div class="font-medium mb-1">Email</div>
+            <div class="text-xs text-secondary mb-1">ops@acme.com · oncall@acme.com</div>
+            <span class="badge badge-success">Connected</span>
+          </div>
+          <div>
+            <div class="font-medium mb-1">PagerDuty</div>
+            <div class="text-xs text-secondary mb-1">Service: platform-prod</div>
+            <span class="badge badge-success">Connected</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent alerts · last 7 days</div></div>
+        <table class="data-table">
+          <thead><tr><th>When</th><th>Alert</th><th>Severity</th><th>Status</th><th>Resolved</th><th>TTR</th></tr></thead>
+          <tbody>
+            <tr><td class="text-tertiary text-xs">47 min ago</td><td class="text-sm">Error rate above threshold</td><td><span class="badge badge-danger">High</span></td><td><span class="badge badge-warning">Firing</span></td><td>—</td><td class="tabular text-xs">—</td></tr>
+            <tr><td class="text-tertiary text-xs">12 min ago</td><td class="text-sm">DB pool nearly full</td><td><span class="badge badge-warning">Med</span></td><td><span class="badge badge-warning">Firing</span></td><td>—</td><td class="tabular text-xs">—</td></tr>
+            <tr><td class="text-tertiary text-xs">Yesterday</td><td class="text-sm">Latency p95 > 500ms</td><td><span class="badge badge-warning">Med</span></td><td><span class="badge badge-success">Resolved</span></td><td class="text-xs">Yesterday</td><td class="tabular text-xs">14m</td></tr>
+            <tr><td class="text-tertiary text-xs">3 days ago</td><td class="text-sm">Error rate above threshold</td><td><span class="badge badge-danger">High</span></td><td><span class="badge badge-success">Resolved</span></td><td class="text-xs">3 days ago</td><td class="tabular text-xs">42m</td></tr>
+            <tr><td class="text-tertiary text-xs">5 days ago</td><td class="text-sm">CVE high severity</td><td><span class="badge badge-danger">High</span></td><td><span class="badge badge-success">Resolved</span></td><td class="text-xs">5 days ago</td><td class="tabular text-xs">2h 14m</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

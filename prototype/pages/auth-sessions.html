@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Active Sessions — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'auth',
+  contextNav: authContextNav('sessions'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Active Sessions</h1><div class="subtitle">12 active · 3 expired in last 24h</div></div>
+      </div>
+      
+      <div class="page-header" style="margin-bottom: 12px;">
+        <div></div>
+        <div class="page-header-actions"><button class="btn btn-destructive btn-sm">Revoke all</button></div>
+      </div>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>User</th><th>Started</th><th>IP</th><th>Device</th></tr></thead>
+        <tbody>
+          <tr><td>Joana de Klerk</td><td class="text-xs">2026-05-01 08:14</td><td class="mono text-xs">102.165.2.41</td><td class="text-secondary text-xs">Chrome 132 · macOS</td></tr>
+          <tr><td>Marcus Acker</td><td class="text-xs">2026-05-01 09:02</td><td class="mono text-xs">102.165.2.45</td><td class="text-secondary text-xs">Firefox 122 · Linux</td></tr>
+          <tr><td>Priya Singh</td><td class="text-xs">2026-05-01 10:34</td><td class="mono text-xs">102.165.2.49</td><td class="text-secondary text-xs">Safari 18 · iOS</td></tr>
+        </tbody>
+      </table></div>
+   
+    </div>
+  `
+});
+</script>
+</body>
+</html>

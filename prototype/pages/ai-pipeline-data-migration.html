@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Migration — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'ai-pipeline',
+  contextNav: aiPipelineContextNav('data-migration'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page-fullbleed">
+      ${Shell.pipelineStepper('data-migration')}
+      <div class="page" style="max-width: 800px;">
+        <div class="page-header"><div><h1>Data Migration</h1><div class="subtitle">Optional stage · Skipped for greenfield projects</div></div></div>
+        <div class="card" style="text-align: center; padding: 48px;">
+          <div style="font-size: 32px; margin-bottom: 16px; color: var(--fg-tertiary);">⊘</div>
+          <div class="font-semibold mb-2">No migration needed</div>
+          <div class="text-secondary text-sm mb-4">This is a new project with no existing data to migrate.</div>
+          <div class="flex gap-2" style="justify-content: center;">
+            <button class="btn btn-secondary btn-sm">Configure migration anyway</button>
+            <a class="btn btn-primary btn-sm" href="ai-pipeline-ui-gen.html">Skip to UI generation →</a>
+          </div>
+        </div>
+        <div class="card mt-4">
+          <div class="card-header"><div class="card-title">When to use this stage</div></div>
+          <div class="text-sm text-secondary">
+            Use the data migration stage when bringing existing data into a new schema —
+            for example, migrating from a CSV export, a legacy SQL Server database, or a
+            spreadsheet. The platform generates schema-aware import scripts with column
+            mapping, PII handling, and dry-run validation before applying.
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

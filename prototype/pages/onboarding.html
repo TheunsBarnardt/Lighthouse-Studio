@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+.wiz-shell { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; background: var(--bg-canvas); }
+.wiz-side { background: var(--bg-surface); border-right: 1px solid var(--border-default); padding: 32px 24px; }
+.wiz-logo { font-size: 14px; font-weight: 700; margin-bottom: 32px; display: flex; align-items: center; gap: 8px; }
+.wiz-logo .dot { width: 24px; height: 24px; border-radius: 6px; background: var(--accent-primary); display: inline-flex; align-items: center; justify-content: center; color: var(--accent-primary-fg); font-size: 14px; }
+.wiz-step { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; cursor: pointer; }
+.wiz-step .marker { width: 24px; height: 24px; border-radius: 50%; background: var(--bg-hover); border: 1px solid var(--border-default); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; color: var(--fg-tertiary); }
+.wiz-step.complete .marker { background: var(--fg-success); color: white; border-color: var(--fg-success); }
+.wiz-step.active .marker { background: var(--accent-primary); color: var(--accent-primary-fg); border-color: var(--accent-primary); }
+.wiz-step .label { font-size: 13px; color: var(--fg-secondary); }
+.wiz-step.active .label { color: var(--fg-primary); font-weight: 500; }
+.wiz-step.complete .label { color: var(--fg-secondary); }
+.wiz-main { padding: 64px 48px; max-width: 720px; margin: 0 auto; width: 100%; }
+.wiz-step-title { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+.wiz-step-sub { color: var(--fg-secondary); margin-bottom: 32px; }
+.wiz-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; cursor: pointer; transition: all 100ms cubic-bezier(0.2, 0, 0, 1); }
+.wiz-card:hover { border-color: var(--accent-primary); }
+.wiz-card.selected { border-color: var(--accent-primary); background: var(--bg-info-subtle); }
+</style>
+</head>
+<body>
+<div class="wiz-shell">
+  <div class="wiz-side">
+    <div class="wiz-logo"><span class="dot">P</span><span>Platform setup</span></div>
+    <div class="text-xs text-tertiary mb-3" style="text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;">Steps</div>
+    <div class="wiz-step complete"><div class="marker">✓</div><div class="label">Welcome</div></div>
+    <div class="wiz-step complete"><div class="marker">✓</div><div class="label">Workspace</div></div>
+    <div class="wiz-step active"><div class="marker">3</div><div class="label">Database</div></div>
+    <div class="wiz-step"><div class="marker">4</div><div class="label">Authentication</div></div>
+    <div class="wiz-step"><div class="marker">5</div><div class="label">First project</div></div>
+    <div class="wiz-step"><div class="marker">6</div><div class="label">Done</div></div>
+  </div>
+
+  <div class="wiz-main">
+    <div class="text-xs text-tertiary mb-2" style="text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;">Step 3 of 6</div>
+    <h1 class="wiz-step-title">Choose your database</h1>
+    <p class="wiz-step-sub">The platform supports three databases. You can connect more later — but most teams start with one.</p>
+
+    <div class="wiz-card selected">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <div class="font-semibold mb-1" style="font-size: 14px;">PostgreSQL <span class="badge badge-success" style="font-size: 9px; margin-left: 4px;">Recommended</span></div>
+          <div class="text-xs text-secondary">Open source · row-level security · realtime · vector search · 95% feature parity with Supabase</div>
+        </div>
+        <input type="radio" checked>
+      </div>
+      <div class="grid grid-3 mt-3" style="gap: 8px;">
+        <div class="text-xs"><strong>Use for:</strong> Most apps</div>
+        <div class="text-xs"><strong>Strengths:</strong> Versatile, ACID, JSON</div>
+        <div class="text-xs"><strong>Self-host:</strong> Yes (included)</div>
+      </div>
+    </div>
+
+    <div class="wiz-card">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <div class="font-semibold mb-1" style="font-size: 14px;">Microsoft SQL Server</div>
+          <div class="text-xs text-secondary">Enterprise standard · Entra ID native · existing licensing leverage</div>
+        </div>
+        <input type="radio">
+      </div>
+      <div class="grid grid-3 mt-3" style="gap: 8px;">
+        <div class="text-xs"><strong>Use for:</strong> Enterprise migrations</div>
+        <div class="text-xs"><strong>Strengths:</strong> AD/Entra, T-SQL</div>
+        <div class="text-xs"><strong>Self-host:</strong> Yes</div>
+      </div>
+    </div>
+
+    <div class="wiz-card">
+      <div class="flex justify-between items-start mb-2">
+        <div>
+          <div class="font-semibold mb-1" style="font-size: 14px;">MongoDB</div>
+          <div class="text-xs text-secondary">Document-first · flexible schemas · change streams · for content-heavy apps</div>
+        </div>
+        <input type="radio">
+      </div>
+      <div class="grid grid-3 mt-3" style="gap: 8px;">
+        <div class="text-xs"><strong>Use for:</strong> Document data</div>
+        <div class="text-xs"><strong>Strengths:</strong> Schema flex</div>
+        <div class="text-xs"><strong>Self-host:</strong> Yes</div>
+      </div>
+    </div>
+
+    <div class="card" style="background: var(--bg-info-subtle); border-color: var(--accent-primary); margin-top: 24px; padding: 12px 16px;">
+      <div class="text-xs"><strong>Need more than one?</strong> You can add additional databases later from <span class="mono">Settings → Databases</span>. The platform's hexagonal architecture lets you mix all three in the same project (different services, different stores).</div>
+    </div>
+
+    <div class="flex justify-between mt-6">
+      <button class="btn btn-ghost btn-md">← Back</button>
+      <div class="flex gap-2">
+        <button class="btn btn-secondary btn-md">Skip for now</button>
+        <a href="home.html" class="btn btn-primary btn-md">Continue →</a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

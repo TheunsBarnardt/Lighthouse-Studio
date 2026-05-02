@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Editor — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  html: `
+    <div class="contextnav-header">
+      <div class="contextnav-title">SQL Editor</div>
+    </div>
+    <div class="te-tablelist-search" style="margin: 8px;">
+      <span class="search-icon">⌕</span>
+      <input placeholder="Search queries..." />
+    </div>
+    <div style="padding: 0 8px 8px;">
+      <button class="btn btn-secondary btn-sm" style="width:100%; justify-content: flex-start;" onclick="Shell.toast('New query', 'info')">
+        <span style="font-size:12px;">+</span>
+        <span>New query</span>
+      </button>
+    </div>
+    <div class="contextnav-content">
+      <div class="contextnav-section">
+        <div class="contextnav-heading">Private (2)</div>
+        <a class="contextnav-item active" href="#">
+          <span class="badge badge-square" style="background: var(--accent-primary-subtle); color: var(--accent-primary);">SQL</span>
+          <span style="flex:1;">Pipeline value by contact</span>
+        </a>
+        <a class="contextnav-item" href="#">
+          <span class="badge badge-square" style="background: var(--accent-primary-subtle); color: var(--accent-primary);">SQL</span>
+          <span style="flex:1;">Stale deals query</span>
+        </a>
+      </div>
+      <div class="contextnav-section">
+        <div class="contextnav-heading">Shared</div>
+        <a class="contextnav-item" href="#">
+          <span class="badge badge-square" style="background: var(--accent-primary-subtle); color: var(--accent-primary);">SQL</span>
+          <span style="flex:1;">Daily revenue report</span>
+        </a>
+      </div>
+      <div class="contextnav-section">
+        <div class="contextnav-heading">Community</div>
+        <a class="contextnav-item" href="#"><span class="icon">▤</span><span style="flex:1;">Templates</span></a>
+        <a class="contextnav-item" href="#"><span class="icon">⚡</span><span style="flex:1;">Quickstarts</span></a>
+      </div>
+    </div>
+    <div style="padding: 8px; border-top: 1px solid var(--border-default);">
+      <button class="btn btn-secondary btn-sm" style="width:100%;">View running queries</button>
+    </div>
+  `
+};
+
+const mainContent = `
+  <div class="dp-shell">
+    <div class="dp-tabs-row">
+      <div class="dp-tab-collapse">‹</div>
+      <a class="dp-tab active" href="#">
+        <span class="tab-icon">▶</span>
+        <span>Pipeline value by contact</span>
+        <span class="tab-close">✕</span>
+      </a>
+      <a class="dp-tab" href="#">
+        <span class="tab-icon">▶</span>
+        <span>Stale deals query</span>
+        <span class="tab-close">✕</span>
+      </a>
+      <div class="dp-tab-add">+</div>
+    </div>
+    <div class="sql-editor-panel">
+      <div class="sql-editor-area"><span class="sql-comment">-- Pipeline value by contact, ordered by total
+-- Filters to active stages only</span>
+
+<span class="sql-keyword">SELECT</span>
+  c.name,
+  c.company,
+  <span class="sql-fn">COUNT</span>(d.id) <span class="sql-keyword">AS</span> deal_count,
+  <span class="sql-fn">SUM</span>(d.amount) <span class="sql-keyword">AS</span> pipeline_value,
+  <span class="sql-fn">MAX</span>(d.created_at) <span class="sql-keyword">AS</span> latest_deal
+<span class="sql-keyword">FROM</span> contacts c
+<span class="sql-keyword">LEFT JOIN</span> deals d <span class="sql-keyword">ON</span> d.contact_id = c.id
+<span class="sql-keyword">WHERE</span> d.stage <span class="sql-keyword">IN</span> (<span class="sql-string">'qualified'</span>, <span class="sql-string">'proposal'</span>, <span class="sql-string">'negotiation'</span>)
+  <span class="sql-keyword">AND</span> c.created_at >= <span class="sql-fn">NOW</span>() - <span class="sql-keyword">INTERVAL</span> <span class="sql-string">'90 days'</span>
+<span class="sql-keyword">GROUP BY</span> c.id, c.name, c.company
+<span class="sql-keyword">HAVING</span> <span class="sql-fn">SUM</span>(d.amount) > <span class="sql-number">10000</span>
+<span class="sql-keyword">ORDER BY</span> pipeline_value <span class="sql-keyword">DESC</span>
+<span class="sql-keyword">LIMIT</span> <span class="sql-number">20</span>;</div>
+      <div class="sql-results-panel">
+        <div class="sql-results-tabs">
+          <div class="sql-results-tab active">Results</div>
+          <div class="sql-results-tab">Chart</div>
+          <div class="sql-results-spacer"></div>
+          <button class="te-action role"><span style="color: var(--fg-tertiary);">Role:</span><strong style="margin-left: 4px;">postgres</strong><span style="font-size:9px; margin-left:4px;">▼</span></button>
+          <div class="sql-run-pill" onclick="Shell.toast('Query executed · 12 rows · 47ms', 'success', 'Run')">
+            <span>Run</span>
+            <span class="kbd" style="background: oklch(0 0 0 / 0.2); border-color: transparent; color: oklch(1 0 0 / 0.7);">CTRL ⏎</span>
+          </div>
+        </div>
+        <div class="sql-results-content">
+          <div style="color: var(--fg-tertiary); padding: 24px; text-align: center;">Click <strong style="color: var(--fg-primary);">Run</strong> to execute your query.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+`;
+
+Shell.render({
+  mode: 'sql-editor',
+  contextNav,
+  dataPlane: true,
+  mainContent
+});
+</script>
+</body>
+</html>

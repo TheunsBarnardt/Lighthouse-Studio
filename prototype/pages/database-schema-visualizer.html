@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schema Visualizer — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const tables = [
+  { name: 'contacts', x: 60, y: 60, columns: [['id','uuid','pk'],['name','text',''],['email','text',''],['company','text',''],['phone','text',''],['created_at','timestamptz','']] },
+  { name: 'deals', x: 360, y: 60, columns: [['id','uuid','pk'],['contact_id','uuid','fk'],['title','text',''],['stage','deal_stage',''],['amount','numeric',''],['owner_id','uuid','fk'],['created_at','timestamptz','']] },
+  { name: 'activities', x: 660, y: 60, columns: [['id','uuid','pk'],['deal_id','uuid','fk'],['type','activity_type',''],['summary','text',''],['occurred_at','timestamptz','']] },
+  { name: 'users', x: 60, y: 360, columns: [['id','uuid','pk'],['email','text',''],['display_name','text',''],['role','user_role','']] },
+  { name: 'audit_log', x: 360, y: 380, columns: [['id','bigint','pk'],['actor_id','uuid','fk'],['action','text',''],['resource','text',''],['hash','text','']] },
+  { name: 'tags', x: 660, y: 380, columns: [['id','uuid','pk'],['name','text',''],['color','text','']] }
+];
+
+const mainContent = `
+  <div style="padding: 16px 24px;">
+    <div class="page-header">
+      <div>
+        <h1 style="font-size: 18px;">Schema Visualizer</h1>
+        <div class="subtitle">22 tables · public schema · PostgreSQL 16</div>
+      </div>
+      <div class="page-header-actions">
+        <select class="select input-h28" style="width: 160px;"><option>schema public</option></select>
+        <button class="btn btn-secondary btn-sm">Copy as SQL</button>
+        <button class="btn btn-secondary btn-sm">Export</button>
+        <button class="btn btn-secondary btn-sm">Auto layout</button>
+      </div>
+    </div>
+    <div class="canvas" style="height: calc(100vh - 44px - 80px - 32px); border: 1px solid var(--border-default); border-radius: var(--radius-md);">
+      ${tables.map(t => `
+        <div class="schema-table" style="left: ${t.x}px; top: ${t.y}px;">
+          <div class="schema-table-header"><span>${t.name}</span><span style="font-size:9px; color: var(--fg-tertiary);">⋮</span></div>
+          ${t.columns.map(([n, type, role]) => `
+            <div class="schema-column">
+              <span class="col-name">${role==='pk'?'<span class="col-icon" style="color:oklch(0.65 0.16 75);">●</span> ':role==='fk'?'<span class="col-icon" style="color:oklch(0.65 0.16 145);">●</span> ':'<span class="col-icon" style="color:transparent;">●</span> '}${n}</span>
+              <span class="col-type">${type}</span>
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+      <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+        <line x1="260" y1="120" x2="360" y2="100" stroke="var(--border-emphasis)" stroke-width="1" stroke-dasharray="3,3" />
+        <line x1="560" y1="120" x2="660" y2="100" stroke="var(--border-emphasis)" stroke-width="1" stroke-dasharray="3,3" />
+        <line x1="260" y1="420" x2="360" y2="420" stroke="var(--border-emphasis)" stroke-width="1" stroke-dasharray="3,3" />
+      </svg>
+    </div>
+    <div style="display: flex; gap: 16px; padding: 8px 16px; font-size: 11px; color: var(--fg-tertiary); justify-content: center;">
+      <span><span style="color:oklch(0.65 0.16 75);">●</span> Primary key</span>
+      <span><span style="color:oklch(0.65 0.16 145);">●</span> Foreign key</span>
+      <span>○ Nullable</span>
+    </div>
+  </div>
+`;
+
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('schema-visualizer'),
+  dataPlane: true,
+  mainContent
+});
+</script>
+</body>
+</html>

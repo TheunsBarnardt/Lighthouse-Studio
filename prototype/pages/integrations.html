@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integrations — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Integrations',
+  sections: [
+    { heading: 'Categories', items: [
+      { id: 'all', label: 'All', active: true, href: '#' },
+      { id: 'pay', label: 'Payments', href: '#' },
+      { id: 'msg', label: 'Messaging', href: '#' },
+      { id: 'storage', label: 'Storage', href: '#' },
+      { id: 'office', label: 'Office', href: '#' }
+    ]}
+  ]
+};
+
+const integrations = [
+  ['Stripe', 'Connected', 'success', 'Payments · 2 webhooks active'],
+  ['SendGrid', 'Connected', 'success', 'Transactional email · 1.2k sent today'],
+  ['Twilio', 'Available', 'default', 'SMS, voice, WhatsApp'],
+  ['Slack', 'Available', 'default', 'Notifications, slash commands'],
+  ['Discord', 'Available', 'default', 'Webhooks for community'],
+  ['Azure Blob', 'Available', 'default', 'Storage backend'],
+  ['Backblaze B2', 'Available', 'default', 'Storage backend'],
+  ['Microsoft Graph', 'Available', 'default', 'Outlook, Teams, Calendar'],
+  ['Google Workspace', 'Available', 'default', 'Gmail, Calendar, Drive']
+];
+
+Shell.render({
+  mode: 'integrations',
+  contextNav,
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header"><div><h1 style="font-size: 18px;">Integrations</h1><div class="subtitle">Connect external services</div></div></div>
+      <div class="grid grid-3">
+        ${integrations.map(([n, s, b, d]) => `
+          <div class="card">
+            <div class="flex justify-between items-center mb-2">
+              <strong>${n}</strong>
+              <span class="badge badge-${b}">${s}</span>
+            </div>
+            <div class="text-secondary text-sm">${d}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

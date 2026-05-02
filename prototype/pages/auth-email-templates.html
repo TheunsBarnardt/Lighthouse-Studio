@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Templates — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'auth',
+  contextNav: authContextNav('email-templates'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Email Templates</h1><div class="subtitle">MJML-based · per-workspace branding</div></div>
+      </div>
+      
+      <div class="grid grid-2">
+        ${['Welcome email', 'Email confirmation', 'Magic link', 'Password reset', 'Workspace invitation', 'MFA enabled'].map(name => `
+          <div class="card">
+            <div class="flex justify-between items-center mb-2"><strong>${name}</strong><button class="btn btn-secondary btn-xs">Edit</button></div>
+            <div class="text-secondary text-xs">Last edited 3 weeks ago · Customizable</div>
+          </div>
+        `).join('')}
+      </div>
+   
+    </div>
+  `
+});
+</script>
+</body>
+</html>

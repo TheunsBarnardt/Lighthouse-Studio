@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edge Functions — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const fns = [
+  ['updateDealStage', 'HTTP', 'active', 1247, '12ms', '5 min ago'],
+  ['searchContacts', 'HTTP', 'active', 8432, '8ms', '5 min ago'],
+  ['exportDealsCSV', 'HTTP', 'active', 23, '420ms', '5 min ago'],
+  ['nightlyDealStaleness', 'Scheduled', 'active', 1, '1.8s', '5 min ago'],
+  ['onContactCreated', 'Event', 'active', 147, '34ms', '5 min ago'],
+  ['onDealWon', 'Event', 'active', 8, '89ms', '5 min ago'],
+  ['outlookCalendarSync', 'Integration', 'active', 412, '247ms', '2 days ago']
+];
+
+const contextNav = {
+  title: 'Edge Functions',
+  sections: [
+    { heading: 'Functions', items: [
+      { id: 'all', label: 'All functions', active: true, href: '#' },
+      ...fns.map(f => ({ id: f[0], label: f[0], href: '#' }))
+    ]},
+    { heading: 'Configure', items: [
+      { id: 'sec', label: 'Secrets', href: '#' },
+      { id: 'sched', label: 'Schedules', href: '#' }
+    ]}
+  ]
+};
+
+Shell.render({
+  mode: 'edge-functions',
+  contextNav,
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Edge Functions</h1><div class="subtitle">${fns.length} functions · sandboxed Node 22 · permission-declared</div></div>
+        <div class="page-header-actions"><button class="btn btn-primary btn-sm">+ New function</button></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Type</th><th>Status</th><th class="tabular">Invocations 24h</th><th class="tabular">p95</th><th>Last deployed</th></tr></thead>
+          <tbody>
+            ${fns.map(r => `<tr style="cursor:pointer" onclick="Shell.toast('Function detail: ' + '${r[0]}', 'info')"><td class="mono text-xs">${r[0]}</td><td><span class="badge badge-default">${r[1]}</span></td><td>${Shell.statusBadge(r[2])}</td><td class="tabular">${r[3].toLocaleString()}</td><td class="tabular text-secondary">${r[4]}</td><td class="text-tertiary text-xs">${r[5]}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="grid grid-3 mt-4">
+        <div class="card"><div class="card-header"><div class="card-title">Sandbox limits</div></div><div class="inspector-row"><span class="key">Default timeout</span><span class="val tabular">30s</span></div><div class="inspector-row"><span class="key">Default memory</span><span class="val tabular">256MB</span></div><div class="inspector-row"><span class="key">Network</span><span class="val">declared egress only</span></div></div>
+        <div class="card"><div class="card-header"><div class="card-title">Static analysis</div></div><div class="inspector-row"><span class="key">eval / Function()</span><span class="val text-success">✓ none</span></div><div class="inspector-row"><span class="key">child_process</span><span class="val text-success">✓ none</span></div><div class="inspector-row"><span class="key">fs/net direct</span><span class="val text-success">✓ none</span></div></div>
+        <div class="card"><div class="card-header"><div class="card-title">Runtime</div></div><div class="inspector-row"><span class="key">Engine</span><span class="val">Node 22 LTS</span></div><div class="inspector-row"><span class="key">Pool</span><span class="val">isolated workers</span></div><div class="inspector-row"><span class="key">Cold start</span><span class="val tabular">~120ms p95</span></div></div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

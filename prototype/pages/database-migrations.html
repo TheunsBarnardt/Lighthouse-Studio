@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Migrations — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const migrations = [
+  ['20260415_001', 'create_contacts_table', '2026-04-15 09:14'],
+  ['20260415_002', 'create_deals_table', '2026-04-15 09:14'],
+  ['20260418_001', 'add_company_index', '2026-04-18 11:22'],
+  ['20260420_001', 'create_activities_table', '2026-04-20 14:08'],
+  ['20260424_001', 'add_audit_log', '2026-04-24 10:30'],
+  ['20260428_001', 'add_deal_stage_enum', '2026-04-28 16:45'],
+  ['20260501_001', 'create_users_with_rls', '2026-05-01 08:12']
+];
+
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('migrations'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Migrations</h1><div class="subtitle">${migrations.length} migrations applied · 0 pending</div></div>
+        <div class="page-header-actions"><button class="btn btn-secondary btn-sm">View pending</button><button class="btn btn-primary btn-sm">+ New migration</button></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Version</th><th>Name</th><th>Status</th><th>Applied</th></tr></thead>
+          <tbody>
+            ${migrations.map(r => `<tr><td class="mono text-xs">${r[0]}</td><td>${r[1]}</td><td>${Shell.statusBadge('applied')}</td><td class="text-tertiary text-xs tabular">${r[2]}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

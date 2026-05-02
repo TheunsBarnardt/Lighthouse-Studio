@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Settings',
+  sections: [
+    { heading: 'Workspace', items: [
+      { id: 'general', label: 'General', active: true, href: '#' },
+      { id: 'db', label: 'Database', href: '#' },
+      { id: 'tokens', label: 'AI Token Budget', href: '#' },
+      { id: 'routing', label: 'Approval Routing', href: 'auth-approval-routing.html' }
+    ]},
+    { heading: 'Billing', items: [
+      { id: 'plan', label: 'Plan', href: '#' },
+      { id: 'invoices', label: 'Invoices', href: '#' }
+    ]},
+    { heading: 'Compliance', items: [
+      { id: 'comp', label: 'Compliance', href: '#' },
+      { id: 'res', label: 'Data Residency', href: '#' }
+    ]}
+  ]
+};
+
+Shell.render({
+  mode: 'settings',
+  contextNav,
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header"><div><h1 style="font-size: 18px;">General Settings</h1><div class="subtitle">Workspace: ${MOCK.workspace.name}</div></div></div>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Workspace</div></div>
+          <div class="field-group"><label class="field-label">Name</label><input class="input input-h32" value="${MOCK.workspace.name}" /></div>
+          <div class="field-group"><label class="field-label">Slug</label><input class="input input-h32 mono" value="acme-corp" /></div>
+          <div class="field-group">
+            <label class="field-label">Database</label>
+            <select class="select input-h32"><option>PostgreSQL</option><option>Microsoft SQL Server</option><option>MongoDB</option></select>
+            <div class="field-helper">Workspace database is locked once data exists. Migrate via Stage 5.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">AI providers</div></div>
+          <div class="text-sm">
+            <div class="flex justify-between mb-2"><span>Anthropic Claude (primary)</span><span class="badge badge-success">Active</span></div>
+            <div class="flex justify-between mb-2"><span>OpenAI (fallback)</span><span class="badge badge-default">Configured</span></div>
+            <div class="flex justify-between mb-2"><span>Microsoft Azure OpenAI</span><span class="badge badge-default">Disabled</span></div>
+            <div class="flex justify-between mb-2"><span>Ollama (self-hosted)</span><span class="badge badge-default">Disabled</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card mt-4">
+        <div class="card-header"><div class="card-title">AI Token Budget — this month</div></div>
+        <div class="flex justify-between items-center mb-3">
+          <div><div class="text-tertiary text-xs">Used</div><div class="stat-value">$23.40</div></div>
+          <div style="text-align: right;"><div class="text-tertiary text-xs">Budget</div><div class="stat-value">$50.00</div></div>
+        </div>
+        <div class="progress-bar mb-2"><div class="progress-fill" style="width: 47%;"></div></div>
+        <div class="text-xs text-secondary">47% used · 16 days remaining in cycle</div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+/* =========================================================================
+   DESIGN TOKENS
+   Three theme contexts:
+   - :root          → light theme (default for AI pipeline)
+   - [data-theme="dark"] → dark theme
+   - .data-plane-shell   → forced dark, deeper than [data-theme=dark], used for
+                            data plane surfaces (Table Editor, SQL, etc.) so
+                            data plane always presents Supabase-style chrome
+   ========================================================================= */
+:root {
+  /* Platform brand */
+  --accent-primary: oklch(0.50 0.20 250);
+  --accent-primary-hover: oklch(0.45 0.20 250);
+  --accent-primary-pressed: oklch(0.40 0.20 250);
+  --accent-primary-subtle: oklch(0.94 0.06 250);
+  --accent-primary-fg: oklch(0.99 0 0);
+
+  /* Light theme (default) */
+  --bg-canvas: oklch(0.985 0.002 250);
+  --bg-surface: oklch(1 0 0);
+  --bg-surface-2: oklch(0.99 0.002 250);
+  --bg-surface-3: oklch(0.965 0.003 250);
+  --bg-overlay: oklch(0.20 0.02 250 / 0.5);
+  --bg-input: oklch(1 0 0);
+  --bg-hover: oklch(0.96 0.005 250);
+  --bg-pressed: oklch(0.93 0.008 250);
+  --bg-selected: oklch(0.94 0.04 250);
+  --bg-success-subtle: oklch(0.96 0.04 145);
+  --bg-warning-subtle: oklch(0.97 0.05 75);
+  --bg-danger-subtle: oklch(0.96 0.04 25);
+  --bg-info-subtle: oklch(0.96 0.04 230);
+
+  --fg-primary: oklch(0.20 0.005 250);
+  --fg-secondary: oklch(0.45 0.005 250);
+  --fg-tertiary: oklch(0.60 0.005 250);
+  --fg-disabled: oklch(0.75 0.005 250);
+  --fg-success: oklch(0.40 0.14 145);
+  --fg-warning: oklch(0.45 0.14 75);
+  --fg-danger: oklch(0.45 0.18 25);
+  --fg-info: oklch(0.40 0.14 230);
+
+  --border-default: oklch(0.91 0.005 250);
+  --border-emphasis: oklch(0.85 0.008 250);
+  --border-focus: oklch(0.50 0.20 250);
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px oklch(0 0 0 / 0.06);
+  --shadow-md: 0 4px 8px oklch(0 0 0 / 0.10);
+  --shadow-lg: 0 8px 24px oklch(0 0 0 / 0.12);
+
+  --motion-fast: 100ms;
+  --motion-base: 180ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+[data-theme="dark"] {
+  --bg-canvas: oklch(0.14 0.005 250);
+  --bg-surface: oklch(0.18 0.005 250);
+  --bg-surface-2: oklch(0.21 0.005 250);
+  --bg-surface-3: oklch(0.24 0.005 250);
+  --bg-overlay: oklch(0 0 0 / 0.6);
+  --bg-input: oklch(0.16 0.005 250);
+  --bg-hover: oklch(0.22 0.005 250);
+  --bg-pressed: oklch(0.26 0.008 250);
+  --bg-selected: oklch(0.30 0.04 250);
+  --bg-success-subtle: oklch(0.25 0.04 145);
+  --bg-warning-subtle: oklch(0.27 0.05 75);
+  --bg-danger-subtle: oklch(0.27 0.04 25);
+  --bg-info-subtle: oklch(0.25 0.04 230);
+
+  --fg-primary: oklch(0.92 0.003 250);
+  --fg-secondary: oklch(0.72 0.005 250);
+  --fg-tertiary: oklch(0.55 0.005 250);
+
+  --border-default: oklch(0.27 0.005 250);
+  --border-emphasis: oklch(0.35 0.008 250);
+
+  --accent-primary: oklch(0.65 0.18 245);
+  --accent-primary-hover: oklch(0.70 0.18 245);
+  --accent-primary-subtle: oklch(0.30 0.10 245);
+}
+
+/* Data plane override — Supabase-style deep dark, regardless of global theme */
+.data-plane-shell {
+  --bg-canvas: oklch(0.10 0.003 250);
+  --bg-surface: oklch(0.13 0.003 250);
+  --bg-surface-2: oklch(0.16 0.003 250);
+  --bg-surface-3: oklch(0.19 0.003 250);
+  --bg-input: oklch(0.13 0.003 250);
+  --bg-hover: oklch(0.18 0.003 250);
+  --bg-pressed: oklch(0.22 0.005 250);
+  --bg-selected: oklch(0.22 0.04 245);
+
+  --fg-primary: oklch(0.94 0.002 250);
+  --fg-secondary: oklch(0.70 0.003 250);
+  --fg-tertiary: oklch(0.50 0.003 250);
+
+  --border-default: oklch(0.22 0.003 250);
+  --border-emphasis: oklch(0.30 0.005 250);
+
+  --accent-primary: oklch(0.65 0.18 245);
+  --accent-primary-hover: oklch(0.72 0.18 245);
+  --accent-primary-subtle: oklch(0.30 0.10 245);
+
+  color: var(--fg-primary);
+  background: var(--bg-canvas);
+}
+
+/* Reset & base */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--fg-primary);
+  background: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: none; }
+a { color: var(--accent-primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.tabular { font-variant-numeric: tabular-nums; }
+.mono { font-family: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Menlo, monospace; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-emphasis); border-radius: var(--radius-full); border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--fg-tertiary); border: 2px solid transparent; background-clip: padding-box; }

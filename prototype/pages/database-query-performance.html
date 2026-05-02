@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Query Performance — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('query-performance'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Query Performance</h1><div class="subtitle">Top queries by total time · last 7 days</div></div>
+      </div>
+      
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Query</th><th class="tabular">Calls</th><th class="tabular">Total</th><th class="tabular">Mean</th><th class="tabular">p95</th></tr></thead>
+          <tbody>
+            ${[
+              ['SELECT * FROM contacts WHERE company = $1', 14823, '4m 22s', '17.7ms', '124ms'],
+              ['SELECT * FROM deals WHERE stage IN (...)', 8421, '2m 11s', '15.6ms', '89ms'],
+              ['UPDATE deals SET stage = $1 WHERE id = $2', 1247, '1m 04s', '51.3ms', '218ms'],
+              ['INSERT INTO audit_log VALUES (...)', 24711, '47s', '1.9ms', '8ms']
+            ].map(r => `<tr><td class="mono text-xs" style="max-width: 400px; overflow: hidden; text-overflow: ellipsis;">${r[0]}</td><td class="tabular">${r[1].toLocaleString()}</td><td class="tabular">${r[2]}</td><td class="tabular">${r[3]}</td><td class="tabular text-warning">${r[4]}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+   
+    </div>
+  `
+});
+</script>
+</body>
+</html>

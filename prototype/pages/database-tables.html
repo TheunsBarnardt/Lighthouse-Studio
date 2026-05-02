@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Tables — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const mainContent = `
+  <div style="padding: 16px 24px;">
+    <div class="page-header">
+      <div>
+        <h1 style="font-size: 18px;">Database Tables</h1>
+        <div class="subtitle">${MOCK.tables.length} tables · public schema</div>
+      </div>
+      <div class="page-header-actions">
+        <select class="select input-h28" style="width: 160px;"><option>schema public</option></select>
+        <input class="input input-h28" placeholder="Search for a table" style="width: 240px;" />
+        <button class="btn btn-primary btn-sm">+ New table</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th class="tabular">Columns</th>
+            <th class="tabular">Rows (est.)</th>
+            <th class="tabular">Size (est.)</th>
+            <th>Realtime</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${MOCK.tables.map(t => `
+            <tr style="cursor:pointer" onclick="window.location.href='table-editor.html'">
+              <td><span class="mono" style="font-size: 12px;"><span style="color: var(--fg-tertiary); margin-right: 6px;">▦</span>${t.name}</span></td>
+              <td class="tabular">${t.cols}</td>
+              <td class="tabular">${t.rows}</td>
+              <td class="tabular text-secondary">${t.size}</td>
+              <td><span class="text-tertiary">✕ Disabled</span></td>
+              <td><button class="btn btn-secondary btn-xs" onclick="event.stopPropagation(); Shell.toast('Columns view', 'info')">View columns</button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>
+`;
+
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('tables'),
+  dataPlane: true,
+  mainContent
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workspaces — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Workspaces',
+  sections: [
+    { heading: 'Workspace', items: [
+      { id: 'overview', label: 'Acme Corporation', active: true, href: '#' },
+      { id: 'members', label: 'Members', href: '#' },
+      { id: 'projects', label: 'Projects', href: '#' },
+      { id: 'invites', label: 'Pending invites', href: '#' }
+    ]},
+    { heading: 'Settings', items: [
+      { id: 'plan', label: 'Plan & billing', href: '#' },
+      { id: 'sso', label: 'SSO & SCIM', href: 'auth-identity-providers.html' },
+      { id: 'audit', label: 'Audit log', href: '#' }
+    ]},
+    { heading: 'Other workspaces', items: [
+      { id: 'switch', label: 'Acme Skunkworks', href: '#' },
+      { id: 'create', label: '+ New workspace', href: '#' }
+    ]}
+  ]
+};
+
+const members = [
+  ['Joana de Klerk', 'joana@acme.com', 'JD', 'Owner', 'all-projects', '12 min ago', 'active'],
+  ['Marcus Acker', 'marcus@acme.com', 'MA', 'Admin', 'all-projects', '47 min ago', 'active'],
+  ['Tom Müller', 'tom@acme.com', 'TM', 'Developer', 'CRM, Marketing', '2h ago', 'active'],
+  ['Sara Patel', 'sara@acme.com', 'SP', 'Developer', 'Marketing', 'Yesterday', 'active'],
+  ['Anand Kumar', 'anand@acme.com', 'AK', 'Designer', 'CRM', '3 days ago', 'active'],
+  ['Elena Rojas', 'elena@acme.com', 'ER', 'Reviewer', 'CRM', '1 week ago', 'active']
+];
+
+Shell.render({
+  mode: 'settings',
+  contextNav,
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>Acme Corporation</h1>
+          <div class="subtitle">Workspace · 6 members · 2 projects · Plan: Enterprise · Created 14 months ago</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Settings</button>
+          <button class="btn btn-primary btn-sm">+ Invite member</button>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Members</div><div class="stat-value">6</div><div class="stat-delta text-secondary">all active</div></div>
+        <div class="stat-card"><div class="stat-label">Projects</div><div class="stat-value">2</div><div class="stat-delta text-secondary">CRM, Marketing</div></div>
+        <div class="stat-card"><div class="stat-label">Pending invites</div><div class="stat-value">1</div><div class="stat-delta text-secondary">sent 2 days ago</div></div>
+        <div class="stat-card"><div class="stat-label">Plan</div><div class="stat-value">Ent.</div><div class="stat-delta text-secondary">unlimited seats</div></div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">Members</div>
+          <div class="text-xs text-tertiary">Roles inherit from workspace · per-project overrides allowed</div>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Member</th><th>Role</th><th>Project access</th><th>Last active</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${members.map(([name, email, init, role, scope, last, status]) => `
+              <tr>
+                <td>
+                  <div class="flex items-center gap-2">
+                    <div class="avatar">${init}</div>
+                    <div>
+                      <div class="font-medium text-sm">${name}</div>
+                      <div class="text-xs text-tertiary">${email}</div>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="badge ${role === 'Owner' ? 'badge-warning' : role === 'Admin' ? 'badge-accent' : 'badge-default'}">${role}</span></td>
+                <td class="text-xs text-secondary">${scope}</td>
+                <td class="text-tertiary text-xs">${last}</td>
+                <td><span class="badge badge-success">Active</span></td>
+                <td><button class="btn btn-ghost btn-xs">Manage</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Pending invites</div></div>
+          <table class="data-table">
+            <thead><tr><th>Email</th><th>Role</th><th>Sent</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="text-sm">priya@acme.com</td><td><span class="badge badge-default">Developer</span></td><td class="text-tertiary text-xs">2d ago</td><td class="flex gap-1"><button class="btn btn-ghost btn-xs">Resend</button><button class="btn btn-ghost btn-xs">Revoke</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">Workspace settings</div></div>
+          <div class="inspector-row"><span class="key">Workspace ID</span><span class="val mono text-xs">ws_a1b2c3d4</span></div>
+          <div class="inspector-row"><span class="key">Domain</span><span class="val">acme.platform.local</span></div>
+          <div class="inspector-row"><span class="key">SSO</span><span class="val text-success">Microsoft Entra ID</span></div>
+          <div class="inspector-row"><span class="key">SCIM provisioning</span><span class="val text-success">Enabled</span></div>
+          <div class="inspector-row"><span class="key">Default project role</span><span class="val">Reviewer</span></div>
+          <div class="inspector-row"><span class="key">2FA required</span><span class="val text-success">Yes</span></div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

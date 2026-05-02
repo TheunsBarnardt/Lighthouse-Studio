@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schema Synthesis — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const tables = [
+  { name: 'contacts', x: 40, y: 40, columns: [['id','UUID','pk'],['email','TEXT',''],['name','TEXT',''],['phone','TEXT',''],['company','TEXT',''],['notes','TEXT','']] },
+  { name: 'deals', x: 320, y: 40, columns: [['id','UUID','pk'],['contact_id','UUID','fk'],['title','TEXT',''],['stage','ENUM',''],['amount','MONEY',''],['owner_id','UUID','fk']] },
+  { name: 'activities', x: 600, y: 40, columns: [['id','UUID','pk'],['deal_id','UUID','fk'],['type','ENUM',''],['summary','TEXT',''],['occurred_at','TIMESTAMP','']] },
+  { name: 'users', x: 40, y: 320, columns: [['id','UUID','pk'],['email','TEXT',''],['display_name','TEXT',''],['role','ENUM','']] },
+  { name: 'tags', x: 320, y: 320, columns: [['id','UUID','pk'],['name','TEXT',''],['color','TEXT','']] },
+  { name: 'contact_tags', x: 600, y: 320, columns: [['contact_id','UUID','fk'],['tag_id','UUID','fk']] }
+];
+
+const piiFlags = [
+  ['contacts.email', 'email'],
+  ['contacts.phone', 'phone'],
+  ['contacts.name', 'name'],
+  ['users.email', 'email']
+];
+
+Shell.render({
+  mode: 'ai-pipeline',
+  contextNav: aiPipelineContextNav('schema-synthesis'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page-fullbleed">
+      ${Shell.pipelineStepper('schema-synthesis')}
+      <div style="padding: 16px 24px;">
+        <div class="page-header">
+          <div><h1 style="font-size: 18px;">Schema Synthesis</h1><div class="subtitle">8 tables · 47 columns · 12 PII flags · PostgreSQL</div></div>
+          <div class="page-header-actions">
+            <button class="btn btn-secondary btn-sm">Open in Designer</button>
+            <a class="btn btn-primary btn-sm" href="ai-pipeline-ui-gen.html">Approve & apply →</a>
+          </div>
+        </div>
+        <div class="grid" style="grid-template-columns: 1fr 320px; gap: 16px; height: calc(100vh - 44px - 44px - 90px - 32px);">
+          <div class="canvas" style="height: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-md);">
+            ${tables.map(t => `
+              <div class="schema-table" style="left: ${t.x}px; top: ${t.y}px;">
+                <div class="schema-table-header"><span>${t.name}</span></div>
+                ${t.columns.map(([n, type, role]) => `
+                  <div class="schema-column">
+                    <span class="col-name">${role==='pk'?'🔑 ':role==='fk'?'⛓ ':''}${n}</span>
+                    <span class="col-type">${type}</span>
+                  </div>
+                `).join('')}
+              </div>
+            `).join('')}
+          </div>
+          <div style="overflow: auto;">
+            <div class="card mb-3">
+              <div class="font-semibold text-sm mb-2">PII detected</div>
+              <div class="text-xs text-secondary mb-3">12 columns flagged. Confirm.</div>
+              ${piiFlags.map(([col, type]) => `
+                <div class="flex justify-between items-center mb-2 text-sm">
+                  <div><div class="mono text-xs">${col}</div><div class="text-xs text-tertiary">Type: ${type}</div></div>
+                  <div class="flex gap-2">
+                    <button class="btn btn-ghost btn-sm">✓</button>
+                    <button class="btn btn-ghost btn-sm">✕</button>
+                  </div>
+                </div>
+              `).join('')}
+              <button class="btn btn-secondary btn-sm" style="width: 100%; margin-top: 8px;">Show 8 more</button>
+            </div>
+            <div class="card mb-3">
+              <div class="font-semibold text-sm mb-2">Coverage check</div>
+              <div class="inspector-row"><span class="key">PRD entities</span><span class="val">8 / 8</span></div>
+              <div class="inspector-row"><span class="key">FRs supported</span><span class="val">11 / 12</span></div>
+              <div class="text-xs text-warning mt-2">⚠ FR-9 (Reporting) lacks tables.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Keys — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const keys = [
+  ['CRM Production · Read', 'pk_live_a1b2_•••', 'service_role', '142,847', '2 min ago', 'Joana de Klerk', '14 days ago', 'live'],
+  ['CRM Production · Write', 'pk_live_3c4d_•••', 'service_role', '8,124', '12 min ago', 'Joana de Klerk', '14 days ago', 'live'],
+  ['Mobile App', 'pk_live_5e6f_•••', 'anon', '47,321', '4 hours ago', 'Tom Müller', '7 days ago', 'live'],
+  ['CI / Testing', 'pk_test_7g8h_•••', 'service_role', '1,247', 'Yesterday', 'Marcus Acker', '2 days ago', 'test'],
+  ['Legacy import job', 'pk_test_9i0j_•••', 'service_role', '0', 'Never', 'Tom Müller', '47 days ago', 'expired']
+];
+
+Shell.render({
+  mode: 'apis',
+  contextNav: apisContextNav('keys'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1280px;">
+      <div class="page-header">
+        <div>
+          <h1>API Keys</h1>
+          <div class="subtitle">Issue, scope, and rotate API keys · 5 keys · 4 active · 1 expired</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Audit log</button>
+          <button class="btn btn-primary btn-sm">+ New API key</button>
+        </div>
+      </div>
+
+      <div class="card mb-4" style="background: var(--bg-warning-subtle); border-color: var(--fg-warning);">
+        <div class="text-sm">
+          <strong>API keys grant access to your data.</strong> Keys with the <span class="mono text-xs" style="background: var(--bg-surface); padding: 1px 5px; border-radius: 3px;">service_role</span> scope bypass all RLS policies — use them only on trusted servers, never in client code. Use <span class="mono text-xs" style="background: var(--bg-surface); padding: 1px 5px; border-radius: 3px;">anon</span> for browser/mobile clients.
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Active keys</div></div>
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Token (masked)</th><th>Scope</th><th class="tabular">Requests · 30d</th><th>Last used</th><th>Created by</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${keys.map(([name, token, scope, reqs, used, by, age, status]) => `
+              <tr>
+                <td class="font-medium">${name}</td>
+                <td class="mono text-xs">${token}</td>
+                <td><span class="badge badge-${scope === 'service_role' ? 'warning' : 'default'} mono">${scope}</span></td>
+                <td class="tabular">${reqs}</td>
+                <td class="text-tertiary text-xs">${used}</td>
+                <td class="text-secondary text-xs">${by} · ${age}</td>
+                <td>${status === 'live' ? '<span class="badge badge-success">Live</span>' : status === 'test' ? '<span class="badge badge-info">Test</span>' : '<span class="badge badge-default">Expired</span>'}</td>
+                <td>
+                  <div class="flex gap-1">
+                    <button class="btn btn-ghost btn-xs">Rotate</button>
+                    <button class="btn btn-ghost btn-xs">Revoke</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-header"><div class="card-title">Recommended rotation policy</div></div>
+        <div class="grid grid-3">
+          <div class="inspector-row"><span class="key">Service role keys</span><span class="val">Rotate every 90 days</span></div>
+          <div class="inspector-row"><span class="key">Anon keys</span><span class="val">Rotate every 180 days</span></div>
+          <div class="inspector-row"><span class="key">Test keys</span><span class="val">No rotation enforced</span></div>
+        </div>
+        <div class="text-xs text-tertiary mt-3">CRM Production · Write was rotated 14 days ago. Next reminder in 76 days.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">Recent key events</div></div>
+        <table class="data-table">
+          <thead><tr><th>When</th><th>Event</th><th>Key</th><th>By</th><th>IP</th></tr></thead>
+          <tbody>
+            <tr><td class="text-tertiary text-xs">14 days ago</td><td><span class="badge badge-success">Created</span></td><td class="mono text-xs">CRM Production · Write</td><td class="text-secondary text-xs">Joana de Klerk</td><td class="mono text-xs text-tertiary">102.65.x.x</td></tr>
+            <tr><td class="text-tertiary text-xs">14 days ago</td><td><span class="badge badge-warning">Rotated</span></td><td class="mono text-xs">CRM Production · Write</td><td class="text-secondary text-xs">Joana de Klerk</td><td class="mono text-xs text-tertiary">102.65.x.x</td></tr>
+            <tr><td class="text-tertiary text-xs">2 days ago</td><td><span class="badge badge-success">Created</span></td><td class="mono text-xs">CI / Testing</td><td class="text-secondary text-xs">Marcus Acker</td><td class="mono text-xs text-tertiary">102.65.x.x</td></tr>
+            <tr><td class="text-tertiary text-xs">12 days ago</td><td><span class="badge badge-default">Expired</span></td><td class="mono text-xs">Legacy import job</td><td class="text-secondary text-xs">system</td><td class="mono text-xs text-tertiary">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

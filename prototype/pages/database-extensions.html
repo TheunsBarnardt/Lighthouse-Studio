@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Extensions — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const exts = [
+  ['uuid-ossp', '1.1', 'enabled', 'Generate UUIDs'],
+  ['pgcrypto', '1.3', 'enabled', 'Cryptographic functions'],
+  ['pg_stat_statements', '1.10', 'enabled', 'Track planning and execution statistics'],
+  ['pgvector', '0.7.0', 'enabled', 'Vector similarity search for embeddings'],
+  ['pg_trgm', '1.6', 'enabled', 'Trigram-based fuzzy text search'],
+  ['btree_gin', '1.3', 'available', 'GIN indexes on btree-indexable types'],
+  ['postgis', '3.4', 'available', 'Spatial and geographic objects'],
+  ['hstore', '1.8', 'available', 'Key-value pair storage type'],
+  ['plpgsql', '1.0', 'enabled', 'PL/pgSQL procedural language'],
+  ['ltree', '1.2', 'available', 'Hierarchical tree-like structures']
+];
+
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('extensions'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Extensions</h1><div class="subtitle">${exts.filter(e => e[2] === 'enabled').length} enabled · ${exts.filter(e => e[2] === 'available').length} available</div></div>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Name</th><th>Version</th><th>Description</th><th>Status</th></tr></thead>
+          <tbody>
+            ${exts.map(r => `<tr><td><span class="mono">${r[0]}</span></td><td class="text-tertiary tabular text-xs">${r[1]}</td><td class="text-secondary text-xs">${r[3]}</td><td>${r[2]==='enabled'?'<span class="badge badge-success">Enabled</span>':'<span class="badge badge-default">Available</span>'}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

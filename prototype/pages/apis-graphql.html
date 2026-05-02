@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GraphQL — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'apis',
+  contextNav: apisContextNav('graphql'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1400px;">
+      <div class="page-header">
+        <div>
+          <h1>GraphQL</h1>
+          <div class="subtitle">Auto-generated schema · 14 types · 8 queries · 5 mutations · 3 subscriptions</div>
+        </div>
+        <div class="page-header-actions">
+          <button class="btn btn-secondary btn-sm">Download schema (.graphql)</button>
+          <button class="btn btn-secondary btn-sm">Persisted queries</button>
+          <button class="btn btn-primary btn-sm">▶ Run query</button>
+        </div>
+      </div>
+
+      <div class="grid grid-3 mb-4">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Endpoint</div></div>
+          <div class="code-block" style="font-size: 11px;">POST https://api.acme.platform.local/graphql/v1</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Subscriptions</div></div>
+          <div class="code-block" style="font-size: 11px;">wss://api.acme.platform.local/graphql/v1</div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Persisted queries</div></div>
+          <div class="text-sm">12 stored · 87% of traffic</div>
+          <div class="text-xs text-tertiary mt-2">Recommended for production. Reduces parse overhead.</div>
+        </div>
+      </div>
+
+      <div class="grid" style="grid-template-columns: 280px 1fr 1fr; gap: 12px; height: 560px;">
+        <div class="card" style="overflow-y: auto; padding: 12px;">
+          <div class="text-xs text-tertiary mb-3" style="text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;">Schema</div>
+
+          <div class="text-xs font-medium text-tertiary mt-3 mb-1" style="text-transform: uppercase;">Queries</div>
+          <div style="font-size: 12px;" class="mono text-secondary">
+            <div style="padding: 3px 6px; cursor: pointer; border-radius: 3px;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">contact(id)</div>
+            <div style="padding: 3px 6px; cursor: pointer; border-radius: 3px;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">contacts(filter)</div>
+            <div style="padding: 3px 6px; cursor: pointer; border-radius: 3px;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">deal(id)</div>
+            <div style="padding: 3px 6px; cursor: pointer; border-radius: 3px;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">deals(filter, sort)</div>
+            <div style="padding: 3px 6px; cursor: pointer; border-radius: 3px;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">me</div>
+          </div>
+
+          <div class="text-xs font-medium text-tertiary mt-3 mb-1" style="text-transform: uppercase;">Mutations</div>
+          <div style="font-size: 12px;" class="mono text-secondary">
+            <div style="padding: 3px 6px;">createContact</div>
+            <div style="padding: 3px 6px;">updateContact</div>
+            <div style="padding: 3px 6px;">deleteContact</div>
+            <div style="padding: 3px 6px;">updateDealStage</div>
+            <div style="padding: 3px 6px;">addCallNote</div>
+          </div>
+
+          <div class="text-xs font-medium text-tertiary mt-3 mb-1" style="text-transform: uppercase;">Subscriptions</div>
+          <div style="font-size: 12px;" class="mono text-secondary">
+            <div style="padding: 3px 6px;">dealUpdated</div>
+            <div style="padding: 3px 6px;">contactCreated</div>
+            <div style="padding: 3px 6px;">callNoteAdded</div>
+          </div>
+
+          <div class="text-xs font-medium text-tertiary mt-3 mb-1" style="text-transform: uppercase;">Types</div>
+          <div style="font-size: 12px;" class="mono text-secondary">
+            <div style="padding: 3px 6px;">Contact</div>
+            <div style="padding: 3px 6px;">Deal</div>
+            <div style="padding: 3px 6px;">User</div>
+            <div style="padding: 3px 6px;">CallNote</div>
+            <div style="padding: 3px 6px;">DealStage <span class="badge badge-default" style="font-size: 9px;">enum</span></div>
+            <div style="padding: 3px 6px;">PaginatedDeals</div>
+          </div>
+        </div>
+
+        <div class="card" style="display: flex; flex-direction: column; padding: 0;">
+          <div style="padding: 8px 12px; border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: center;">
+            <span class="text-xs font-medium" style="text-transform: uppercase; letter-spacing: 0.04em;">Query</span>
+            <button class="btn btn-primary btn-xs">▶ Run</button>
+          </div>
+          <div class="code-block" style="margin: 0; flex: 1; font-size: 12px; border-radius: 0; line-height: 1.6;">query GetActiveDeals($limit: Int = 10) {
+  deals(
+    filter: { stage: { in: [PROPOSAL, NEGOTIATION] } }
+    orderBy: { updatedAt: DESC }
+    limit: $limit
+  ) {
+    id
+    title
+    amount
+    stage
+    owner {
+      name
+      email
+    }
+    contacts {
+      name
+      company
+    }
+  }
+}</div>
+          <div style="padding: 8px 12px; border-top: 1px solid var(--border-default); background: var(--bg-canvas);">
+            <span class="text-xs font-medium text-tertiary">Variables:</span>
+            <span class="mono text-xs ml-2">{ "limit": 10 }</span>
+          </div>
+        </div>
+
+        <div class="card" style="display: flex; flex-direction: column; padding: 0;">
+          <div style="padding: 8px 12px; border-bottom: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: center;">
+            <span class="text-xs font-medium" style="text-transform: uppercase; letter-spacing: 0.04em;">Response</span>
+            <span class="text-xs text-success">200 · 87ms</span>
+          </div>
+          <div class="code-block" style="margin: 0; flex: 1; font-size: 12px; border-radius: 0; line-height: 1.6;">{
+  "data": {
+    "deals": [
+      {
+        "id": "d2a8-7e9f-...",
+        "title": "Acme renewal",
+        "amount": 124000,
+        "stage": "NEGOTIATION",
+        "owner": {
+          "name": "Marcus Acker",
+          "email": "marcus@acme.com"
+        },
+        "contacts": [
+          { "name": "Alice Schwartz", "company": "Beta Co" }
+        ]
+      }
+    ]
+  }
+}</div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

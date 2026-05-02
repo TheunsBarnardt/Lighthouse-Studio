@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Realtime — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Realtime',
+  sections: [
+    { heading: 'Inspect', items: [
+      { id: 'overview', label: 'Overview', active: true, href: '#' },
+      { id: 'channels', label: 'Channels', href: '#' },
+      { id: 'connections', label: 'Connections', href: '#' },
+      { id: 'presence', label: 'Presence', href: '#' }
+    ]},
+    { heading: 'Configure', items: [
+      { id: 'pubs', label: 'Publications', href: 'database-publications.html' },
+      { id: 'limits', label: 'Limits', href: '#' }
+    ]}
+  ]
+};
+
+const channels = [
+  ['postgres_changes:public:deals', 'Database', 42, 18],
+  ['postgres_changes:public:contacts', 'Database', 37, 12],
+  ['presence:deal-room-001', 'Presence', 8, 4],
+  ['broadcast:notifications', 'Broadcast', 147, 8]
+];
+
+Shell.render({
+  mode: 'realtime',
+  contextNav,
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header"><div><h1 style="font-size: 18px;">Realtime</h1><div class="subtitle">Live connections, channels, presence</div></div></div>
+      <div class="grid grid-4 mb-4">
+        <div class="stat-card"><div class="stat-label">Connections</div><div class="stat-value">147</div><div class="stat-delta stat-up">+23 vs hour ago</div></div>
+        <div class="stat-card"><div class="stat-label">Channels</div><div class="stat-value">12</div><div class="stat-delta text-secondary">5 active</div></div>
+        <div class="stat-card"><div class="stat-label">Events / sec</div><div class="stat-value">42</div><div class="stat-delta text-secondary">peak 89/s</div></div>
+        <div class="stat-card"><div class="stat-label">p95 latency</div><div class="stat-value">23ms</div><div class="stat-delta stat-up">-4ms vs week</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Active channels</div></div>
+        <table class="data-table">
+          <thead><tr><th>Channel</th><th>Type</th><th class="tabular">Subscribers</th><th class="tabular">Events/min</th><th>Status</th></tr></thead>
+          <tbody>
+            ${channels.map(r => `<tr><td class="mono text-xs">${r[0]}</td><td><span class="badge badge-default">${r[1]}</span></td><td class="tabular">${r[2]}</td><td class="tabular">${r[3]}</td><td>${Shell.statusBadge('active')}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page Designer — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+.dz-shell { display: grid; grid-template-rows: 44px 1fr; height: calc(100vh - 44px); }
+.dz-topbar { display: flex; align-items: center; padding: 0 12px; background: var(--bg-surface); border-bottom: 1px solid var(--border-default); gap: 12px; }
+.dz-page-tabs { display: flex; gap: 2px; overflow-x: auto; }
+.dz-page-tab { display: flex; align-items: center; gap: 6px; padding: 5px 12px; font-size: 12px; border-radius: var(--radius-sm); cursor: pointer; color: var(--fg-secondary); text-decoration: none; flex-shrink: 0; }
+.dz-page-tab:hover { background: var(--bg-hover); color: var(--fg-primary); }
+.dz-page-tab.active { background: var(--bg-selected); color: var(--accent-primary); font-weight: 500; }
+.dz-page-tab .auto-badge { font-size: 8px; background: var(--accent-primary-subtle); color: var(--accent-primary); padding: 1px 4px; border-radius: 2px; }
+.dz-viewport-toggle { display: inline-flex; border: 1px solid var(--border-default); border-radius: var(--radius-sm); overflow: hidden; }
+.dz-viewport-toggle button { padding: 4px 10px; font-size: 11px; color: var(--fg-secondary); background: var(--bg-surface); }
+.dz-viewport-toggle button.active { background: var(--accent-primary); color: var(--accent-primary-fg); }
+
+.dz-body { display: grid; grid-template-columns: 280px 1fr 320px; overflow: hidden; }
+.dz-rail { background: var(--bg-surface); border-right: 1px solid var(--border-default); overflow-y: auto; display: flex; flex-direction: column; }
+.dz-rail-search { padding: 12px; border-bottom: 1px solid var(--border-default); }
+.dz-rail-search input { width: 100%; height: 28px; padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-sm); font-size: 12px; }
+.dz-rail-section { padding: 12px; border-bottom: 1px solid var(--border-default); }
+.dz-rail-section:last-child { border: none; }
+.dz-rail-heading { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-tertiary); margin-bottom: 8px; }
+.dz-block-thumb { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px dashed var(--border-default); border-radius: var(--radius-sm); margin-bottom: 4px; cursor: grab; background: var(--bg-surface); font-size: 12px; color: var(--fg-primary); user-select: none; }
+.dz-block-thumb:hover { border-color: var(--accent-primary); border-style: solid; background: var(--bg-hover); }
+.dz-block-thumb .ico { width: 24px; height: 24px; border-radius: var(--radius-sm); background: var(--bg-canvas); border: 1px solid var(--border-default); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--accent-primary); flex-shrink: 0; }
+.dz-block-thumb .info { flex: 1; min-width: 0; }
+.dz-block-thumb .info .n { font-size: 12px; }
+.dz-block-thumb .info .k { font-size: 9px; color: var(--fg-tertiary); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.dz-canvas-wrap { background: var(--bg-canvas); overflow: auto; padding: 24px; display: flex; justify-content: center; }
+.dz-canvas { background: white; width: 1100px; max-width: 100%; min-height: 100%; border: 1px solid var(--border-default); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); overflow: hidden; font-family: 'Inter', sans-serif; position: relative; display: flex; flex-direction: column; }
+[data-theme="dark"] .dz-canvas { background: oklch(0.20 0.005 250); }
+.dz-canvas.viewport-tablet { width: 768px; }
+.dz-canvas.viewport-mobile { width: 380px; }
+
+.dz-chrome-region { position: relative; border: 2px dashed transparent; flex-shrink: 0; }
+.dz-chrome-region:hover { border-color: oklch(0.50 0.20 250 / 0.3); }
+.dz-chrome-region .chrome-label { position: absolute; top: 4px; left: 4px; background: oklch(0.55 0.005 250); color: white; font-size: 9px; padding: 1px 5px; border-radius: 2px; opacity: 0; pointer-events: none; z-index: 5; }
+.dz-chrome-region:hover .chrome-label { opacity: 1; }
+.dz-chrome-region.chrome-locked { opacity: 0.85; }
+.dz-chrome-region.chrome-locked::after { content: 'Configured in App Chrome ↗'; position: absolute; top: 4px; right: 4px; background: oklch(0.55 0.005 250); color: white; font-size: 9px; padding: 1px 5px; border-radius: 2px; opacity: 0; transition: opacity 100ms; pointer-events: none; }
+.dz-chrome-region.chrome-locked:hover::after { opacity: 1; }
+
+.dz-page-content { flex: 1; }
+.dz-block-instance { position: relative; border: 2px solid transparent; }
+.dz-block-instance:hover { border-color: oklch(0.50 0.20 250 / 0.4); }
+.dz-block-instance.selected { border-color: var(--accent-primary); }
+.dz-block-instance .dz-block-controls { position: absolute; top: -28px; right: 8px; background: var(--accent-primary); color: var(--accent-primary-fg); border-radius: var(--radius-sm); display: none; padding: 2px; z-index: 10; }
+.dz-block-instance.selected .dz-block-controls { display: flex; }
+.dz-block-instance .dz-block-controls button { padding: 2px 6px; font-size: 11px; color: var(--accent-primary-fg); border-radius: 2px; }
+.dz-block-instance .dz-block-controls button:hover { background: oklch(0 0 0 / 0.2); }
+.dz-block-instance .dz-block-label { position: absolute; top: -22px; left: 8px; background: var(--accent-primary); color: var(--accent-primary-fg); font-size: 10px; padding: 2px 6px; border-radius: 2px 2px 0 0; display: none; z-index: 10; font-family: 'Inter', sans-serif; font-weight: 500; }
+.dz-block-instance.selected .dz-block-label { display: block; }
+
+.dz-inspector { background: var(--bg-surface); border-left: 1px solid var(--border-default); overflow-y: auto; padding: 16px; }
+.dz-prop-row { margin-bottom: 12px; }
+.dz-prop-row .lbl { font-size: 11px; font-weight: 500; color: var(--fg-secondary); margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between; }
+.dz-prop-row .binding-toggle { font-size: 9px; padding: 1px 5px; background: var(--bg-hover); color: var(--fg-tertiary); border-radius: var(--radius-sm); cursor: pointer; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em; }
+.dz-prop-row .binding-toggle.active { background: var(--accent-primary-subtle); color: var(--accent-primary); }
+.dz-prop-row input, .dz-prop-row select, .dz-prop-row textarea { width: 100%; padding: 5px 8px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--radius-sm); font-size: 12px; color: var(--fg-primary); }
+.dz-prop-row .binding-input { font-family: 'JetBrains Mono', monospace; background: var(--accent-primary-subtle); border-color: var(--accent-primary-subtle); color: var(--accent-primary); font-size: 11px; }
+
+.dz-empty-state { padding: 40px 24px; text-align: center; color: var(--fg-tertiary); font-size: 12px; }
+.dz-empty-state .icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+
+.ai-fab { position: fixed; bottom: 24px; right: 24px; z-index: 100; background: var(--accent-primary); color: var(--accent-primary-fg); border-radius: var(--radius-full); padding: 12px 20px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 16px oklch(0.50 0.20 250 / 0.3); cursor: pointer; border: none; transition: all 100ms; }
+.ai-fab:hover { box-shadow: 0 6px 20px oklch(0.50 0.20 250 / 0.4); transform: translateY(-1px); }
+</style>
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const BLOCKS_RAIL = [
+  { id: 'hero-centered', name: 'Hero · Centered', kind: 'tailwind', category: 'Hero', icon: 'H', params: ['eyebrow', 'title', 'subtitle', 'primaryCta', 'secondaryCta'] },
+  { id: 'cta-band', name: 'CTA · Band', kind: 'tailwind', category: 'CTA', icon: 'C', params: ['title', 'subtitle', 'primaryCta'] },
+  { id: 'feature-grid', name: 'Features · Grid', kind: 'tailwind', category: 'Content', icon: 'G', params: ['features'] },
+  { id: 'data-table', name: 'Table · Sortable', kind: 'tailwind', category: 'Data', icon: 'T', params: ['entity', 'columns'] },
+  { id: 'data-stat-grid', name: 'Stats · Grid', kind: 'tailwind', category: 'Data', icon: 'S', params: ['stats'] },
+  { id: 'comp-youtube', name: 'YouTube embed', kind: 'component', category: 'Media', icon: '▶', params: ['videoId'] },
+  { id: 'comp-stripe', name: 'Stripe checkout', kind: 'component', category: 'Commerce', icon: '$', params: ['priceId'] },
+  { id: 'comp-chat', name: 'AI Chat widget', kind: 'component', category: 'AI', icon: '✦', params: ['functionId', 'placeholder'] }
+];
+
+const RENDERERS = {
+  'hero-centered': p => `<section style="text-align: center; padding: 56px 32px;"><p style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: oklch(0.50 0.20 250); margin-bottom: 14px;">${p.eyebrow}</p><h1 style="font-size: 38px; font-weight: 700; color: oklch(0.20 0.01 250); margin-bottom: 14px; line-height: 1.1;">${p.title}</h1><p style="font-size: 16px; color: oklch(0.45 0.005 250); margin-bottom: 24px; max-width: 540px; margin-left: auto; margin-right: auto;">${p.subtitle}</p><div style="display: flex; gap: 10px; justify-content: center;"><button style="background: oklch(0.50 0.20 250); color: white; padding: 10px 22px; border-radius: 6px; border: none; font-size: 13px; font-weight: 500;">${p.primaryCta}</button><button style="background: white; color: oklch(0.30 0.01 250); padding: 10px 22px; border-radius: 6px; border: 1px solid oklch(0.85 0.01 250); font-size: 13px; font-weight: 500;">${p.secondaryCta}</button></div></section>`,
+  'cta-band': p => `<section style="background: oklch(0.50 0.20 250); padding: 36px 32px; text-align: center;"><h2 style="font-size: 24px; font-weight: 600; color: white; margin-bottom: 8px;">${p.title}</h2><p style="font-size: 13px; color: oklch(0.85 0.05 250); margin-bottom: 18px;">${p.subtitle}</p><button style="background: white; color: oklch(0.40 0.20 250); padding: 10px 22px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600;">${p.primaryCta}</button></section>`,
+  'feature-grid': p => `<section style="padding: 40px 32px;"><div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">${(p.features || ['Feature 1','Feature 2','Feature 3']).map(t => `<div><div style="width: 32px; height: 32px; background: oklch(0.94 0.06 250); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: oklch(0.50 0.20 250); margin-bottom: 10px; font-size: 14px;">●</div><div style="font-size: 13px; font-weight: 600; color: oklch(0.20 0.01 250); margin-bottom: 4px;">${t}</div><div style="font-size: 11px; color: oklch(0.50 0.005 250); line-height: 16px;">Description goes here.</div></div>`).join('')}</div></section>`,
+  'data-table': p => `<section style="padding: 24px 32px;"><div style="margin-bottom: 10px; font-size: 13px; font-weight: 600;">${p.entity || 'records'}</div><table style="width: 100%; background: white; border: 1px solid oklch(0.90 0.01 250); border-radius: 4px; border-collapse: separate; border-spacing: 0; font-size: 12px;"><thead><tr style="background: oklch(0.97 0.005 250);"><th style="padding: 7px 10px; text-align: left; font-size: 10px; text-transform: uppercase; color: oklch(0.45 0.005 250); border-bottom: 1px solid oklch(0.90 0.01 250);">Title</th><th style="padding: 7px 10px; text-align: left; font-size: 10px; text-transform: uppercase; color: oklch(0.45 0.005 250); border-bottom: 1px solid oklch(0.90 0.01 250);">Stage</th><th style="padding: 7px 10px; text-align: right; font-size: 10px; text-transform: uppercase; color: oklch(0.45 0.005 250); border-bottom: 1px solid oklch(0.90 0.01 250);">Amount</th></tr></thead><tbody>${[['Acme renewal','Negotiation','$124k'],['Beta expansion','Proposal','$48k'],['Gamma deal','Won','$220k']].map(r => `<tr><td style="padding: 7px 10px; border-bottom: 1px solid oklch(0.94 0.005 250);">${r[0]}</td><td style="padding: 7px 10px; border-bottom: 1px solid oklch(0.94 0.005 250); color: oklch(0.45 0.005 250);">${r[1]}</td><td style="padding: 7px 10px; text-align: right; border-bottom: 1px solid oklch(0.94 0.005 250); font-variant-numeric: tabular-nums;">${r[2]}</td></tr>`).join('')}</tbody></table></section>`,
+  'data-stat-grid': p => `<section style="padding: 24px 32px;"><div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;">${[['Active deals','87','+12%'],['Pipeline','$387k','+$24k'],['Won this Q','42','+18%'],['Avg close','17d','-3d']].map(([l,v,d]) => `<div style="background: white; border: 1px solid oklch(0.90 0.01 250); border-radius: 6px; padding: 12px;"><div style="font-size: 10px; font-weight: 600; text-transform: uppercase; color: oklch(0.55 0.005 250); margin-bottom: 4px;">${l}</div><div style="font-size: 20px; font-weight: 600; color: oklch(0.20 0.01 250); font-variant-numeric: tabular-nums;">${v}</div><div style="font-size: 10px; color: oklch(0.45 0.14 145);">${d}</div></div>`).join('')}</div></section>`,
+  'comp-youtube': p => `<section style="padding: 24px 32px;"><div style="aspect-ratio: 16/9; background: oklch(0.15 0.005 250); border-radius: 6px; display: flex; align-items: center; justify-content: center; position: relative;"><div style="width: 56px; height: 56px; background: oklch(0.55 0.20 25); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px;">▶</div><div style="position: absolute; bottom: 10px; left: 10px; background: oklch(0 0 0 / 0.5); color: white; padding: 2px 6px; border-radius: 2px; font-size: 10px;">YouTube · ${p.videoId || 'demo'}</div></div></section>`,
+  'comp-chat': p => `<section style="padding: 24px 32px;"><div style="background: white; border: 1px solid oklch(0.90 0.01 250); border-radius: 6px; height: 220px; display: flex; flex-direction: column; max-width: 420px; margin: 0 auto; overflow: hidden;"><div style="padding: 8px 12px; border-bottom: 1px solid oklch(0.90 0.01 250); font-size: 12px; font-weight: 500;">AI Assistant</div><div style="flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 8px;"><div style="background: oklch(0.96 0.005 250); padding: 6px 10px; border-radius: 8px; font-size: 11px; max-width: 80%;">${p.placeholder || 'How can I help?'}</div></div><div style="padding: 8px; border-top: 1px solid oklch(0.90 0.01 250); display: flex; gap: 4px;"><input style="flex: 1; height: 24px; padding: 0 8px; border: 1px solid oklch(0.90 0.01 250); border-radius: 4px; font-size: 11px;" placeholder="Type..." /><button style="background: oklch(0.50 0.20 250); color: white; padding: 0 10px; border-radius: 4px; border: none; font-size: 11px;">→</button></div></div></section>`
+};
+
+const DEFAULT_PROPS = {
+  'hero-centered': { eyebrow: 'Internal CRM', title: 'Pipeline at a glance', subtitle: 'Track contacts, deals, and call activity in one place.', primaryCta: 'New deal', secondaryCta: 'View pipeline' },
+  'cta-band': { title: 'Ready to close more deals?', subtitle: 'Get a guided tour of the new pipeline.', primaryCta: 'Book a demo' },
+  'feature-grid': { features: ['Microsoft 365 sync', 'Activity tracking', 'Call notes search'] },
+  'data-table': { entity: 'deals', columns: 'title,stage,amount' },
+  'data-stat-grid': { stats: 'pipeline_dashboard' },
+  'comp-youtube': { videoId: 'dQw4w9WgXcQ' },
+  'comp-chat': { functionId: 'crm_assistant', placeholder: 'Ask about your deals...' }
+};
+
+// Pages that exist in the deployed app (loaded by Designer)
+const PROJECT_PAGES = {
+  'dashboard': {
+    name: 'Dashboard',
+    auto: true,
+    blocks: [
+      { id: 'b1', blockId: 'data-stat-grid', props: { stats: 'pipeline_dashboard' }, bindings: { stats: '{fn.getPipelineStats()}' } },
+      { id: 'b2', blockId: 'data-table', props: { entity: 'deals', columns: 'title,stage,amount' }, bindings: { entity: '{schema.deals}' } }
+    ]
+  },
+  'deals': {
+    name: 'Deals',
+    auto: true,
+    blocks: [
+      { id: 'd1', blockId: 'data-table', props: { entity: 'deals', columns: 'title,stage,amount,owner' }, bindings: { entity: '{schema.deals}' } }
+    ]
+  },
+  'landing': {
+    name: 'Public landing',
+    auto: false,
+    blocks: [
+      { id: 'l1', blockId: 'hero-centered', props: { eyebrow: 'New for Acme', title: 'Sales pipeline you can trust', subtitle: 'Built on Acme platform · self-hosted · GDPR-compliant.', primaryCta: 'Sign in', secondaryCta: 'Watch demo' }, bindings: {} },
+      { id: 'l2', blockId: 'feature-grid', props: { features: ['Microsoft 365 sync', 'Activity tracking', 'Call notes search'] }, bindings: {} },
+      { id: 'l3', blockId: 'cta-band', props: { title: 'Ready to close more deals?', subtitle: 'Get a guided tour.', primaryCta: 'Book a demo' }, bindings: {} }
+    ]
+  },
+  'sign-in': {
+    name: 'Sign in',
+    auto: false,
+    chromeOverride: 'no-chrome',
+    blocks: []
+  }
+};
+
+const state = {
+  page: 'dashboard',
+  pages: PROJECT_PAGES,
+  blocks: [...(PROJECT_PAGES.dashboard.blocks)],
+  selected: null,
+  search: '',
+  category: 'All',
+  viewport: 'desktop'
+};
+
+const CATS = ['All', 'Hero', 'CTA', 'Data', 'Content', 'Media', 'Commerce', 'AI'];
+
+function loadPage(pageId) {
+  state.page = pageId;
+  state.blocks = JSON.parse(JSON.stringify(PROJECT_PAGES[pageId].blocks));
+  state.selected = null;
+  rerender();
+}
+
+function selectedBlock() { return state.blocks.find(b => b.id === state.selected); }
+function blockMeta(blockId) { return BLOCKS_RAIL.find(b => b.id === blockId); }
+
+function selectInstance(id) { state.selected = id; rerender(); }
+function deleteSelected() {
+  if (!state.selected) return;
+  state.blocks = state.blocks.filter(b => b.id !== state.selected);
+  state.selected = state.blocks[0]?.id || null;
+  rerender();
+}
+function moveBlock(id, dir) {
+  const idx = state.blocks.findIndex(b => b.id === id);
+  if (idx === -1) return;
+  const newIdx = dir === 'up' ? idx - 1 : idx + 1;
+  if (newIdx < 0 || newIdx >= state.blocks.length) return;
+  const [m] = state.blocks.splice(idx, 1);
+  state.blocks.splice(newIdx, 0, m);
+  rerender();
+}
+function addBlock(blockId) {
+  const id = 'b' + Date.now();
+  state.blocks.push({ id, blockId, props: { ...(DEFAULT_PROPS[blockId] || {}) }, bindings: {} });
+  state.selected = id;
+  Shell.toast('Block added', 'success');
+  rerender();
+}
+function setProp(key, value) { const b = selectedBlock(); if (!b) return; b.props[key] = value; rerender(); }
+function toggleBinding(key) { const b = selectedBlock(); if (!b) return; if (b.bindings[key]) { delete b.bindings[key]; } else { b.bindings[key] = `{${key}}`; } rerender(); }
+function setBinding(key, value) { const b = selectedBlock(); if (!b) return; b.bindings[key] = value; rerender(); }
+
+function askAI() {
+  Shell.toast('AI is reviewing this page in context of your PRD, schema, and brand voice...', 'info');
+  setTimeout(() => Shell.toast('Suggestion: add a "Recent activity" feed below the stats grid, bound to call_notes ordered by created_at DESC limit 10.', 'success'), 1200);
+}
+
+function renderRail() {
+  const filtered = BLOCKS_RAIL.filter(b => {
+    if (state.category !== 'All' && b.category !== state.category) return false;
+    if (state.search && !b.name.toLowerCase().includes(state.search.toLowerCase())) return false;
+    return true;
+  });
+  const groups = {};
+  filtered.forEach(b => { (groups[b.category] = groups[b.category] || []).push(b); });
+
+  return `
+    <div class="dz-rail">
+      <div class="dz-rail-search">
+        <input placeholder="Search blocks..." value="${state.search}" oninput="state.search = this.value; rerender()" />
+      </div>
+      <div style="padding: 8px 12px; border-bottom: 1px solid var(--border-default); display: flex; gap: 4px; overflow-x: auto;">
+        ${CATS.map(c => `<button class="bl-filter ${state.category === c ? 'active' : ''}" style="padding: 3px 8px; font-size: 11px; flex-shrink: 0;" onclick="state.category = '${c}'; rerender()">${c}</button>`).join('')}
+      </div>
+      ${Object.entries(groups).map(([cat, blocks]) => `
+        <div class="dz-rail-section">
+          <div class="dz-rail-heading">${cat}</div>
+          ${blocks.map(b => `
+            <div class="dz-block-thumb" onclick="addBlock('${b.id}')" title="Click to add">
+              <div class="ico">${b.icon}</div>
+              <div class="info"><div class="n">${b.name}</div><div class="k">${b.kind}</div></div>
+            </div>
+          `).join('')}
+        </div>
+      `).join('')}
+      <div style="padding: 12px; border-top: 1px solid var(--border-default); margin-top: auto;">
+        <a class="btn btn-secondary btn-sm" href="blocks-library.html" style="width: 100%; justify-content: center; display: block; text-align: center;">Open Blocks Library →</a>
+      </div>
+    </div>
+  `;
+}
+
+function renderHeader() {
+  return `
+    <div style="background: white; padding: 10px 24px; border-bottom: 1px solid oklch(0.90 0.01 250); display: flex; align-items: center; gap: 24px; font-family: 'Inter', sans-serif;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="width: 26px; height: 26px; background: oklch(0.50 0.20 250); border-radius: 5px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 13px;">A</div>
+        <div style="font-weight: 600; font-size: 13px;">Acme CRM</div>
+      </div>
+      <nav style="display: flex; gap: 14px; flex: 1;">
+        <a style="font-size: 11px; color: ${state.page === 'dashboard' ? 'oklch(0.20 0.01 250); font-weight: 500' : 'oklch(0.45 0.005 250)'};">Dashboard</a>
+        <a style="font-size: 11px; color: ${state.page === 'deals' ? 'oklch(0.20 0.01 250); font-weight: 500' : 'oklch(0.45 0.005 250)'};">Deals</a>
+        <a style="font-size: 11px; color: oklch(0.45 0.005 250);">Contacts</a>
+      </nav>
+      <input style="height: 26px; padding: 0 10px; background: oklch(0.97 0.005 250); border: 1px solid oklch(0.90 0.01 250); border-radius: 4px; font-size: 11px; width: 160px;" placeholder="Search..." />
+      <div style="width: 26px; height: 26px; background: oklch(0.92 0.04 250); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: oklch(0.40 0.20 250); font-weight: 600;">JD</div>
+    </div>
+  `;
+}
+
+function renderBreadcrumb() {
+  if (state.page === 'landing' || state.page === 'sign-in') return '';
+  return `<div style="padding: 8px 24px; font-family: 'Inter', sans-serif; font-size: 11px; color: oklch(0.45 0.005 250); border-bottom: 1px solid oklch(0.94 0.005 250);"><a style="color: oklch(0.50 0.20 250);">Home</a> <span style="margin: 0 6px;">›</span> <span style="color: oklch(0.20 0.01 250);">${state.pages[state.page].name}</span></div>`;
+}
+
+function renderFooter() {
+  return `
+    <div style="background: oklch(0.97 0.005 250); padding: 16px 24px 12px; font-family: 'Inter', sans-serif; border-top: 1px solid oklch(0.90 0.01 250); font-size: 10px; color: oklch(0.55 0.005 250); display: flex; justify-content: space-between;">
+      <div>© 2026 Acme. All rights reserved.</div>
+      <div style="display: flex; gap: 12px;"><a>Privacy</a><a>Terms</a><a>Support</a></div>
+    </div>
+  `;
+}
+
+function renderCanvas() {
+  const isFullPage = state.pages[state.page].chromeOverride === 'no-chrome';
+  return `
+    <div class="dz-canvas-wrap">
+      <div class="dz-canvas viewport-${state.viewport}">
+        ${!isFullPage ? `
+          <div class="dz-chrome-region chrome-locked">
+            <div class="chrome-label">HEADER · from App Chrome</div>
+            ${renderHeader()}
+          </div>
+          <div class="dz-chrome-region chrome-locked">
+            <div class="chrome-label">BREADCRUMB · from App Chrome</div>
+            ${renderBreadcrumb()}
+          </div>
+        ` : ''}
+
+        <div class="dz-page-content">
+          ${state.blocks.length === 0 ? `<div style="padding: 80px 24px; text-align: center; color: var(--fg-tertiary); font-size: 13px;"><div style="font-size: 32px; margin-bottom: 8px; opacity: 0.4;">＋</div>Drag a block from the left rail or click ✦ Ask AI for suggestions.</div>` : ''}
+          ${state.blocks.map(b => {
+            const meta = blockMeta(b.blockId);
+            const renderProps = {};
+            if (meta) meta.params.forEach(p => { renderProps[p] = b.bindings[p] || b.props[p] || ''; });
+            const renderer = RENDERERS[b.blockId];
+            const content = renderer ? renderer(renderProps) : `<div style="padding: 32px; text-align: center; color: var(--fg-tertiary); font-size: 13px;">${meta?.name || b.blockId}</div>`;
+            return `
+              <div class="dz-block-instance ${b.id === state.selected ? 'selected' : ''}" onclick="event.stopPropagation(); selectInstance('${b.id}')">
+                <div class="dz-block-label">${meta?.name || b.blockId}${b.bindings && Object.keys(b.bindings).length > 0 ? ` · ${Object.keys(b.bindings).length} bindings` : ''}</div>
+                <div class="dz-block-controls" onclick="event.stopPropagation()">
+                  <button onclick="moveBlock('${b.id}', 'up')" title="Up">↑</button>
+                  <button onclick="moveBlock('${b.id}', 'down')" title="Down">↓</button>
+                  <button onclick="state.selected = '${b.id}'; deleteSelected()" title="Delete">✕</button>
+                </div>
+                ${content}
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        ${!isFullPage ? `
+          <div class="dz-chrome-region chrome-locked">
+            <div class="chrome-label">FOOTER · from App Chrome</div>
+            ${renderFooter()}
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderInspector() {
+  const b = selectedBlock();
+  if (!b) {
+    return `
+      <div class="dz-inspector">
+        <div class="dz-empty-state"><div class="icon">◰</div>Select a block on the canvas to edit its properties, or use ✦ Ask AI for suggestions for this page.</div>
+        <div class="inspector-section">
+          <div class="inspector-label">Page metadata</div>
+          <div class="inspector-row"><span class="key">Page</span><span class="val">${state.pages[state.page].name}</span></div>
+          <div class="inspector-row"><span class="key">Source</span><span class="val">${state.pages[state.page].auto ? 'AI Pipeline (Stage 6)' : 'Manual'}</span></div>
+          <div class="inspector-row"><span class="key">Chrome</span><span class="val">${state.pages[state.page].chromeOverride === 'no-chrome' ? 'None (full page)' : 'App Chrome default'}</span></div>
+          <div class="inspector-row"><span class="key">Last edited</span><span class="val text-tertiary">12 min ago</span></div>
+        </div>
+        <div class="inspector-section">
+          <div class="inspector-label">Page-level chrome</div>
+          <div class="text-xs text-secondary mb-2">Override the default header / footer / sidenav for this page only.</div>
+          <select class="select input-h28" style="width: 100%; margin-bottom: 6px;">
+            <option ${state.pages[state.page].chromeOverride !== 'no-chrome' ? 'selected' : ''}>App Chrome default</option>
+            <option ${state.pages[state.page].chromeOverride === 'no-chrome' ? 'selected' : ''}>No chrome (full page)</option>
+            <option>Custom...</option>
+          </select>
+          <a class="btn btn-ghost btn-sm" style="width: 100%; margin-top: 4px; display: inline-block; text-align: center;" href="app-chrome.html">Edit App Chrome →</a>
+        </div>
+      </div>
+    `;
+  }
+  const meta = blockMeta(b.blockId);
+  if (!meta) return '';
+  return `
+    <div class="dz-inspector">
+      <div class="inspector-section">
+        <div class="inspector-label">Block</div>
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="font-semibold" style="font-size: 13px;">${meta.name}</div>
+            <div class="text-xs text-tertiary">${meta.kind} · ${meta.category}</div>
+          </div>
+          <button class="btn btn-ghost btn-xs" onclick="deleteSelected()">Delete</button>
+        </div>
+      </div>
+      <div class="inspector-section">
+        <div class="inspector-label">Properties & Bindings</div>
+        <div class="text-xs text-tertiary mb-3">Each property can be a literal value or bound to a data source. Click <span class="mono">{ }</span> to switch.</div>
+        ${meta.params.map(key => {
+          const isBound = key in b.bindings;
+          const value = isBound ? b.bindings[key] : (b.props[key] !== undefined ? String(b.props[key]) : '');
+          return `
+            <div class="dz-prop-row">
+              <div class="lbl">
+                <span>${key}</span>
+                <span class="binding-toggle ${isBound ? 'active' : ''}" onclick="toggleBinding('${key}')" title="${isBound ? 'Switch to literal' : 'Bind to data source'}">{ }</span>
+              </div>
+              ${isBound
+                ? `<input class="binding-input" value="${value}" onchange="setBinding('${key}', this.value)" placeholder="{prd.title}" />`
+                : `<input value="${value}" onchange="setProp('${key}', this.value)" placeholder="${key}" />`
+              }
+            </div>
+          `;
+        }).join('')}
+      </div>
+      <div class="inspector-section">
+        <div class="inspector-label">Available bindings</div>
+        ${[
+          { group: 'PRD', items: ['prd.title', 'prd.tagline', 'prd.fr.contact_management'] },
+          { group: 'Schema', items: ['schema.contacts', 'schema.deals', 'schema.call_notes'] },
+          { group: 'Functions', items: ['fn.getPipelineStats()', 'fn.getRecentDeals()', 'fn.searchContacts(q)'] },
+          { group: 'Workspace', items: ['workspace.brand.primary', 'workspace.logo'] }
+        ].map(g => `
+          <div class="text-xs font-medium text-tertiary mt-3 mb-1" style="text-transform: uppercase; letter-spacing: 0.04em;">${g.group}</div>
+          ${g.items.map(i => `<div style="font-size: 11px; padding: 3px 6px; color: var(--fg-secondary); cursor: pointer; font-family: 'JetBrains Mono', monospace;" onmouseover="this.style.background='var(--bg-hover)'" onmouseout="this.style.background=''">{${i}}</div>`).join('')}
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function rerender() {
+  Shell.render({
+    mode: 'designer',
+    contextNav: null,
+    dataPlane: false,
+    mainContent: `
+      <div class="dz-shell">
+        <div class="dz-topbar">
+          <div class="dz-page-tabs">
+            ${Object.entries(state.pages).map(([id, p]) => `
+              <a class="dz-page-tab ${id === state.page ? 'active' : ''}" onclick="loadPage('${id}'); return false;" href="#">
+                <span style="font-size: 10px; opacity: 0.7;">▤</span>
+                <span>${p.name}</span>
+                ${p.auto ? '<span class="auto-badge">auto</span>' : ''}
+              </a>
+            `).join('')}
+            <a class="dz-page-tab" href="#" onclick="Shell.toast('Add new page · would prompt for path and template', 'info'); return false;" style="color: var(--fg-tertiary);">+</a>
+          </div>
+          <div class="dz-viewport-toggle" style="margin-left: auto;">
+            <button class="${state.viewport === 'desktop' ? 'active' : ''}" onclick="state.viewport = 'desktop'; rerender()">Desktop</button>
+            <button class="${state.viewport === 'tablet' ? 'active' : ''}" onclick="state.viewport = 'tablet'; rerender()">Tablet</button>
+            <button class="${state.viewport === 'mobile' ? 'active' : ''}" onclick="state.viewport = 'mobile'; rerender()">Mobile</button>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="Shell.toast('Preview opened', 'info')">Preview</button>
+          <button class="btn btn-secondary btn-sm" onclick="Shell.toast('Discarded changes · reverted to deployed version', 'info')">Discard</button>
+          <button class="btn btn-primary btn-sm" onclick="Shell.toast('Saved · rebuild queued · will deploy after tests pass', 'success')">Save & Deploy</button>
+        </div>
+        <div class="dz-body">
+          ${renderRail()}
+          ${renderCanvas()}
+          ${renderInspector()}
+        </div>
+      </div>
+      <button class="ai-fab" onclick="askAI()">✦ Ask AI</button>
+    `
+  });
+}
+
+rerender();
+</script>
+</body>
+</html>

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blocks Library — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+.bl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+.bl-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all 100ms cubic-bezier(0.2, 0, 0, 1);
+  cursor: pointer;
+}
+.bl-card:hover { border-color: var(--accent-primary); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+
+.bl-preview {
+  height: 180px;
+  background: var(--bg-canvas);
+  background-image: linear-gradient(45deg, var(--border-default) 25%, transparent 25%, transparent 75%, var(--border-default) 75%), linear-gradient(45deg, var(--border-default) 25%, transparent 25%, transparent 75%, var(--border-default) 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 6px 6px;
+  background-color: oklch(0.97 0.002 250);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+[data-theme="dark"] .bl-preview { background-color: oklch(0.18 0.005 250); }
+.bl-preview-mini { transform: scale(0.55); transform-origin: center; pointer-events: none; width: 600px; }
+
+.bl-meta { padding: 12px 14px; }
+.bl-meta-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.bl-name { font-weight: 600; font-size: 13px; }
+.bl-desc { font-size: 11px; color: var(--fg-tertiary); margin-bottom: 8px; line-height: 16px; }
+.bl-footer { display: flex; align-items: center; gap: 6px; padding-top: 8px; border-top: 1px solid var(--border-default); margin-top: 8px; flex-wrap: wrap; }
+.bl-param-pill { font-size: 9px; padding: 1px 6px; background: var(--bg-hover); color: var(--fg-secondary); border-radius: var(--radius-sm); font-family: 'JetBrains Mono', monospace; }
+.bl-global-badge { font-size: 9px; padding: 1px 6px; background: oklch(0.94 0.06 250); color: oklch(0.40 0.20 250); border-radius: var(--radius-sm); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+.bl-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.bl-filter {
+  padding: 4px 10px; font-size: 12px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  cursor: pointer; color: var(--fg-secondary); background: var(--bg-surface);
+}
+.bl-filter:hover { background: var(--bg-hover); }
+.bl-filter.active { background: var(--accent-primary); color: var(--accent-primary-fg); border-color: var(--accent-primary); }
+.bl-filter .count { font-size: 10px; opacity: 0.7; margin-left: 6px; }
+
+.bl-detail-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg-overlay);
+  z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+  padding: 32px;
+}
+.bl-detail {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 1200px;
+  max-width: 100%;
+  max-height: calc(100vh - 64px);
+  display: grid;
+  grid-template-rows: 56px auto 1fr;
+  overflow: hidden;
+}
+.bl-detail-header {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-default);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.bl-detail-tabs {
+  display: flex; gap: 0;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border-default);
+  background: var(--bg-surface);
+}
+.bl-detail-tab {
+  padding: 8px 16px;
+  font-size: 12px; font-weight: 500;
+  color: var(--fg-secondary); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  display: flex; align-items: center; gap: 8px;
+}
+.bl-detail-tab.active { color: var(--accent-primary); border-color: var(--accent-primary); }
+.bl-detail-tab:hover:not(.active) { color: var(--fg-primary); background: var(--bg-hover); }
+
+.bl-detail-body {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  overflow: hidden;
+}
+.bl-detail-content {
+  background: var(--bg-canvas);
+  overflow: auto;
+  padding: 24px;
+}
+.bl-detail-side {
+  border-left: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  overflow-y: auto;
+  padding: 16px;
+}
+.bl-code-block {
+  background: oklch(0.18 0.01 250);
+  color: oklch(0.92 0.005 250);
+  padding: 16px;
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre;
+  overflow-x: auto;
+  margin-bottom: 0;
+}
+.bl-code-block .kw { color: oklch(0.75 0.18 280); }
+.bl-code-block .str { color: oklch(0.75 0.16 145); }
+.bl-code-block .attr { color: oklch(0.78 0.14 75); }
+.bl-code-block .tag { color: oklch(0.75 0.16 25); }
+.bl-code-block .com { color: oklch(0.50 0.005 250); font-style: italic; }
+.bl-code-language-tabs { display: flex; gap: 0; background: oklch(0.22 0.01 250); border-radius: var(--radius-sm) var(--radius-sm) 0 0; padding: 0 8px; }
+.bl-code-language-tab {
+  padding: 6px 12px; font-size: 11px;
+  color: oklch(0.65 0.005 250); cursor: pointer;
+  border-bottom: 2px solid transparent;
+  font-family: 'JetBrains Mono', monospace;
+}
+.bl-code-language-tab.active { color: white; border-color: oklch(0.65 0.16 250); }
+</style>
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const BLOCKS = [
+  // ── CHROME (NEW) ──
+  {
+    id: 'chrome-header-app',
+    name: 'App Header · Standard',
+    kind: 'tailwind',
+    category: 'Chrome',
+    chrome: 'header',
+    description: 'Top app header with logo, primary nav, search, user menu. Used by App Chrome surface.',
+    params: ['logoUrl', 'productName', 'navItems', 'showSearch', 'userMenuItems'],
+    preview: `
+      <div style="background: white; padding: 12px 24px; border-bottom: 1px solid oklch(0.90 0.01 250); display: flex; align-items: center; gap: 24px; font-family: 'Inter', sans-serif;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="width: 28px; height: 28px; background: oklch(0.50 0.20 250); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">A</div>
+          <div style="font-weight: 600; font-size: 14px;">{productName}</div>
+        </div>
+        <nav style="display: flex; gap: 16px; flex: 1;">
+          <a style="font-size: 12px; color: oklch(0.20 0.01 250); font-weight: 500;">Dashboard</a>
+          <a style="font-size: 12px; color: oklch(0.45 0.005 250);">Deals</a>
+          <a style="font-size: 12px; color: oklch(0.45 0.005 250);">Contacts</a>
+        </nav>
+        <input style="height: 28px; padding: 0 10px; background: oklch(0.97 0.005 250); border: 1px solid oklch(0.90 0.01 250); border-radius: 4px; font-size: 11px; width: 180px;" placeholder="Search..." />
+        <div style="width: 28px; height: 28px; background: oklch(0.92 0.04 250); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: oklch(0.40 0.20 250); font-weight: 600;">JD</div>
+      </div>`,
+    code: {
+      jsx: `<header className="bg-surface border-b border-default flex items-center gap-6 px-6 py-3">
+  <div className="flex items-center gap-2">
+    {logoUrl && <img src={logoUrl} alt="" className="w-7 h-7 rounded-md" />}
+    <span className="font-semibold text-sm">{productName}</span>
+  </div>
+  <nav className="flex gap-4 flex-1" aria-label="Primary">
+    {navItems.map(item => (
+      <a key={item.href} href={item.href}
+         className={cn('text-xs', item.active ? 'text-fg-primary font-medium' : 'text-fg-secondary')}>
+        {item.label}
+      </a>
+    ))}
+  </nav>
+  {showSearch && <SearchInput placeholder="Search..." />}
+  <UserMenu items={userMenuItems} />
+</header>`,
+      html: `<header class="app-header">
+  <div class="logo">
+    <img src="{{logoUrl}}" alt="" />
+    <span>{{productName}}</span>
+  </div>
+  <nav>
+    {{#each navItems}}
+      <a href="{{href}}" class="{{#if active}}active{{/if}}">{{label}}</a>
+    {{/each}}
+  </nav>
+  <input type="search" placeholder="Search..." />
+  <button class="user-menu">{{userInitials}}</button>
+</header>`,
+      css: `.app-header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-default);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 56px;
+}`
+    }
+  },
+  {
+    id: 'chrome-footer-standard',
+    name: 'App Footer · Standard',
+    kind: 'tailwind',
+    category: 'Chrome',
+    chrome: 'footer',
+    description: 'Bottom footer with copyright, link groups, social. Used by App Chrome surface.',
+    params: ['companyName', 'linkGroups', 'socialLinks', 'copyrightText'],
+    preview: `
+      <div style="background: oklch(0.97 0.005 250); padding: 32px 24px 16px; font-family: 'Inter', sans-serif; border-top: 1px solid oklch(0.90 0.01 250);">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+          <div><div style="font-weight: 600; font-size: 14px; margin-bottom: 6px;">{companyName}</div><div style="font-size: 11px; color: oklch(0.50 0.005 250);">Tagline goes here.</div></div>
+          <div><div style="font-size: 10px; font-weight: 600; text-transform: uppercase; color: oklch(0.45 0.005 250); margin-bottom: 6px;">Product</div><div style="font-size: 11px;">Features</div><div style="font-size: 11px;">Pricing</div></div>
+          <div><div style="font-size: 10px; font-weight: 600; text-transform: uppercase; color: oklch(0.45 0.005 250); margin-bottom: 6px;">Company</div><div style="font-size: 11px;">About</div><div style="font-size: 11px;">Blog</div></div>
+          <div><div style="font-size: 10px; font-weight: 600; text-transform: uppercase; color: oklch(0.45 0.005 250); margin-bottom: 6px;">Legal</div><div style="font-size: 11px;">Privacy</div><div style="font-size: 11px;">Terms</div></div>
+        </div>
+        <div style="font-size: 10px; color: oklch(0.55 0.005 250); padding-top: 12px; border-top: 1px solid oklch(0.90 0.01 250);">© 2026 Acme. All rights reserved.</div>
+      </div>`,
+    code: {
+      jsx: `<footer className="bg-canvas border-t border-default px-6 pt-8 pb-4">
+  <div className="grid grid-cols-12 gap-6 mb-6">
+    <div className="col-span-6">
+      <div className="font-semibold text-sm mb-1.5">{companyName}</div>
+      <p className="text-xs text-fg-tertiary">{tagline}</p>
+    </div>
+    {linkGroups.map(group => (
+      <div key={group.title} className="col-span-2">
+        <div className="text-xs font-semibold uppercase text-fg-tertiary mb-1.5">
+          {group.title}
+        </div>
+        {group.links.map(link => (
+          <a key={link.href} href={link.href} className="block text-xs py-0.5">
+            {link.label}
+          </a>
+        ))}
+      </div>
+    ))}
+  </div>
+  <div className="text-xs text-fg-tertiary pt-3 border-t border-default">
+    {copyrightText}
+  </div>
+</footer>`,
+      html: `<footer class="app-footer">...</footer>`,
+      css: `.app-footer { /* uses standard footer tokens */ }`
+    }
+  },
+  {
+    id: 'chrome-sidenav-vertical',
+    name: 'Side Navigation · Vertical',
+    kind: 'tailwind',
+    category: 'Chrome',
+    chrome: 'sidenav',
+    description: 'Collapsible vertical side nav with sections. Used by App Chrome surface.',
+    params: ['logoUrl', 'navSections', 'collapsible', 'showWorkspaceSwitcher'],
+    preview: `
+      <div style="display: flex; height: 240px; font-family: 'Inter', sans-serif;">
+        <div style="width: 200px; background: oklch(0.97 0.005 250); border-right: 1px solid oklch(0.90 0.01 250); padding: 12px; display: flex; flex-direction: column; gap: 4px;">
+          <div style="display: flex; align-items: center; gap: 8px; padding: 6px; margin-bottom: 8px;">
+            <div style="width: 24px; height: 24px; background: oklch(0.50 0.20 250); border-radius: 5px;"></div>
+            <span style="font-weight: 600; font-size: 12px;">App Name</span>
+          </div>
+          <div style="font-size: 10px; font-weight: 600; text-transform: uppercase; color: oklch(0.55 0.005 250); padding: 4px 6px; margin-top: 4px;">MAIN</div>
+          <div style="padding: 5px 8px; background: oklch(0.94 0.06 250); color: oklch(0.40 0.20 250); border-radius: 4px; font-size: 12px; font-weight: 500;">▦ Dashboard</div>
+          <div style="padding: 5px 8px; color: oklch(0.30 0.01 250); font-size: 12px;">⊞ Deals</div>
+          <div style="padding: 5px 8px; color: oklch(0.30 0.01 250); font-size: 12px;">◯ Contacts</div>
+          <div style="font-size: 10px; font-weight: 600; text-transform: uppercase; color: oklch(0.55 0.005 250); padding: 4px 6px; margin-top: 8px;">SETUP</div>
+          <div style="padding: 5px 8px; color: oklch(0.30 0.01 250); font-size: 12px;">⚙ Settings</div>
+        </div>
+        <div style="flex: 1; background: white; padding: 12px; font-size: 11px; color: oklch(0.55 0.005 250);">page content area</div>
+      </div>`,
+    code: {
+      jsx: `<aside className="w-60 bg-surface border-r border-default flex flex-col">
+  <header className="px-3 py-3 border-b border-default flex items-center gap-2">
+    <img src={logoUrl} className="w-6 h-6 rounded" alt="" />
+    <span className="font-semibold text-sm">{appName}</span>
+  </header>
+  <nav className="flex-1 p-2 overflow-y-auto">
+    {navSections.map(section => (
+      <div key={section.title} className="mt-2">
+        <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-fg-tertiary">
+          {section.title}
+        </div>
+        {section.items.map(item => (
+          <NavLink key={item.href} to={item.href}
+            className={({isActive}) => cn(
+              'flex items-center gap-2 px-2 py-1.5 rounded-sm text-sm',
+              isActive ? 'bg-accent-subtle text-accent' : 'text-fg-primary hover:bg-hover'
+            )}>
+            {item.icon}
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+      </div>
+    ))}
+  </nav>
+  {showWorkspaceSwitcher && <WorkspaceSwitcher className="border-t border-default" />}
+</aside>`,
+      html: '<aside class="sidenav">...</aside>',
+      css: '.sidenav { width: 240px; }'
+    }
+  },
+  {
+    id: 'chrome-breadcrumb',
+    name: 'Breadcrumb',
+    kind: 'tailwind',
+    category: 'Chrome',
+    chrome: 'breadcrumb',
+    description: 'Hierarchical navigation breadcrumb. Auto-generated from page tree.',
+    params: ['items', 'separator'],
+    preview: `
+      <div style="padding: 12px 24px; font-family: 'Inter', sans-serif; font-size: 12px; color: oklch(0.45 0.005 250);">
+        <a style="color: oklch(0.50 0.20 250);">Home</a>
+        <span style="margin: 0 6px; color: oklch(0.65 0.005 250);">›</span>
+        <a style="color: oklch(0.50 0.20 250);">Deals</a>
+        <span style="margin: 0 6px; color: oklch(0.65 0.005 250);">›</span>
+        <span style="color: oklch(0.20 0.01 250);">Acme renewal</span>
+      </div>`,
+    code: {
+      jsx: `<nav aria-label="Breadcrumb" className="px-6 py-3 text-xs">
+  <ol className="flex items-center gap-1.5">
+    {items.map((item, i) => (
+      <li key={item.href || i} className="flex items-center gap-1.5">
+        {i > 0 && <span className="text-fg-tertiary">{separator}</span>}
+        {i === items.length - 1 ? (
+          <span aria-current="page" className="text-fg-primary">{item.label}</span>
+        ) : (
+          <a href={item.href} className="text-accent hover:underline">{item.label}</a>
+        )}
+      </li>
+    ))}
+  </ol>
+</nav>`,
+      html: '<nav class="breadcrumb">...</nav>',
+      css: '.breadcrumb ol { list-style: none; display: flex; gap: 6px; }'
+    }
+  },
+
+  // ── HERO ──
+  {
+    id: 'hero-centered',
+    name: 'Hero · Centered',
+    kind: 'tailwind',
+    category: 'Hero',
+    description: 'Centered hero with eyebrow, headline, sub, and CTA pair.',
+    params: ['eyebrow', 'title', 'subtitle', 'primaryCta', 'secondaryCta'],
+    preview: `
+      <div style="text-align: center; padding: 48px 32px; font-family: 'Inter', sans-serif; background: oklch(0.99 0.002 250);">
+        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: oklch(0.50 0.18 245); margin-bottom: 12px;">{eyebrow}</div>
+        <div style="font-size: 36px; font-weight: 700; color: oklch(0.20 0.01 250); margin-bottom: 12px; line-height: 1.1;">{title}</div>
+        <div style="font-size: 15px; color: oklch(0.45 0.005 250); margin-bottom: 24px; max-width: 480px; margin-left: auto; margin-right: auto;">{subtitle}</div>
+        <div style="display: flex; gap: 8px; justify-content: center;">
+          <button style="background: oklch(0.50 0.20 250); color: white; padding: 10px 20px; border-radius: 6px; border: none; font-size: 14px; font-weight: 500;">{primaryCta}</button>
+          <button style="background: white; color: oklch(0.30 0.01 250); padding: 10px 20px; border-radius: 6px; border: 1px solid oklch(0.85 0.01 250); font-size: 14px; font-weight: 500;">{secondaryCta}</button>
+        </div>
+      </div>`,
+    code: {
+      jsx: `<section className="text-center py-16 px-8">
+  <p className="text-xs font-semibold uppercase tracking-wider text-accent mb-3">
+    {eyebrow}
+  </p>
+  <h1 className="text-4xl font-bold text-fg-primary mb-3">
+    {title}
+  </h1>
+  <p className="text-base text-fg-secondary mb-6 max-w-md mx-auto">
+    {subtitle}
+  </p>
+  <div className="flex gap-2 justify-center">
+    <Button variant="primary" href={primaryHref}>{primaryCta}</Button>
+    <Button variant="secondary" href={secondaryHref}>{secondaryCta}</Button>
+  </div>
+</section>`,
+      html: `<section class="hero-centered">
+  <p class="eyebrow">{{eyebrow}}</p>
+  <h1>{{title}}</h1>
+  <p class="subtitle">{{subtitle}}</p>
+  <div class="actions">
+    <a class="btn btn-primary" href="{{primaryHref}}">{{primaryCta}}</a>
+    <a class="btn btn-secondary" href="{{secondaryHref}}">{{secondaryCta}}</a>
+  </div>
+</section>`,
+      css: `.hero-centered {
+  text-align: center;
+  padding: 64px 32px;
+}
+.hero-centered .eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+.hero-centered h1 {
+  font-size: 44px;
+  font-weight: 700;
+  margin: 12px 0;
+}`
+    }
+  },
+
+  {
+    id: 'cta-band',
+    name: 'CTA · Band',
+    kind: 'tailwind',
+    category: 'CTA',
+    description: 'Full-width call-to-action band with single primary action.',
+    params: ['title', 'subtitle', 'primaryCta'],
+    preview: `<div style="background: oklch(0.50 0.20 250); padding: 32px; text-align: center; font-family: 'Inter', sans-serif;"><div style="font-size: 22px; font-weight: 600; color: white; margin-bottom: 8px;">{title}</div><div style="font-size: 13px; color: oklch(0.85 0.05 250); margin-bottom: 16px;">{subtitle}</div><button style="background: white; color: oklch(0.40 0.20 250); padding: 10px 20px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600;">{primaryCta}</button></div>`,
+    code: {
+      jsx: `<section className="bg-accent text-on-accent text-center px-8 py-10">
+  <h2 className="text-2xl font-semibold mb-2">{title}</h2>
+  <p className="text-sm opacity-85 mb-5">{subtitle}</p>
+  <Button variant="inverse">{primaryCta}</Button>
+</section>`,
+      html: `<section class="cta-band">...</section>`,
+      css: `.cta-band { background: var(--accent); color: white; }`
+    }
+  },
+
+  {
+    id: 'data-table',
+    name: 'Table · Sortable',
+    kind: 'tailwind',
+    category: 'Data',
+    description: 'Sortable, filterable table. Binds to a schema entity.',
+    params: ['entity', 'columns', 'sortable', 'filterable'],
+    preview: `<div style="padding: 16px; background: oklch(0.99 0.002 250); font-family: 'Inter', sans-serif; font-size: 11px;"><table style="width: 100%; background: white; border: 1px solid oklch(0.90 0.01 250); border-radius: 4px; border-collapse: separate; border-spacing: 0;"><thead><tr style="background: oklch(0.97 0.005 250);"><th style="padding: 6px 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: oklch(0.45 0.005 250); border-bottom: 1px solid oklch(0.90 0.01 250);">Name</th><th style="padding: 6px 10px; text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: oklch(0.45 0.005 250); border-bottom: 1px solid oklch(0.90 0.01 250);">Status</th><th style="padding: 6px 10px; text-align: right; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: oklch(0.45 0.005 250); border-bottom: 1px solid oklch(0.90 0.01 250);">Amount</th></tr></thead><tbody><tr><td style="padding: 6px 10px; border-bottom: 1px solid oklch(0.94 0.005 250);">Alice</td><td style="padding: 6px 10px; border-bottom: 1px solid oklch(0.94 0.005 250); color: oklch(0.45 0.14 145);">active</td><td style="padding: 6px 10px; text-align: right; font-variant-numeric: tabular-nums;">$1,247</td></tr><tr><td style="padding: 6px 10px;">Bob</td><td style="padding: 6px 10px; color: oklch(0.45 0.14 75);">pending</td><td style="padding: 6px 10px; text-align: right; font-variant-numeric: tabular-nums;">$842</td></tr></tbody></table></div>`,
+    code: {
+      jsx: `<DataTable
+  entity="${'{entity}'}"
+  columns={${'{columns}'}}
+  sortable={${'{sortable}'}}
+  filterable={${'{filterable}'}}
+/>`,
+      html: '<table class="data-table">...</table>',
+      css: '.data-table th, .data-table td { padding: 8px 12px; }'
+    }
+  },
+
+  {
+    id: 'feature-grid',
+    name: 'Features · Grid',
+    kind: 'tailwind',
+    category: 'Content',
+    description: 'Three-up icon + heading + body grid.',
+    params: ['features'],
+    preview: `<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 24px; background: oklch(0.99 0.002 250); font-family: 'Inter', sans-serif;">${[1,2,3].map(() => `<div><div style="width: 32px; height: 32px; background: oklch(0.94 0.06 250); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: oklch(0.50 0.20 250); margin-bottom: 8px; font-size: 14px;">●</div><div style="font-size: 13px; font-weight: 600; color: oklch(0.20 0.01 250); margin-bottom: 4px;">Feature title</div><div style="font-size: 11px; color: oklch(0.50 0.005 250); line-height: 16px;">Short description of what this feature does.</div></div>`).join('')}</div>`,
+    code: {
+      jsx: `<section className="grid grid-cols-3 gap-6 px-8 py-12">
+  {features.map(f => (
+    <article key={f.title}>
+      <Icon name={f.icon} className="w-9 h-9 bg-accent-subtle text-accent rounded-md p-2 mb-3" />
+      <h3 className="font-semibold mb-1.5">{f.title}</h3>
+      <p className="text-sm text-fg-secondary">{f.description}</p>
+    </article>
+  ))}
+</section>`,
+      html: '<section class="feature-grid">...</section>',
+      css: '.feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }'
+    }
+  },
+
+  {
+    id: 'comp-youtube',
+    name: 'YouTube embed',
+    kind: 'component',
+    category: 'Media',
+    description: 'YouTube video embed with privacy-enhanced mode and click-to-load.',
+    params: ['videoId', 'autoplay', 'startAt'],
+    preview: `<div style="padding: 24px; background: oklch(0.99 0.002 250); font-family: 'Inter', sans-serif;"><div style="aspect-ratio: 16/9; background: oklch(0.15 0.005 250); border-radius: 6px; display: flex; align-items: center; justify-content: center; position: relative;"><div style="width: 56px; height: 56px; background: oklch(0.55 0.20 25); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 16px;">▶</div></div></div>`,
+    code: {
+      jsx: `<YouTubeEmbed
+  videoId={${'{videoId}'}}
+  autoplay={${'{autoplay}'}}
+  startAt={${'{startAt}'}}
+  privacyMode
+/>`,
+      html: '<iframe src="https://www.youtube-nocookie.com/embed/{{videoId}}"></iframe>',
+      css: '.yt-embed { aspect-ratio: 16 / 9; }'
+    }
+  },
+  {
+    id: 'comp-stripe',
+    name: 'Stripe checkout',
+    kind: 'component',
+    category: 'Commerce',
+    description: 'Stripe checkout button. Bound to a price ID.',
+    params: ['priceId', 'mode', 'successUrl', 'cancelUrl'],
+    preview: `<div style="padding: 24px; background: oklch(0.99 0.002 250); font-family: 'Inter', sans-serif;"><div style="background: white; border: 1px solid oklch(0.90 0.01 250); border-radius: 6px; padding: 20px;"><div style="font-size: 11px; color: oklch(0.55 0.005 250); margin-bottom: 4px;">PRO PLAN</div><div style="font-size: 24px; font-weight: 700; color: oklch(0.20 0.01 250); margin-bottom: 12px;">$29 <span style="font-size: 12px; font-weight: 400; color: oklch(0.55 0.005 250);">/ month</span></div><button style="background: oklch(0.55 0.18 280); color: white; padding: 10px; border-radius: 4px; border: none; font-size: 13px; font-weight: 500; width: 100%;">stripe Checkout</button></div></div>`,
+    code: {
+      jsx: `<StripeCheckoutButton
+  priceId={${'{priceId}'}}
+  mode={${'{mode}'}}
+  successUrl={${'{successUrl}'}}
+  cancelUrl={${'{cancelUrl}'}}
+/>`,
+      html: '<button data-stripe-price="{{priceId}}">Checkout</button>',
+      css: '.stripe-btn { background: #635bff; color: white; }'
+    }
+  },
+  {
+    id: 'comp-chat',
+    name: 'AI Chat widget',
+    kind: 'component',
+    category: 'AI',
+    description: 'Bound to a function endpoint. Streams responses.',
+    params: ['functionId', 'placeholder', 'initialMessage'],
+    preview: `<div style="padding: 16px; background: oklch(0.99 0.002 250); font-family: 'Inter', sans-serif;"><div style="background: white; border: 1px solid oklch(0.90 0.01 250); border-radius: 6px; height: 200px; display: flex; flex-direction: column; overflow: hidden;"><div style="padding: 8px 12px; border-bottom: 1px solid oklch(0.90 0.01 250); font-size: 12px; font-weight: 500;">AI Assistant</div><div style="flex: 1; padding: 12px; display: flex; flex-direction: column; gap: 8px;"><div style="background: oklch(0.96 0.005 250); padding: 6px 10px; border-radius: 8px; font-size: 11px; max-width: 80%;">How can I help?</div><div style="background: oklch(0.50 0.20 250); color: white; padding: 6px 10px; border-radius: 8px; font-size: 11px; max-width: 80%; align-self: flex-end;">Show recent deals</div></div></div></div>`,
+    code: {
+      jsx: `<AiChatWidget
+  functionId={${'{functionId}'}}
+  placeholder={${'{placeholder}'}}
+  initialMessage={${'{initialMessage}'}}
+/>`,
+      html: '<div data-ai-chat data-fn="{{functionId}}"></div>',
+      css: '.ai-chat { display: flex; flex-direction: column; }'
+    }
+  }
+];
+
+const CATEGORIES = ['All', 'Chrome', 'Hero', 'CTA', 'Data', 'Content', 'Media', 'Commerce', 'AI'];
+
+const state = {
+  filter: 'All',
+  kindFilter: 'all',
+  search: '',
+  detailOpen: null,
+  detailTab: 'design',
+  codeLanguage: 'jsx'
+};
+
+function filterBlocks() {
+  return BLOCKS.filter(b => {
+    if (state.filter !== 'All' && b.category !== state.filter) return false;
+    if (state.kindFilter !== 'all' && b.kind !== state.kindFilter) return false;
+    if (state.search && !(b.name + ' ' + b.description).toLowerCase().includes(state.search.toLowerCase())) return false;
+    return true;
+  });
+}
+
+function setFilter(f) { state.filter = f; rerender(); }
+function setKind(k) { state.kindFilter = k; rerender(); }
+function openDetail(id) { state.detailOpen = id; state.detailTab = 'design'; rerender(); }
+function closeDetail() { state.detailOpen = null; rerender(); }
+function setDetailTab(t) { state.detailTab = t; rerender(); }
+function setCodeLang(l) { state.codeLanguage = l; rerender(); }
+
+function escapeHtml(s) {
+  return s.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+}
+
+function highlight(code, lang) {
+  let h = escapeHtml(code);
+  if (lang === 'jsx') {
+    h = h.replace(/(\bimport|from|return|const|let|var|function|export|default|async|await|if|else|for)\b/g, '<span class="kw">$1</span>');
+    h = h.replace(/(&lt;\/?)([A-Z][A-Za-z0-9]*|[a-z]+)/g, '$1<span class="tag">$2</span>');
+    h = h.replace(/\b([a-zA-Z]+)=/g, '<span class="attr">$1</span>=');
+    h = h.replace(/("[^"]*")/g, '<span class="str">$1</span>');
+    h = h.replace(/(\/\/[^\n]*)/g, '<span class="com">$1</span>');
+  } else if (lang === 'html') {
+    h = h.replace(/(&lt;\/?)([a-zA-Z]+)/g, '$1<span class="tag">$2</span>');
+    h = h.replace(/\b([a-zA-Z-]+)=/g, '<span class="attr">$1</span>=');
+    h = h.replace(/("[^"]*")/g, '<span class="str">$1</span>');
+    h = h.replace(/(\{\{[^}]*\}\})/g, '<span class="kw">$1</span>');
+  } else if (lang === 'css') {
+    h = h.replace(/(\.[a-zA-Z-]+)/g, '<span class="tag">$1</span>');
+    h = h.replace(/(\/\*[^*]*\*\/)/g, '<span class="com">$1</span>');
+    h = h.replace(/(var\([^)]+\))/g, '<span class="str">$1</span>');
+  }
+  return h;
+}
+
+function renderDetail() {
+  if (!state.detailOpen) return '';
+  const b = BLOCKS.find(x => x.id === state.detailOpen);
+  if (!b) return '';
+
+  const codeLang = state.codeLanguage;
+  const codeStr = b.code && b.code[codeLang] ? b.code[codeLang] : '// no code available for this language';
+
+  return `
+    <div class="bl-detail-overlay" onclick="if(event.target.classList.contains('bl-detail-overlay')) closeDetail()">
+      <div class="bl-detail">
+        <div class="bl-detail-header">
+          <div class="flex items-center gap-3">
+            <strong style="font-size: 14px;">${b.name}</strong>
+            <span class="badge ${b.kind === 'component' ? 'badge-info' : 'badge-default'}">${b.kind}</span>
+            <span class="badge badge-default">${b.category}</span>
+            ${b.chrome ? '<span class="bl-global-badge">Global · ' + b.chrome + '</span>' : ''}
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-secondary btn-sm" onclick="Shell.toast('Block code copied to clipboard', 'success')">Copy ${codeLang.toUpperCase()}</button>
+            <a class="btn btn-primary btn-sm" href="designer.html?block=${b.id}">Use in Designer →</a>
+            <button class="icon-btn" onclick="closeDetail()">✕</button>
+          </div>
+        </div>
+
+        <div class="bl-detail-tabs">
+          <div class="bl-detail-tab ${state.detailTab === 'design' ? 'active' : ''}" onclick="setDetailTab('design')">
+            <span>◰</span> Design
+          </div>
+          <div class="bl-detail-tab ${state.detailTab === 'code' ? 'active' : ''}" onclick="setDetailTab('code')">
+            <span>{ }</span> Code
+          </div>
+        </div>
+
+        <div class="bl-detail-body">
+          <div class="bl-detail-content">
+            ${state.detailTab === 'design' ? `
+              <div style="background: white; border-radius: var(--radius-md); border: 1px solid var(--border-default); overflow: hidden; min-height: 400px;">
+                ${b.preview}
+              </div>
+            ` : `
+              <div class="bl-code-language-tabs">
+                ${b.code && Object.keys(b.code).map(lang => `
+                  <div class="bl-code-language-tab ${codeLang === lang ? 'active' : ''}" onclick="setCodeLang('${lang}')">${lang}</div>
+                `).join('')}
+              </div>
+              <div class="bl-code-block">${highlight(codeStr, codeLang)}</div>
+            `}
+          </div>
+
+          <div class="bl-detail-side">
+            <div class="inspector-section">
+              <div class="inspector-label">Description</div>
+              <div class="text-sm text-secondary">${b.description}</div>
+            </div>
+            <div class="inspector-section">
+              <div class="inspector-label">Bindable parameters</div>
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                ${b.params.map(p => `<div class="bl-param-pill" style="font-size: 11px; padding: 3px 8px; align-self: flex-start;">{${p}}</div>`).join('')}
+              </div>
+              <div class="text-xs text-tertiary mt-2">Drop into the Designer; bind to PRD fields, schema columns, or static values.</div>
+            </div>
+            ${b.chrome ? `
+              <div class="inspector-section">
+                <div class="inspector-label">App Chrome</div>
+                <div class="text-xs text-secondary">This is a <strong>${b.chrome}</strong> chrome block. It's configured once in the App Chrome surface and applies to every page in the app.</div>
+                <a class="btn btn-secondary btn-sm mt-2" style="display: inline-block;" href="app-chrome.html">Open App Chrome →</a>
+              </div>
+            ` : ''}
+            <div class="inspector-section">
+              <div class="inspector-label">Source</div>
+              <div class="inspector-row"><span class="key">Kind</span><span class="val">${b.kind}</span></div>
+              <div class="inspector-row"><span class="key">Category</span><span class="val">${b.category}</span></div>
+              <div class="inspector-row"><span class="key">Used in</span><span class="val">${Math.floor(Math.random() * 8) + 1} pages</span></div>
+              <div class="inspector-row"><span class="key">Last edited</span><span class="val text-tertiary">${Math.floor(Math.random() * 30) + 1} days ago</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderCard(b) {
+  return `
+    <div class="bl-card" onclick="openDetail('${b.id}')">
+      <div class="bl-preview"><div class="bl-preview-mini">${b.preview}</div></div>
+      <div class="bl-meta">
+        <div class="bl-meta-row">
+          <div class="bl-name">${b.name}</div>
+          <div class="flex gap-1">
+            ${b.chrome ? '<span class="bl-global-badge">Global</span>' : ''}
+            <span class="badge ${b.kind === 'component' ? 'badge-info' : 'badge-default'}" style="font-size: 9px;">${b.kind}</span>
+          </div>
+        </div>
+        <div class="bl-desc">${b.description}</div>
+        <div class="bl-footer">
+          ${b.params.slice(0, 3).map(p => `<span class="bl-param-pill">{${p}}</span>`).join('')}
+          ${b.params.length > 3 ? `<span class="bl-param-pill" style="background: transparent;">+${b.params.length - 3}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function rerender() {
+  const filtered = filterBlocks();
+  const counts = {
+    all: BLOCKS.length,
+    tailwind: BLOCKS.filter(b => b.kind === 'tailwind').length,
+    component: BLOCKS.filter(b => b.kind === 'component').length,
+    chrome: BLOCKS.filter(b => b.chrome).length
+  };
+
+  Shell.render({
+    mode: 'blocks',
+    contextNav: {
+      title: 'Blocks Library',
+      sections: [
+        { heading: 'Library', items: [
+          { id: 'all', label: 'All blocks', icon: '▤', active: state.filter === 'All' && state.kindFilter === 'all', href: '#' }
+        ]},
+        { heading: 'Type', items: [
+          { id: 'tailwind', label: `Tailwind blocks (${counts.tailwind})`, active: state.kindFilter === 'tailwind', href: '#' },
+          { id: 'component', label: `Components (${counts.component})`, active: state.kindFilter === 'component', href: '#' }
+        ]},
+        { heading: 'Categories', items: CATEGORIES.slice(1).map(c => ({
+          id: c.toLowerCase(),
+          label: `${c} (${BLOCKS.filter(b => b.category === c).length})`,
+          active: state.filter === c,
+          href: '#'
+        }))},
+        { heading: 'Manage', items: [
+          { id: 'add', label: '+ Add custom block', href: '#' },
+          { id: 'sync', label: 'Sync from registry', href: '#' }
+        ]}
+      ]
+    },
+    dataPlane: false,
+    mainContent: `
+      <div class="page" style="max-width: 1400px;">
+        <div class="page-header">
+          <div>
+            <h1>Blocks Library</h1>
+            <div class="subtitle">${BLOCKS.length} blocks · ${counts.tailwind} Tailwind · ${counts.component} Components · ${counts.chrome} Chrome (global) · Workspace: ${MOCK.workspace.name}</div>
+          </div>
+          <div class="page-header-actions">
+            <input class="input input-h28" placeholder="Search blocks..." value="${state.search}" oninput="state.search = this.value; rerender()" style="width: 220px;" />
+            <button class="btn btn-secondary btn-sm">Import</button>
+            <button class="btn btn-primary btn-sm">+ New block</button>
+          </div>
+        </div>
+
+        <div class="card mb-4" style="background: var(--bg-info-subtle);">
+          <div class="text-sm">
+            <strong>Block kinds.</strong>
+            <span class="badge badge-default" style="font-size: 9px; margin: 0 4px;">tailwind</span> are markup with <span class="mono text-xs" style="background: var(--bg-surface); padding: 1px 5px; border-radius: 3px;">{parameter}</span> slots —
+            <span class="badge badge-info" style="font-size: 9px; margin: 0 4px;">component</span> are full self-contained components (YouTube, Stripe, AI Chat) —
+            <span class="bl-global-badge" style="margin: 0 4px;">Global</span> are header / footer / sidenav / breadcrumb chrome blocks configured in the <a href="app-chrome.html">App Chrome</a> surface and shown on every page.
+          </div>
+        </div>
+
+        <div class="bl-filters">
+          ${CATEGORIES.map(c => `
+            <div class="bl-filter ${state.filter === c ? 'active' : ''}" onclick="setFilter('${c}')">
+              ${c}<span class="count">${c === 'All' ? BLOCKS.length : BLOCKS.filter(b => b.category === c).length}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="bl-grid">
+          ${filtered.map(renderCard).join('')}
+        </div>
+
+        ${filtered.length === 0 ? `<div class="card" style="text-align: center; padding: 48px; color: var(--fg-tertiary);">No blocks match your filter.</div>` : ''}
+      </div>
+      ${renderDetail()}
+    `
+  });
+}
+
+rerender();
+</script>
+</body>
+</html>

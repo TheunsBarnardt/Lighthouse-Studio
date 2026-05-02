@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Documentation — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+.docs-shell { display: grid; grid-template-columns: 260px 1fr 240px; height: calc(100vh - 44px); }
+.docs-toc { background: var(--bg-surface); border-right: 1px solid var(--border-default); overflow-y: auto; padding: 16px; }
+.docs-toc h3 { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-tertiary); margin: 16px 0 6px; }
+.docs-toc h3:first-child { margin-top: 0; }
+.docs-toc a { display: block; padding: 4px 8px; font-size: 12px; color: var(--fg-secondary); border-radius: var(--radius-sm); text-decoration: none; }
+.docs-toc a:hover { background: var(--bg-hover); color: var(--fg-primary); }
+.docs-toc a.active { background: var(--bg-info-subtle); color: var(--accent-primary); font-weight: 500; }
+.docs-toc a .auto-badge { font-size: 8px; background: var(--bg-hover); color: var(--fg-tertiary); padding: 1px 4px; border-radius: 2px; margin-left: 4px; vertical-align: middle; }
+
+.docs-main { background: var(--bg-canvas); overflow-y: auto; padding: 32px 48px; }
+.docs-content { max-width: 720px; margin: 0 auto; }
+.docs-h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+.docs-subtitle { font-size: 15px; color: var(--fg-secondary); margin-bottom: 24px; }
+.docs-content h2 { font-size: 22px; font-weight: 600; margin: 32px 0 12px; padding-top: 16px; border-top: 1px solid var(--border-default); }
+.docs-content h3 { font-size: 17px; font-weight: 600; margin: 24px 0 8px; }
+.docs-content p { font-size: 14px; line-height: 1.7; margin-bottom: 12px; color: var(--fg-primary); }
+.docs-content ul { font-size: 14px; line-height: 1.7; margin: 0 0 12px 20px; color: var(--fg-primary); }
+.docs-content code:not(.bl-code-block) { background: var(--bg-hover); padding: 1px 6px; border-radius: 3px; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+.docs-content pre { background: oklch(0.18 0.005 250); color: oklch(0.92 0.005 250); padding: 16px; border-radius: var(--radius-sm); font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; margin-bottom: 16px; }
+.docs-callout { padding: 12px 16px; border-left: 3px solid var(--accent-primary); background: var(--bg-info-subtle); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 16px 0; font-size: 13px; }
+.docs-callout.warn { border-color: var(--fg-warning); background: var(--bg-warning-subtle); }
+.docs-content table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
+.docs-content table th, .docs-content table td { padding: 8px 12px; border-bottom: 1px solid var(--border-default); text-align: left; }
+.docs-content table th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-tertiary); }
+
+.docs-meta { background: var(--bg-surface); border-left: 1px solid var(--border-default); padding: 16px; overflow-y: auto; }
+
+.auto-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--bg-info-subtle); border: 1px solid var(--accent-primary); border-radius: var(--radius-sm); font-size: 12px; margin-bottom: 16px; }
+.auto-bar .icon { width: 18px; height: 18px; background: var(--accent-primary); color: var(--accent-primary-fg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+Shell.render({
+  mode: 'project-docs',
+  contextNav: null,
+  dataPlane: false,
+  mainContent: `
+    <div class="docs-shell">
+      <div class="docs-toc">
+        <div class="flex justify-between items-center mb-3">
+          <div class="font-semibold">Internal Sales CRM</div>
+          <button class="btn btn-ghost btn-xs">v0.1.3</button>
+        </div>
+        <input class="input input-h28" placeholder="Search docs..." style="width: 100%; margin-bottom: 12px;" />
+
+        <h3>Overview</h3>
+        <a class="active">Introduction</a>
+        <a>Getting started</a>
+        <a>Architecture</a>
+
+        <h3>Domain <span style="font-size: 9px; color: var(--fg-tertiary);">auto from Stage 4</span></h3>
+        <a>Schema overview <span class="auto-badge">auto</span></a>
+        <a>Contacts <span class="auto-badge">auto</span></a>
+        <a>Deals <span class="auto-badge">auto</span></a>
+        <a>Call notes <span class="auto-badge">auto</span></a>
+        <a>Stages & transitions <span class="auto-badge">auto</span></a>
+
+        <h3>Features <span style="font-size: 9px; color: var(--fg-tertiary);">auto from PRD</span></h3>
+        <a>Contact management <span class="auto-badge">auto</span></a>
+        <a>Deal pipeline <span class="auto-badge">auto</span></a>
+        <a>Outlook integration <span class="auto-badge">auto</span></a>
+
+        <h3>API reference <span style="font-size: 9px; color: var(--fg-tertiary);">auto</span></h3>
+        <a>REST endpoints <span class="auto-badge">auto</span></a>
+        <a>GraphQL schema <span class="auto-badge">auto</span></a>
+        <a>Webhooks <span class="auto-badge">auto</span></a>
+        <a>Authentication <span class="auto-badge">auto</span></a>
+
+        <h3>Components <span style="font-size: 9px; color: var(--fg-tertiary);">auto from Stage 6</span></h3>
+        <a>DealKanbanPage <span class="auto-badge">auto</span></a>
+        <a>ContactsTable <span class="auto-badge">auto</span></a>
+        <a>CallNotesEditor <span class="auto-badge">auto</span></a>
+
+        <h3>Operations</h3>
+        <a>Deployment</a>
+        <a>Monitoring</a>
+        <a>Backups & DR</a>
+        <a>Compliance</a>
+
+        <h3>Changelog <span style="font-size: 9px; color: var(--fg-tertiary);">auto from deploys</span></h3>
+        <a>v0.1.3 (today)</a>
+        <a>v0.1.2 (4 days ago)</a>
+        <a>v0.1.1 (yesterday)</a>
+      </div>
+
+      <div class="docs-main">
+        <div class="docs-content">
+          <div class="auto-bar">
+            <div class="icon">✦</div>
+            <div style="flex: 1;">
+              <strong>Auto-generated content.</strong>
+              60% of this site updates automatically — pulled from PRD, schema, generated components, and deployment events. Manual sections are flagged.
+            </div>
+            <button class="btn btn-ghost btn-xs">Settings</button>
+          </div>
+
+          <h1 class="docs-h1">Internal Sales CRM</h1>
+          <div class="docs-subtitle">Acme's internal CRM for tracking contacts, deals, and call activity. Replaces the legacy Salesforce installation.</div>
+
+          <h2>What this is</h2>
+          <p>Internal Sales CRM is the CRM Acme's sales team uses day-to-day. It tracks <code>contacts</code>, <code>deals</code>, and <code>call_notes</code>, integrates with Outlook calendar for activity tracking, and exposes a Kanban view of the pipeline.</p>
+
+          <p>This documentation is generated continuously from the live system — when the schema changes or a new component is generated, this site updates within seconds.</p>
+
+          <h2>Quickstart</h2>
+          <p>Sign in at <code>app.acme.platform.local</code> with your Microsoft 365 account. The platform automatically maps your Entra ID role to the appropriate CRM permissions.</p>
+
+          <pre>// Connect with the JS SDK
+import { createClient } from '@acme/platform-js';
+
+const platform = createClient({
+  url: 'https://api.acme.platform.local',
+  apiKey: process.env.PLATFORM_API_KEY
+});
+
+const { data: deals } = await platform
+  .from('deals')
+  .select('id, title, amount, stage, owner(name)')
+  .eq('stage', 'NEGOTIATION');</pre>
+
+          <h2>Architecture</h2>
+          <p>Internal Sales CRM is built on a hexagonal architecture. The platform layer provides:</p>
+          <ul>
+            <li>PostgreSQL data plane with row-level security on every table</li>
+            <li>Auto-generated REST and GraphQL APIs</li>
+            <li>Edge functions sandboxed per project (CPU, memory, egress allowlist)</li>
+            <li>Microsoft Entra ID integration for authentication</li>
+          </ul>
+
+          <div class="docs-callout">
+            <strong>Note.</strong> This page covers what's specific to Internal Sales CRM. For platform documentation see the
+            <a href="docs.html">main docs site</a>.
+          </div>
+
+          <h2>Domain model</h2>
+          <p>The domain consists of three core entities. Schema details are auto-generated from the live database and update when the schema changes.</p>
+
+          <table>
+            <thead><tr><th>Entity</th><th>Description</th><th>Owner column</th></tr></thead>
+            <tbody>
+              <tr><td><code>contacts</code></td><td>People at customer organisations</td><td><code>created_by</code></td></tr>
+              <tr><td><code>deals</code></td><td>Sales opportunities through pipeline stages</td><td><code>owner_id</code></td></tr>
+              <tr><td><code>call_notes</code></td><td>Notes from calls and meetings</td><td><code>author_id</code></td></tr>
+            </tbody>
+          </table>
+
+          <div class="docs-callout warn">
+            <strong>Maintained section.</strong> The architecture description above is human-edited. Last updated by Marcus Acker · 14 days ago.
+          </div>
+
+          <h2>Recent changes</h2>
+          <p>From the deployment log, auto-generated:</p>
+          <ul>
+            <li><strong>v0.1.3</strong> — today — Fix Kanban drag race condition</li>
+            <li><strong>v0.1.2</strong> — 4 days ago — Add Outlook integration</li>
+            <li><strong>v0.1.1</strong> — yesterday — Hotfix: deal stage update</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="docs-meta">
+        <div class="inspector-section">
+          <div class="inspector-label">This page</div>
+          <div class="inspector-row"><span class="key">Source</span><span class="val">Mostly auto</span></div>
+          <div class="inspector-row"><span class="key">Last updated</span><span class="val text-tertiary">12 min ago</span></div>
+          <div class="inspector-row"><span class="key">Update reason</span><span class="val text-secondary">v0.1.3 deployed</span></div>
+          <div class="inspector-row"><span class="key">Words</span><span class="val tabular">412</span></div>
+          <div class="inspector-row"><span class="key">Read time</span><span class="val">~2 min</span></div>
+        </div>
+
+        <div class="inspector-section">
+          <div class="inspector-label">Site stats · 30d</div>
+          <div class="inspector-row"><span class="key">Page views</span><span class="val tabular">2,847</span></div>
+          <div class="inspector-row"><span class="key">Unique visitors</span><span class="val tabular">142</span></div>
+          <div class="inspector-row"><span class="key">Top page</span><span class="val">/api/rest</span></div>
+          <div class="inspector-row"><span class="key">Avg time</span><span class="val tabular">1m 47s</span></div>
+          <div class="text-xs text-tertiary mt-2">Telemetry shipped back to <a href="logs.html">platform logs</a> from standalone export.</div>
+        </div>
+
+        <div class="inspector-section">
+          <div class="inspector-label">Standalone export</div>
+          <div class="text-xs text-secondary mb-3">Export a point-in-time snapshot of these docs as a deployable Next.js + fumadocs site.</div>
+          <button class="btn btn-secondary btn-sm" style="width: 100%; margin-bottom: 6px;">Export latest snapshot</button>
+          <button class="btn btn-ghost btn-sm" style="width: 100%;">View export history</button>
+          <div class="text-xs text-tertiary mt-2">Last export: <strong>v0.1.2</strong> · 4 days ago</div>
+        </div>
+
+        <div class="inspector-section">
+          <div class="inspector-label">Linked surfaces</div>
+          <div class="text-xs text-secondary mb-2">Even when exported standalone, this site phones home to:</div>
+          <a href="logs.html" class="text-xs" style="display: block; padding: 4px 6px; border-radius: 3px;">→ Platform logs</a>
+          <a href="advisors.html" class="text-xs" style="display: block; padding: 4px 6px; border-radius: 3px;">→ Advisors (SEO, perf)</a>
+          <a href="metrics.html" class="text-xs" style="display: block; padding: 4px 6px; border-radius: 3px;">→ Metrics</a>
+        </div>
+
+        <div class="inspector-section">
+          <div class="inspector-label">Auto-generation sources</div>
+          <div class="text-xs text-secondary">This site reads from:</div>
+          <div class="inspector-row"><span class="key">PRD</span><span class="val text-success">live</span></div>
+          <div class="inspector-row"><span class="key">Schema</span><span class="val text-success">live</span></div>
+          <div class="inspector-row"><span class="key">REST/GraphQL</span><span class="val text-success">live</span></div>
+          <div class="inspector-row"><span class="key">Components</span><span class="val text-success">live</span></div>
+          <div class="inspector-row"><span class="key">Deployments</span><span class="val text-success">live</span></div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

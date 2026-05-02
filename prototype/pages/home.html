@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const proj = window.MOCK.projects.find(p => p.id === window.MOCK.currentProjectId);
+
+const mainContent = `
+  <div class="page">
+    <div class="page-header">
+      <div>
+        <h1>Welcome back, Joana</h1>
+        <div class="subtitle">Workspace: ${MOCK.workspace.name} · Database: PostgreSQL · Project: ${proj.name}</div>
+      </div>
+      <div class="page-header-actions">
+        <button class="btn btn-secondary">Switch project</button>
+        <button class="btn btn-primary">+ New project</button>
+      </div>
+    </div>
+
+    <div class="grid grid-4 mb-6">
+      <div class="stat-card">
+        <div class="stat-label">Active projects</div>
+        <div class="stat-value">${MOCK.projects.length}</div>
+        <div class="stat-delta stat-up">+1 this month</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Database tables</div>
+        <div class="stat-value">${MOCK.tables.length}</div>
+        <div class="stat-delta stat-up">+12 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">API requests · 24h</div>
+        <div class="stat-value">142,503</div>
+        <div class="stat-delta text-secondary">p95 87ms</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">AI spend · month</div>
+        <div class="stat-value">$23.40</div>
+        <div class="stat-delta text-secondary">of $50 budget</div>
+      </div>
+    </div>
+
+    <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 16px;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Recent projects</div>
+          <button class="btn btn-ghost btn-sm">View all</button>
+        </div>
+        <table class="data-table">
+          <tbody>
+            ${MOCK.projects.map(p => `
+              <tr style="cursor:pointer" onclick="window.location.href='ai-pipeline-${p.stage}.html'">
+                <td><strong>${p.name}</strong></td>
+                <td>${Shell.statusBadge(p.status)}</td>
+                <td class="text-secondary text-xs tabular">Created ${p.created}</td>
+                <td class="text-secondary text-xs tabular">$${p.cost.toFixed(2)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Recent activity</div>
+        </div>
+        <div class="text-sm">
+          <div class="mb-3">
+            <div class="font-medium">UI generated for Internal Sales CRM</div>
+            <div class="text-tertiary text-xs">14 components · $18.50 · 12 min ago</div>
+          </div>
+          <div class="mb-3">
+            <div class="font-medium">Schema deployed to dev</div>
+            <div class="text-tertiary text-xs">Marketing Blog · 2 hours ago</div>
+          </div>
+          <div class="mb-3">
+            <div class="font-medium">PRD section approved</div>
+            <div class="text-tertiary text-xs">Functional Requirements · Yesterday</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-4">
+      <div class="card-header">
+        <div class="card-title">Quick start</div>
+      </div>
+      <div class="grid grid-3">
+        <a class="card" href="table-editor.html" style="text-decoration: none; color: inherit; cursor: pointer;">
+          <div style="font-size:18px; color: var(--accent-primary);">▦</div>
+          <div class="font-semibold mt-2">Table Editor</div>
+          <div class="text-secondary text-xs">Browse and edit your data</div>
+        </a>
+        <a class="card" href="sql-editor.html" style="text-decoration: none; color: inherit; cursor: pointer;">
+          <div style="font-size:18px; color: var(--accent-primary);">▶_</div>
+          <div class="font-semibold mt-2">SQL Editor</div>
+          <div class="text-secondary text-xs">Write and run queries</div>
+        </a>
+        <a class="card" href="ai-pipeline-overview.html" style="text-decoration: none; color: inherit; cursor: pointer;">
+          <div style="font-size:18px; color: var(--accent-primary);">✦</div>
+          <div class="font-semibold mt-2">AI Pipeline</div>
+          <div class="text-secondary text-xs">Build with the AI loop</div>
+        </a>
+      </div>
+    </div>
+  </div>
+`;
+
+Shell.render({
+  mode: 'home',
+  contextNav: null,
+  dataPlane: false,
+  mainContent
+});
+</script>
+</body>
+</html>

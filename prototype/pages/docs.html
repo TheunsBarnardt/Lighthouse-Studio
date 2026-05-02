@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docs — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Docs & Help',
+  sections: [
+    { heading: 'Getting started', items: [
+      { id: 'quickstart', label: 'Quickstart', active: true, href: '#' },
+      { id: 'architecture', label: 'Architecture overview', href: '#' },
+      { id: 'concepts', label: 'Core concepts', href: '#' }
+    ]},
+    { heading: 'Pipeline', items: [
+      { id: 'how-pipeline-works', label: 'How the pipeline works', href: '#' },
+      { id: 'approvals', label: 'Approval routing', href: '#' },
+      { id: 'continuous', label: 'Continuous stages', href: '#' }
+    ]},
+    { heading: 'Designer', items: [
+      { id: 'page-designer', label: 'Using Page Designer', href: '#' },
+      { id: 'blocks', label: 'Blocks library', href: '#' },
+      { id: 'bindings', label: 'Data bindings', href: '#' }
+    ]},
+    { heading: 'Reference', items: [
+      { id: 'api-rest', label: 'REST API', href: 'apis-rest.html' },
+      { id: 'api-graphql', label: 'GraphQL', href: 'apis-graphql.html' },
+      { id: 'sdks', label: 'SDKs', href: 'apis-sdk.html' },
+      { id: 'cli', label: 'CLI commands', href: '#' }
+    ]},
+    { heading: 'Operations', items: [
+      { id: 'deployment', label: 'Deploy & rollback', href: '#' },
+      { id: 'observability', label: 'Observability', href: '#' },
+      { id: 'compliance', label: 'Compliance', href: 'compliance.html' }
+    ]},
+    { heading: 'Help', items: [
+      { id: 'support', label: 'Contact support', href: '#' },
+      { id: 'community', label: 'Community forum', href: '#' }
+    ]}
+  ]
+};
+
+Shell.render({
+  mode: 'docs',
+  contextNav,
+  dataPlane: false,
+  mainContent: `
+    <div class="page" style="max-width: 1080px;">
+      <div class="page-header">
+        <div>
+          <h1>Quickstart</h1>
+          <div class="subtitle">From zero to deployed app in 30 minutes · Self-hosted on your infrastructure</div>
+        </div>
+        <div class="page-header-actions">
+          <input class="input input-h28" placeholder="Search docs..." style="width: 240px;" />
+        </div>
+      </div>
+
+      <div class="card mb-4" style="background: var(--bg-info-subtle); border-color: var(--accent-primary);">
+        <div class="text-sm">
+          <strong>New to the platform?</strong> Start with the <a href="#">Architecture overview</a> if you want context first, or follow this quickstart to deploy your first app.
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <h2 style="font-size: 18px; margin-bottom: 12px;">1. Set up your workspace</h2>
+        <p class="text-sm mb-3">A workspace is the top-level container. It owns projects, members, and connectors.</p>
+        <div class="code-block" style="font-size: 12px;">platform workspace create acme \\
+  --domain acme.platform.local \\
+  --plan enterprise</div>
+        <div class="text-xs text-tertiary mt-2">→ See: <a href="#">Workspace setup</a></div>
+      </div>
+
+      <div class="card mb-4">
+        <h2 style="font-size: 18px; margin-bottom: 12px;">2. Connect a database</h2>
+        <p class="text-sm mb-3">Choose Postgres, MSSQL, or MongoDB. The platform's persistence ports work the same across all three.</p>
+        <div class="code-block" style="font-size: 12px;">platform db connect \\
+  --type postgres \\
+  --url "postgres://user:pass@db.acme.local:5432/main"</div>
+        <div class="text-xs text-tertiary mt-2">→ See: <a href="#">Database setup</a></div>
+      </div>
+
+      <div class="card mb-4">
+        <h2 style="font-size: 18px; margin-bottom: 12px;">3. Start the AI Pipeline</h2>
+        <p class="text-sm mb-3">Describe what you want. The pipeline takes you from intent through 10 stages to a deployed app.</p>
+        <ol style="margin-left: 20px; font-size: 13px; color: var(--fg-secondary);">
+          <li><strong>Intent</strong> — chat about what you want</li>
+          <li><strong>PRD</strong> — requirements with reasoning</li>
+          <li><strong>Design tokens</strong> — brand-derived</li>
+          <li><strong>Schema synthesis</strong> — tables, relationships</li>
+          <li><strong>Data migration</strong> — optional, for legacy data</li>
+          <li><strong>UI generation</strong> — components</li>
+          <li><strong>Code generation</strong> — server functions</li>
+          <li><strong>Tests</strong> — continuous, every change</li>
+          <li><strong>Deployment</strong> — continuous, multi-env</li>
+          <li><strong>Maintenance</strong> — continuous, signals → CRs</li>
+        </ol>
+        <div class="text-xs text-tertiary mt-3">Each stage has approval gates configurable per workspace, project, or stage. Solo dev mode can collapse all gates to "auto-approve".</div>
+      </div>
+
+      <div class="card mb-4">
+        <h2 style="font-size: 18px; margin-bottom: 12px;">4. Deploy</h2>
+        <p class="text-sm mb-3">Promote through dev → staging → production. All deploys are auditable; rollbacks are atomic.</p>
+        <div class="code-block" style="font-size: 12px;">platform deploy \\
+  --env production \\
+  --version v0.1.3 \\
+  --require-approvals 2</div>
+      </div>
+
+      <div class="card mb-4">
+        <h2 style="font-size: 18px; margin-bottom: 12px;">5. Monitor</h2>
+        <p class="text-sm mb-3">Once deployed, the pipeline keeps running:</p>
+        <ul style="margin-left: 20px; font-size: 13px; color: var(--fg-secondary);">
+          <li><a href="metrics.html">Metrics</a> — request rate, latency, errors</li>
+          <li><a href="alerts.html">Alerts</a> — fire on threshold breaches</li>
+          <li><a href="advisors.html">Advisors</a> — SEO, A11y, security, perf, cost</li>
+          <li><a href="ai-pipeline-maintenance.html">Maintenance</a> — signals → change requests → re-deploy</li>
+        </ul>
+      </div>
+
+      <div class="grid grid-2 mt-6">
+        <a class="card" href="#" style="text-decoration: none; color: inherit;">
+          <div class="font-semibold mb-1">Architecture overview →</div>
+          <div class="text-xs text-secondary">Hexagonal design, ports/adapters, three-database strategy</div>
+        </a>
+        <a class="card" href="#" style="text-decoration: none; color: inherit;">
+          <div class="font-semibold mb-1">Pipeline reference →</div>
+          <div class="text-xs text-secondary">All 10 stages explained in depth, with examples</div>
+        </a>
+        <a class="card" href="apis-sdk.html" style="text-decoration: none; color: inherit;">
+          <div class="font-semibold mb-1">Client SDKs →</div>
+          <div class="text-xs text-secondary">JavaScript, Python, Go — type-safe, auto-generated</div>
+        </a>
+        <a class="card" href="compliance.html" style="text-decoration: none; color: inherit;">
+          <div class="font-semibold mb-1">Compliance →</div>
+          <div class="text-xs text-secondary">SOC 2, GDPR, ISO 27001, HIPAA</div>
+        </a>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

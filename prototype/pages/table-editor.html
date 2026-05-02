@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Table Editor — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+// State for which tables are open as tabs and which is active
+const state = {
+  openTables: ['contacts', 'deals'],
+  activeTable: 'contacts',
+  schema: 'public'
+};
+
+function renderTableEditorContextNav() {
+  return {
+    html: `
+      <div class="contextnav-header">
+        <div class="contextnav-title">Table Editor</div>
+      </div>
+      <div class="schema-selector" onclick="Shell.toast('Schema selector', 'info')">
+        <div><span class="label">schema</span><strong>${state.schema}</strong></div>
+        <span style="font-size:9px; color: var(--fg-tertiary);">▼</span>
+      </div>
+      <div style="padding: 0 8px 8px;">
+        <button class="btn btn-secondary btn-sm" style="width:100%; justify-content: flex-start;" onclick="Shell.toast('New table dialog', 'info')">
+          <span style="font-size:12px;">+</span>
+          <span>New table</span>
+        </button>
+      </div>
+      <div class="te-tablelist-search" style="margin: 0 8px 8px;">
+        <span class="search-icon">⌕</span>
+        <input placeholder="Search tables..." />
+      </div>
+      <div class="te-tablelist">
+        ${MOCK.tables.map(t => `
+          <a class="te-table-item ${t.name === state.activeTable ? 'active' : ''}" onclick="openTable('${t.name}'); return false;" href="#">
+            <span class="icon">▦</span>
+            <span class="name">${t.name}</span>
+            <span class="badge badge-square" style="background: oklch(0.45 0.18 25 / 0.15); color: oklch(0.65 0.18 25);">${t.rls.toUpperCase()}</span>
+          </a>
+        `).join('')}
+      </div>
+    `
+  };
+}
+
+function openTable(name) {
+  state.activeTable = name;
+  if (!state.openTables.includes(name)) {
+    state.openTables = [...state.openTables, name];
+  }
+  rerender();
+}
+
+function closeTable(name, event) {
+  if (event) { event.stopPropagation(); event.preventDefault(); }
+  state.openTables = state.openTables.filter(t => t !== name);
+  if (state.activeTable === name && state.openTables.length > 0) {
+    state.activeTable = state.openTables[0];
+  }
+  rerender();
+}
+
+function setActive(name) {
+  state.activeTable = name;
+  rerender();
+}
+
+function renderGrid(tableName) {
+  const schema = MOCK.tableSchemas[tableName] || MOCK.tableSchemas.contacts;
+  return `
+    <table class="te-grid">
+      <thead>
+        <tr>
+          <th class="checkbox-cell" style="position: sticky; left: 0; z-index: 3;"><input type="checkbox" /></th>
+          ${schema.columns.map(c => `
+            <th>
+              <div class="col-meta">
+                ${c.pk ? '<span class="col-pk-icon">🔑</span>' : ''}
+                ${c.fk ? '<span class="col-fk-icon">⛓</span>' : ''}
+                <span class="col-name">${c.name}</span>
+                <span class="col-type">${c.type}</span>
+                <span class="col-sort-icon">▾</span>
+              </div>
+            </th>
+          `).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${schema.rows.map(row => `
+          <tr>
+            <td class="checkbox-cell" style="position: sticky; left: 0; background: var(--bg-surface); z-index: 1;"><input type="checkbox" /></td>
+            ${row.map((cell, i) => {
+              const col = schema.columns[i];
+              const isUuid = col.type === 'uuid';
+              return `<td class="${isUuid ? 'uuid-cell' : ''}">${cell}</td>`;
+            }).join('')}
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderMain() {
+  const tabs = state.openTables;
+  const active = state.activeTable;
+  const tableData = MOCK.tables.find(t => t.name === active);
+
+  return `
+    <div class="dp-shell">
+      <div class="dp-tabs-row">
+        <div class="dp-tab-collapse" title="Toggle nav">‹</div>
+        ${tabs.map(t => `
+          <a class="dp-tab ${t === active ? 'active' : ''}" onclick="setActive('${t}'); return false;" href="#">
+            <span class="tab-icon">▦</span>
+            <span><span style="color: var(--fg-tertiary);">${state.schema}.</span><strong>${t}</strong></span>
+            <span class="tab-close" onclick="closeTable('${t}', event); return false;">✕</span>
+          </a>
+        `).join('')}
+        <div class="dp-tab-add" onclick="Shell.toast('New tab', 'info')">+</div>
+      </div>
+      <div class="dp-content">
+        <div class="te-filter-bar">
+          <span style="color: var(--fg-tertiary); font-size: 11px;">⌕</span>
+          <input class="te-filter-input" placeholder="Filter by id, name, email... or ask AI" />
+        </div>
+        <div class="te-action-bar">
+          <button class="te-action"><span class="icon">⇅</span><span>Sorted by 1 rule</span></button>
+          <button class="te-action danger"><span class="icon">●</span><span>RLS disabled</span></button>
+          <button class="te-action warning"><span class="icon">⚡</span><span>Index Advisor</span></button>
+          <button class="te-action"><span class="icon">⟳</span><span>Enable Realtime</span></button>
+          <button class="te-action role"><span style="color: var(--fg-tertiary);">Role:</span><strong style="margin-left: 4px;">postgres</strong><span style="font-size:9px; margin-left:4px;">▼</span></button>
+          <button class="te-action" style="margin-left: auto;" title="Refresh">↻</button>
+          <button class="te-action" title="View options">▦</button>
+          <button class="te-action success" onclick="Shell.toast('Insert dialog', 'info')"><span class="icon">+</span><span>Insert</span></button>
+        </div>
+        <div class="te-grid-wrap">${renderGrid(active)}</div>
+        <div class="te-pagination">
+          <span>Page</span>
+          <select><option>1</option></select>
+          <span>of 1</span>
+          <select style="width: 80px;"><option>100 rows</option><option>50 rows</option><option>500 rows</option></select>
+          <span class="tabular">${tableData?.rows ?? 0} records</span>
+          <div class="te-pagination-spacer"></div>
+          <div class="switch">
+            <button class="active">Data</button>
+            <button>Definition</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function rerender() {
+  Shell.render({
+    mode: 'table-editor',
+    contextNav: renderTableEditorContextNav(),
+    dataPlane: true,
+    mainContent: renderMain()
+  });
+}
+
+rerender();
+</script>
+</body>
+</html>

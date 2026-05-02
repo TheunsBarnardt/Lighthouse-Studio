@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Tokens — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+<style>
+  .tok-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; min-height: 480px; }
+  .tok-tree { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow-y: auto; padding: 8px; align-self: start; position: sticky; top: 0; }
+  .tok-group-heading { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-tertiary); padding: 8px 10px 4px; }
+  .tok-tree-item { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-radius: var(--radius-sm); font-size: 12px; color: var(--fg-secondary); cursor: pointer; }
+  .tok-tree-item:hover { background: var(--bg-hover); color: var(--fg-primary); }
+  .tok-tree-item.active { background: var(--bg-selected); color: var(--accent-primary); font-weight: 500; }
+  .tok-tree-item .count { font-size: 10px; color: var(--fg-tertiary); margin-left: auto; font-variant-numeric: tabular-nums; }
+
+  .tok-panel { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; }
+  .tok-panel-header { padding: 14px 20px; border-bottom: 1px solid var(--border-default); display: flex; align-items: center; justify-content: space-between; }
+  .tok-panel-header h2 { font-size: 14px; font-weight: 600; }
+  .tok-panel-header .meta { font-size: 11px; color: var(--fg-tertiary); margin-top: 2px; max-width: 540px; }
+
+  .tok-row { display: grid; grid-template-columns: 28px 220px 200px 1fr auto; gap: 12px; align-items: center; padding: 8px 20px; border-bottom: 1px solid var(--border-default); font-size: 12px; }
+  .tok-row:last-child { border-bottom: none; }
+  .tok-row:hover { background: var(--bg-hover); }
+  .tok-row .swatch { width: 24px; height: 24px; border-radius: 4px; border: 1px solid var(--border-default); flex-shrink: 0; }
+  .tok-row .swatch-text { background: transparent; border: 1px solid var(--border-default); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--fg-secondary); font-family: 'JetBrains Mono', monospace; }
+  .tok-row .name { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--fg-primary); font-weight: 500; }
+  .tok-row .value { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--fg-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tok-row .resolved { font-size: 11px; color: var(--fg-tertiary); }
+  .tok-row .actions { display: flex; gap: 4px; opacity: 0; transition: opacity 100ms; }
+  .tok-row:hover .actions { opacity: 1; }
+
+  .tok-row-headers { display: grid; grid-template-columns: 28px 220px 200px 1fr auto; gap: 12px; padding: 8px 20px; background: var(--bg-surface-2); border-bottom: 1px solid var(--border-default); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--fg-tertiary); }
+
+  .tok-group-row { padding: 12px 20px 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-tertiary); background: var(--bg-canvas); }
+
+  .tok-edit-pill { font-size: 9px; padding: 1px 5px; background: var(--bg-warning-subtle); color: var(--fg-warning); border-radius: var(--radius-sm); margin-left: 6px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const TOKENS = {
+  color: {
+    label: 'Color', icon: '◉',
+    description: 'Color tokens. Primary derived from your brand input. Semantic colors map to the primary scale where possible.',
+    groups: [
+      { name: 'Primary scale', items: [
+        { name: 'color.primary.50',  value: 'oklch(0.97 0.04 145)', resolved: '#eef7f0', consumed: 'bg-success-subtle' },
+        { name: 'color.primary.100', value: 'oklch(0.93 0.06 145)', resolved: '#d8ecdc', consumed: '— unused' },
+        { name: 'color.primary.200', value: 'oklch(0.88 0.10 145)', resolved: '#bce0c4', consumed: 'border-success' },
+        { name: 'color.primary.300', value: 'oklch(0.78 0.14 145)', resolved: '#94d2a4', consumed: '— unused' },
+        { name: 'color.primary.400', value: 'oklch(0.66 0.16 145)', resolved: '#5fb87a', consumed: 'hover state' },
+        { name: 'color.primary.500', value: 'oklch(0.50 0.16 145)', resolved: '#3a8959', consumed: 'btn-primary, accent', edited: true },
+        { name: 'color.primary.600', value: 'oklch(0.45 0.16 145)', resolved: '#326f4b', consumed: 'btn-primary:hover' },
+        { name: 'color.primary.700', value: 'oklch(0.38 0.14 145)', resolved: '#27563a', consumed: 'btn-primary:active' },
+        { name: 'color.primary.800', value: 'oklch(0.30 0.10 145)', resolved: '#1d422c', consumed: '— unused' },
+        { name: 'color.primary.900', value: 'oklch(0.22 0.06 145)', resolved: '#142f1f', consumed: 'text on light' },
+        { name: 'color.primary.950', value: 'oklch(0.14 0.03 145)', resolved: '#0a1d12', consumed: '— unused' }
+      ]},
+      { name: 'Semantic', items: [
+        { name: 'color.fg.primary',   value: '{color.neutral.900}', resolved: 'oklch(0.20 0.005 145)', consumed: 'body, headings' },
+        { name: 'color.fg.secondary', value: '{color.neutral.600}', resolved: 'oklch(0.45 0.005 145)', consumed: 'subtitles' },
+        { name: 'color.fg.tertiary',  value: '{color.neutral.500}', resolved: 'oklch(0.60 0.005 145)', consumed: 'placeholders' },
+        { name: 'color.bg.canvas',    value: '{color.neutral.50}',  resolved: 'oklch(0.985 0.002 145)', consumed: 'page background' },
+        { name: 'color.bg.surface',   value: '{color.white}',       resolved: 'oklch(1 0 0)', consumed: 'cards, modals' },
+        { name: 'color.fg.success',   value: '{color.primary.700}', resolved: 'oklch(0.38 0.14 145)', consumed: 'success messages' },
+        { name: 'color.fg.warning',   value: 'oklch(0.45 0.14 75)', resolved: '#9c6d1a', consumed: '"in review" status' },
+        { name: 'color.fg.danger',    value: 'oklch(0.45 0.18 25)', resolved: '#aa3a2c', consumed: 'destructive actions' }
+      ]}
+    ]
+  },
+  typography: {
+    label: 'Typography', icon: 'Aa',
+    description: 'Type scale and weights. Generated from PRD reading-density and "professional, calm" vibe.',
+    groups: [
+      { name: 'Font families', items: [
+        { name: 'font.family.sans', value: '"Inter", system-ui, sans-serif',        consumed: 'all body & UI text' },
+        { name: 'font.family.mono', value: '"JetBrains Mono", ui-monospace, Menlo', consumed: 'code, IDs, tabular' }
+      ]},
+      { name: 'Type scale', items: [
+        { name: 'font.size.xs',   value: '11px / 16px', consumed: 'badges, captions' },
+        { name: 'font.size.sm',   value: '12px / 18px', consumed: 'secondary text' },
+        { name: 'font.size.base', value: '14px / 22px', consumed: 'body, primary content', edited: true },
+        { name: 'font.size.md',   value: '16px / 24px', consumed: 'subheadings' },
+        { name: 'font.size.lg',   value: '20px / 28px', consumed: 'card titles' },
+        { name: 'font.size.xl',   value: '24px / 32px', consumed: 'page headings (h1)' },
+        { name: 'font.size.2xl',  value: '32px / 40px', consumed: 'hero text' }
+      ]},
+      { name: 'Weights', items: [
+        { name: 'font.weight.regular',  value: '400', consumed: 'body text' },
+        { name: 'font.weight.medium',   value: '500', consumed: 'buttons, labels' },
+        { name: 'font.weight.semibold', value: '600', consumed: 'headings' }
+      ]}
+    ]
+  },
+  spacing: {
+    label: 'Spacing', icon: '↔',
+    description: '4px base grid. Used for padding, margin, and gap throughout generated UIs.',
+    groups: [
+      { name: 'Scale', items: [
+        { name: 'space.0',  value: '0',    consumed: 'reset' },
+        { name: 'space.1',  value: '4px',  consumed: 'tight inline gaps' },
+        { name: 'space.2',  value: '8px',  consumed: 'small gaps, badges' },
+        { name: 'space.3',  value: '12px', consumed: 'card inner padding (compact)' },
+        { name: 'space.4',  value: '16px', consumed: 'card padding, sections', edited: true },
+        { name: 'space.5',  value: '20px', consumed: 'page header margins' },
+        { name: 'space.6',  value: '24px', consumed: 'page padding' },
+        { name: 'space.8',  value: '32px', consumed: 'large vertical rhythm' },
+        { name: 'space.12', value: '48px', consumed: 'page sections' }
+      ]}
+    ]
+  },
+  radius: {
+    label: 'Radius', icon: '◖',
+    description: 'Border radius scale. Smaller than the default — matches "professional" vibe.',
+    groups: [
+      { name: 'Scale', items: [
+        { name: 'radius.sm',   value: '4px',    consumed: 'inputs, badges' },
+        { name: 'radius.md',   value: '6px',    consumed: 'cards, buttons, modals' },
+        { name: 'radius.lg',   value: '8px',    consumed: 'large surfaces' },
+        { name: 'radius.full', value: '9999px', consumed: 'pills, avatars' }
+      ]}
+    ]
+  },
+  shadow: {
+    label: 'Shadow', icon: '◐',
+    description: 'Shallow shadows only — high information density penalises heavy depth cues.',
+    groups: [
+      { name: 'Elevation', items: [
+        { name: 'shadow.sm', value: '0 1px 2px oklch(0 0 0 / 0.06)',  consumed: 'cards on hover' },
+        { name: 'shadow.md', value: '0 4px 8px oklch(0 0 0 / 0.10)',  consumed: 'dropdowns, popovers' },
+        { name: 'shadow.lg', value: '0 8px 24px oklch(0 0 0 / 0.12)', consumed: 'modals, command palette' }
+      ]}
+    ]
+  },
+  motion: {
+    label: 'Motion', icon: '⟳',
+    description: 'Conservative motion. Hover transitions are fast (100ms); UI state changes are 180ms.',
+    groups: [
+      { name: 'Duration', items: [
+        { name: 'motion.duration.fast', value: '100ms', consumed: 'hover state' },
+        { name: 'motion.duration.base', value: '180ms', consumed: 'panel open/close, tabs' }
+      ]},
+      { name: 'Easing', items: [
+        { name: 'motion.ease.standard', value: 'cubic-bezier(0.2, 0, 0, 1)', consumed: 'all transitions' }
+      ]}
+    ]
+  }
+};
+
+const state = { activeTab: 'tokens', activeCategory: 'color' };
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+}
+
+function setCategory(key) { state.activeCategory = key; rerender(); }
+function setTab(tab)      { state.activeTab = tab;       rerender(); }
+
+function renderPreview() {
+  return `
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="card-title">Sample components</div>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm">Light</button>
+          <button class="btn btn-secondary btn-sm">Dark</button>
+        </div>
+      </div>
+      <div style="background: oklch(0.99 0 0); padding: 24px; border-radius: 6px; border: 1px solid var(--border-default);">
+        <div style="font-family: 'Inter', sans-serif;">
+          <div style="font-size: 22px; font-weight: 600; color: oklch(0.20 0.01 145); margin-bottom: 8px;">Sample heading</div>
+          <div style="font-size: 14px; color: oklch(0.40 0.005 145); margin-bottom: 16px;">Body text demonstrates the typography scale.</div>
+          <div class="flex gap-2">
+            <button style="background: oklch(0.50 0.16 145); color: white; padding: 8px 16px; border-radius: 6px; border: none; font-size: 13px; font-weight: 500;">Primary action</button>
+            <button style="background: oklch(0.99 0 0); color: oklch(0.30 0.01 145); padding: 8px 16px; border-radius: 6px; border: 1px solid oklch(0.85 0.01 145); font-size: 13px; font-weight: 500;">Secondary</button>
+            <button style="background: oklch(0.55 0.20 25); color: white; padding: 8px 16px; border-radius: 6px; border: none; font-size: 13px; font-weight: 500;">Destructive</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card mb-4">
+      <div class="card-header"><div class="card-title">Color · Primary scale</div></div>
+      <div style="display: grid; grid-template-columns: repeat(11, 1fr); gap: 4px;">
+        ${[50,100,200,300,400,500,600,700,800,900,950].map(s => {
+          const lightness = 1 - (s/1000) * 0.85 - 0.05;
+          return `<div style="aspect-ratio: 1; background: oklch(${lightness} ${s>200?0.16:0.08} 145); border-radius: 4px; border: 1px solid var(--border-default); display: flex; align-items: end; justify-content: center; padding: 4px; font-size: 9px; font-family: 'JetBrains Mono', monospace; color: ${s >= 500 ? 'white' : 'oklch(0.30 0.01 145)'};">${s}</div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderTokenRow(category, t) {
+  let swatch = '';
+  if (category === 'color') {
+    swatch = `<div class="swatch" style="background: ${t.resolved || t.value};"></div>`;
+  } else if (category === 'spacing') {
+    const px = parseInt(t.value) || 0;
+    const w = Math.max(2, Math.min(24, px));
+    swatch = `<div class="swatch swatch-text" style="background: var(--accent-primary-subtle);"><div style="width: ${w}px; height: 4px; background: var(--accent-primary);"></div></div>`;
+  } else if (category === 'radius') {
+    const px = t.value === '9999px' ? 12 : Math.min(12, (parseInt(t.value) || 0) * 2);
+    swatch = `<div class="swatch" style="background: var(--accent-primary); border-radius: ${px}px; width: 24px; height: 24px; border-color: var(--accent-primary);"></div>`;
+  } else if (category === 'shadow') {
+    swatch = `<div class="swatch" style="background: var(--bg-surface); box-shadow: ${t.value};"></div>`;
+  } else if (category === 'typography') {
+    const lbl = t.name.includes('mono') ? 'M' : t.name.includes('size') ? 'Aa' : t.name.includes('weight') ? 'B' : 'T';
+    swatch = `<div class="swatch swatch-text">${lbl}</div>`;
+  } else {
+    swatch = `<div class="swatch swatch-text">⟳</div>`;
+  }
+  return `
+    <div class="tok-row">
+      ${swatch}
+      <div>
+        <span class="name">${t.name}</span>${t.edited ? '<span class="tok-edit-pill">edited</span>' : ''}
+      </div>
+      <div class="value" title="${escapeHtml(t.value)}">${escapeHtml(t.value)}</div>
+      <div class="resolved">${t.resolved ? `<span class="mono" style="color: var(--fg-tertiary); font-size: 11px;">${escapeHtml(t.resolved)}</span> &nbsp; <span style="color: var(--fg-tertiary);">·</span> &nbsp; ${escapeHtml(t.consumed)}` : escapeHtml(t.consumed)}</div>
+      <div class="actions">
+        <button class="icon-btn" title="Edit value" onclick="Shell.toast('Edit ${t.name}', 'info')">✎</button>
+        <button class="icon-btn" title="Copy reference" onclick="Shell.toast('Copied {${t.name}}', 'success')">⧉</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderTokens() {
+  const cat = TOKENS[state.activeCategory];
+  const tree = `
+    <div class="tok-tree">
+      <div class="tok-group-heading">Categories</div>
+      ${Object.entries(TOKENS).map(([key, c]) => {
+        const total = c.groups.reduce((sum, g) => sum + g.items.length, 0);
+        const edited = c.groups.reduce((sum, g) => sum + g.items.filter(i => i.edited).length, 0);
+        return `<div class="tok-tree-item ${key === state.activeCategory ? 'active' : ''}" onclick="setCategory('${key}')">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; width: 16px; text-align: center;">${c.icon}</span>
+          <span>${c.label}</span>
+          <span class="count">${edited > 0 ? `<span style="color: var(--fg-warning);">●</span> ` : ''}${total}</span>
+        </div>`;
+      }).join('')}
+      <div class="tok-group-heading" style="margin-top: 16px;">Source</div>
+      <div class="tok-tree-item" style="cursor: default;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 9px; width: 16px; text-align: center;">{}</span>
+        <span>W3C DTCG</span>
+      </div>
+      <div class="tok-tree-item" style="cursor: default;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; width: 16px; text-align: center;">v</span>
+        <span>v1.2 · 4 edits</span>
+      </div>
+    </div>
+  `;
+  const panel = `
+    <div class="tok-panel">
+      <div class="tok-panel-header">
+        <div>
+          <h2>${cat.label} tokens</h2>
+          <div class="meta">${cat.description}</div>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-secondary btn-sm" onclick="Shell.toast('Copied as JSON', 'success')">Copy JSON</button>
+          <button class="btn btn-secondary btn-sm" onclick="Shell.toast('Asking AI to refine...', 'info')">Ask AI to refine</button>
+        </div>
+      </div>
+      <div class="tok-row-headers">
+        <div></div>
+        <div>Name</div>
+        <div>Value</div>
+        <div>Resolves to · Consumed by</div>
+        <div></div>
+      </div>
+      ${cat.groups.map(group => `
+        <div class="tok-group-row">${group.name}</div>
+        ${group.items.map(t => renderTokenRow(state.activeCategory, t)).join('')}
+      `).join('')}
+    </div>
+  `;
+  return `<div class="tok-layout">${tree}${panel}</div>`;
+}
+
+function renderExport() {
+  const exports_ = [
+    ['W3C DTCG (JSON)', 'tokens.json', 'The source of truth. Stage 6 (UI gen) and Stage 7 (code gen) consume this.', `{
+  "color": {
+    "primary": {
+      "500": { "$value": "oklch(0.50 0.16 145)", "$type": "color" },
+      "600": { "$value": "oklch(0.45 0.16 145)", "$type": "color" }
+    }
+  },
+  "font": {
+    "size": {
+      "base": { "$value": "14px", "$type": "dimension" }
+    }
+  }
+}`],
+    ['Tailwind config', 'tailwind.config.js', 'Drops into generated apps. Maps semantic tokens onto Tailwind theme.', `module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          500: 'oklch(0.50 0.16 145)',
+          600: 'oklch(0.45 0.16 145)'
+        }
+      },
+      fontSize: {
+        base: ['14px', '22px']
+      }
+    }
+  }
+};`],
+    ['CSS variables', 'tokens.css', 'Used by the platform shell itself.', `:root {
+  --color-primary-500: oklch(0.50 0.16 145);
+  --color-primary-600: oklch(0.45 0.16 145);
+  --font-size-base: 14px;
+  --space-4: 16px;
+  --radius-md: 6px;
+}`],
+    ['Style Dictionary config', 'config.json', 'For multi-platform output (iOS Swift, Android, web).', `{
+  "source": ["tokens.json"],
+  "platforms": {
+    "css":       { "transformGroup": "css", "buildPath": "build/css/" },
+    "ios-swift": { "transformGroup": "ios-swift" },
+    "android":   { "transformGroup": "android" }
+  }
+}`]
+  ];
+  return `
+    <div class="grid grid-2">
+      ${exports_.map(([title, fname, desc, code]) => `
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">${title}</div>
+              <div class="text-xs text-tertiary mt-1 mono">${fname}</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="Shell.toast('Downloaded ${fname}', 'success')">Download</button>
+          </div>
+          <div class="text-sm text-secondary mb-3">${desc}</div>
+          <div class="code-block" style="max-height: 200px; overflow-y: auto;">${escapeHtml(code)}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderTabContent() {
+  if (state.activeTab === 'preview') return renderPreview();
+  if (state.activeTab === 'tokens')  return renderTokens();
+  if (state.activeTab === 'export')  return renderExport();
+}
+
+function rerender() {
+  Shell.render({
+    mode: 'ai-pipeline',
+    contextNav: aiPipelineContextNav('design-tokens'),
+    dataPlane: false,
+    mainContent: `
+      <div class="page-fullbleed">
+        ${Shell.pipelineStepper('design-tokens')}
+        <div style="display: grid; grid-template-columns: 1fr 320px; height: calc(100vh - 44px - 44px);">
+          <div style="overflow: auto; padding: 24px;">
+            <div class="page-header">
+              <div>
+                <h1 style="font-size: 18px;">Design Tokens</h1>
+                <div class="subtitle">Generated from PRD + brand · WCAG AA · Light + dark · 47 tokens · 4 user-edited</div>
+              </div>
+              <div class="page-header-actions">
+                <button class="btn btn-secondary btn-sm">Regenerate</button>
+                <a class="btn btn-primary btn-sm" href="ai-pipeline-schema-synthesis.html">Approve →</a>
+              </div>
+            </div>
+            <div class="tabs">
+              <div class="tab ${state.activeTab === 'preview' ? 'active' : ''}" onclick="setTab('preview')">Preview</div>
+              <div class="tab ${state.activeTab === 'tokens' ? 'active' : ''}" onclick="setTab('tokens')">Tokens</div>
+              <div class="tab ${state.activeTab === 'export' ? 'active' : ''}" onclick="setTab('export')">Export</div>
+            </div>
+            ${renderTabContent()}
+          </div>
+          <div style="overflow: auto; padding: 16px; background: var(--bg-surface); border-left: 1px solid var(--border-default);">
+            <div class="inspector-section">
+              <div class="inspector-label">Brand inputs</div>
+              <div class="inspector-row"><span class="key">Primary color</span><span class="val mono text-xs">oklch(0.50 0.16 145)</span></div>
+              <div class="inspector-row"><span class="key">Vibe</span><span class="val">Professional, calm</span></div>
+              <div class="inspector-row"><span class="key">Density</span><span class="val">Compact</span></div>
+            </div>
+            <div class="inspector-section">
+              <div class="inspector-label">Accessibility</div>
+              <div class="inspector-row"><span class="key">Light theme</span><span class="val text-success">AA passing</span></div>
+              <div class="inspector-row"><span class="key">Dark theme</span><span class="val text-success">AA passing</span></div>
+              <div class="inspector-row"><span class="key">Color blindness</span><span class="val text-success">Distinguishable</span></div>
+            </div>
+            <div class="inspector-section">
+              <div class="inspector-label">Coverage</div>
+              <div class="inspector-row"><span class="key">Color tokens</span><span class="val tabular">19</span></div>
+              <div class="inspector-row"><span class="key">Type tokens</span><span class="val tabular">12</span></div>
+              <div class="inspector-row"><span class="key">Spacing tokens</span><span class="val tabular">9</span></div>
+              <div class="inspector-row"><span class="key">Radius tokens</span><span class="val tabular">4</span></div>
+              <div class="inspector-row"><span class="key">Shadow tokens</span><span class="val tabular">3</span></div>
+              <div class="inspector-row"><span class="key">Total</span><span class="val tabular">47</span></div>
+            </div>
+            <div class="inspector-section">
+              <div class="inspector-label">Reasoning</div>
+              <div class="text-sm text-secondary">Forest green derived from your uploaded logo's dominant hue. Adjusted to OKLCH 0.50 lightness so all WCAG AA contrasts pass on white and on dark backgrounds.</div>
+            </div>
+            <div class="inspector-section">
+              <div class="inspector-label">Cost</div>
+              <div class="inspector-row"><span class="key">This stage</span><span class="val tabular">$0.85</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `
+  });
+}
+
+rerender();
+</script>
+</body>
+</html>

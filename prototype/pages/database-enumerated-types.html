@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enumerated Types — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'database',
+  contextNav: databaseContextNav('enumerated-types'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Enumerated Types</h1><div class="subtitle">4 enums in public schema</div></div>
+      </div>
+      
+      ${[
+        ['deal_stage', ['lead','qualified','proposal','negotiation','won','lost']],
+        ['user_role', ['workspace_owner','admin','member','viewer']],
+        ['activity_type', ['call','email','meeting','note','task']],
+        ['notification_status', ['pending','sent','delivered','failed']]
+      ].map(([name, vals]) => `
+        <div class="card mb-3">
+          <div class="flex justify-between items-center mb-2"><strong class="mono">${name}</strong><button class="btn btn-ghost btn-xs">Edit</button></div>
+          <div class="flex" style="gap: 6px; flex-wrap: wrap;">${vals.map(v => `<span class="badge badge-default mono">${v}</span>`).join('')}</div>
+        </div>
+      `).join('')}
+   
+    </div>
+  `
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auth Policies — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+Shell.render({
+  mode: 'auth',
+  contextNav: authContextNav('auth-policies'),
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">Auth Policies</h1><div class="subtitle">Workspace-wide auth requirements</div></div>
+      </div>
+      
+      <div class="card">
+        <div class="inspector-row"><span class="key">Require MFA</span><span class="val text-success">Enabled · all roles</span></div>
+        <div class="inspector-row"><span class="key">Password min length</span><span class="val tabular">12 characters</span></div>
+        <div class="inspector-row"><span class="key">Password complexity</span><span class="val">Mixed case + number + symbol</span></div>
+        <div class="inspector-row"><span class="key">Session lifetime</span><span class="val tabular">8 hours</span></div>
+        <div class="inspector-row"><span class="key">Idle timeout</span><span class="val tabular">30 minutes</span></div>
+      </div>
+   
+    </div>
+  `
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logs — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script>
+const contextNav = {
+  title: 'Logs',
+  sections: [
+    { heading: 'Streams', items: [
+      { id: 'api', label: 'API', active: true, href: '#' },
+      { id: 'auth', label: 'Auth', href: '#' },
+      { id: 'database', label: 'Database', href: '#' },
+      { id: 'storage', label: 'Storage', href: '#' },
+      { id: 'fns', label: 'Functions', href: '#' },
+      { id: 'rt', label: 'Realtime', href: '#' }
+    ]},
+    { heading: 'Compliance', items: [
+      { id: 'audit', label: 'Audit Log', href: '#' }
+    ]}
+  ]
+};
+
+const codes = ['200', '201', '200', '200', '404', '200', '200', '500', '200', '200'];
+const actors = ['joana', 'marcus', 'priya', 'tom', 'system'];
+
+Shell.render({
+  mode: 'logs',
+  contextNav,
+  dataPlane: true,
+  mainContent: `
+    <div style="padding: 16px 24px;">
+      <div class="page-header">
+        <div><h1 style="font-size: 18px;">API Logs</h1><div class="subtitle">Live tail · 7-day retention · 2,347 entries today</div></div>
+        <div class="page-header-actions">
+          <input class="input input-h28" placeholder="Filter logs..." style="width: 240px;" />
+          <button class="btn btn-secondary btn-sm">Export</button>
+        </div>
+      </div>
+      <div class="table-wrap" style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+        <table class="data-table">
+          <thead><tr><th>When</th><th>Actor</th><th>Path</th><th>Status</th><th class="tabular">Latency</th></tr></thead>
+          <tbody>
+            ${Array(20).fill(0).map((_, i) => {
+              const ms = i * 3 + Math.floor(Math.random() * 5);
+              const code = codes[i % codes.length];
+              return `<tr><td class="text-tertiary text-xs tabular">14:32:${(15-i).toString().padStart(2,'0')}</td><td class="text-xs">${actors[i % actors.length]}</td><td class="text-xs">GET /rest/v1/contacts${i % 3 === 0 ? ' · /by/id/' + (1000+i) : ''}</td><td><span class="badge ${code.startsWith('2')?'badge-success':code.startsWith('5')?'badge-danger':'badge-warning'}">${code}</span></td><td class="tabular text-xs text-secondary">${ms}ms</td></tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>

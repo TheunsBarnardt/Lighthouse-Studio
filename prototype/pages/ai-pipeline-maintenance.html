@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maintenance — Platform</title>
+<link rel="stylesheet" href="../shared/tokens.css">
+<link rel="stylesheet" href="../shared/components.css">
+<link rel="stylesheet" href="../shared/shell.css">
+<link rel="stylesheet" href="../shared/data-plane.css">
+</head>
+<body>
+<div id="app-root"></div>
+<script src="../shared/data.js"></script>
+<script src="../shared/shell.js"></script>
+<script src="../shared/nav-helpers.js"></script>
+<script>
+const signals = [
+  ['SIG-127', 'TypeError in DealKanbanPage', 'high', 'Stage 6 · UI', '14 occurrences', '47 min ago', 'open', 'Marcus'],
+  ['SIG-126', 'Slow query: contacts list', 'medium', 'Stage 4 · Schema', 'p95 1.8s', '2 hours ago', 'in-flight', 'Tom'],
+  ['SIG-125', 'User report: cannot save deal', 'high', 'Stage 6 · UI', '3 reports', '1 hour ago', 'open', '—'],
+  ['SIG-124', 'CVE: lodash advisory GHSA-jf85', 'medium', 'Dependency', 'auto-detected', '1 day ago', 'in-flight', 'Marcus'],
+  ['SIG-123', 'a11y: contrast on warning chip', 'low', 'Stage 3 · Tokens', 'lighthouse', '1 day ago', 'open', '—'],
+  ['SIG-122', 'Bundle size +14% on last deploy', 'low', 'Stage 9 · Deploy', 'auto-detected', '2 days ago', 'resolved', 'Tom'],
+  ['SIG-121', 'PRD ↔ schema drift: missing field', 'medium', 'Stage 4 · Schema', 'auto-detected', '3 days ago', 'resolved', 'AI']
+];
+
+const changeRequests = [
+  ['CR-42', 'Fix Kanban drag race condition', 'in-progress', 'Stage 6 → 8', 'Tom Müller', '2h', '47 min ago'],
+  ['CR-41', 'Bump lodash to 4.17.22', 'pending-approval', 'Stage 7', 'AI auto-generated', '12m', '1 day ago'],
+  ['CR-40', 'Add index on contacts.company', 'merged', 'Stage 4', 'AI auto-generated', '3m', 'Yesterday']
+];
+
+Shell.render({
+  mode: 'ai-pipeline',
+  contextNav: aiPipelineContextNav('maintenance'),
+  dataPlane: false,
+  mainContent: `
+    <div class="page-fullbleed">
+      ${Shell.pipelineStepper('maintenance')}
+      <div class="page" style="max-width: 1400px;">
+        <div class="page-header">
+          <div>
+            <h1 style="font-size: 18px;">Maintenance · Continuous</h1>
+            <div class="subtitle">Production signals → change requests → re-deploy. The pipeline keeps running.</div>
+          </div>
+          <div class="page-header-actions">
+            <button class="btn btn-secondary btn-sm">Settings</button>
+            <button class="btn btn-secondary btn-sm">Export report</button>
+            <button class="btn btn-primary btn-sm" onclick="Shell.toast('Asking AI to review open signals...', 'info')">✦ AI triage</button>
+          </div>
+        </div>
+
+        <div class="grid grid-4 mb-4">
+          <div class="stat-card"><div class="stat-label">Open signals</div><div class="stat-value">7</div><div class="stat-delta stat-up">3 new today</div></div>
+          <div class="stat-card"><div class="stat-label">Change requests in flight</div><div class="stat-value">2</div><div class="stat-delta text-secondary">1 awaiting approval</div></div>
+          <div class="stat-card"><div class="stat-label">MTTR · 30d</div><div class="stat-value">3.4h</div><div class="stat-delta stat-up">−12% vs prior</div></div>
+          <div class="stat-card"><div class="stat-label">AI fix rate</div><div class="stat-value">89%</div><div class="stat-delta text-secondary">last 30 days</div></div>
+        </div>
+
+        <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 16px;">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Open signals</div>
+              <div class="flex gap-2">
+                <select class="select input-h28" style="width: 120px;"><option>All severity</option></select>
+                <select class="select input-h28" style="width: 120px;"><option>All sources</option></select>
+              </div>
+            </div>
+            <table class="data-table">
+              <thead><tr><th>ID</th><th>Title</th><th>Severity</th><th>Source</th><th>Evidence</th><th>When</th><th>Owner</th><th></th></tr></thead>
+              <tbody>
+                ${signals.filter(s => s[6] !== 'resolved').map(([id, n, sev, src, ev, when, status, owner]) => `
+                  <tr>
+                    <td class="mono text-xs">${id}</td>
+                    <td class="text-sm">${n}</td>
+                    <td><span class="badge badge-${sev==='high'?'danger':sev==='medium'?'warning':'default'}">${sev}</span></td>
+                    <td class="text-secondary text-xs">${src}</td>
+                    <td class="text-tertiary text-xs">${ev}</td>
+                    <td class="text-tertiary text-xs">${when}</td>
+                    <td class="text-secondary text-xs">${owner}</td>
+                    <td><button class="btn btn-secondary btn-xs">Create CR</button></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div>
+            <div class="card mb-3">
+              <div class="card-header"><div class="card-title">Change requests</div></div>
+              ${changeRequests.map(([id, title, status, scope, by, etl, when]) => `
+                <div class="flex justify-between items-center mb-3" style="padding-bottom: 8px; border-bottom: 1px solid var(--border-default);">
+                  <div style="flex: 1; min-width: 0;">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="badge badge-accent mono" style="font-size: 9px;">${id}</span>
+                      <span class="text-sm font-medium" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${title}</span>
+                    </div>
+                    <div class="text-xs text-tertiary">${scope} · ${by} · ${when}</div>
+                  </div>
+                  ${status === 'merged' ? '<span class="badge badge-success">Merged</span>' : status === 'in-progress' ? '<span class="badge badge-info">In flight</span>' : '<span class="badge badge-warning">Approval</span>'}
+                </div>
+              `).join('')}
+            </div>
+
+            <div class="card">
+              <div class="card-header"><div class="card-title">Signal sources</div></div>
+              <div class="inspector-row"><span class="key">Error tracking</span><span class="val text-success">Sentry · live</span></div>
+              <div class="inspector-row"><span class="key">User reports</span><span class="val tabular">3 open</span></div>
+              <div class="inspector-row"><span class="key">CVE feed</span><span class="val text-success">GHSA · live</span></div>
+              <div class="inspector-row"><span class="key">Lighthouse</span><span class="val text-success">daily</span></div>
+              <div class="inspector-row"><span class="key">Drift detection</span><span class="val text-success">on commit</span></div>
+              <div class="inspector-row"><span class="key">DB advisor</span><span class="val text-success">hourly</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-header"><div class="card-title">Resolved · last 30 days</div></div>
+          <table class="data-table">
+            <thead><tr><th>ID</th><th>Title</th><th>Severity</th><th>Resolved by</th><th>TTR</th></tr></thead>
+            <tbody>
+              ${signals.filter(s => s[6] === 'resolved').map(([id, n, sev, src, ev, when, status, owner]) => `
+                <tr>
+                  <td class="mono text-xs">${id}</td>
+                  <td class="text-sm">${n}</td>
+                  <td><span class="badge badge-${sev==='high'?'danger':sev==='medium'?'warning':'default'}">${sev}</span></td>
+                  <td class="text-secondary text-xs">${owner}</td>
+                  <td class="text-tertiary text-xs">2h 14m</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-header"><div class="card-title">Outcomes · last 30 days</div></div>
+          <div class="grid grid-3">
+            <div>
+              <div class="text-xs text-tertiary mb-1">RESOLVED</div>
+              <div class="stat-value text-success">31</div>
+              <div class="text-xs text-secondary">22 by AI · 9 by humans</div>
+            </div>
+            <div>
+              <div class="text-xs text-tertiary mb-1">DEFERRED</div>
+              <div class="stat-value text-warning">4</div>
+              <div class="text-xs text-secondary">awaiting product input</div>
+            </div>
+            <div>
+              <div class="text-xs text-tertiary mb-1">DUPLICATE / WONT FIX</div>
+              <div class="stat-value text-tertiary">7</div>
+              <div class="text-xs text-secondary">closed without action</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `
+});
+</script>
+</body>
+</html>
