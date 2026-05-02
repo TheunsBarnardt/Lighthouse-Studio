@@ -1,0 +1,152 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: Platform SLO Alerts
+    folder: Platform
+    interval: 1m
+    rules:
+      - uid: platform-http-error-rate
+        title: 'HTTP Error Rate > 5% (5m)'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'sum(rate(platform_http_requests_total{status=~"5.."}[5m])) / sum(rate(platform_http_requests_total[5m]))'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [0.05], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: 'HTTP error rate is above 5%'
+          description: '{{ humanizePercentage $values.A.Value }} of HTTP requests are returning 5xx errors.'
+        labels:
+          severity: warning
+
+      - uid: platform-http-p95-latency
+        title: 'HTTP p95 Latency > 2s (10m)'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'histogram_quantile(0.95, sum(rate(platform_http_request_duration_seconds_bucket[5m])) by (le))'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [2], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: 'HTTP p95 latency exceeded 2 seconds'
+          description: 'p95 latency is {{ $values.A.Value | printf "%.2f" }}s over the past 10 minutes.'
+        labels:
+          severity: warning
+
+      - uid: platform-job-failure-rate
+        title: 'Job Failure Rate > 10% (15m)'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'sum(rate(platform_jobs_executed_total{status="failed"}[15m])) / sum(rate(platform_jobs_executed_total[15m]))'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [0.1], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 15m
+        annotations:
+          summary: 'Job failure rate above 10%'
+          description: '{{ humanizePercentage $values.A.Value }} of jobs are failing.'
+        labels:
+          severity: warning
+
+      - uid: platform-memory-pressure
+        title: 'Process Memory > 90% Heap (5m)'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'nodejs_heap_size_used_bytes / nodejs_heap_size_total_bytes'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [0.9], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: 'Heap memory usage above 90%'
+          description: 'Node.js heap is {{ humanizePercentage $values.A.Value }} full. Risk of OOM.'
+        labels:
+          severity: critical
+
+contactPoints:
+  - orgId: 1
+    name: Platform Email
+    receivers:
+      - uid: platform-email
+        type: email
+        settings:
+          addresses: '${GRAFANA_ALERT_EMAIL:-admin@platform.local}'
+          singleEmail: false
+
+  - orgId: 1
+    name: Platform ntfy
+    receivers:
+      - uid: platform-ntfy
+        type: webhook
+        settings:
+          url: '${NTFY_URL:-}'
+          httpMethod: POST
+          username: ''
+          password: ''
+
+policies:
+  - orgId: 1
+    receiver: Platform Email
+    group_by: [alertname]
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h

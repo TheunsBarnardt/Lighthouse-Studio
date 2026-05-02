@@ -1,0 +1,95 @@
+# OTel Collector configuration.
+# Receives OTLP (logs, metrics, traces) from platform services.
+# Routes to Loki (logs), Prometheus (metrics), Tempo (traces).
+
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+        cors:
+          allowed_origins:
+            - 'http://*'
+            - 'https://*'
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 1024
+
+  resource:
+    attributes:
+      - key: deployment.environment
+        from_attribute: deployment.environment
+        action: upsert
+
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 25
+
+  # Tail-based sampling: keep all error traces and slow requests; sample 10% of healthy traffic.
+  # decision_wait must be longer than the longest expected trace (all spans collected before deciding).
+  tail_sampling:
+    decision_wait: 30s
+    num_traces: 50000
+    policies:
+      - name: errors
+        type: status_code
+        status_code:
+          status_codes: [ERROR]
+      - name: slow-requests
+        type: latency
+        latency:
+          threshold_ms: 1000
+      - name: random-sample
+        type: probabilistic
+        probabilistic:
+          sampling_percentage: 10
+
+exporters:
+  # Logs → Loki
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    default_labels_enabled:
+      exporter: false
+      level: true
+
+  # Metrics → Prometheus (remote write)
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    tls:
+      insecure: true
+
+  # Traces → Tempo
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  # Debug exporter (logs all telemetry to collector stdout — disable in prod)
+  debug:
+    verbosity: basic
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [loki]
+
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [prometheusremotewrite]
+
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, tail_sampling, resource, batch]
+      exporters: [otlp/tempo]
+
+  telemetry:
+    logs:
+      level: warn

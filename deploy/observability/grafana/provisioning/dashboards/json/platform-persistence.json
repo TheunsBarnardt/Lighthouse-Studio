@@ -1,0 +1,42 @@
+{
+  "editable": false,
+  "graphTooltip": 1,
+  "id": null,
+  "panels": [
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Query Latency p95 by Adapter",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(platform_persistence_query_duration_seconds_bucket[5m])) by (le, adapter))",
+          "legendFormat": "{{adapter}} p95"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "title": "Query Rate by Operation",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(platform_persistence_query_duration_seconds_count[5m])) by (operation, entity)",
+          "legendFormat": "{{operation}} {{entity}}"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["platform", "persistence"],
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Platform — Persistence",
+  "uid": "platform-persistence",
+  "version": 1
+}

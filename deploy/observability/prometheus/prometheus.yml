@@ -1,0 +1,29 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    environment: '${APP_ENV:-development}'
+
+# Alerting (placeholder — add Alertmanager when team scales)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: [alertmanager:9093]
+
+# Recording rules
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  # Self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # OTel Collector self-metrics
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8888']
+
+  # Platform services — they push via remote write from the OTel Collector.
+  # Direct scrape targets added here as services become available.

@@ -1,12 +1,13 @@
-import type { LogLevel } from './types.js';
+import type { LogContext } from './types.js';
 
 export interface LoggerPort {
-  debug(message: string, context?: Record<string, unknown>): void;
-  info(message: string, context?: Record<string, unknown>): void;
-  warn(message: string, context?: Record<string, unknown>): void;
-  error(message: string, error?: Error, context?: Record<string, unknown>): void;
-  fatal(message: string, error?: Error, context?: Record<string, unknown>): void;
+  trace(msg: string, ctx?: LogContext): void;
+  debug(msg: string, ctx?: LogContext): void;
+  info(msg: string, ctx?: LogContext): void;
+  warn(msg: string, ctx?: LogContext): void;
+  error(msg: string, ctx?: LogContext): void;
+  fatal(msg: string, ctx?: LogContext): void;
 
-  child(bindings: Record<string, unknown>): LoggerPort;
-  setLevel(level: LogLevel): void;
+  /** Returns a child logger with the given context permanently bound. */
+  child(ctx: LogContext): LoggerPort;
 }

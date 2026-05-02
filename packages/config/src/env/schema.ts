@@ -115,6 +115,29 @@ const emailSchema = z.object({
   SENDGRID_API_KEY: z.string().optional(),
 });
 
+// ========== OBSERVABILITY ==========
+
+const observabilitySchema = z.object({
+  /** OTLP HTTP endpoint for the OTel Collector. e.g. http://otel-collector:4318 */
+  OTEL_EXPORTER_OTLP_ENDPOINT: z.string().url().optional(),
+  /** GlitchTip / Sentry DSN for error tracking. */
+  SENTRY_DSN: z.string().optional(),
+  /** Set to 'true' to pretty-print logs to console (dev only). */
+  LOG_PRETTY: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
+  /** Set to 'false' to disable all OTel/Sentry telemetry (local dev without stack). */
+  OBS_ENABLED: z
+    .enum(['true', 'false'])
+    .default('true')
+    .transform((v) => v !== 'false'),
+  /** Service name for telemetry enrichment. */
+  SERVICE_NAME: z.string().default('platform'),
+  /** Deployed version / git SHA, used in release tags. */
+  SERVICE_VERSION: z.string().default('unknown'),
+});
+
 // ========== AI / WORKER ==========
 
 const aiWorkerSchema = z.object({
@@ -149,6 +172,7 @@ export const serverEnvSchema = foundationEnvSchema
   .merge(storageS3Schema.partial())
   .merge(storageAzureSchema.partial())
   .merge(emailSchema.partial())
+  .merge(observabilitySchema)
   .merge(aiWorkerSchema.partial())
   .merge(redisSchema.partial())
   .superRefine((v, ctx) => {

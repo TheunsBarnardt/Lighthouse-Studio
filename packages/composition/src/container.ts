@@ -9,7 +9,12 @@ import type {
   SessionPort,
 } from '@platform/ports-identity';
 import type { JobQueuePort, SchedulerPort } from '@platform/ports-jobs';
-import type { LoggerPort, MetricsPort, TracerPort } from '@platform/ports-observability';
+import type {
+  ErrorReporterPort,
+  LoggerPort,
+  MetricsPort,
+  TracerPort,
+} from '@platform/ports-observability';
 import type {
   RepositoryPort,
   UnitOfWorkPort,
@@ -50,6 +55,7 @@ export interface PlatformContainer {
   logger: LoggerPort;
   metrics: MetricsPort;
   tracer: TracerPort;
+  errorReporter: ErrorReporterPort;
   secrets: SecretStorePort;
   featureFlags: FeatureFlagPort | null;
 }

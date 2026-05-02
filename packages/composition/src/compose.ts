@@ -5,7 +5,12 @@ import { InMemorySecretStore } from '@platform/adapter-config-memory';
 import { InMemoryEventBus } from '@platform/adapter-eventing-memory';
 import { InMemoryIdentityProvider } from '@platform/adapter-identity-memory';
 import { InMemoryJobQueue } from '@platform/adapter-jobs-memory';
-import { NoopLogger, NoopMetrics, NoopTracer } from '@platform/adapter-observability-memory';
+import {
+  NoopErrorReporter,
+  NoopLogger,
+  NoopMetrics,
+  NoopTracer,
+} from '@platform/adapter-observability-memory';
 import { InMemoryRepository, InMemoryUnitOfWork } from '@platform/adapter-persistence-memory';
 import { InMemoryFullTextSearch } from '@platform/adapter-search-memory';
 import { InMemoryObjectStorage } from '@platform/adapter-storage-memory';
@@ -46,6 +51,7 @@ export function composeMemory(): PlatformContainer {
     logger: new NoopLogger(),
     metrics: new NoopMetrics(),
     tracer: new NoopTracer(),
+    errorReporter: new NoopErrorReporter(),
     secrets: new InMemorySecretStore(),
     featureFlags: null,
   };

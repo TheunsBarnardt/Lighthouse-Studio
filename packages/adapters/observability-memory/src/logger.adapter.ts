@@ -1,13 +1,13 @@
-import type { LoggerPort, LogLevel } from '@platform/ports-observability';
+import type { LogContext, LoggerPort } from '@platform/ports-observability';
 
 export class NoopLogger implements LoggerPort {
-  debug(_message: string, _context?: Record<string, unknown>): void {}
-  info(_message: string, _context?: Record<string, unknown>): void {}
-  warn(_message: string, _context?: Record<string, unknown>): void {}
-  error(_message: string, _error?: Error, _context?: Record<string, unknown>): void {}
-  fatal(_message: string, _error?: Error, _context?: Record<string, unknown>): void {}
-  child(_bindings: Record<string, unknown>): LoggerPort {
+  trace(_msg: string, _ctx?: LogContext): void {}
+  debug(_msg: string, _ctx?: LogContext): void {}
+  info(_msg: string, _ctx?: LogContext): void {}
+  warn(_msg: string, _ctx?: LogContext): void {}
+  error(_msg: string, _ctx?: LogContext): void {}
+  fatal(_msg: string, _ctx?: LogContext): void {}
+  child(_ctx: LogContext): LoggerPort {
     return new NoopLogger();
   }
-  setLevel(_level: LogLevel): void {}
 }
