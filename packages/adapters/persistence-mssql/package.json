@@ -1,0 +1,41 @@
+{
+  "name": "@platform/adapter-persistence-mssql",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "clean": "rimraf dist",
+    "db:migrate": "tsx src/migrate.ts apply",
+    "db:migrate:status": "tsx src/migrate.ts status",
+    "db:migrate:create": "tsx src/migrate.ts create",
+    "db:migrate:down": "tsx src/migrate.ts down"
+  },
+  "dependencies": {
+    "@platform/ports-observability": "workspace:*",
+    "@platform/ports-persistence": "workspace:*",
+    "mssql": "^11.0.1",
+    "neverthrow": "8.2.0",
+    "uuidv7": "^1.0.2"
+  },
+  "devDependencies": {
+    "@platform/config": "workspace:*",
+    "@types/mssql": "^9.1.5",
+    "fast-check": "^3.23.0",
+    "rimraf": "6.0.1",
+    "tsx": "4.19.4",
+    "vitest": "3.2.3"
+  }
+}

@@ -1,0 +1,141 @@
+version: '3.9'
+
+# Platform development database stack.
+# Starts all three supported databases plus supporting services.
+#
+# Usage:
+#   docker compose up -d                    — start everything
+#   docker compose up -d postgres           — start just Postgres
+#   docker compose up -d mssql             — start just MSSQL
+#   docker compose up -d mongo             — start just MongoDB
+#   docker compose down -v                 — stop and remove volumes
+
+volumes:
+  postgres_data:
+  mssql_data:
+  mongo_data:
+
+services:
+  # ── PostgreSQL 16 ───────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: platform_dev
+      POSTGRES_DB: platform
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init:/docker-entrypoint-initdb.d:ro
+    command: >
+      postgres
+        -c wal_level=logical
+        -c max_replication_slots=10
+        -c max_wal_senders=10
+        -c shared_preload_libraries=''
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U platform']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Microsoft SQL Server 2022 ───────────────────────────────────────────────
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
+    platform: linux/amd64
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: 'Platform!Dev2024'
+      MSSQL_PID: Developer
+      MSSQL_AGENT_ENABLED: 'true'
+    ports:
+      - '1433:1433'
+    volumes:
+      - mssql_data:/var/opt/mssql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Platform!Dev2024'
+          -Q 'SELECT 1' -C -b -o /dev/null
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
+
+  # ── MSSQL database initialiser (runs once, exits) ───────────────────────────
+  mssql-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    depends_on:
+      mssql:
+        condition: service_healthy
+    environment:
+      MSSQL_SA_PASSWORD: 'Platform!Dev2024'
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        /opt/mssql-tools18/bin/sqlcmd -S mssql -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "
+          IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'platform')
+            CREATE DATABASE platform;
+          ALTER DATABASE platform SET READ_COMMITTED_SNAPSHOT ON;
+          ALTER DATABASE platform SET ENABLE_BROKER;
+        "
+    restart: 'no'
+
+  # ── MongoDB 7 (replica set — required for transactions and change streams) ──
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    command: mongod --replSet rs0 --bind_ip_all --keyFile /etc/mongo/keyfile
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: platform
+      MONGO_INITDB_ROOT_PASSWORD: platform_dev
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+      - ./infrastructure/mongo/keyfile:/etc/mongo/keyfile:ro
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --eval
+        - "db.adminCommand('ping')"
+        - --quiet
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 15s
+
+  # ── MongoDB replica set initialiser (runs once, exits) ─────────────────────
+  mongo-init:
+    image: mongo:7
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: platform
+      MONGO_INITDB_ROOT_PASSWORD: platform_dev
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        mongosh --host mongo \
+          -u platform -p platform_dev \
+          --authenticationDatabase admin \
+          --eval "
+            try {
+              rs.status();
+              print('Replica set already initiated');
+            } catch(e) {
+              rs.initiate({
+                _id: 'rs0',
+                members: [{ _id: 0, host: 'mongo:27017' }]
+              });
+              print('Replica set initiated');
+            }
+          "
+    restart: 'no'

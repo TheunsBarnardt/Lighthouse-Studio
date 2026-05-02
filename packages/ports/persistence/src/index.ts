@@ -29,3 +29,16 @@ export type {
   SchemaFeature,
 } from './types.js';
 export { PageSchema, SortDirectionSchema } from './types.js';
+export type {
+  ChangeStreamPort,
+  ChangeStreamCapabilities,
+  ChangeEvent,
+  InsertChangeEvent,
+  UpdateChangeEvent,
+  DeleteChangeEvent,
+  SchemaChangeEvent,
+  GapChangeEvent,
+  ErrorChangeEvent,
+  ChangeEventKind,
+  SubscribeOptions,
+} from './change-stream.port.js';
