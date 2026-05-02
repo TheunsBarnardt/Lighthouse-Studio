@@ -8,19 +8,55 @@ name: platform-dev
 
 services:
   postgres-dev:
-    image: postgres:17-alpine
+    # pgvector/pgvector includes the pgvector extension on top of Postgres 17.
+    image: pgvector/pgvector:pg17
     container_name: postgres-dev
     restart: unless-stopped
+    command: >
+      postgres
+      -c statement_timeout=30000
+      -c idle_in_transaction_session_timeout=60000
+      -c log_min_duration_statement=1000
+      -c log_connections=on
     environment:
       POSTGRES_DB: platform_dev
       POSTGRES_USER: platform
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
       - platform-postgres-dev-data:/var/lib/postgresql/data
+      - ./init/:/docker-entrypoint-initdb.d/
     networks:
       - platform-dev
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U platform -d platform_dev']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgbouncer-dev:
+    image: bitnami/pgbouncer:1.23.1
+    container_name: pgbouncer-dev
+    restart: unless-stopped
+    environment:
+      PGBOUNCER_DATABASE: platform_dev
+      PGBOUNCER_HOST: postgres-dev
+      PGBOUNCER_PORT: 5432
+      POSTGRESQL_USERNAME: platform_app
+      POSTGRESQL_PASSWORD: ${PLATFORM_APP_PASSWORD:?PLATFORM_APP_PASSWORD is required}
+      POSTGRESQL_DATABASE: platform_dev
+      PGBOUNCER_POOL_MODE: transaction
+      PGBOUNCER_MAX_CLIENT_CONN: 200
+      PGBOUNCER_DEFAULT_POOL_SIZE: 20
+      PGBOUNCER_AUTH_TYPE: scram-sha-256
+      PGBOUNCER_SERVER_RESET_QUERY: ''
+      PGBOUNCER_IGNORE_STARTUP_PARAMETERS: extra_float_digits,options
+    networks:
+      - platform-dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -p 5432']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -49,14 +85,15 @@ services:
       APP_ENV: development
       NODE_ENV: production
       DATABASE_DRIVER: postgres
-      POSTGRES_URL: postgres://platform:${POSTGRES_PASSWORD}@postgres-dev:5432/platform_dev
+      POSTGRES_URL: postgres://platform_app:${PLATFORM_APP_PASSWORD}@pgbouncer-dev:5432/platform_dev
+      POSTGRES_DIRECT_URL: postgres://platform_migrate:${PLATFORM_MIGRATE_PASSWORD}@postgres-dev:5432/platform_dev
       REDIS_URL: redis://redis-dev:6379
     ports:
       - '3000:3000'
     networks:
       - platform-dev
     depends_on:
-      postgres-dev:
+      pgbouncer-dev:
         condition: service_healthy
       redis-dev:
         condition: service_healthy
@@ -80,12 +117,13 @@ services:
   #     APP_ENV: development
   #     NODE_ENV: production
   #     DATABASE_DRIVER: postgres
-  #     POSTGRES_URL: postgres://platform:${POSTGRES_PASSWORD}@postgres-dev:5432/platform_dev
+  #     POSTGRES_URL: postgres://platform_app:${PLATFORM_APP_PASSWORD}@pgbouncer-dev:5432/platform_dev
+  #     POSTGRES_DIRECT_URL: postgres://platform_migrate:${PLATFORM_MIGRATE_PASSWORD}@postgres-dev:5432/platform_dev
   #     REDIS_URL: redis://redis-dev:6379
   #   networks:
   #     - platform-dev
   #   depends_on:
-  #     - postgres-dev
+  #     - pgbouncer-dev
   #     - redis-dev
 
 volumes:
