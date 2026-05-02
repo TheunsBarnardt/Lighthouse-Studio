@@ -131,6 +131,34 @@ importers:
         specifier: 3.2.3
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
 
+  packages/adapters/authz-builtin:
+    dependencies:
+      '@platform/ports-authorization':
+        specifier: workspace:*
+        version: link:../../ports/authorization
+      '@platform/ports-observability':
+        specifier: workspace:*
+        version: link:../../ports/observability
+      '@platform/ports-persistence':
+        specifier: workspace:*
+        version: link:../../ports/persistence
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      uuidv7:
+        specifier: 1.0.2
+        version: 1.0.2
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
+
   packages/adapters/changestream-mongo:
     dependencies:
       '@platform/adapter-changestream-shared':
@@ -697,7 +725,7 @@ importers:
         version: 8.2.0
       uuidv7:
         specifier: ^1.0.2
-        version: 1.2.1
+        version: 1.0.2
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -731,7 +759,7 @@ importers:
         version: 8.2.0
       uuidv7:
         specifier: ^1.0.2
-        version: 1.2.1
+        version: 1.0.2
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -774,7 +802,7 @@ importers:
         version: 8.20.0
       uuidv7:
         specifier: ^1.0.2
-        version: 1.2.1
+        version: 1.0.2
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -971,6 +999,28 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/core:
+    dependencies:
+      '@platform/ports-audit':
+        specifier: workspace:*
+        version: link:../ports/audit
+      '@platform/ports-authorization':
+        specifier: workspace:*
+        version: link:../ports/authorization
+      '@platform/ports-observability':
+        specifier: workspace:*
+        version: link:../ports/observability
+      '@platform/ports-persistence':
+        specifier: workspace:*
+        version: link:../ports/persistence
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      uuidv7:
+        specifier: ^1.0.2
+        version: 1.0.2
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -978,6 +1028,9 @@ importers:
       '@platform/shared':
         specifier: workspace:*
         version: link:../shared
+      fast-check:
+        specifier: ^3.23.0
+        version: 3.23.2
       rimraf:
         specifier: 6.0.1
         version: 6.0.1
@@ -1023,6 +1076,28 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/ports/audit:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      '@platform/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/ports/authorization:
     dependencies:
       neverthrow:
         specifier: 8.2.0
@@ -4602,8 +4677,8 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  uuidv7@1.2.1:
-    resolution: {integrity: sha512-4kPkK3/XTQW9Hbm4CaqfICn+kY9LJtDVEOfgsRRra/+n2Ofg4NqzRFceAkxvQ/Ud/6BpHOPzj8cirqM7TzTN5Q==}
+  uuidv7@1.0.2:
+    resolution: {integrity: sha512-8JQkH4ooXnm1JCIhqTMbtmdnYEn6oKukBxHn1Ic9878jMkL7daTI7anTExfY18VRCX7tcdn5quzvCb6EWrR8PA==}
     hasBin: true
 
   vary@1.1.2:
@@ -8122,7 +8197,7 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  uuidv7@1.2.1: {}
+  uuidv7@1.0.2: {}
 
   vary@1.1.2: {}
 

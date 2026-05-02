@@ -2,9 +2,9 @@
   "extends": "@platform/config/tsconfig/lib.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "./src",
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "include": ["src", "tests"],
+  "include": ["src"],
   "exclude": ["dist", "node_modules"]
 }
