@@ -8,6 +8,10 @@ export type IdentityErrorCode =
   | 'TOKEN_INVALID'
   | 'MFA_REQUIRED'
   | 'MFA_FAILED'
+  | 'MFA_NOT_ENROLLED'
+  | 'CONFLICT'
+  | 'INVALID_STATE'
+  | 'RATE_LIMITED'
   | 'PROVIDER_ERROR'
   | 'NOT_SUPPORTED'
   | 'UNKNOWN';
@@ -31,6 +35,10 @@ export const IdentityErrorCodeSchema = z.enum([
   'TOKEN_INVALID',
   'MFA_REQUIRED',
   'MFA_FAILED',
+  'MFA_NOT_ENROLLED',
+  'CONFLICT',
+  'INVALID_STATE',
+  'RATE_LIMITED',
   'PROVIDER_ERROR',
   'NOT_SUPPORTED',
   'UNKNOWN',

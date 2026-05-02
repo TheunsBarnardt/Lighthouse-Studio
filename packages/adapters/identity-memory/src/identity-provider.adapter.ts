@@ -1,5 +1,6 @@
 import type {
   IdentityFeature,
+  IdentityProviderMetadata,
   IdentityProviderPort,
   SignInChallenge,
   SignInCompletion,
@@ -56,5 +57,13 @@ export class InMemoryIdentityProvider implements IdentityProviderPort {
 
   supports(feature: IdentityFeature): boolean {
     return feature === 'password';
+  }
+
+  getMetadata(): IdentityProviderMetadata {
+    return {
+      id: 'memory',
+      displayName: 'In-Memory (Test)',
+      capabilities: ['password'],
+    };
   }
 }

@@ -11,8 +11,8 @@ export function runIdentityProviderConformance(
       const provider = await factory();
       const result = await provider.verifyToken('invalid.token.here');
       expect(result.isErr()).toBe(true);
-      const err = result._unsafeUnwrapErr();
-      expect(['TOKEN_INVALID', 'TOKEN_EXPIRED', 'UNKNOWN']).toContain(err.code);
+      const error = result._unsafeUnwrapErr();
+      expect(['TOKEN_INVALID', 'TOKEN_EXPIRED', 'UNKNOWN']).toContain(error.code);
     });
 
     it('signOut succeeds or fails gracefully on an invalid token', async () => {
@@ -26,6 +26,23 @@ export function runIdentityProviderConformance(
       const provider = await factory();
       const result = provider.supports('password');
       expect(typeof result).toBe('boolean');
+    });
+
+    it('getMetadata returns a valid metadata object', async () => {
+      const provider = await factory();
+      const meta = provider.getMetadata();
+      expect(typeof meta.id).toBe('string');
+      expect(meta.id.length).toBeGreaterThan(0);
+      expect(typeof meta.displayName).toBe('string');
+      expect(Array.isArray(meta.capabilities)).toBe(true);
+    });
+
+    it('getMetadata capabilities match supports() results', async () => {
+      const provider = await factory();
+      const meta = provider.getMetadata();
+      for (const capability of meta.capabilities) {
+        expect(provider.supports(capability)).toBe(true);
+      }
     });
   });
 }

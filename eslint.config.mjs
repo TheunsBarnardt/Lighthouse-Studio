@@ -88,6 +88,13 @@ export default [
     },
   },
   {
+    // Tests wire adapters together; the composition-only rule does not apply in test files
+    files: ['**/*.spec.ts', '**/*.test.ts', '**/tests/**/*.ts'],
+    rules: {
+      'no-restricted-imports': 'off',
+    },
+  },
+  {
     // Scripts are CLI tools: console output and direct fs/process access are intentional
     files: ['scripts/**/*.mts', 'packages/db/seed/**/*.mts'],
     rules: {
