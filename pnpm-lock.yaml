@@ -90,7 +90,280 @@ importers:
         specifier: 3.2.3
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
+  packages/adapters/ai-memory:
+    dependencies:
+      '@platform/ports-ai':
+        specifier: workspace:*
+        version: link:../../ports/ai
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
+
+  packages/adapters/audit-memory:
+    dependencies:
+      '@platform/ports-audit':
+        specifier: workspace:*
+        version: link:../../ports/audit
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
+
+  packages/adapters/communication-memory:
+    dependencies:
+      '@platform/ports-communication':
+        specifier: workspace:*
+        version: link:../../ports/communication
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
+
+  packages/adapters/config-memory:
+    dependencies:
+      '@platform/ports-config':
+        specifier: workspace:*
+        version: link:../../ports/config
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
+
+  packages/adapters/eventing-memory:
+    dependencies:
+      '@platform/ports-eventing':
+        specifier: workspace:*
+        version: link:../../ports/eventing
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
+
+  packages/adapters/identity-memory:
+    dependencies:
+      '@platform/ports-identity':
+        specifier: workspace:*
+        version: link:../../ports/identity
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
+
+  packages/adapters/jobs-memory:
+    dependencies:
+      '@platform/ports-jobs':
+        specifier: workspace:*
+        version: link:../../ports/jobs
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
+
+  packages/adapters/observability-memory:
+    dependencies:
+      '@platform/ports-observability':
+        specifier: workspace:*
+        version: link:../../ports/observability
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
+
+  packages/adapters/persistence-memory:
+    dependencies:
+      '@platform/ports-persistence':
+        specifier: workspace:*
+        version: link:../../ports/persistence
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
+
+  packages/adapters/search-memory:
+    dependencies:
+      '@platform/ports-search':
+        specifier: workspace:*
+        version: link:../../ports/search
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
+
+  packages/adapters/storage-memory:
+    dependencies:
+      '@platform/ports-storage':
+        specifier: workspace:*
+        version: link:../../ports/storage
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
+
   packages/composition:
+    dependencies:
+      '@platform/adapter-ai-memory':
+        specifier: workspace:*
+        version: link:../adapters/ai-memory
+      '@platform/adapter-audit-memory':
+        specifier: workspace:*
+        version: link:../adapters/audit-memory
+      '@platform/adapter-communication-memory':
+        specifier: workspace:*
+        version: link:../adapters/communication-memory
+      '@platform/adapter-config-memory':
+        specifier: workspace:*
+        version: link:../adapters/config-memory
+      '@platform/adapter-eventing-memory':
+        specifier: workspace:*
+        version: link:../adapters/eventing-memory
+      '@platform/adapter-identity-memory':
+        specifier: workspace:*
+        version: link:../adapters/identity-memory
+      '@platform/adapter-jobs-memory':
+        specifier: workspace:*
+        version: link:../adapters/jobs-memory
+      '@platform/adapter-observability-memory':
+        specifier: workspace:*
+        version: link:../adapters/observability-memory
+      '@platform/adapter-persistence-memory':
+        specifier: workspace:*
+        version: link:../adapters/persistence-memory
+      '@platform/adapter-search-memory':
+        specifier: workspace:*
+        version: link:../adapters/search-memory
+      '@platform/adapter-storage-memory':
+        specifier: workspace:*
+        version: link:../adapters/storage-memory
+      '@platform/ports-ai':
+        specifier: workspace:*
+        version: link:../ports/ai
+      '@platform/ports-audit':
+        specifier: workspace:*
+        version: link:../ports/audit
+      '@platform/ports-communication':
+        specifier: workspace:*
+        version: link:../ports/communication
+      '@platform/ports-config':
+        specifier: workspace:*
+        version: link:../ports/config
+      '@platform/ports-eventing':
+        specifier: workspace:*
+        version: link:../ports/eventing
+      '@platform/ports-identity':
+        specifier: workspace:*
+        version: link:../ports/identity
+      '@platform/ports-jobs':
+        specifier: workspace:*
+        version: link:../ports/jobs
+      '@platform/ports-observability':
+        specifier: workspace:*
+        version: link:../ports/observability
+      '@platform/ports-persistence':
+        specifier: workspace:*
+        version: link:../ports/persistence
+      '@platform/ports-search':
+        specifier: workspace:*
+        version: link:../ports/search
+      '@platform/ports-storage':
+        specifier: workspace:*
+        version: link:../ports/storage
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -160,6 +433,13 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
   packages/ports/ai:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -175,6 +455,13 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
   packages/ports/audit:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -190,6 +477,13 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
   packages/ports/communication:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -205,6 +499,13 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
   packages/ports/config:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -220,6 +521,13 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
   packages/ports/eventing:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -235,6 +543,13 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
   packages/ports/identity:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -250,6 +565,13 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
   packages/ports/jobs:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -265,6 +587,13 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
   packages/ports/observability:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -280,6 +609,13 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
   packages/ports/persistence:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -295,6 +631,13 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
   packages/ports/search:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -310,6 +653,13 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.19.4)(yaml@2.8.3)
 
   packages/ports/storage:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
     devDependencies:
       '@platform/config':
         specifier: workspace:*
@@ -2600,6 +2950,9 @@ packages:
     peerDependencies:
       zod: ^3.25.28 || ^4
 
+  zod@3.24.4:
+    resolution: {integrity: sha512-OdqJE9UDRPwWsrHjLN2F8bPxvwJBK22EHLWtanu0LSYr5YqzsaaW3RMgmjwr8Rypg5k+meEJdSPXJZXE/yqOMg==}
+
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
@@ -4746,5 +5099,7 @@ snapshots:
   zod-to-json-schema@3.25.2(zod@3.25.76):
     dependencies:
       zod: 3.25.76
+
+  zod@3.24.4: {}
 
   zod@3.25.76: {}

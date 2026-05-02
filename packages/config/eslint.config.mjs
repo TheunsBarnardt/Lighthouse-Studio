@@ -33,6 +33,12 @@ export default [
       '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
       '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
+      ],
+      // False-positive when implementing generic interface methods (e.g., publish<T> must match the port signature)
+      '@typescript-eslint/no-unnecessary-type-parameters': 'off',
 
       // Force structured logging — no console.log in production code
       'no-console': 'error',
