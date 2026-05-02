@@ -61,6 +61,16 @@ export default [
           ],
         },
       ],
+      // Enforce that env vars are read through @platform/config, never via process.env directly.
+      // Direct access bypasses validation and type-safety; missing vars fail silently at runtime.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "MemberExpression[object.name='process'][property.name='env']",
+          message:
+            'Access env vars through getEnv() from @platform/config, not process.env directly.',
+        },
+      ],
     },
   },
   {
@@ -71,12 +81,21 @@ export default [
     },
   },
   {
+    // The env package is the one place allowed to read process.env — it's the accessor layer
+    files: ['packages/config/src/env/**/*.ts', 'packages/config/src/env/**/*.mts'],
+    rules: {
+      'no-restricted-syntax': 'off',
+    },
+  },
+  {
     // Scripts are CLI tools: console output and direct fs/process access are intentional
-    files: ['scripts/**/*.mts'],
+    files: ['scripts/**/*.mts', 'packages/db/seed/**/*.mts'],
     rules: {
       'no-restricted-imports': 'off',
+      'no-restricted-syntax': 'off',
       'no-console': 'off',
       'security/detect-non-literal-fs-filename': 'off',
+      'security/detect-unsafe-regex': 'off',
     },
   },
 ];

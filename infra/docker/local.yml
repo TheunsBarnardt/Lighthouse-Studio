@@ -1,0 +1,49 @@
+# Local development Compose stack (offline mode).
+# Brings up Postgres + Redis on the developer's machine, mirroring the dev environment.
+# Used when working offline (travel, demos, debugging) or as an alternative to pointing
+# at the remote dev environment.
+#
+# Usage:
+#   docker compose -f infra/docker/local.yml up -d
+#   docker compose -f infra/docker/local.yml down
+#
+# Set POSTGRES_URL=postgres://platform:platform@localhost:5432/platform_dev in .env.local
+# Set REDIS_URL=redis://localhost:6379 in .env.local
+
+name: platform-local
+
+services:
+  postgres-local:
+    image: postgres:17-alpine
+    container_name: postgres-local
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: platform_dev
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: platform
+    ports:
+      - '5432:5432'
+    volumes:
+      - platform-postgres-local-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U platform -d platform_dev']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis-local:
+    image: redis:7-alpine
+    container_name: redis-local
+    restart: unless-stopped
+    command: redis-server --loglevel warning
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  platform-postgres-local-data:
+    name: platform-postgres-local-data

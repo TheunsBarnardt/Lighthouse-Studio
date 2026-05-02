@@ -1,0 +1,99 @@
+# Dev environment Compose stack.
+# Deployed to the Afrihost VPS dev stack via Coolify.
+# All services are named <service>-dev to prevent accidental cross-environment connections.
+# Run locally with: docker compose -f infra/docker/dev.yml up -d
+# See infra/docker/local.yml for offline local development without internet connectivity.
+
+name: platform-dev
+
+services:
+  postgres-dev:
+    image: postgres:17-alpine
+    container_name: postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: platform_dev
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - platform-postgres-dev-data:/var/lib/postgresql/data
+    networks:
+      - platform-dev
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U platform -d platform_dev']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-dev:
+    image: redis:7-alpine
+    container_name: redis-dev
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - platform-redis-dev-data:/data
+    networks:
+      - platform-dev
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  web-dev:
+    image: ghcr.io/${GITHUB_REPOSITORY:-platform/platform}:${IMAGE_TAG:-develop}
+    container_name: web-dev
+    restart: unless-stopped
+    env_file: .env.dev
+    environment:
+      APP_ENV: development
+      NODE_ENV: production
+      DATABASE_DRIVER: postgres
+      POSTGRES_URL: postgres://platform:${POSTGRES_PASSWORD}@postgres-dev:5432/platform_dev
+      REDIS_URL: redis://redis-dev:6379
+    ports:
+      - '3000:3000'
+    networks:
+      - platform-dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/_status || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # worker-dev is intentionally absent in the initial deployment.
+  # Phase 1: worker runs on the maintainer's local machine using pm2 and the Claude CLI.
+  # Phase 2: uncomment and configure this service when the worker moves to the server.
+  #
+  # worker-dev:
+  #   image: ghcr.io/${GITHUB_REPOSITORY:-platform/platform}/worker:${IMAGE_TAG:-develop}
+  #   container_name: worker-dev
+  #   restart: unless-stopped
+  #   env_file: .env.dev
+  #   environment:
+  #     APP_ENV: development
+  #     NODE_ENV: production
+  #     DATABASE_DRIVER: postgres
+  #     POSTGRES_URL: postgres://platform:${POSTGRES_PASSWORD}@postgres-dev:5432/platform_dev
+  #     REDIS_URL: redis://redis-dev:6379
+  #   networks:
+  #     - platform-dev
+  #   depends_on:
+  #     - postgres-dev
+  #     - redis-dev
+
+volumes:
+  platform-postgres-dev-data:
+    name: platform-postgres-dev-data
+  platform-redis-dev-data:
+    name: platform-redis-dev-data
+
+networks:
+  platform-dev:
+    name: platform-dev

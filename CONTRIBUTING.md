@@ -57,6 +57,10 @@ git config --global core.longpaths true
 ### Setup
 
 ```bash
+# One-command setup — installs deps, creates .env.local, optionally starts local DB
+pnpm setup
+
+# Or manually:
 pnpm install          # install all workspace deps
 pnpm build            # build packages in dependency order
 pnpm lint             # lint all packages
@@ -65,6 +69,44 @@ pnpm test             # run all tests
 pnpm boundaries       # verify architecture boundaries
 pnpm check-workspace  # verify workspace invariants
 ```
+
+### Local development modes
+
+**Online mode (default):** your machine connects to the dev environment on the Afrihost VPS. Configure `.env.local` with the dev environment's connection strings. Use this for day-to-day development.
+
+**Offline mode:** run `pnpm setup:local-db` to start a local Postgres + Redis via Docker. Set `POSTGRES_URL=postgres://platform:platform@localhost:5432/platform_dev` and `REDIS_URL=redis://localhost:6379` in `.env.local`. Use this when travelling, at demos, or debugging locally.
+
+### Environment variables
+
+All environment variables are documented in [`.env.example`](./.env.example). Copy it to `.env.local` and fill in the values. The schema with validation lives in `packages/config/src/env/schema.ts`.
+
+Validate your `.env.local`:
+
+```bash
+pnpm env:check
+```
+
+Never commit `.env.local` or any file containing secrets. `gitleaks` will block the commit if it detects secrets.
+
+---
+
+## Promotion workflow
+
+Changes flow through three environments in order:
+
+```
+feature branch → develop (PR) → staging (merge + approval) → main (merge + approval + 5-min timer)
+         ↓                ↓                   ↓
+       local             dev             staging → prod
+```
+
+**To deploy to dev:** merge your PR to `develop`. GitHub Actions builds the image and triggers a Coolify deploy automatically.
+
+**To promote to staging:** merge `develop` into `staging`. A GitHub Actions reviewer must approve the deployment in the GitHub Actions UI.
+
+**To promote to production:** merge `staging` into `main`. A reviewer must approve, then wait 5 minutes before the deploy executes.
+
+Never push directly to `staging` or `main` — branch protection rules block this.
 
 ---
 

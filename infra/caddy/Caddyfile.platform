@@ -1,0 +1,64 @@
+# Platform Caddy reverse proxy configuration.
+# Loaded as an override in Coolify alongside its generated Caddyfile.
+# All {$VAR} substitutions come from the env file Coolify renders for the stack.
+#
+# Routing overview:
+#   dev.{$DOMAIN}           → web-dev container
+#   supabase-dev.{$DOMAIN}  → Supabase Kong gateway (IP-restricted, dev only)
+#   coolify.{$DOMAIN}       → Coolify admin UI (IP-restricted)
+#   staging.* and apex      → 503 until staging/prod stacks are activated
+
+{
+  email {$ADMIN_EMAIL}
+}
+
+dev.{$DOMAIN} {
+  reverse_proxy web-dev:3000
+  encode zstd gzip
+  log {
+    output file /var/log/caddy/dev-access.log {
+      roll_size 100mb
+      roll_keep 10
+    }
+  }
+}
+
+# Supabase Studio for dev — IP-restricted; not exposed to the public internet
+supabase-dev.{$DOMAIN} {
+  @allowed remote_ip {$ADMIN_ALLOWED_IPS}
+  handle @allowed {
+    reverse_proxy supabase-kong-dev:8000
+  }
+  handle {
+    respond "Forbidden" 403
+  }
+  log {
+    output file /var/log/caddy/supabase-dev-access.log
+  }
+}
+
+# Coolify admin UI — IP-restricted; change the port if Coolify runs elsewhere
+coolify.{$DOMAIN} {
+  @allowed remote_ip {$ADMIN_ALLOWED_IPS}
+  handle @allowed {
+    reverse_proxy localhost:8000
+  }
+  handle {
+    respond "Forbidden" 403
+  }
+  log {
+    output file /var/log/caddy/coolify-access.log
+  }
+}
+
+# Staging subdomain — reserved, returns 503 until the staging stack is activated.
+# When activating staging: replace this block with a reverse_proxy to web-staging:3000.
+staging.{$DOMAIN} {
+  respond "Staging environment coming soon" 503
+}
+
+# Production apex and www — reserved, returns 503 until the prod stack is activated.
+# When activating production: replace this block with the production reverse proxy config.
+{$DOMAIN}, www.{$DOMAIN} {
+  respond "Production environment coming soon" 503
+}

@@ -1,0 +1,96 @@
+# Production environment Compose stack.
+# STATUS: DORMANT — designed and committed but NOT deployed.
+# Activation: follow docs/runbooks/provisioning-prod.md when buy-in lands.
+# Protection: merges to 'main' require manual GitHub Actions approval + 5-minute wait timer.
+
+name: platform-prod
+
+services:
+  postgres-prod:
+    image: postgres:17-alpine
+    container_name: postgres-prod
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: platform_prod
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - platform-postgres-prod-data:/var/lib/postgresql/data
+    networks:
+      - platform-prod
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U platform -d platform_prod']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-prod:
+    image: redis:7-alpine
+    container_name: redis-prod
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - platform-redis-prod-data:/data
+    networks:
+      - platform-prod
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  web-prod:
+    image: ghcr.io/${GITHUB_REPOSITORY:-platform/platform}:${IMAGE_TAG:-latest}
+    container_name: web-prod
+    restart: unless-stopped
+    env_file: .env.prod
+    environment:
+      APP_ENV: production
+      NODE_ENV: production
+      DATABASE_DRIVER: postgres
+      POSTGRES_URL: postgres://platform:${POSTGRES_PASSWORD}@postgres-prod:5432/platform_prod
+      REDIS_URL: redis://redis-prod:6379
+    ports:
+      - '3002:3000'
+    networks:
+      - platform-prod
+    depends_on:
+      postgres-prod:
+        condition: service_healthy
+      redis-prod:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/_status || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  worker-prod:
+    image: ghcr.io/${GITHUB_REPOSITORY:-platform/platform}/worker:${IMAGE_TAG:-latest}
+    container_name: worker-prod
+    restart: unless-stopped
+    env_file: .env.prod
+    environment:
+      APP_ENV: production
+      NODE_ENV: production
+      DATABASE_DRIVER: postgres
+      POSTGRES_URL: postgres://platform:${POSTGRES_PASSWORD}@postgres-prod:5432/platform_prod
+      REDIS_URL: redis://redis-prod:6379
+    networks:
+      - platform-prod
+    depends_on:
+      - postgres-prod
+      - redis-prod
+    deploy:
+      replicas: 1
+
+volumes:
+  platform-postgres-prod-data:
+    name: platform-postgres-prod-data
+  platform-redis-prod-data:
+    name: platform-redis-prod-data
+
+networks:
+  platform-prod:
+    name: platform-prod

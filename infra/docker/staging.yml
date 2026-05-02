@@ -1,0 +1,94 @@
+# Staging environment Compose stack.
+# STATUS: DORMANT — designed and committed but NOT deployed.
+# Activation: follow docs/runbooks/provisioning-staging.md when buy-in lands.
+# Protection: merges to the 'staging' branch require manual GitHub Actions approval.
+
+name: platform-staging
+
+services:
+  postgres-staging:
+    image: postgres:17-alpine
+    container_name: postgres-staging
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: platform_staging
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - platform-postgres-staging-data:/var/lib/postgresql/data
+    networks:
+      - platform-staging
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U platform -d platform_staging']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-staging:
+    image: redis:7-alpine
+    container_name: redis-staging
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - platform-redis-staging-data:/data
+    networks:
+      - platform-staging
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  web-staging:
+    image: ghcr.io/${GITHUB_REPOSITORY:-platform/platform}:${IMAGE_TAG:-staging}
+    container_name: web-staging
+    restart: unless-stopped
+    env_file: .env.staging
+    environment:
+      APP_ENV: staging
+      NODE_ENV: production
+      DATABASE_DRIVER: postgres
+      POSTGRES_URL: postgres://platform:${POSTGRES_PASSWORD}@postgres-staging:5432/platform_staging
+      REDIS_URL: redis://redis-staging:6379
+    ports:
+      - '3001:3000'
+    networks:
+      - platform-staging
+    depends_on:
+      postgres-staging:
+        condition: service_healthy
+      redis-staging:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/_status || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  worker-staging:
+    image: ghcr.io/${GITHUB_REPOSITORY:-platform/platform}/worker:${IMAGE_TAG:-staging}
+    container_name: worker-staging
+    restart: unless-stopped
+    env_file: .env.staging
+    environment:
+      APP_ENV: staging
+      NODE_ENV: production
+      DATABASE_DRIVER: postgres
+      POSTGRES_URL: postgres://platform:${POSTGRES_PASSWORD}@postgres-staging:5432/platform_staging
+      REDIS_URL: redis://redis-staging:6379
+    networks:
+      - platform-staging
+    depends_on:
+      - postgres-staging
+      - redis-staging
+
+volumes:
+  platform-postgres-staging-data:
+    name: platform-postgres-staging-data
+  platform-redis-staging-data:
+    name: platform-redis-staging-data
+
+networks:
+  platform-staging:
+    name: platform-staging
