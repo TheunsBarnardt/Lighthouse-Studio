@@ -384,6 +384,53 @@ importers:
         specifier: 3.2.3
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
 
+  packages/adapters/identity-mongo:
+    dependencies:
+      '@platform/ports-identity':
+        specifier: workspace:*
+        version: link:../../ports/identity
+      mongodb:
+        specifier: ^6.10.0
+        version: 6.21.0
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/adapters/identity-mssql:
+    dependencies:
+      '@platform/ports-identity':
+        specifier: workspace:*
+        version: link:../../ports/identity
+      mssql:
+        specifier: ^11.0.1
+        version: 11.0.1(@azure/core-client@1.10.1)
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      '@types/mssql':
+        specifier: ^9.1.5
+        version: 9.1.11(@azure/core-client@1.10.1)
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
+
   packages/adapters/identity-oidc:
     dependencies:
       '@platform/ports-identity':
@@ -1922,7 +1969,6 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
-      zod: ^3.25 || ^4.0
     peerDependenciesMeta:
       '@cfworker/json-schema':
         optional: true
@@ -5330,7 +5376,7 @@ snapshots:
 
   '@js-joda/core@5.7.0': {}
 
-  '@modelcontextprotocol/sdk@1.29.0(zod@3.25.76)':
+  '@modelcontextprotocol/sdk@1.29.0':
     dependencies:
       '@hono/node-server': 1.19.14(hono@4.12.16)
       ajv: 8.20.0
@@ -6728,7 +6774,7 @@ snapshots:
       '@humanfs/node': 0.16.8
       '@humanwhocodes/module-importer': 1.0.1
       '@humanwhocodes/retry': 0.4.3
-      '@modelcontextprotocol/sdk': 1.29.0(zod@3.25.76)
+      '@modelcontextprotocol/sdk': 1.29.0
       '@types/estree': 1.0.8
       '@types/json-schema': 7.0.15
       ajv: 6.15.0
