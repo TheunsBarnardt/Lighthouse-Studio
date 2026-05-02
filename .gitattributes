@@ -1,0 +1,22 @@
+* text=auto eol=lf
+
+# Force binary handling
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+
+# Lockfiles diff readably but not interactively merged
+pnpm-lock.yaml -diff
+package-lock.json -diff
+
+# Keep CRLF for Windows-only files
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf

@@ -1,0 +1,41 @@
+name: Dependency Boundaries
+
+on:
+  pull_request:
+    paths:
+      - 'packages/**/*.ts'
+      - 'apps/**/*.ts'
+      - '.dependency-cruiser.cjs'
+      - 'pnpm-lock.yaml'
+
+jobs:
+  check:
+    name: Check architecture boundaries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - uses: pnpm/action-setup@v4
+      - run: pnpm install --frozen-lockfile
+      - name: Run dependency-cruiser
+        run: |
+          pnpm exec depcruise \
+            --config .dependency-cruiser.cjs \
+            --output-type err-long \
+            packages apps
+      - name: Generate dependency graph (artifact)
+        if: always()
+        run: |
+          pnpm exec depcruise \
+            --config .dependency-cruiser.cjs \
+            --output-type dot \
+            packages apps > /tmp/dependency-graph.dot || true
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-graph
+          path: /tmp/dependency-graph.dot
+          retention-days: 7

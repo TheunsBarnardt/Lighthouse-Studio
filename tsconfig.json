@@ -1,0 +1,24 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/config" },
+    { "path": "packages/shared" },
+    { "path": "packages/ports/persistence" },
+    { "path": "packages/ports/identity" },
+    { "path": "packages/ports/storage" },
+    { "path": "packages/ports/communication" },
+    { "path": "packages/ports/eventing" },
+    { "path": "packages/ports/search" },
+    { "path": "packages/ports/ai" },
+    { "path": "packages/ports/jobs" },
+    { "path": "packages/ports/observability" },
+    { "path": "packages/ports/audit" },
+    { "path": "packages/ports/config" },
+    { "path": "packages/composition" },
+    { "path": "packages/core" },
+    { "path": "packages/ui" },
+    { "path": "packages/observability" },
+    { "path": "apps/web" },
+    { "path": "apps/worker" }
+  ]
+}

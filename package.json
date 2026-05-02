@@ -1,0 +1,46 @@
+{
+  "name": "platform",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.11.0",
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "test:watch": "turbo test:watch",
+    "boundaries": "tsx scripts/check-boundaries.mts",
+    "boundaries:staged": "tsx scripts/check-boundaries.mts --staged",
+    "clean": "turbo clean && rimraf \"packages/*/dist\" \"packages/ports/*/dist\" \"apps/*/dist\" \"apps/*/.next\"",
+    "check-workspace": "tsx scripts/check-workspace.mts",
+    "new-package": "tsx scripts/new-package.mts",
+    "verify-clean-tree": "tsx scripts/verify-clean-tree.mts",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
+    "@types/node": "22.15.0",
+    "@typescript-eslint/eslint-plugin": "8.32.0",
+    "@typescript-eslint/parser": "8.32.0",
+    "dependency-cruiser": "16.10.2",
+    "eslint": "9.26.0",
+    "eslint-plugin-perfectionist": "4.13.0",
+    "eslint-plugin-promise": "7.2.1",
+    "eslint-plugin-security": "3.0.1",
+    "husky": "9.1.7",
+    "lint-staged": "15.4.3",
+    "prettier": "3.5.3",
+    "rimraf": "6.0.1",
+    "tsx": "4.19.4",
+    "turbo": "2.4.4",
+    "typescript": "5.8.3"
+  }
+}
