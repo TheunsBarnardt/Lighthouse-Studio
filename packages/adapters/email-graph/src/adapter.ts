@@ -1,5 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import type { EmailMessage, EmailPort, EmailSendResult } from '@platform/ports-communication';
+import type {
+  EmailAddress,
+  EmailMessage,
+  EmailPort,
+  EmailSendResult,
+} from '@platform/ports-communication';
 import type { Result } from 'neverthrow';
 
 import { CommunicationError } from '@platform/ports-communication';
@@ -33,8 +37,8 @@ export class GraphEmailAdapter implements EmailPort {
         message: {
           subject: message.subject,
           body: {
-            contentType: message.htmlBody ? 'HTML' : 'Text',
-            content: message.htmlBody ?? message.textBody ?? '',
+            contentType: message.bodyHtml ? 'HTML' : 'Text',
+            content: message.bodyHtml ?? message.bodyText ?? '',
           },
           toRecipients: toAddresses(message.to),
           ccRecipients: message.cc ? toAddresses(message.cc) : undefined,
@@ -60,19 +64,25 @@ export class GraphEmailAdapter implements EmailPort {
         const text = await response.text().catch(() => '');
         return err(
           new CommunicationError(
+            'PROVIDER_ERROR',
             `Graph sendMail failed with status ${String(response.status)}: ${text}`,
           ),
         );
       }
 
-      return ok({ messageId: crypto.randomUUID(), accepted: message.to });
+      return ok({
+        messageId: crypto.randomUUID(),
+        accepted: message.to.map((a) => a.email),
+        rejected: [],
+      });
     } catch (cause) {
-      return err(new CommunicationError('Failed to send email via Microsoft Graph', String(cause)));
+      return err(
+        new CommunicationError('PROVIDER_ERROR', 'Failed to send email via Microsoft Graph', cause),
+      );
     }
   }
 }
 
-function toAddresses(addrs: string | string[]): { emailAddress: { address: string } }[] {
-  const list = Array.isArray(addrs) ? addrs : [addrs];
-  return list.map((a) => ({ emailAddress: { address: a } }));
+function toAddresses(addrs: EmailAddress[]): { emailAddress: { address: string } }[] {
+  return addrs.map((a) => ({ emailAddress: { address: a.email } }));
 }

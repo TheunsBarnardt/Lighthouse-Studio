@@ -78,6 +78,15 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['*', 'member'],
       ['*', 'role'],
       ['*', 'invitation'],
+      // Schema management — admins can do everything except schema deploy requires architect approval
+      ['schema.create', 'schema'],
+      ['schema.read', 'schema'],
+      ['schema.update', 'schema'],
+      ['schema.delete', 'schema'],
+      ['schema.deploy', 'schema'],
+      ['schema.rollback', 'schema'],
+      ['schema.export', 'schema'],
+      ['schema.import', 'schema'],
     ),
   },
   {
@@ -115,13 +124,20 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['read', 'brd'],
       ['read', 'design_tokens'],
       ['read', 'schema'],
+      ['schema.read', 'schema'],
+      ['schema.export', 'schema'],
     ),
   },
   {
     name: 'qa',
     description: 'Owns test definition and acceptance',
     scope: 'workspace',
-    permissions: perms(['*', 'test'], ['grant', 'approval.qa']),
+    permissions: perms(
+      ['*', 'test'],
+      ['grant', 'approval.qa'],
+      ['schema.read', 'schema'],
+      ['schema.export', 'schema'],
+    ),
   },
   {
     name: 'ops',
@@ -145,6 +161,8 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['read', 'deploy'],
       ['read', 'workspace'],
       ['read', 'member'],
+      ['schema.read', 'schema'],
+      ['schema.export', 'schema'],
     ),
   },
   {
@@ -162,6 +180,8 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['read', 'test'],
       ['read', 'deploy'],
       ['read', 'workspace'],
+      ['schema.read', 'schema'],
+      ['schema.export', 'schema'],
     ),
   },
 ];

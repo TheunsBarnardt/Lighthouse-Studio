@@ -78,6 +78,17 @@ export const AUDIT_EVENTS = {
   AUDIT_CHAIN_VERIFIED: 'audit.chain.verified',
   AUDIT_RETENTION_ENFORCED: 'audit.retention.enforced',
 
+  // ── Data Management — Schema ─────────────────────────────────────────────────
+  DATA_MANAGEMENT_SCHEMA_CREATED: 'data_management.schema.created',
+  DATA_MANAGEMENT_SCHEMA_UPDATED: 'data_management.schema.updated',
+  DATA_MANAGEMENT_SCHEMA_DELETED: 'data_management.schema.deleted',
+  DATA_MANAGEMENT_SCHEMA_EXPORTED: 'data_management.schema.exported',
+  DATA_MANAGEMENT_SCHEMA_IMPORTED: 'data_management.schema.imported',
+  DATA_MANAGEMENT_SCHEMA_DEPLOYED: 'data_management.schema.deployed',
+  DATA_MANAGEMENT_SCHEMA_DEPLOY_FAILED: 'data_management.schema.deploy_failed',
+  DATA_MANAGEMENT_SCHEMA_ROLLED_BACK: 'data_management.schema.rolled_back',
+  DATA_MANAGEMENT_SCHEMA_VALIDATION_FAILED: 'data_management.schema.validation_failed',
+
   // ── System ──────────────────────────────────────────────────────────────────
   SYSTEM_CONFIG_CHANGED: 'system.config.changed',
   SYSTEM_MIGRATION_APPLIED: 'system.migration.applied',

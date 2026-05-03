@@ -26,13 +26,13 @@ import type { WindowsIntegratedConfig } from './config.js';
  * See ADR-0087 for the full security model and threat analysis.
  */
 export class WindowsIntegratedIdentityProvider implements IdentityProviderPort {
-  constructor(private readonly config: WindowsIntegratedConfig) {}
+  constructor(private readonly _config: WindowsIntegratedConfig) {}
 
   beginSignIn(_input: SignInInput): Promise<Result<SignInChallenge, IdentityError>> {
     return Promise.resolve(
       err(
         new IdentityError(
-          'windows_integrated_auth_no_challenge',
+          'NOT_SUPPORTED',
           'Windows Integrated Auth does not support an explicit sign-in flow. ' +
             'The principal header must be set by IIS before the request reaches Node.',
         ),
@@ -44,7 +44,7 @@ export class WindowsIntegratedIdentityProvider implements IdentityProviderPort {
     return Promise.resolve(
       err(
         new IdentityError(
-          'windows_integrated_auth_no_challenge',
+          'NOT_SUPPORTED',
           'Windows Integrated Auth does not use a challenge-response flow.',
         ),
       ),
@@ -55,7 +55,7 @@ export class WindowsIntegratedIdentityProvider implements IdentityProviderPort {
     const principal = token.trim();
     if (!principal) {
       return Promise.resolve(
-        err(new IdentityError('missing_principal', 'No Windows principal in request.')),
+        err(new IdentityError('INVALID_CREDENTIALS', 'No Windows principal in request.')),
       );
     }
 
@@ -63,15 +63,16 @@ export class WindowsIntegratedIdentityProvider implements IdentityProviderPort {
     const domain = parts?.[0] ?? '';
     const user = parts?.[1] ?? principal;
 
-    const sub = domain ? `${user}@${domain.toLowerCase()}` : principal;
+    const subject = domain ? `${user}@${domain.toLowerCase()}` : principal;
 
     return Promise.resolve(
       ok({
-        sub,
-        email: sub.includes('@') ? sub : undefined,
+        subject,
+        emailVerified: true,
         displayName: user,
-        provider: 'windows-integrated',
-        raw: { windowsPrincipal: principal },
+        providerId: 'windows-integrated',
+        claims: { windowsPrincipal: principal },
+        ...(subject.includes('@') ? { email: subject } : {}),
       } satisfies VerifiedIdentity),
     );
   }
@@ -86,10 +87,9 @@ export class WindowsIntegratedIdentityProvider implements IdentityProviderPort {
 
   getMetadata(): IdentityProviderMetadata {
     return {
-      name: 'Windows Integrated Authentication',
-      type: 'windows-integrated',
+      id: 'windows-integrated',
+      displayName: 'Windows Integrated Authentication',
       capabilities: ['sso'],
-      trustedProxyIps: this.config.trustedProxyIps,
     };
   }
 }

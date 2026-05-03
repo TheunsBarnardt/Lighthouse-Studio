@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 import type {
   ListOptions,
   ListResult,
+  NotSupportedError,
   ObjectInfo,
   ObjectStoragePort,
   PutOptions,
-  Readable,
   StorageFeature,
-  NotSupportedError,
 } from '@platform/ports-storage';
 import type { Result } from 'neverthrow';
+import type { Readable } from 'node:stream';
 
 import { StorageError } from '@platform/ports-storage';
 import { err, ok } from 'neverthrow';
@@ -53,11 +52,11 @@ export class AzureBlobStorageAdapter implements ObjectStoragePort {
       return ok({
         key,
         size: uploadData.length,
-        etag: response.etag,
         lastModified: new Date(),
+        ...(response.etag !== undefined ? { etag: response.etag } : {}),
       });
     } catch (cause) {
-      return err(new StorageError(`Failed to upload blob '${key}'`, cause));
+      return err(new StorageError('PROVIDER_ERROR', `Failed to upload blob '${key}'`, cause));
     }
   }
 
@@ -73,11 +72,11 @@ export class AzureBlobStorageAdapter implements ObjectStoragePort {
 
       const downloadResponse = await blobClient.download();
       if (!downloadResponse.readableStreamBody) {
-        return err(new StorageError(`Blob '${key}' returned empty stream`));
+        return err(new StorageError('OBJECT_NOT_FOUND', `Blob '${key}' returned empty stream`));
       }
       return ok(downloadResponse.readableStreamBody as Readable);
     } catch (cause) {
-      return err(new StorageError(`Failed to download blob '${key}'`, cause));
+      return err(new StorageError('PROVIDER_ERROR', `Failed to download blob '${key}'`, cause));
     }
   }
 
@@ -96,14 +95,14 @@ export class AzureBlobStorageAdapter implements ObjectStoragePort {
         return ok({
           key,
           size: props.contentLength ?? 0,
-          etag: props.etag,
           lastModified: props.lastModified ?? new Date(),
+          ...(props.etag !== undefined ? { etag: props.etag } : {}),
         });
       } catch {
         return ok(null);
       }
     } catch (cause) {
-      return err(new StorageError(`Failed to head blob '${key}'`, cause));
+      return err(new StorageError('PROVIDER_ERROR', `Failed to head blob '${key}'`, cause));
     }
   }
 
@@ -120,7 +119,7 @@ export class AzureBlobStorageAdapter implements ObjectStoragePort {
       await blobClient.deleteIfExists();
       return ok(undefined);
     } catch (cause) {
-      return err(new StorageError(`Failed to delete blob '${key}'`, cause));
+      return err(new StorageError('PROVIDER_ERROR', `Failed to delete blob '${key}'`, cause));
     }
   }
 
@@ -134,22 +133,24 @@ export class AzureBlobStorageAdapter implements ObjectStoragePort {
       const containerClient = serviceClient.getContainerClient(this.config.containerName);
 
       const resolvedPrefix = this.resolveKey(prefix);
-      const items: ObjectInfo[] = [];
+      const objects: ObjectInfo[] = [];
       const maxResults = opts?.maxKeys ?? 1000;
 
       for await (const blob of containerClient.listBlobsFlat({ prefix: resolvedPrefix })) {
-        if (items.length >= maxResults) break;
-        items.push({
+        if (objects.length >= maxResults) break;
+        objects.push({
           key: blob.name,
           size: blob.properties.contentLength ?? 0,
-          etag: blob.properties.etag,
           lastModified: blob.properties.lastModified,
+          etag: blob.properties.etag,
         });
       }
 
-      return ok({ items, isTruncated: false });
+      return ok({ objects, isTruncated: false });
     } catch (cause) {
-      return err(new StorageError(`Failed to list blobs with prefix '${prefix}'`, cause));
+      return err(
+        new StorageError('PROVIDER_ERROR', `Failed to list blobs with prefix '${prefix}'`, cause),
+      );
     }
   }
 
@@ -175,17 +176,19 @@ export class AzureBlobStorageAdapter implements ObjectStoragePort {
         permissions:
           method === 'GET' ? ({ read: true } as never) : ({ write: true, create: true } as never),
         expiresOn,
-        contentType: opts.contentType,
+        ...(opts.contentType !== undefined ? { contentType: opts.contentType } : {}),
       });
 
       return ok(sasUrl);
     } catch (cause) {
-      return err(new StorageError(`Failed to generate SAS URL for '${key}'`, cause));
+      return err(
+        new StorageError('PROVIDER_ERROR', `Failed to generate SAS URL for '${key}'`, cause),
+      );
     }
   }
 
   supports(feature: StorageFeature): boolean {
-    return feature === 'signed-urls' || feature === 'metadata';
+    return feature === 'signed_urls';
   }
 }
 

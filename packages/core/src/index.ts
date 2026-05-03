@@ -90,3 +90,47 @@ export type {
 // ── Approval routing ──────────────────────────────────────────────────────────
 export { ApprovalRoutingEngine } from './approvals/approval-routing.engine.js';
 export type { BlockReason, EvaluationInput, RoutingDecision } from './approvals/types.js';
+
+// ── Data Management Module ────────────────────────────────────────────────────
+export {
+  SchemaService,
+  SchemaValidator,
+  MigrationPlanner,
+  SCHEMA_AUDIT_EVENTS,
+  customerNamespace,
+  customerCollectionName,
+  customerAppRole,
+  customerMigrateRole,
+  createWorkspacePostgresSchema,
+  createWorkspaceMssqlSchema,
+  dropWorkspacePostgresSchema,
+  isReservedSlug,
+  RESERVED_SLUG_PREFIXES,
+  PII_HEURISTIC_NAMES,
+  listTemplates,
+  getTemplate,
+} from './services/data-management/index.js';
+export type {
+  CustomerSchema,
+  CustomerTableDefinition,
+  ColumnDefinition as CustomerColumnDefinition,
+  IndexDefinition as CustomerIndexDefinition,
+  ForeignKeyDefinition as CustomerForeignKeyDefinition,
+  SchemaVersion,
+  DatabaseDriver,
+  NormalizedType,
+  PiiCategory,
+  SchemaChanges,
+  CreateSchemaInput,
+  UpdateSchemaInput,
+  DeleteSchemaOptions,
+  ImportSchemaInput,
+  ValidationReport,
+  ValidationIssue,
+  MigrationPlan,
+  MigrationStep,
+  MigrationPreview,
+  MigrationResult,
+  SchemaAuditEventType,
+  SchemaTemplate,
+} from './services/data-management/index.js';
