@@ -8,6 +8,7 @@ export type IdentityFeature =
   | 'oauth'
   | 'oidc'
   | 'saml'
+  | 'sso'
   | 'mfa_totp'
   | 'mfa_webauthn'
   | 'mfa_sms'
