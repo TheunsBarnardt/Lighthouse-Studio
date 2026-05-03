@@ -25,6 +25,7 @@
     "verify-clean-tree": "tsx scripts/verify-clean-tree.mts",
     "env:check": "tsx packages/config/src/env/validate.mts",
     "env:completeness": "tsx scripts/check-env-completeness.mts",
+    "telemetry:coverage": "tsx scripts/telemetry-coverage.mts",
     "setup": "tsx scripts/setup-local.mts",
     "setup:local-db": "docker compose -f infra/docker/local.yml up -d",
     "teardown:local-db": "docker compose -f infra/docker/local.yml down -v",

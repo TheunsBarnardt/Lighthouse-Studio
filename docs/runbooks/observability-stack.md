@@ -82,3 +82,17 @@ NTFY_URL=https://ntfy.sh/your-topic
 ## Access Control
 
 Grafana and GlitchTip should be IP-restricted via the Caddy reverse proxy. Only the operator's IP and the platform's internal network should reach these services. See the Caddy configuration in `infra/caddy/`.
+
+## Definition-of-Done items deferred until dependent apps exist
+
+A handful of Objective 3 Definition of Done items cannot be ticked until the apps that consume the foundation are built. They are listed here so they are not forgotten when those apps land:
+
+| DoD item                                          | Unblocked by                                                | What to wire when that lands                                                                                                                                         |
+| ------------------------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web app's `instrumentation.ts` hook               | Objective 11 (Schema Designer) or earliest web surface      | Create `apps/web/instrumentation.ts` exporting `register()` that calls `initTelemetry()` from `@platform/composition/instrumentation`                                |
+| Worker's entry point initializes telemetry first  | The first worker objective (AI pipeline foundation, Obj 20) | First line of `apps/worker/src/index.ts` imports and calls `initTelemetry()` before any service composition                                                          |
+| HTTP middleware records request metrics and spans | First HTTP server (web app or REST APIs in Obj 12)          | A small middleware reads `traceparent`, attaches a span named `HTTP <METHOD> <route>`, and records `platform_http_requests_total` + `_duration_seconds`              |
+| Errors auto-link to traces via shared trace ID    | Web/worker app exists and uses ErrorReporterPort            | The Sentry/GlitchTip adapter already attaches the active trace ID; just ensure `errorReporter.report` is called from the boundary that wraps the HTTP/worker handler |
+| All 15 verification steps in Objective 3 §8 pass  | Web/worker app exists; observability stack running          | Run the steps end-to-end; record results in `docs/compliance/` or as a checklist in this runbook                                                                     |
+
+Until those apps exist, Objective 3 is **as complete as the foundation can be**: ports, adapters, composition initialiser, observability stack, dashboards, alerts, runbooks, ADRs, CI telemetry coverage, contributing guide, and PR template are all in place. The remaining items are wiring tasks that belong with the apps that do the wiring.

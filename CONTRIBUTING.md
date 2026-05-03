@@ -165,6 +165,30 @@ Every PR must satisfy:
 - [ ] No `any` types
 - [ ] No `console.log` in production code paths
 - [ ] README updated if public API changed
+- [ ] Observability checklist below satisfied for new code paths
+
+---
+
+## Observability checklist
+
+Every new code path that runs in production (services, adapters, jobs, request handlers) must satisfy this checklist before merge. The list comes from Objective 3 §5.15; the platform's debuggability depends on it.
+
+- [ ] **Has a span.** Manual via `withSpan('<name>', fn)` from the tracer port, or auto-instrumented (HTTP, DB drivers, fetch).
+- [ ] **Logs at info on success.** A structured log line confirming the operation completed, with relevant identifiers (no payloads).
+- [ ] **Logs at warn or error on failure.** Includes the error code and enough context (correlation ID, ids of affected entities) to diagnose without re-running.
+- [ ] **Records relevant metrics.** Counters for events (`*_total`), histograms for durations (`*_duration_seconds`). Use the platform metric naming convention (`platform_<area>_<thing>`).
+- [ ] **Reports unexpected errors via `ErrorReporterPort`.** Expected errors (`ValidationError`, `NotFoundError`, etc.) are filtered automatically; unexpected ones (programming bugs, infrastructure failures) call `errorReporter.report(err, ctx)`.
+- [ ] **Includes correlation ID and tenant context.** Every log line and every span carries `correlationId`; workspace-scoped operations carry `workspaceId`; user-scoped operations carry `userId`.
+- [ ] **Sensitive data is redacted.** Passwords, tokens, secrets, cookies, and API keys never reach the logger. The Pino redact list catches the standard names; if a new sensitive field appears, add it to the redact list.
+
+The CI job `telemetry-coverage` produces a heuristic report on every PR (function count vs. log/span count, throw sites vs. ErrorReporter calls). It is informational — reviewers use it to decide whether the numbers look reasonable for the change.
+
+Anti-patterns that fail review:
+
+- `console.log` in committed code (ESLint blocks it; use the logger).
+- Logging `Error` objects directly with string concatenation. Use `logger.error('msg', { err })` and let Pino serialize it.
+- Adding observability "after the fact" in a follow-up PR. Retrofitting is theatre; instrumentation lands inline.
+- Silencing unexpected errors. If something genuinely unexpected happens, it goes through `ErrorReporterPort` so it shows up in GlitchTip.
 
 ---
 

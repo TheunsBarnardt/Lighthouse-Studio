@@ -20,3 +20,4 @@
 - [ ] ADR written if a new architectural decision was made
 - [ ] No `any` types introduced
 - [ ] No `console.log` left in production code
+- [ ] Observability checklist satisfied for new code paths (spans, logs, metrics, correlation ID, redaction, error reporter) — see CONTRIBUTING.md
