@@ -71,7 +71,7 @@ export class WindowsIntegratedIdentityProvider implements IdentityProviderPort {
         emailVerified: true,
         displayName: user,
         providerId: 'windows-integrated',
-        claims: { windowsPrincipal: principal },
+        claims: { windowsPrincipal: principal, principalHeader: this._config.principalHeader },
         ...(subject.includes('@') ? { email: subject } : {}),
       } satisfies VerifiedIdentity),
     );
