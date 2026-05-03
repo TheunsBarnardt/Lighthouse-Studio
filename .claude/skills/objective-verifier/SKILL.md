@@ -52,6 +52,29 @@ For each locked decision, scan for violations:
 - The decision says "Result types only"? Look for `throw` in service methods (excluding test code).
 - The decision says "first step is authz"? Look for service methods that don't call `authz.check()` early.
 
+#### Read concrete files before reporting anything as ❌ or ⚠️
+
+This is non-negotiable. False ❌s are expensive: they trigger fix-work that wastes 30+ minutes and erodes trust in the report.
+
+Before marking any DoD item or locked decision as ❌ or ⚠️ ("missing", "not found", "incomplete"), the verifier MUST:
+
+1. **Read at least one concrete file** that would contain the artefact in question — not just glob for filenames, not just match keywords in the objective. Open the file with the Read tool and look at the actual code or text.
+
+2. **Quote the absence.** When reporting ❌, cite the specific file you read and a short rationale: "no `withSpan(` calls found in `packages/adapters/persistence-postgres/src/repository.adapter.ts` (read in full)". A bare "not found" sentence without evidence of having looked is not acceptable.
+
+3. **Distinguish "doesn't exist" from "exists but stub".** A file with `export {};` is a stub, not a missing file. Report it as "stub awaiting Objective N" rather than "missing", and cross-reference where the implementation is expected to land.
+
+4. **Do not infer absence from objective wording.** The objective says "the web app's `instrumentation.ts` hook should call `register()`"; that is a _requirement_, not evidence of absence. Read the actual file (or confirm it doesn't exist) before reporting.
+
+5. **Use Grep with the exact symbol you expect**, not loose keyword matches. If the objective says "every public service method has `authz.authorize`", grep for `authz\.authorize\(` — not the word "authorization".
+
+Past failures this rule prevents:
+
+- Reporting "DB adapter spans missing" when all three persistence adapters already used `withSpan('findById', ...)` (Obj 03 verification, 2026-05-03)
+- Reporting "ADR-0042 contradicts implementation" when the ADR's Decision section actually matched the code; the contradiction was in the rejected-alternatives section the verifier misread (Obj 04b verification, 2026-05-03)
+
+When the evidence isn't conclusive either way, mark the item ⚠️ with "needs hands-on verification — could not confirm from static reads", not ❌.
+
 ### Step 4: Produce the report
 
 Use this exact structure:
