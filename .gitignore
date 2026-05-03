@@ -47,3 +47,6 @@ ehthumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Private Claude memory (not for sharing)
+.claude/memory-private/
