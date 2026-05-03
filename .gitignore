@@ -50,3 +50,9 @@ ehthumbs.db
 
 # Private Claude memory (not for sharing)
 .claude/memory-private/
+
+# Compiled test artifacts (tests should never emit alongside sources)
+packages/*/tests/**/*.js
+packages/*/tests/**/*.js.map
+packages/*/tests/**/*.d.ts
+packages/*/tests/**/*.d.ts.map
