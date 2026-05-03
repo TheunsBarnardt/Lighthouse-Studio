@@ -4,6 +4,118 @@ import perfectionist from 'eslint-plugin-perfectionist';
 import promise from 'eslint-plugin-promise';
 import security from 'eslint-plugin-security';
 
+// ── Windows / cross-platform rules (Objective 9) ──────────────────────────────
+
+const noPathConcatenation = {
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description: 'Avoid path separator literals; use path.join() for cross-platform paths',
+    },
+    schema: [],
+    messages: {
+      noPathConcat:
+        "Avoid '/' string literals in path concatenation. Use path.join() or path.resolve() instead.",
+    },
+  },
+  create(context) {
+    function isSep(node) {
+      return node.type === 'Literal' && (node.value === '/' || node.value === '\\');
+    }
+    return {
+      BinaryExpression(node) {
+        if (node.operator !== '+') return;
+        if (isSep(node.left) || isSep(node.right)) {
+          context.report({ node, messageId: 'noPathConcat' });
+        }
+      },
+    };
+  },
+};
+
+const noHardcodedTmp = {
+  meta: {
+    type: 'suggestion',
+    docs: { description: "Avoid hardcoded '/tmp'; use os.tmpdir() for cross-platform paths" },
+    schema: [],
+    messages: {
+      noTmpPath: "Do not hardcode '/tmp'. Use os.tmpdir() for the platform temp directory.",
+    },
+  },
+  create(context) {
+    const TMP = /^(\/tmp\/|\\tmp\\)/;
+    return {
+      Literal(node) {
+        if (typeof node.value === 'string' && TMP.test(node.value)) {
+          context.report({ node, messageId: 'noTmpPath' });
+        }
+      },
+      TemplateLiteral(node) {
+        for (const q of node.quasis) {
+          if (TMP.test(q.value.raw)) {
+            context.report({ node, messageId: 'noTmpPath' });
+            break;
+          }
+        }
+      },
+    };
+  },
+};
+
+const noLinuxOnlySignals = {
+  meta: {
+    type: 'problem',
+    docs: { description: 'Avoid POSIX-only signals that do not exist on Windows' },
+    schema: [],
+    messages: {
+      noLinuxSignal:
+        "'{{signal}}' is not available on Windows. Use SIGTERM or SIGINT for cross-platform shutdown.",
+    },
+  },
+  create(context) {
+    const LINUX_ONLY = new Set([
+      'SIGUSR1',
+      'SIGUSR2',
+      'SIGHUP',
+      'SIGPIPE',
+      'SIGALRM',
+      'SIGCHLD',
+      'SIGCONT',
+      'SIGSTOP',
+      'SIGTSTP',
+      'SIGTTIN',
+      'SIGTTOU',
+    ]);
+    return {
+      CallExpression(node) {
+        const { callee, arguments: args } = node;
+        if (
+          callee.type !== 'MemberExpression' ||
+          callee.object?.name !== 'process' ||
+          (callee.property?.name !== 'on' && callee.property?.name !== 'once')
+        )
+          return;
+        const first = args[0];
+        if (
+          first?.type === 'Literal' &&
+          typeof first.value === 'string' &&
+          LINUX_ONLY.has(first.value)
+        ) {
+          context.report({ node, messageId: 'noLinuxSignal', data: { signal: first.value } });
+        }
+      },
+    };
+  },
+};
+
+const platformPlugin = {
+  rules: {
+    'no-path-concatenation': noPathConcatenation,
+    'no-hardcoded-tmp': noHardcodedTmp,
+    'no-linux-only-signals': noLinuxOnlySignals,
+  },
+};
+
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
@@ -21,7 +133,10 @@ export default [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ['apps/*/scripts/*.mts'],
+          defaultProject: './packages/config/tsconfig.base.json',
+        },
       },
     },
     plugins: {
@@ -29,6 +144,7 @@ export default [
       perfectionist,
       promise,
       security,
+      platform: platformPlugin,
     },
     rules: {
       ...tseslint.configs['recommended-type-checked'].rules,
@@ -71,6 +187,11 @@ export default [
             'Access env vars through getEnv() from @platform/config, not process.env directly.',
         },
       ],
+
+      // ── Windows / cross-platform rules (Objective 9) ──────────────────────
+      'platform/no-path-concatenation': 'warn',
+      'platform/no-hardcoded-tmp': 'error',
+      'platform/no-linux-only-signals': 'error',
     },
   },
   {
@@ -90,21 +211,35 @@ export default [
   {
     // Tests wire adapters together; the composition-only rule does not apply in test files.
     // Non-null assertions (`x!`) are pragmatic in tests where the test setup guarantees presence.
+    // process.env is allowed in test setup; fs non-literal paths are expected in test fixtures.
     files: ['**/*.spec.ts', '**/*.test.ts', '**/tests/**/*.ts'],
     rules: {
       'no-restricted-imports': 'off',
+      'no-restricted-syntax': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      'security/detect-non-literal-fs-filename': 'off',
     },
   },
   {
-    // Scripts are CLI tools: console output and direct fs/process access are intentional
-    files: ['scripts/**/*.mts', 'packages/db/seed/**/*.mts'],
+    // Scripts are CLI tools: console output and direct fs/process access are intentional.
+    // app/deploy scripts also use Windows-only deps (node-windows) via dynamic imports,
+    // so unsafe-* and consistent-type-imports rules are relaxed here.
+    files: [
+      'scripts/**/*.mts',
+      'apps/*/scripts/**/*.mts',
+      'deploy/**/*.mts',
+      'packages/db/seed/**/*.mts',
+    ],
     rules: {
       'no-restricted-imports': 'off',
       'no-restricted-syntax': 'off',
       'no-console': 'off',
       'security/detect-non-literal-fs-filename': 'off',
       'security/detect-unsafe-regex': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/consistent-type-imports': 'off',
     },
   },
 ];

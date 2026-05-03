@@ -1,0 +1,160 @@
+# azure-pipelines/deploy-production.yml
+# Deploys the platform artifact to production Windows Server(s) with a manual approval gate.
+#
+# IMPORTANT: This pipeline requires a manual approval from an authorized approver
+# (configured in the Azure DevOps Environment's Approvals and checks settings).
+#
+# Adjust variable group names, environment names, deployment group names, and paths.
+
+trigger: none # Manual trigger only for production deployments
+
+resources:
+  pipelines:
+    - pipeline: build
+      source: 'Platform Build'
+      trigger: none
+
+variables:
+  - group: platform-production-secrets # Variable group in Azure DevOps Library
+  - name: PLATFORM_HOME
+    value: 'C:\Platform'
+  - name: ARTIFACT_NAME
+    value: 'platform'
+  - name: MAX_DRAIN_SECONDS
+    value: '30'
+
+stages:
+  - stage: PreDeployChecks
+    displayName: 'Pre-deploy checks'
+    jobs:
+      - job: Verify
+        displayName: 'Verify artifact and environment'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - download: build
+            artifact: $(ARTIFACT_NAME)
+            displayName: 'Verify artifact is available'
+
+          - script: echo "Artifact verified. Awaiting manual approval for production deployment."
+            displayName: 'Artifact OK'
+
+  - stage: DeployProduction
+    displayName: 'Deploy to Production'
+    dependsOn: PreDeployChecks
+    # Manual approval gate is configured on the 'production' Environment in Azure DevOps.
+    # If no approval is configured, this stage runs automatically after PreDeployChecks.
+    jobs:
+      - deployment: DeployToProductionServer
+        displayName: 'Deploy to Windows production server'
+        timeoutInMinutes: 30
+        environment:
+          name: 'production'
+          resourceType: VirtualMachine
+        strategy:
+          runOnce:
+            preDeploy:
+              steps:
+                - task: PowerShell@2
+                  displayName: 'Create deployment backup'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+                      $backupDir = "$(PLATFORM_HOME)-backup-$timestamp"
+                      if (Test-Path $(PLATFORM_HOME)) {
+                          Copy-Item -Path $(PLATFORM_HOME) -Destination $backupDir -Recurse -Force
+                          Write-Host "Backup created at: $backupDir"
+                      }
+
+            deploy:
+              steps:
+                - download: build
+                  artifact: $(ARTIFACT_NAME)
+                  displayName: 'Download production artifact'
+
+                - task: PowerShell@2
+                  displayName: 'Graceful service drain'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      # Stop accepting new requests by directing IIS to return 503
+                      # (advanced: use IIS application warmup / ARR drain; simplified here)
+                      Write-Host "Draining in-flight requests (max $(MAX_DRAIN_SECONDS)s)..."
+                      Start-Sleep -Seconds $(MAX_DRAIN_SECONDS)
+
+                      Stop-Service -Name 'Platform Web' -Force
+                      Stop-Service -Name 'Platform Worker' -Force
+                      Write-Host "Services stopped."
+
+                - task: ExtractFiles@1
+                  displayName: 'Extract new artifact'
+                  inputs:
+                    archiveFilePatterns: '$(Pipeline.Workspace)/$(ARTIFACT_NAME)/*.zip'
+                    destinationFolder: '$(PLATFORM_HOME)'
+                    cleanDestinationFolder: false
+                    overwriteExistingFiles: true
+
+                - task: PowerShell@2
+                  displayName: 'Write production environment'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      $env = @"
+                      NODE_ENV=production
+                      PLATFORM_HOME=$(PLATFORM_HOME)
+                      DATABASE_URL=$(DATABASE_URL)
+                      SESSION_SECRET=$(SESSION_SECRET)
+                      ENTRA_CLIENT_ID=$(ENTRA_CLIENT_ID)
+                      ENTRA_CLIENT_SECRET=$(ENTRA_CLIENT_SECRET)
+                      ENTRA_TENANT_ID=$(ENTRA_TENANT_ID)
+                      "@
+                      Set-Content -Path "$(PLATFORM_HOME)\.env" -Value $env -Encoding utf8
+
+                - task: PowerShell@2
+                  displayName: 'Reinstall Windows services'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      cd $(PLATFORM_HOME)\web
+                      node --enable-source-maps scripts\install-windows-service.mjs
+                      cd $(PLATFORM_HOME)\worker
+                      node --enable-source-maps scripts\install-windows-service.mjs
+
+                - task: PowerShell@2
+                  displayName: 'Start and verify services'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Start-Service -Name 'Platform Web'
+                      Start-Service -Name 'Platform Worker'
+                      Start-Sleep -Seconds 15
+
+                      $response = Invoke-WebRequest -Uri "http://127.0.0.1:3000/_status" -UseBasicParsing
+                      if ($response.StatusCode -ne 200) {
+                          Write-Error "Production health check FAILED — initiating rollback!"
+                          exit 1
+                      }
+                      Write-Host "Production health check PASSED: $($response.Content)"
+
+            on:
+              failure:
+                steps:
+                  - task: PowerShell@2
+                    displayName: 'ROLLBACK: restore backup'
+                    inputs:
+                      targetType: 'inline'
+                      script: |
+                        Write-Warning "Deployment failed — rolling back to most recent backup."
+                        $backups = Get-ChildItem -Path (Split-Path $(PLATFORM_HOME)) -Filter "*-backup-*" | Sort-Object LastWriteTime -Descending
+                        if ($backups.Count -gt 0) {
+                            $latest = $backups[0].FullName
+                            Write-Host "Restoring from: $latest"
+                            Remove-Item $(PLATFORM_HOME) -Recurse -Force -ErrorAction SilentlyContinue
+                            Move-Item -Path $latest -Destination $(PLATFORM_HOME)
+                            Start-Service -Name 'Platform Web' -ErrorAction SilentlyContinue
+                            Start-Service -Name 'Platform Worker' -ErrorAction SilentlyContinue
+                            Write-Host "Rollback complete. Check services.msc."
+                        } else {
+                            Write-Error "No backup found for rollback!"
+                        }

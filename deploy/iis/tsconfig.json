@@ -1,0 +1,11 @@
+{
+  "extends": "../../packages/config/tsconfig.lib.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": ".",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "types": ["node"]
+  },
+  "include": ["."],
+  "exclude": ["dist", "node_modules", "**/*.ps1", "**/*.template"]
+}

@@ -1,8 +1,7 @@
 # Runbook: Windows Server Deployment
 
-**Status:** Designed for, not yet exercised end-to-end.
-This runbook documents the intended Windows Server + IIS deployment path.
-It will be tested and validated when the first Windows customer engages.
+> **Note:** This runbook is a quick-reference operational guide for ops teams.
+> For a full step-by-step installation guide, see [docs/deployments/windows.md](../deployments/windows.md).
 
 ---
 
@@ -10,135 +9,125 @@ It will be tested and validated when the first Windows customer engages.
 
 On Windows Server, the platform runs as:
 
-- **Node.js applications** (web app and worker) managed by **pm2** or **Windows Service Wrapper (winsw)**
-- **IIS** as the reverse proxy (with ARR — Application Request Routing — and URL Rewrite)
-- **SQL Server** as the database (using the `mssql` adapter)
-- **Redis** via Docker Desktop or a Redis Windows binary
+- **Node.js web app** — managed as a Windows Service via `node-windows` (see ADR-0086)
+- **Node.js worker** — managed as a separate Windows Service via `node-windows`
+- **IIS** — reverse proxy via Application Request Routing (ARR) + URL Rewrite (see ADR-0085)
+- **SQL Server** — using the `mssql` adapter (Objective 4a)
+- **Entra ID** — recommended identity provider; Windows Integrated Auth also supported (see ADR-0087)
+- **Azure Key Vault** — optional secret store (see ADR-0088)
 
-This is distinct from the Linux/Docker path but the application code is identical. The cross-platform guarantee (no Linux-isms in application code) means the same Node.js bundle runs on Windows without modification.
+Node process lifecycle is managed entirely by `node-windows` / Windows SCM — not NSSM, winsw, or PM2.
+PM2 is a documented alternative but not the default. NSSM and winsw are not used in new deployments.
+
+---
+
+## Service names
+
+| Service           | Description                               | Port             |
+| ----------------- | ----------------------------------------- | ---------------- |
+| `Platform Web`    | Web application; IIS proxies to this      | `127.0.0.1:3000` |
+| `Platform Worker` | Background job processor; no inbound HTTP | —                |
 
 ---
 
 ## Prerequisites
 
-- Windows Server 2019 or 2022
-- Node.js 22 LTS (x64) installed from nodejs.org
-- pnpm 10+ installed
-- IIS installed with ARR and URL Rewrite modules
-- SQL Server 2019+ with a `platform` database and user
-- (Optional) Docker Desktop for running Redis if not using a managed Redis
+- Windows Server 2019 or 2022 (Server 2022 recommended)
+- Node.js 22 LTS (official Microsoft-signed x64 MSI)
+- pnpm 9+ (via corepack)
+- IIS 10 with ARR 3.0 and URL Rewrite 2.1
+- SQL Server 2019+ (separate server recommended for production)
+- Administrator privileges
 
 ---
 
-## Step 1: Install Node.js and pnpm
+## Install / first-time setup
 
-Download Node.js LTS from https://nodejs.org and install.
+See [docs/deployments/windows.md](../deployments/windows.md) for the full guide.
+
+Quick summary:
 
 ```powershell
-node --version  # Should be 22.x.x
-npm install -g pnpm
-pnpm --version
+# 1. Install dependencies
+corepack enable && corepack prepare pnpm@9 --activate
+
+# 2. Extract release artifact to C:\Platform
+Expand-Archive platform-<version>.zip -DestinationPath C:\Platform
+
+# 3. Configure environment
+Copy-Item C:\Platform\.env.example C:\Platform\.env
+notepad C:\Platform\.env    # Fill in DATABASE_URL, secrets, etc.
+
+# 4. Set up IIS ARR
+powershell -ExecutionPolicy Bypass -File C:\Platform\deploy\iis\setup-iis-arr.ps1
+
+# 5. Generate and deploy web.config
+node C:\Platform\deploy\iis\web.config.generate.mjs --port 3000 --output C:\inetpub\platform\web.config
+
+# 6. Install services (as Administrator)
+cd C:\Platform\web   && node --enable-source-maps scripts\install-windows-service.mjs
+cd C:\Platform\worker && node --enable-source-maps scripts\install-windows-service.mjs
 ```
 
 ---
 
-## Step 2: Clone the repository
+## Common operational tasks
+
+### Start / stop / restart services
 
 ```powershell
-cd C:\inetpub
-git clone https://github.com/<org>/platform.git
-cd platform
-pnpm install --frozen-lockfile
+Start-Service "Platform Web", "Platform Worker"
+Stop-Service "Platform Web", "Platform Worker" -Force
+Restart-Service "Platform Web", "Platform Worker"
 ```
 
----
-
-## Step 3: Configure environment variables
-
-Copy `.env.example` to `.env.local` and fill in:
-
-```
-DATABASE_DRIVER=mssql
-MSSQL_SERVER=localhost
-MSSQL_DATABASE=platform_prod
-MSSQL_USER=platform
-MSSQL_PASSWORD=<strong-password>
-IDENTITY_DRIVER=builtin   # or entra for enterprise
-```
-
-Note: `POSTGRES_URL` is not needed when `DATABASE_DRIVER=mssql`.
-
-Validate:
+### Check service status
 
 ```powershell
-pnpm env:check
+Get-Service "Platform Web", "Platform Worker" | Format-Table Name, Status, StartType
 ```
 
----
-
-## Step 4: Build the application
+### View recent logs (Event Log)
 
 ```powershell
-pnpm build
+Get-EventLog -LogName Application -Source "Platform Web","Platform Worker" -Newest 50 | Format-Table TimeGenerated, EntryType, Message -Wrap
 ```
 
----
-
-## Step 5: Run the web app as a Windows Service
-
-Use [NSSM](https://nssm.cc/) or [winsw](https://github.com/winsw/winsw) to run the Node.js process as a Windows Service:
+### View file logs
 
 ```powershell
-# Using NSSM (example):
-nssm install platform-web "node" "C:\inetpub\platform\apps\web\dist\server.js"
-nssm set platform-web AppDirectory "C:\inetpub\platform"
-nssm set platform-web AppEnvironmentExtra "NODE_ENV=production APP_ENV=production"
-nssm start platform-web
+Get-Content C:\Platform\logs\web\current.log -Tail 100
+Get-Content C:\Platform\logs\worker\current.log -Tail 100
 ```
 
-The app listens on `PORT` (default: 3000).
-
----
-
-## Step 6: Configure IIS as reverse proxy
-
-1. Install IIS with ARR and URL Rewrite modules
-2. Create a site for `dev.<DOMAIN>` (or `<DOMAIN>` for production)
-3. Add a URL Rewrite rule to proxy to `http://localhost:3000`
-4. For SSL, use IIS with a certificate from Let's Encrypt (win-acme tool) or your enterprise PKI
-
----
-
-## Step 7: Run the worker
-
-The worker also runs as a Windows Service:
+### Health check
 
 ```powershell
-nssm install platform-worker "node" "C:\inetpub\platform\apps\worker\dist\index.js"
-nssm set platform-worker AppDirectory "C:\inetpub\platform"
-nssm start platform-worker
+Invoke-WebRequest http://127.0.0.1:3000/_status -UseBasicParsing
 ```
 
 ---
 
-## Step 8: Verify
+## Upgrade
 
-```powershell
-Invoke-WebRequest http://localhost:3000/_status
-```
-
-Should return `ok: true` with `DATABASE_DRIVER=mssql` in the adapter list.
+See [windows-upgrade-procedure.md](./windows-upgrade-procedure.md).
 
 ---
 
-## Notes for future implementation
+## Rollback
 
-When validating this runbook against a real Windows Server:
+See [windows-deployment-rollback.md](./windows-deployment-rollback.md).
 
-1. Document any Windows-specific path issues (forward vs backslash)
-2. Verify `node-windows` integration (Objective 9 covers Windows process management)
-3. Test pm2 on Windows as an alternative to NSSM/winsw
-4. Verify all shell scripts in `scripts/` work in PowerShell/Git Bash
-5. Update this runbook with exact versions and any surprises
+---
 
-**Current status:** Application code is Windows-compatible (no Linux-isms). The deployment procedure has not been exercised on a real Windows Server. Treat this as a design guide until validated.
+## Troubleshooting
+
+| Symptom                    | Runbook                                                                        |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| Service won't start        | [windows-service-not-starting.md](./windows-service-not-starting.md)           |
+| 502 Bad Gateway            | [windows-iis-502-bad-gateway.md](./windows-iis-502-bad-gateway.md)             |
+| Certificate expired        | [windows-certificate-renewal.md](./windows-certificate-renewal.md)             |
+| Key Vault access error     | [windows-azure-key-vault-access.md](./windows-azure-key-vault-access.md)       |
+| MSSQL connection failure   | [windows-mssql-connection-issues.md](./windows-mssql-connection-issues.md)     |
+| Service stops unexpectedly | [windows-graceful-shutdown.md](./windows-graceful-shutdown.md)                 |
+| Event Log entries          | [windows-event-log-troubleshooting.md](./windows-event-log-troubleshooting.md) |

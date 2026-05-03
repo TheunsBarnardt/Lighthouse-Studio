@@ -269,6 +269,150 @@ const auditOnMutation: Rule.RuleModule = {
   },
 };
 
+// ── platform/no-path-concatenation ────────────────────────────────────────────
+// Reject string literals that look like Unix-style path separators used in
+// concatenation or template literals. Guides toward path.join / path.resolve.
+// Specifically targets `'/' +`, `+ '/'`, `` `${x}/` ``, `` `/${x}` `` outside
+// URL contexts.
+
+const noPathConcatenation: Rule.RuleModule = {
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description:
+        'Avoid path separator string literals; use path.join() or path.resolve() for file paths',
+    },
+    schema: [],
+    messages: {
+      noPathConcat:
+        "Avoid using '/' string literals in path concatenation. Use path.join() or path.resolve() instead for cross-platform compatibility.",
+    },
+  },
+
+  create(context) {
+    function isPathSeparatorLiteral(node: { type: string; value?: unknown }): boolean {
+      return node.type === 'Literal' && (node.value === '/' || node.value === '\\');
+    }
+
+    return {
+      BinaryExpression(node) {
+        if (node.operator !== '+') return;
+        const left = node.left as { type: string; value?: unknown };
+        const right = node.right as { type: string; value?: unknown };
+        if (isPathSeparatorLiteral(left) || isPathSeparatorLiteral(right)) {
+          context.report({ node: node as unknown as Rule.Node, messageId: 'noPathConcat' });
+        }
+      },
+    };
+  },
+};
+
+// ── platform/no-hardcoded-tmp ──────────────────────────────────────────────────
+// Reject '/tmp/' or '\tmp\' hardcoded in string literals.
+// Use os.tmpdir() for cross-platform compatibility.
+
+const noHardcodedTmp: Rule.RuleModule = {
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description: "Avoid hardcoded '/tmp' paths; use os.tmpdir() for cross-platform compatibility",
+    },
+    schema: [],
+    messages: {
+      noTmpPath:
+        "Do not hardcode '/tmp' paths. Use os.tmpdir() to get the platform-appropriate temporary directory.",
+    },
+  },
+
+  create(context) {
+    const TMP_PATTERN = /^(\/tmp\/|\\tmp\\)/;
+
+    return {
+      Literal(node) {
+        const n = node as { type: string; value?: unknown };
+        if (typeof n.value === 'string' && TMP_PATTERN.test(n.value)) {
+          context.report({ node: node as unknown as Rule.Node, messageId: 'noTmpPath' });
+        }
+      },
+      TemplateLiteral(node) {
+        const tpl = node as unknown as { quasis: Array<{ value: { raw: string } }> };
+        for (const quasi of tpl.quasis) {
+          if (TMP_PATTERN.test(quasi.value.raw)) {
+            context.report({ node: node as unknown as Rule.Node, messageId: 'noTmpPath' });
+            break;
+          }
+        }
+      },
+    };
+  },
+};
+
+// ── platform/no-linux-only-signals ────────────────────────────────────────────
+// Reject process.on('SIGUSR1'), process.on('SIGUSR2'), process.on('SIGHUP'), etc.
+// These signals don't exist on Windows (Node emits no-op but the signal handling
+// differs). Use SIGTERM and SIGINT which Node emulates on Windows.
+
+const noLinuxOnlySignals: Rule.RuleModule = {
+  meta: {
+    type: 'problem',
+    docs: {
+      description:
+        'Avoid POSIX-only signals (SIGUSR1, SIGUSR2, SIGHUP) that do not work on Windows',
+    },
+    schema: [],
+    messages: {
+      noLinuxSignal:
+        "'{{signal}}' is not available on Windows. Use 'SIGTERM' or 'SIGINT' (emulated by Node on Windows) for graceful shutdown signals.",
+    },
+  },
+
+  create(context) {
+    const LINUX_ONLY_SIGNALS = new Set([
+      'SIGUSR1',
+      'SIGUSR2',
+      'SIGHUP',
+      'SIGPIPE',
+      'SIGALRM',
+      'SIGCHLD',
+      'SIGCONT',
+      'SIGSTOP',
+      'SIGTSTP',
+      'SIGTTIN',
+      'SIGTTOU',
+    ]);
+
+    return {
+      CallExpression(node) {
+        const n = node as unknown as {
+          callee: {
+            type: string;
+            object?: { type: string; name?: string };
+            property?: { type: string; name?: string };
+          };
+          arguments: Array<{ type: string; value?: unknown }>;
+        };
+        if (
+          n.callee.type !== 'MemberExpression' ||
+          n.callee.object?.name !== 'process' ||
+          (n.callee.property?.name !== 'on' && n.callee.property?.name !== 'once')
+        )
+          return;
+
+        const firstArg = n.arguments[0];
+        if (firstArg?.type === 'Literal' && typeof firstArg.value === 'string') {
+          if (LINUX_ONLY_SIGNALS.has(firstArg.value)) {
+            context.report({
+              node: node as unknown as Rule.Node,
+              messageId: 'noLinuxSignal',
+              data: { signal: firstArg.value },
+            });
+          }
+        }
+      },
+    };
+  },
+};
+
 // ── Plugin export ──────────────────────────────────────────────────────────────
 
 export const platformPlugin = {
@@ -276,5 +420,8 @@ export const platformPlugin = {
     'service-method-context-first': serviceMethodContextFirst,
     'no-bare-error-throws': noBareErrorThrows,
     'audit-on-mutation': auditOnMutation,
+    'no-path-concatenation': noPathConcatenation,
+    'no-hardcoded-tmp': noHardcodedTmp,
+    'no-linux-only-signals': noLinuxOnlySignals,
   },
 };

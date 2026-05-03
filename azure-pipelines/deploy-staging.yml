@@ -1,0 +1,113 @@
+# azure-pipelines/deploy-staging.yml
+# Deploys the platform artifact to the staging Windows Server.
+#
+# Prerequisites:
+#   - The staging server is registered as a Deployment Group target in Azure DevOps.
+#   - WinRM is configured and the agent has appropriate permissions.
+#   - The artifact from build.yml is available.
+#
+# Adjust variable group names, deployment group names, and paths for your environment.
+
+trigger: none # Triggered by build.yml via pipeline dependencies or manual run
+
+resources:
+  pipelines:
+    - pipeline: build
+      source: 'Platform Build' # Name of the build pipeline in Azure DevOps
+      trigger:
+        branches:
+          - staging
+
+variables:
+  - group: platform-staging-secrets # Variable group in Azure DevOps Library
+  - name: PLATFORM_HOME
+    value: 'C:\Platform\staging'
+  - name: ARTIFACT_NAME
+    value: 'platform'
+
+stages:
+  - stage: DeployStaging
+    displayName: 'Deploy to Staging'
+    jobs:
+      - deployment: DeployToStagingServer
+        displayName: 'Deploy to Windows staging server'
+        timeoutInMinutes: 20
+        environment:
+          name: 'staging' # Environment defined in Azure DevOps; linked to Deployment Group
+          resourceType: VirtualMachine
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: build
+                  artifact: $(ARTIFACT_NAME)
+                  displayName: 'Download build artifact'
+
+                - task: ExtractFiles@1
+                  displayName: 'Extract artifact'
+                  inputs:
+                    archiveFilePatterns: '$(Pipeline.Workspace)/$(ARTIFACT_NAME)/*.zip'
+                    destinationFolder: '$(PLATFORM_HOME)'
+                    cleanDestinationFolder: false
+                    overwriteExistingFiles: true
+
+                - task: PowerShell@2
+                  displayName: 'Stop services'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      $services = @('Platform Web', 'Platform Worker')
+                      foreach ($svc in $services) {
+                          if (Get-Service -Name $svc -ErrorAction SilentlyContinue) {
+                              Stop-Service -Name $svc -Force
+                              Write-Host "Stopped: $svc"
+                          }
+                      }
+
+                - task: PowerShell@2
+                  displayName: 'Copy .env from Key Vault / secrets'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      # Write environment configuration; actual secrets come from variable group
+                      $env = @"
+                      NODE_ENV=production
+                      PLATFORM_HOME=$(PLATFORM_HOME)
+                      DATABASE_URL=$(DATABASE_URL)
+                      SESSION_SECRET=$(SESSION_SECRET)
+                      ENTRA_CLIENT_ID=$(ENTRA_CLIENT_ID)
+                      ENTRA_CLIENT_SECRET=$(ENTRA_CLIENT_SECRET)
+                      ENTRA_TENANT_ID=$(ENTRA_TENANT_ID)
+                      "@
+                      Set-Content -Path "$(PLATFORM_HOME)\.env" -Value $env -Encoding utf8
+
+                - task: PowerShell@2
+                  displayName: 'Install / update Windows services'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      cd $(PLATFORM_HOME)\web
+                      node --enable-source-maps scripts\install-windows-service.mjs
+                      cd $(PLATFORM_HOME)\worker
+                      node --enable-source-maps scripts\install-windows-service.mjs
+
+                - task: PowerShell@2
+                  displayName: 'Start services'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Start-Service -Name 'Platform Web'
+                      Start-Service -Name 'Platform Worker'
+
+                - task: PowerShell@2
+                  displayName: 'Health check'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      Start-Sleep -Seconds 10
+                      $response = Invoke-WebRequest -Uri "http://127.0.0.1:3000/_status" -UseBasicParsing
+                      if ($response.StatusCode -ne 200) {
+                          Write-Error "Health check failed: HTTP $($response.StatusCode)"
+                          exit 1
+                      }
+                      Write-Host "Health check passed: $($response.Content)"

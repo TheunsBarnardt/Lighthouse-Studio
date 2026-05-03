@@ -152,6 +152,110 @@ const auditOnMutation = {
   },
 };
 
+// ── Windows / cross-platform rules (Objective 9) ──────────────────────────────
+
+const noPathConcatenation = {
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description: 'Avoid path separator literals; use path.join() for cross-platform paths',
+    },
+    schema: [],
+    messages: {
+      noPathConcat:
+        "Avoid '/' string literals in path concatenation. Use path.join() or path.resolve() instead.",
+    },
+  },
+  create(context) {
+    function isSep(node) {
+      return node.type === 'Literal' && (node.value === '/' || node.value === '\\');
+    }
+    return {
+      BinaryExpression(node) {
+        if (node.operator !== '+') return;
+        if (isSep(node.left) || isSep(node.right)) {
+          context.report({ node, messageId: 'noPathConcat' });
+        }
+      },
+    };
+  },
+};
+
+const noHardcodedTmp = {
+  meta: {
+    type: 'suggestion',
+    docs: { description: "Avoid hardcoded '/tmp'; use os.tmpdir() for cross-platform paths" },
+    schema: [],
+    messages: {
+      noTmpPath: "Do not hardcode '/tmp'. Use os.tmpdir() for the platform temp directory.",
+    },
+  },
+  create(context) {
+    const TMP = /^(\/tmp\/|\\tmp\\)/;
+    return {
+      Literal(node) {
+        if (typeof node.value === 'string' && TMP.test(node.value)) {
+          context.report({ node, messageId: 'noTmpPath' });
+        }
+      },
+      TemplateLiteral(node) {
+        for (const q of node.quasis) {
+          if (TMP.test(q.value.raw)) {
+            context.report({ node, messageId: 'noTmpPath' });
+            break;
+          }
+        }
+      },
+    };
+  },
+};
+
+const noLinuxOnlySignals = {
+  meta: {
+    type: 'problem',
+    docs: { description: 'Avoid POSIX-only signals that do not exist on Windows' },
+    schema: [],
+    messages: {
+      noLinuxSignal:
+        "'{{signal}}' is not available on Windows. Use SIGTERM or SIGINT for cross-platform shutdown.",
+    },
+  },
+  create(context) {
+    const LINUX_ONLY = new Set([
+      'SIGUSR1',
+      'SIGUSR2',
+      'SIGHUP',
+      'SIGPIPE',
+      'SIGALRM',
+      'SIGCHLD',
+      'SIGCONT',
+      'SIGSTOP',
+      'SIGTSTP',
+      'SIGTTIN',
+      'SIGTTOU',
+    ]);
+    return {
+      CallExpression(node) {
+        const { callee, arguments: args } = node;
+        if (
+          callee.type !== 'MemberExpression' ||
+          callee.object?.name !== 'process' ||
+          (callee.property?.name !== 'on' && callee.property?.name !== 'once')
+        )
+          return;
+        const first = args[0];
+        if (
+          first?.type === 'Literal' &&
+          typeof first.value === 'string' &&
+          LINUX_ONLY.has(first.value)
+        ) {
+          context.report({ node, messageId: 'noLinuxSignal', data: { signal: first.value } });
+        }
+      },
+    };
+  },
+};
+
 // ── Platform plugin ────────────────────────────────────────────────────────────
 
 const platformPlugin = {
@@ -159,6 +263,9 @@ const platformPlugin = {
     'service-method-context-first': serviceMethodContextFirst,
     'no-bare-error-throws': noBareErrorThrows,
     'audit-on-mutation': auditOnMutation,
+    'no-path-concatenation': noPathConcatenation,
+    'no-hardcoded-tmp': noHardcodedTmp,
+    'no-linux-only-signals': noLinuxOnlySignals,
   },
 };
 
@@ -241,6 +348,11 @@ export default [
       'platform/no-bare-error-throws': 'error',
       // Mutation methods (create/update/delete/…) should audit — soft warning
       'platform/audit-on-mutation': 'warn',
+
+      // ── Windows / cross-platform rules (Objective 9) ──────────────────────
+      'platform/no-path-concatenation': 'warn',
+      'platform/no-hardcoded-tmp': 'error',
+      'platform/no-linux-only-signals': 'error',
     },
   },
 ];

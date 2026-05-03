@@ -1,0 +1,96 @@
+# azure-pipelines/build.yml
+# Reference build pipeline for the Lighthouse Platform.
+#
+# This template is a starting point. Fork it into your Azure DevOps project
+# and adjust pool names, variable groups, and artifact paths for your environment.
+#
+# See docs/deployments/windows.md for the full Windows deployment guide.
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - staging
+      - 'release/*'
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+pool:
+  # Replace with your self-hosted Windows agent pool name if required.
+  # Self-hosted agents give control over Node version and network access.
+  vmImage: 'windows-2022'
+
+variables:
+  - name: NODE_VERSION
+    value: '22.x'
+  - name: PNPM_VERSION
+    value: '9'
+  - name: ARTIFACT_NAME
+    value: 'platform'
+
+stages:
+  - stage: Build
+    displayName: 'Build & Test'
+    jobs:
+      - job: BuildAndTest
+        displayName: 'Build, lint, typecheck, test'
+        timeoutInMinutes: 30
+        steps:
+          - checkout: self
+            fetchDepth: 0
+
+          - task: NodeTool@0
+            displayName: 'Install Node.js $(NODE_VERSION)'
+            inputs:
+              versionSpec: $(NODE_VERSION)
+
+          - script: |
+              corepack enable
+              corepack prepare pnpm@$(PNPM_VERSION) --activate
+            displayName: 'Set up pnpm'
+
+          - script: pnpm install --frozen-lockfile
+            displayName: 'Install dependencies'
+
+          - script: pnpm typecheck
+            displayName: 'Type check'
+
+          - script: pnpm lint
+            displayName: 'Lint'
+
+          - script: pnpm test
+            displayName: 'Unit + integration tests'
+            env:
+              CI: 'true'
+
+          - script: pnpm build
+            displayName: 'Build'
+
+          - script: pnpm test:cross-platform
+            displayName: 'Cross-platform tests'
+            continueOnError: false
+
+          # Package the built artefacts into a deployable zip
+          - task: ArchiveFiles@2
+            displayName: 'Package artefact'
+            inputs:
+              rootFolderOrFile: '$(Build.SourcesDirectory)'
+              includeRootFolder: false
+              archiveType: 'zip'
+              archiveFile: '$(Build.ArtifactStagingDirectory)/$(ARTIFACT_NAME)-$(Build.BuildNumber).zip'
+              replaceExistingArchive: true
+              # Include built output and install scripts; exclude source + dev deps
+              # (adjust patterns for your project layout)
+              verbose: false
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish artefact'
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: $(ARTIFACT_NAME)
+              publishLocation: 'Container'
