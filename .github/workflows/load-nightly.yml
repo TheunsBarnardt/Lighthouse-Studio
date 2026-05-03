@@ -1,0 +1,101 @@
+name: Load Test (Nightly Full)
+
+on:
+  schedule:
+    # 02:00 UTC daily — avoids peak usage, gives time to investigate before business hours
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Scenario to run (sustained-load | burst-load | sustained-writes | audit-query | all)'
+        required: false
+        default: 'all'
+      duration_override:
+        description: 'Override duration (e.g. 5m for quick validation)'
+        required: false
+
+concurrency:
+  group: load-nightly
+  cancel-in-progress: false # never cancel a running load test
+
+jobs:
+  load-full:
+    name: Full load test — ${{ inputs.scenario || 'all' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check staging URL
+        run: |
+          if [ -z "${{ secrets.LOAD_TEST_BASE_URL }}" ]; then
+            echo "::error::LOAD_TEST_BASE_URL secret is not set. Configure it in repo settings."
+            exit 1
+          fi
+
+      - name: Install k6
+        run: |
+          curl -s https://dl.k6.io/key.gpg | sudo apt-key add -
+          echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update && sudo apt-get install k6 -y
+
+      - name: Run sustained load (1 hour)
+        if: inputs.scenario == 'sustained-load' || inputs.scenario == 'all' || inputs.scenario == ''
+        env:
+          LOAD_TEST_BASE_URL: ${{ secrets.LOAD_TEST_BASE_URL }}
+          LOAD_TEST_DURATION: ${{ inputs.duration_override || '1h' }}
+        run: |
+          k6 run \
+            --env LOAD_TEST_BASE_URL="$LOAD_TEST_BASE_URL" \
+            --env LOAD_TEST_DURATION="$LOAD_TEST_DURATION" \
+            --out json=results-sustained.json \
+            tests/load/scenarios/sustained-load.js
+
+      - name: Run burst load
+        if: inputs.scenario == 'burst-load' || inputs.scenario == 'all' || inputs.scenario == ''
+        env:
+          LOAD_TEST_BASE_URL: ${{ secrets.LOAD_TEST_BASE_URL }}
+        run: |
+          k6 run \
+            --env LOAD_TEST_BASE_URL="$LOAD_TEST_BASE_URL" \
+            --out json=results-burst.json \
+            tests/load/scenarios/burst-load.js
+
+      - name: Run sustained writes (30 minutes)
+        if: inputs.scenario == 'sustained-writes' || inputs.scenario == 'all' || inputs.scenario == ''
+        env:
+          LOAD_TEST_BASE_URL: ${{ secrets.LOAD_TEST_BASE_URL }}
+          LOAD_TEST_DURATION: ${{ inputs.duration_override || '30m' }}
+        run: |
+          k6 run \
+            --env LOAD_TEST_BASE_URL="$LOAD_TEST_BASE_URL" \
+            --env LOAD_TEST_DURATION="$LOAD_TEST_DURATION" \
+            --out json=results-writes.json \
+            tests/load/scenarios/sustained-writes.js
+
+      - name: Run audit query load
+        if: inputs.scenario == 'audit-query' || inputs.scenario == 'all' || inputs.scenario == ''
+        env:
+          LOAD_TEST_BASE_URL: ${{ secrets.LOAD_TEST_BASE_URL }}
+          LOAD_TEST_DURATION: ${{ inputs.duration_override || '10m' }}
+        run: |
+          k6 run \
+            --env LOAD_TEST_BASE_URL="$LOAD_TEST_BASE_URL" \
+            --env LOAD_TEST_DURATION="$LOAD_TEST_DURATION" \
+            --out json=results-audit.json \
+            tests/load/scenarios/audit-query.js
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-results-${{ github.run_id }}
+          path: results-*.json
+          retention-days: 90
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Load test failed. Review results artifacts for details."
+          echo "Results are uploaded as workflow artifacts (retention: 90 days)."
+          echo "After investigation, update docs/quality/load-test-report-$(date +%Y-%m-%d).md"

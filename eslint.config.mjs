@@ -212,23 +212,33 @@ export default [
     // Tests wire adapters together; the composition-only rule does not apply in test files.
     // Non-null assertions (`x!`) are pragmatic in tests where the test setup guarantees presence.
     // process.env is allowed in test setup; fs non-literal paths are expected in test fixtures.
+    // console output is intentional in integration/chaos/load tests for progress reporting.
+    // Template-literal numbers and unsafe-* calls are common in test infrastructure code.
     files: ['**/*.spec.ts', '**/*.test.ts', '**/tests/**/*.ts'],
     rules: {
       'no-restricted-imports': 'off',
       'no-restricted-syntax': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
       'security/detect-non-literal-fs-filename': 'off',
+      'no-console': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
     },
   },
   {
     // Scripts are CLI tools: console output and direct fs/process access are intentional.
     // app/deploy scripts also use Windows-only deps (node-windows) via dynamic imports,
     // so unsafe-* and consistent-type-imports rules are relaxed here.
+    // tests/load/seed is a CLI seed script, not a test file — same exemptions apply.
     files: [
       'scripts/**/*.mts',
       'apps/*/scripts/**/*.mts',
       'deploy/**/*.mts',
       'packages/db/seed/**/*.mts',
+      'tests/load/seed/**/*.ts',
     ],
     rules: {
       'no-restricted-imports': 'off',
@@ -239,6 +249,8 @@ export default [
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/consistent-type-imports': 'off',
     },
   },

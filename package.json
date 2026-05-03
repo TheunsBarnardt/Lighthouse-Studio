@@ -38,6 +38,9 @@
     "seed:dev": "tsx packages/db/seed/dev.mts",
     "seed:staging": "tsx packages/db/seed/staging.mts",
     "seed:prod": "tsx packages/db/seed/prod.mts",
+    "load:seed": "tsx tests/load/seed/generate.ts",
+    "test:a11y": "vitest run --config tests/accessibility/vitest.config.ts",
+    "test:chaos": "vitest run --config tests/chaos/vitest.config.ts",
     "prepare": "husky"
   },
   "devDependencies": {
