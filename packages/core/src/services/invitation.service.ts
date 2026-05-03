@@ -16,7 +16,7 @@ import { z } from 'zod';
 
 import type { AppError } from '../errors.js';
 
-import { auditMeta } from '../context.js';
+import { auditMeta, toAuditActor } from '../context.js';
 import {
   ConflictError,
   ForbiddenError,
@@ -26,6 +26,7 @@ import {
   ValidationError,
   WorkspaceContextRequiredError,
 } from '../errors.js';
+import { observable } from '../observability/observable.js';
 
 // ── Input schemas ──────────────────────────────────────────────────────────────
 
@@ -57,6 +58,16 @@ function hashToken(token: string): string {
 // ── Service ───────────────────────────────────────────────────────────────────
 
 export class InvitationService {
+  readonly create!: (
+    ctx: RequestContext,
+    input: CreateInvitationInput,
+  ) => Promise<Result<{ invitation: WorkspaceInvitation; token: string }, AppError>>;
+  readonly accept!: (
+    ctx: RequestContext,
+    token: string,
+  ) => Promise<Result<WorkspaceMember, AppError>>;
+  readonly revoke!: (ctx: RequestContext, invitationId: string) => Promise<Result<void, AppError>>;
+
   constructor(
     private readonly authz: AuthorizationPort,
     private readonly invitations: InvitationRepo,
@@ -64,9 +75,15 @@ export class InvitationService {
     private readonly memberRoles: MemberRoleRepo,
     private readonly audit: AuditPort,
     private readonly logger: LoggerPort,
-  ) {}
+  ) {
+    const obs = { logger };
+    const s = 'InvitationService';
+    this.create = observable(s, 'create', obs, this._create.bind(this));
+    this.accept = observable(s, 'accept', obs, this._accept.bind(this));
+    this.revoke = observable(s, 'revoke', obs, this._revoke.bind(this));
+  }
 
-  async create(
+  private async _create(
     ctx: RequestContext,
     input: CreateInvitationInput,
   ): Promise<Result<{ invitation: WorkspaceInvitation; token: string }, AppError>> {
@@ -75,7 +92,7 @@ export class InvitationService {
     // 1. Authorize
     const authResult = await this.authz.authorize(ctx, 'invitation.create', 'invitation');
     if (authResult.isErr()) {
-      await this._logDeny(ctx, 'invitation.create', 'invitation', null);
+      await this._logDeny(ctx, 'workspace.member.invited', 'invitation', null);
       return err(new ForbiddenError(authResult.error.message));
     }
 
@@ -129,15 +146,16 @@ export class InvitationService {
     const createResult = await this.invitations.create(invitation);
     if (createResult.isErr()) return err(new ConflictError(createResult.error.message));
 
-    // 5. Audit
+    // 5. Audit — email is PII; marked for redaction on export
     await this.audit.write({
+      eventType: 'workspace.member.invited',
       workspaceId: ctx.workspaceId,
-      actorId: ctx.userId,
-      action: 'invitation.created',
-      resourceType: 'invitation',
-      resourceId: createResult.value.id,
-      after: { email: parsed.data.email, expiresAt: expiresAt.toISOString() },
-      occurredAt: now,
+      actor: toAuditActor(ctx),
+      resource: { type: 'invitation', id: createResult.value.id },
+      action: 'invited',
+      outcome: 'success',
+      correlationId: ctx.correlationId,
+      metadata: { expiresAt: expiresAt.toISOString() },
       ...auditMeta(ctx),
     });
 
@@ -150,7 +168,10 @@ export class InvitationService {
     return ok({ invitation: createResult.value, token });
   }
 
-  async accept(ctx: RequestContext, token: string): Promise<Result<WorkspaceMember, AppError>> {
+  private async _accept(
+    ctx: RequestContext,
+    token: string,
+  ): Promise<Result<WorkspaceMember, AppError>> {
     // 1. Look up by token hash
     const tokenHash = hashToken(token);
     const invResult = await this.invitations.findOne({
@@ -219,25 +240,29 @@ export class InvitationService {
 
     // 7. Audit
     await this.audit.write({
+      eventType: 'workspace.member.accepted',
       workspaceId: invitation.workspaceId,
-      actorId: ctx.userId,
-      action: 'invitation.accepted',
-      resourceType: 'invitation',
-      resourceId: invitation.id,
-      after: { memberId: memberResult.value.id, userId: ctx.userId },
-      occurredAt: now,
+      actor: toAuditActor(ctx),
+      resource: { type: 'invitation', id: invitation.id },
+      action: 'accepted',
+      outcome: 'success',
+      correlationId: ctx.correlationId,
+      metadata: { memberId: memberResult.value.id },
       ...auditMeta(ctx),
     });
 
     return ok(memberResult.value);
   }
 
-  async revoke(ctx: RequestContext, invitationId: string): Promise<Result<void, AppError>> {
+  private async _revoke(
+    ctx: RequestContext,
+    invitationId: string,
+  ): Promise<Result<void, AppError>> {
     if (!ctx.workspaceId) return err(new WorkspaceContextRequiredError());
 
     const authResult = await this.authz.authorize(ctx, 'invitation.revoke', 'invitation');
     if (authResult.isErr()) {
-      await this._logDeny(ctx, 'invitation.revoke', 'invitation', invitationId);
+      await this._logDeny(ctx, 'workspace.member.invited', 'invitation', invitationId);
       return err(new ForbiddenError(authResult.error.message));
     }
 
@@ -251,12 +276,13 @@ export class InvitationService {
     if (archiveResult.isErr()) return err(new NotFoundError('invitation', invitationId));
 
     await this.audit.write({
+      eventType: 'workspace.member.removed',
       workspaceId: ctx.workspaceId,
-      actorId: ctx.userId,
-      action: 'invitation.revoked',
-      resourceType: 'invitation',
-      resourceId: invitationId,
-      occurredAt: new Date(),
+      actor: toAuditActor(ctx),
+      resource: { type: 'invitation', id: invitationId },
+      action: 'removed',
+      outcome: 'success',
+      correlationId: ctx.correlationId,
       ...auditMeta(ctx),
     });
 
@@ -267,17 +293,18 @@ export class InvitationService {
 
   private async _logDeny(
     ctx: RequestContext,
-    action: string,
+    eventType: string,
     resourceType: string,
     resourceId: string | null,
   ): Promise<void> {
     await this.audit.write({
-      workspaceId: ctx.workspaceId ?? 'installation',
-      actorId: ctx.userId,
-      action: `${action}.denied`,
-      resourceType,
-      resourceId: resourceId ?? ctx.userId,
-      occurredAt: new Date(),
+      eventType,
+      ...(ctx.workspaceId != null ? { workspaceId: ctx.workspaceId } : {}),
+      actor: toAuditActor(ctx),
+      resource: { type: resourceType, id: resourceId ?? ctx.userId },
+      action: eventType.split('.').at(-1) ?? eventType,
+      outcome: 'denied',
+      correlationId: ctx.correlationId,
       ...auditMeta(ctx),
     });
   }

@@ -5,6 +5,7 @@ export { createPostgresRepository } from './repository.adapter.js';
 export type { PostgresTableConfig, PostgresRepositoryDeps } from './repository.adapter.js';
 
 export { PostgresUnitOfWork } from './unit-of-work.adapter.js';
+export { PostgresLockAdapter } from './lock.adapter.js';
 
 export { PostgresQueryAdapter } from './query.adapter.js';
 

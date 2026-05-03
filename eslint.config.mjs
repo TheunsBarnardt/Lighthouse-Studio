@@ -88,10 +88,12 @@ export default [
     },
   },
   {
-    // Tests wire adapters together; the composition-only rule does not apply in test files
+    // Tests wire adapters together; the composition-only rule does not apply in test files.
+    // Non-null assertions (`x!`) are pragmatic in tests where the test setup guarantees presence.
     files: ['**/*.spec.ts', '**/*.test.ts', '**/tests/**/*.ts'],
     rules: {
       'no-restricted-imports': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
   {

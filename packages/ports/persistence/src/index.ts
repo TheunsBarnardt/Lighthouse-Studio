@@ -1,4 +1,6 @@
 export type { RepositoryPort } from './repository.port.js';
+export type { LockPort } from './lock.port.js';
+export { LockTimeoutError } from './lock.port.js';
 export type { UnitOfWorkPort, TransactionContext } from './unit-of-work.port.js';
 export type { QueryPort } from './query.port.js';
 export type { SchemaIntrospectionPort } from './schema-introspection.port.js';

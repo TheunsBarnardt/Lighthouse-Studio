@@ -8,7 +8,7 @@ import { uuidv7 } from 'uuidv7';
  *
  * Key differences from the Postgres adapter:
  *   - id: UNIQUEIDENTIFIER (not uuid); client-side UUID v7 generation
- *   - _version: INT (same semantics, incremented on update)
+ *   - _version: INT, not native ROWVERSION; see ADR-0083 for cross-DB parity rationale
  *   - _archived_at: DATETIME2(7) NULL (soft delete; same pattern)
  *   - _created_at / _updated_at: DATETIME2(7) with SYSUTCDATETIME() default
  */

@@ -1,4 +1,11 @@
-export type AuditErrorCode = 'WRITE_FAILED' | 'QUERY_FAILED' | 'UNKNOWN';
+export type AuditErrorCode =
+  | 'WRITE_FAILED'
+  | 'QUERY_FAILED'
+  | 'CHAIN_VERIFY_FAILED'
+  | 'EXPORT_FAILED'
+  | 'NOT_FOUND'
+  | 'PERMISSION_DENIED'
+  | 'UNKNOWN';
 
 export class AuditError extends Error {
   readonly code: AuditErrorCode;

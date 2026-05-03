@@ -8,6 +8,7 @@ import {
   type UnitOfWorkPort,
 } from '@platform/ports-persistence';
 import { err } from 'neverthrow';
+import { randomUUID } from 'node:crypto';
 
 const LONG_TX_WARN_MS = 30_000;
 const LONG_TX_ERROR_MS = 60_000; // Mongo default session timeout is 60s
@@ -22,7 +23,7 @@ export class MongoUnitOfWork implements UnitOfWorkPort {
     work: (tx: TransactionContext) => Promise<Result<T, PersistenceError>>,
   ): Promise<Result<T, PersistenceError>> {
     const session = this.client.startSession();
-    const txId = crypto.randomUUID();
+    const txId = randomUUID();
     const tx: TransactionContext = { id: txId };
 
     this.logger?.debug('MongoDB session started', { txId });

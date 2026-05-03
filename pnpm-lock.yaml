@@ -131,6 +131,78 @@ importers:
         specifier: 3.2.3
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
 
+  packages/adapters/audit-mongo:
+    dependencies:
+      '@platform/ports-audit':
+        specifier: workspace:*
+        version: link:../../ports/audit
+      mongodb:
+        specifier: ^6.0.0
+        version: 6.21.0
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/adapters/audit-mssql:
+    dependencies:
+      '@platform/ports-audit':
+        specifier: workspace:*
+        version: link:../../ports/audit
+      mssql:
+        specifier: ^11.0.1
+        version: 11.0.1(@azure/core-client@1.10.1)
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      '@types/mssql':
+        specifier: ^9.1.5
+        version: 9.1.11(@azure/core-client@1.10.1)
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/adapters/audit-postgres:
+    dependencies:
+      '@platform/ports-audit':
+        specifier: workspace:*
+        version: link:../../ports/audit
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      pg:
+        specifier: ^8.13.0
+        version: 8.20.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      '@types/pg':
+        specifier: ^8.11.10
+        version: 8.20.0
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
+
   packages/adapters/authz-builtin:
     dependencies:
       '@platform/ports-authorization':
@@ -1006,6 +1078,9 @@ importers:
       '@platform/ports-authorization':
         specifier: workspace:*
         version: link:../ports/authorization
+      '@platform/ports-identity':
+        specifier: workspace:*
+        version: link:../ports/identity
       '@platform/ports-observability':
         specifier: workspace:*
         version: link:../ports/observability

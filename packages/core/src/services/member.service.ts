@@ -14,7 +14,7 @@ import { z } from 'zod';
 
 import type { AppError } from '../errors.js';
 
-import { auditMeta } from '../context.js';
+import { auditMeta, toAuditActor } from '../context.js';
 import {
   ConflictError,
   ForbiddenError,
@@ -23,8 +23,14 @@ import {
   ValidationError,
   WorkspaceContextRequiredError,
 } from '../errors.js';
+import { observable } from '../observability/observable.js';
 
 // ── Input schemas ──────────────────────────────────────────────────────────────
+
+const AddMemberInputSchema = z.object({
+  userId: z.string().uuid(),
+  roleIds: z.array(z.string().uuid()),
+});
 
 const ChangeRoleInputSchema = z.object({
   memberId: z.string().uuid(),
@@ -37,6 +43,7 @@ const RemoveMemberInputSchema = z.object({
   version: z.number().int().min(1),
 });
 
+export type AddMemberInput = z.infer<typeof AddMemberInputSchema>;
 export type ChangeRoleInput = z.infer<typeof ChangeRoleInputSchema>;
 export type RemoveMemberInput = z.infer<typeof RemoveMemberInputSchema>;
 
@@ -47,6 +54,23 @@ type WorkspaceRepo = RepositoryPort<{ id: string; ownerUserId: string; version: 
 // ── Service ───────────────────────────────────────────────────────────────────
 
 export class MemberService {
+  readonly addMember!: (
+    ctx: RequestContext,
+    input: AddMemberInput,
+  ) => Promise<Result<WorkspaceMember, AppError>>;
+  readonly changeRole!: (
+    ctx: RequestContext,
+    input: ChangeRoleInput,
+  ) => Promise<Result<void, AppError>>;
+  readonly remove!: (
+    ctx: RequestContext,
+    input: RemoveMemberInput,
+  ) => Promise<Result<void, AppError>>;
+  readonly listMembers!: (
+    ctx: RequestContext,
+    opts?: { includeArchived?: boolean },
+  ) => Promise<Result<WorkspaceMember[], AppError>>;
+
   constructor(
     private readonly authz: AuthorizationPort,
     private readonly members: MemberRepo,
@@ -54,37 +78,55 @@ export class MemberService {
     private readonly workspaces: WorkspaceRepo,
     private readonly audit: AuditPort,
     private readonly logger: LoggerPort,
-  ) {}
+  ) {
+    const obs = { logger };
+    const s = 'MemberService';
+    this.addMember = observable(s, 'addMember', obs, this._addMember.bind(this));
+    this.changeRole = observable(s, 'changeRole', obs, this._changeRole.bind(this));
+    this.remove = observable(s, 'remove', obs, this._remove.bind(this));
+    this.listMembers = observable(s, 'listMembers', obs, this._listMembers.bind(this));
+  }
 
-  async addMember(
+  private async _addMember(
     ctx: RequestContext,
-    input: { userId: string; roleIds: string[] },
+    input: AddMemberInput,
   ): Promise<Result<WorkspaceMember, AppError>> {
     if (!ctx.workspaceId) return err(new WorkspaceContextRequiredError());
 
-    // 1. Authorize
+    // 1. Validate
+    const parsed = AddMemberInputSchema.safeParse(input);
+    if (!parsed.success) {
+      return err(
+        new ValidationError(
+          'Invalid add-member input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
+    }
+
+    // 2. Authorize
     const authResult = await this.authz.authorize(ctx, 'member.invite', 'member');
     if (authResult.isErr()) {
-      await this._logDeny(ctx, 'member.invite', 'member', input.userId);
+      await this._logDeny(ctx, 'workspace.member.invited', 'member', parsed.data.userId);
       return err(new ForbiddenError(authResult.error.message));
     }
 
-    // 2. Check not already a member
+    // 3. Precondition: not already a member
     const existing = await this.members.findOne({
-      _and: [{ workspaceId: { _eq: ctx.workspaceId } }, { userId: { _eq: input.userId } }],
+      _and: [{ workspaceId: { _eq: ctx.workspaceId } }, { userId: { _eq: parsed.data.userId } }],
     } as Parameters<MemberRepo['findOne']>[0]);
     if (existing.isErr()) return err(new ConflictError(existing.error.message));
     if (existing.value) {
       return err(new ConflictError('User is already a workspace member'));
     }
 
-    // 3. Create member record (active, not pending — direct add)
+    // 4. Execute — create member record (active, direct add, not invitation flow)
     const now = new Date();
     const member: WorkspaceMember = {
       id: uuidv7(),
       version: 1,
       workspaceId: ctx.workspaceId,
-      userId: input.userId,
+      userId: parsed.data.userId,
       status: 'active',
       invitedAt: now,
       acceptedAt: now,
@@ -99,10 +141,7 @@ export class MemberService {
     const createResult = await this.members.create(member);
     if (createResult.isErr()) return err(new ConflictError(createResult.error.message));
 
-    this.logger.info('Member added', { workspaceId: ctx.workspaceId, userId: input.userId });
-
-    // 4. Grant roles
-    for (const roleId of input.roleIds) {
+    for (const roleId of parsed.data.roleIds) {
       const roleGrant: WorkspaceMemberRole = {
         id: uuidv7(),
         version: 1,
@@ -118,46 +157,50 @@ export class MemberService {
       await this.memberRoles.create(roleGrant);
     }
 
+    this.logger.info('Member added', { workspaceId: ctx.workspaceId, userId: parsed.data.userId });
+
     // 5. Audit
     await this.audit.write({
+      eventType: 'workspace.member.invited',
       workspaceId: ctx.workspaceId,
-      actorId: ctx.userId,
-      action: 'member.added',
-      resourceType: 'member',
-      resourceId: createResult.value.id,
-      after: { userId: input.userId, roleIds: input.roleIds },
-      occurredAt: now,
+      actor: toAuditActor(ctx),
+      resource: { type: 'member', id: createResult.value.id },
+      action: 'invited',
+      outcome: 'success',
+      correlationId: ctx.correlationId,
+      metadata: { userId: parsed.data.userId, roleIds: parsed.data.roleIds },
       ...auditMeta(ctx),
     });
 
+    // 6. Return
     return ok(createResult.value);
   }
 
-  async changeRole(ctx: RequestContext, input: ChangeRoleInput): Promise<Result<void, AppError>> {
+  private async _changeRole(
+    ctx: RequestContext,
+    input: ChangeRoleInput,
+  ): Promise<Result<void, AppError>> {
     if (!ctx.workspaceId) return err(new WorkspaceContextRequiredError());
 
-    // 1. Authorize
-    const authResult = await this.authz.authorize(ctx, 'role.assign', 'role');
-    if (authResult.isErr()) {
-      await this._logDeny(ctx, 'role.assign', 'role', input.memberId);
-      return err(new ForbiddenError(authResult.error.message));
-    }
-
-    // 2. Validate
+    // 1. Validate
     const parsed = ChangeRoleInputSchema.safeParse(input);
     if (!parsed.success) {
       return err(
         new ValidationError(
           'Invalid role change input',
-          parsed.error.issues.map((i) => ({
-            path: i.path.join('.'),
-            message: i.message,
-          })),
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    // 3. Confirm member is in this workspace
+    // 2. Authorize
+    const authResult = await this.authz.authorize(ctx, 'role.assign', 'role');
+    if (authResult.isErr()) {
+      await this._logDeny(ctx, 'workspace.member.role_assigned', 'member', parsed.data.memberId);
+      return err(new ForbiddenError(authResult.error.message));
+    }
+
+    // 3. Precondition: member belongs to this workspace
     const memberResult = await this.members.findOne({
       _and: [{ id: { _eq: parsed.data.memberId } }, { workspaceId: { _eq: ctx.workspaceId } }],
     } as Parameters<MemberRepo['findOne']>[0]);
@@ -166,7 +209,7 @@ export class MemberService {
 
     const now = new Date();
 
-    // 4. Add new roles
+    // 4. Execute
     for (const roleId of parsed.data.addRoleIds ?? []) {
       const roleGrant: WorkspaceMemberRole = {
         id: uuidv7(),
@@ -183,7 +226,6 @@ export class MemberService {
       await this.memberRoles.create(roleGrant);
     }
 
-    // 5. Remove roles (archive them)
     for (const roleId of parsed.data.removeRoleIds ?? []) {
       const existing = await this.memberRoles.findOne({
         _and: [{ workspaceMemberId: { _eq: parsed.data.memberId } }, { roleId: { _eq: roleId } }],
@@ -193,49 +235,51 @@ export class MemberService {
       }
     }
 
-    // 6. Audit
+    // 5. Audit
     await this.audit.write({
+      eventType: 'workspace.member.role_assigned',
       workspaceId: ctx.workspaceId,
-      actorId: ctx.userId,
-      action: 'member.role_changed',
-      resourceType: 'member',
-      resourceId: parsed.data.memberId,
-      after: {
+      actor: toAuditActor(ctx),
+      resource: { type: 'member', id: parsed.data.memberId },
+      action: 'role_assigned',
+      outcome: 'success',
+      correlationId: ctx.correlationId,
+      metadata: {
         added: parsed.data.addRoleIds ?? [],
         removed: parsed.data.removeRoleIds ?? [],
       },
-      occurredAt: now,
       ...auditMeta(ctx),
     });
 
+    // 6. Return
     return ok(undefined);
   }
 
-  async remove(ctx: RequestContext, input: RemoveMemberInput): Promise<Result<void, AppError>> {
+  private async _remove(
+    ctx: RequestContext,
+    input: RemoveMemberInput,
+  ): Promise<Result<void, AppError>> {
     if (!ctx.workspaceId) return err(new WorkspaceContextRequiredError());
 
-    // 1. Authorize
-    const authResult = await this.authz.authorize(ctx, 'member.remove', 'member');
-    if (authResult.isErr()) {
-      await this._logDeny(ctx, 'member.remove', 'member', input.memberId);
-      return err(new ForbiddenError(authResult.error.message));
-    }
-
-    // 2. Validate
+    // 1. Validate
     const parsed = RemoveMemberInputSchema.safeParse(input);
     if (!parsed.success) {
       return err(
         new ValidationError(
           'Invalid remove input',
-          parsed.error.issues.map((i) => ({
-            path: i.path.join('.'),
-            message: i.message,
-          })),
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
         ),
       );
     }
 
-    // 3. Fetch member
+    // 2. Authorize
+    const authResult = await this.authz.authorize(ctx, 'member.remove', 'member');
+    if (authResult.isErr()) {
+      await this._logDeny(ctx, 'workspace.member.removed', 'member', parsed.data.memberId);
+      return err(new ForbiddenError(authResult.error.message));
+    }
+
+    // 3. Precondition: member exists and belongs to this workspace
     const memberResult = await this.members.findOne({
       _and: [{ id: { _eq: parsed.data.memberId } }, { workspaceId: { _eq: ctx.workspaceId } }],
     } as Parameters<MemberRepo['findOne']>[0]);
@@ -243,20 +287,18 @@ export class MemberService {
     if (!memberResult.value) return err(new NotFoundError('member', parsed.data.memberId));
     const member = memberResult.value;
 
-    // 4. Owner-cannot-self-orphan check
     const workspaceResult = await this.workspaces.findById(ctx.workspaceId);
     if (workspaceResult.isErr()) return err(new ConflictError(workspaceResult.error.message));
     if (!workspaceResult.value) return err(new NotFoundError('workspace', ctx.workspaceId));
 
     if (workspaceResult.value.ownerUserId === member.userId) {
-      // Count active members with workspace_owner role — if only one, block removal
       const ownerCount = await this._countActiveOwners(ctx.workspaceId);
       if (ownerCount <= 1) {
         return err(new OwnerSelfOrphanError());
       }
     }
 
-    // 5. Archive the member
+    // 4. Execute
     const archiveResult = await this.members.update(
       parsed.data.memberId,
       { status: 'archived', updatedBy: ctx.userId, updatedAt: new Date() },
@@ -269,33 +311,37 @@ export class MemberService {
       return err(new NotFoundError('member', parsed.data.memberId));
     }
 
-    // 6. Audit
+    // 5. Audit
     await this.audit.write({
+      eventType: 'workspace.member.removed',
       workspaceId: ctx.workspaceId,
-      actorId: ctx.userId,
-      action: 'member.removed',
-      resourceType: 'member',
-      resourceId: parsed.data.memberId,
-      after: { userId: member.userId },
-      occurredAt: new Date(),
+      actor: toAuditActor(ctx),
+      resource: { type: 'member', id: parsed.data.memberId },
+      action: 'removed',
+      outcome: 'success',
+      correlationId: ctx.correlationId,
+      metadata: { userId: member.userId },
       ...auditMeta(ctx),
     });
 
+    // 6. Return
     return ok(undefined);
   }
 
-  async listMembers(
+  private async _listMembers(
     ctx: RequestContext,
     opts?: { includeArchived?: boolean },
   ): Promise<Result<WorkspaceMember[], AppError>> {
     if (!ctx.workspaceId) return err(new WorkspaceContextRequiredError());
 
+    // 1. Authorize
     const authResult = await this.authz.authorize(ctx, 'member.list', 'member');
     if (authResult.isErr()) {
-      await this._logDeny(ctx, 'member.list', 'member', null);
+      await this._logDeny(ctx, 'workspace.member.listed', 'member', null);
       return err(new ForbiddenError(authResult.error.message));
     }
 
+    // 2. Execute
     const filter = { workspaceId: { _eq: ctx.workspaceId } } as Parameters<
       MemberRepo['findMany']
     >[0] extends { filter?: infer F }
@@ -308,15 +354,13 @@ export class MemberService {
     );
     if (result.isErr()) return err(new ConflictError(result.error.message));
 
+    // 3. Return
     return ok(result.value.items);
   }
 
   // ── Private helpers ──────────────────────────────────────────────────────────
 
   private async _countActiveOwners(workspaceId: string): Promise<number> {
-    // This is a simplified count — a full implementation would join
-    // workspace_member_roles -> workspace_roles where role.name = 'workspace_owner'
-    // For now we count active members; services with the full role repo would filter properly.
     const result = await this.members.count({
       _and: [{ workspaceId: { _eq: workspaceId } }, { status: { _eq: 'active' } }],
     } as Parameters<MemberRepo['count']>[0]);
@@ -325,17 +369,18 @@ export class MemberService {
 
   private async _logDeny(
     ctx: RequestContext,
-    action: string,
+    eventType: string,
     resourceType: string,
     resourceId: string | null,
   ): Promise<void> {
     await this.audit.write({
-      workspaceId: ctx.workspaceId ?? 'installation',
-      actorId: ctx.userId,
-      action: `${action}.denied`,
-      resourceType,
-      resourceId: resourceId ?? ctx.userId,
-      occurredAt: new Date(),
+      eventType,
+      ...(ctx.workspaceId != null ? { workspaceId: ctx.workspaceId } : {}),
+      actor: toAuditActor(ctx),
+      resource: { type: resourceType, id: resourceId ?? ctx.userId },
+      action: eventType.split('.').at(-1) ?? eventType,
+      outcome: 'denied',
+      correlationId: ctx.correlationId,
       ...auditMeta(ctx),
     });
   }

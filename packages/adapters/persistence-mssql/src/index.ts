@@ -5,6 +5,7 @@ export { createMssqlRepository } from './repository.adapter.js';
 export type { MssqlTableConfig, MssqlRepositoryDeps } from './repository.adapter.js';
 
 export { MssqlUnitOfWork } from './unit-of-work.adapter.js';
+export { MssqlLockAdapter } from './lock.adapter.js';
 
 export { MssqlQueryAdapter } from './query.adapter.js';
 

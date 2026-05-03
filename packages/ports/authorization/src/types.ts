@@ -19,6 +19,11 @@ export interface RequestContext {
   /** Whether the current session has satisfied MFA for sensitive operations. */
   readonly mfaSatisfied: boolean;
   readonly _kind: 'user' | 'service_account';
+  /**
+   * Optional client-supplied idempotency key. When provided, the service
+   * layer will deduplicate mutating operations within the idempotency window.
+   */
+  readonly idempotencyKey?: string;
 }
 
 /**

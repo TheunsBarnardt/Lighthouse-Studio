@@ -5,6 +5,7 @@ export { createMongoRepository } from './repository.adapter.js';
 export type { MongoCollectionConfig, MongoRepositoryDeps } from './repository.adapter.js';
 
 export { MongoUnitOfWork } from './unit-of-work.adapter.js';
+export { MongoLockAdapter } from './lock.adapter.js';
 
 export { MongoQueryAdapter } from './query.adapter.js';
 

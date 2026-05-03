@@ -1,4 +1,4 @@
-import type { AuditEntry } from '@platform/ports-audit';
+import type { AuditActor, AuditEntryInput } from '@platform/ports-audit';
 import type { RequestContext, SystemContext } from '@platform/ports-authorization';
 
 import { randomUUID } from 'node:crypto';
@@ -43,8 +43,16 @@ export function isInstallationAuditor(ctx: RequestContext): boolean {
 
 // ── Audit helpers ──────────────────────────────────────────────────────────────
 
-/** Extracts optional request metadata for audit entries without violating exactOptionalPropertyTypes. */
-export function auditMeta(ctx: RequestContext): Pick<AuditEntry, 'ipAddress' | 'userAgent'> {
+/** Build the actor object for an audit entry from a RequestContext. */
+export function toAuditActor(ctx: RequestContext): AuditActor {
+  return {
+    kind: ctx._kind,
+    id: ctx.userId,
+  };
+}
+
+/** Extracts optional request metadata for audit entries. */
+export function auditMeta(ctx: RequestContext): Pick<AuditEntryInput, 'ipAddress' | 'userAgent'> {
   const meta: { ipAddress?: string; userAgent?: string } = {};
   if (ctx.ipAddress !== undefined) meta.ipAddress = ctx.ipAddress;
   if (ctx.userAgent !== undefined) meta.userAgent = ctx.userAgent;

@@ -21,6 +21,7 @@
     "clean": "turbo clean && rimraf \"packages/*/dist\" \"packages/ports/*/dist\" \"apps/*/dist\" \"apps/*/.next\"",
     "check-workspace": "tsx scripts/check-workspace.mts",
     "new-package": "tsx scripts/new-package.mts",
+    "new-service": "tsx scripts/new-service.mts",
     "verify-clean-tree": "tsx scripts/verify-clean-tree.mts",
     "env:check": "tsx packages/config/src/env/validate.mts",
     "env:completeness": "tsx scripts/check-env-completeness.mts",
