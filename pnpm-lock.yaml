@@ -1465,6 +1465,10 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3)
 
   packages/ports/secret-store:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
     devDependencies:
       '@platform/config':
         specifier: workspace:*
