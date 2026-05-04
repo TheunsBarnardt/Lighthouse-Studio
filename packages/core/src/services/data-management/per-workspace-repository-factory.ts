@@ -15,7 +15,7 @@ import { customerNamespace } from './namespace.js';
 
 // Cache key: workspaceSlug + tableId + schemaVersion.
 // The version component means a schema deploy automatically invalidates stale repos.
-type CacheKey = `${string}:${string}:v${number}`;
+type CacheKey = `${string}:${string}:v${string}`;
 
 function makeCacheKey(workspaceSlug: string, tableId: string, schemaVersion: number): CacheKey {
   return `${workspaceSlug}:${tableId}:v${String(schemaVersion)}`;
