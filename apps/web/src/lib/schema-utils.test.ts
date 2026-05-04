@@ -71,7 +71,7 @@ describe('schema-utils', () => {
       const table = makeTable('t1', 'posts');
       const next = addTable(schema, table);
       expect(next.tables).toHaveLength(1);
-      expect(next.tables[0].name).toBe('posts');
+      expect(next.tables[0]?.name).toBe('posts');
       expect(schema.tables).toHaveLength(0); // immutable
     });
   });
@@ -81,7 +81,7 @@ describe('schema-utils', () => {
       const schema = makeSchema([makeTable('t1', 'a'), makeTable('t2', 'b')]);
       const next = removeTable(schema, 't1');
       expect(next.tables).toHaveLength(1);
-      expect(next.tables[0].id).toBe('t2');
+      expect(next.tables[0]?.id).toBe('t2');
     });
   });
 
@@ -89,13 +89,13 @@ describe('schema-utils', () => {
     it('adds a column to a table', () => {
       const table = makeTable('t1', 'users');
       const schema = makeSchema([table]);
-      const col = newColumn('t1');
+      const col = newColumn('', 't1');
       const next = addColumn(schema, 't1', col);
       expect(next.tables[0]?.columns).toHaveLength(1);
     });
 
     it('removes a column from a table', () => {
-      const col = newColumn('t1');
+      const col = newColumn('', 't1');
       const table = { ...makeTable('t1', 'users'), columns: [col] };
       const schema = makeSchema([table]);
       const next = removeColumn(schema, 't1', col.id);
@@ -106,7 +106,7 @@ describe('schema-utils', () => {
   describe('getCapabilityWarnings', () => {
     it('warns about array columns on MSSQL', () => {
       const col = {
-        ...newColumn('t1'),
+        ...newColumn('', 't1'),
         type: { kind: 'array' as const, elementType: { kind: 'string' as const } },
       };
       const table = { ...makeTable('t1', 'data'), columns: [col] };
@@ -118,7 +118,7 @@ describe('schema-utils', () => {
 
     it('returns no warnings for postgres with arrays', () => {
       const col = {
-        ...newColumn('t1'),
+        ...newColumn('', 't1'),
         type: { kind: 'array' as const, elementType: { kind: 'string' as const } },
       };
       const table = { ...makeTable('t1', 'data'), columns: [col] };
@@ -137,7 +137,7 @@ describe('schema-utils', () => {
     });
 
     it('newColumn produces valid column', () => {
-      const c = newColumn('t1');
+      const c = newColumn('', 't1');
       expect(c.id).toBeTruthy();
       expect(c.nullable).toBe(true);
     });

@@ -17,7 +17,6 @@ const meta: Meta<typeof ConflictModal> = {
 export default meta;
 type Story = StoryObj<typeof ConflictModal>;
 
-const _mockLocal: Partial<CustomerSchema> = { version: 3 };
 const mockServer: CustomerSchema = {
   id: 'sch-1',
   workspaceId: 'ws-1',

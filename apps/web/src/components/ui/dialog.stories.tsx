@@ -14,7 +14,7 @@ const meta: Meta<typeof Dialog> = {
 export default meta;
 type Story = StoryObj<typeof Dialog>;
 
-function Controlled({ size }: { size?: 'sm' | 'md' | 'lg' }) {
+function Controlled({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   const [open, setOpen] = useState(true);
   return (
     <>
