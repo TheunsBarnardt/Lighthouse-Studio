@@ -61,3 +61,21 @@ export const GRAPHQL_AUDIT_EVENTS = {
 
 export type GraphQLAuditEventType =
   (typeof GRAPHQL_AUDIT_EVENTS)[keyof typeof GRAPHQL_AUDIT_EVENTS];
+
+export const REALTIME_AUDIT_EVENTS = {
+  // Connection lifecycle
+  CONNECTION_OPENED: 'data_management.realtime.connection_opened',
+  CONNECTION_CLOSED: 'data_management.realtime.connection_closed',
+  // Subscription lifecycle
+  SUBSCRIPTION_STARTED: 'data_management.realtime.subscription_started',
+  SUBSCRIPTION_ENDED: 'data_management.realtime.subscription_ended',
+  SUBSCRIPTION_RESUMED: 'data_management.realtime.subscription_resumed',
+  // Security events — always audited
+  CONNECTION_FORCE_CLOSED: 'data_management.realtime.connection_force_closed',
+  // Operational events
+  EVENTS_DROPPED: 'data_management.realtime.events_dropped',
+  RATE_LIMIT_EXCEEDED: 'data_management.realtime.rate_limit_exceeded',
+} as const;
+
+export type RealtimeAuditEventType =
+  (typeof REALTIME_AUDIT_EVENTS)[keyof typeof REALTIME_AUDIT_EVENTS];

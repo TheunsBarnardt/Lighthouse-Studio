@@ -33,6 +33,7 @@ import {
   foreignKeyToOneResolver,
   foreignKeyToManyResolver,
 } from './resolvers.js';
+import { buildSubscriptionFields } from './subscription-resolvers.js';
 
 // ── Naming helpers ─────────────────────────────────────────────────────────────
 
@@ -702,20 +703,10 @@ export class GraphQLSchemaBuilder {
       fields: mutationFields,
     });
 
-    // Phase 7: Build Subscription stub (Objective 14 fills this in)
+    // Phase 7: Real-time subscriptions (Objective 14)
     const SubscriptionType = new GraphQLObjectType({
       name: 'Subscription',
-      fields: {
-        _placeholder: {
-          type: GraphQLString,
-          description: 'Subscription support implemented in Objective 14.',
-          // eslint-disable-next-line @typescript-eslint/require-await
-          subscribe: async function* () {
-            yield null;
-          },
-          resolve: () => null,
-        },
-      },
+      fields: buildSubscriptionFields(customerSchema),
     });
 
     // Collect all named types for the schema (avoids "unknown type" errors for union members)

@@ -102,5 +102,32 @@ export { DataLoaderFactory } from './graphql/dataloader-factory.js';
 export type { RequestLoaders } from './graphql/dataloader-factory.js';
 export { makeConnection, encodeCursor, decodeCursor } from './graphql/connection.js';
 export type { Connection } from './graphql/connection.js';
-export { GRAPHQL_AUDIT_EVENTS } from './audit-events.js';
-export type { GraphQLAuditEventType } from './audit-events.js';
+export { GRAPHQL_AUDIT_EVENTS, REALTIME_AUDIT_EVENTS } from './audit-events.js';
+export type { GraphQLAuditEventType, RealtimeAuditEventType } from './audit-events.js';
+
+// ── Real-Time Subscriptions (Objective 14) ────────────────────────────────────
+export { InProcessEventBus } from './realtime/internal-event-bus.js';
+export type { InternalEventBus, RevocationHandler } from './realtime/internal-event-bus.js';
+export { PermissionCache } from './realtime/permission-cache.js';
+export { EventFilterPipelineImpl, evaluateFilter } from './realtime/event-filter-pipeline.js';
+export type { EventFilterPipeline } from './realtime/event-filter-pipeline.js';
+export { SubscriptionManager } from './realtime/subscription-manager.js';
+export { ConnectionManager } from './realtime/connection-manager.js';
+export type { ConnectionInitOptions, ConnectionHandle } from './realtime/connection-manager.js';
+export { SseHandler } from './realtime/sse-handler.js';
+export type { SseRequest, SseWriter } from './realtime/sse-handler.js';
+export { buildSubscriptionFields } from './graphql/subscription-resolvers.js';
+export type { GraphQLSubscriptionContext } from './graphql/subscription-resolvers.js';
+export type {
+  TransportKind,
+  CloseReason,
+  DeliverableEvent,
+  EventKind,
+  ResumeTokenPayload,
+  ConnectionState,
+  SubscribeOptions,
+  ActiveSubscription,
+  SubscriptionHandle,
+  InternalRevocationEvent,
+} from './realtime/types.js';
+export { REALTIME_DEFAULTS } from './realtime/types.js';

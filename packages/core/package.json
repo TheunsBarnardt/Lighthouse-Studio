@@ -26,6 +26,7 @@
   "dependencies": {
     "@platform/ports-audit": "workspace:*",
     "@platform/ports-authorization": "workspace:*",
+    "@platform/ports-eventing": "workspace:*",
     "@platform/ports-identity": "workspace:*",
     "@platform/ports-observability": "workspace:*",
     "@platform/ports-persistence": "workspace:*",

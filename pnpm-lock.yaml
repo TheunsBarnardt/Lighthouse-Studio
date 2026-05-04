@@ -221,6 +221,25 @@ importers:
         specifier: 3.2.3
         version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3)
 
+  packages/adapters/audit-cold-archive-b2:
+    dependencies:
+      '@platform/ports-audit':
+        specifier: workspace:*
+        version: link:../../ports/audit
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jiti@2.6.1)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3)
+
   packages/adapters/audit-memory:
     dependencies:
       '@platform/ports-audit':
@@ -1377,6 +1396,9 @@ importers:
       '@platform/ports-authorization':
         specifier: workspace:*
         version: link:../ports/authorization
+      '@platform/ports-eventing':
+        specifier: workspace:*
+        version: link:../ports/eventing
       '@platform/ports-identity':
         specifier: workspace:*
         version: link:../ports/identity
