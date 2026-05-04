@@ -34,6 +34,7 @@
     "@platform/adapter-observability-metrics": "workspace:*",
     "@platform/adapter-observability-tracer": "workspace:*",
     "@platform/adapter-persistence-memory": "workspace:*",
+    "@platform/adapter-rate-limiter-memory": "workspace:*",
     "@platform/adapter-search-memory": "workspace:*",
     "@platform/adapter-storage-memory": "workspace:*",
     "@platform/ports-ai": "workspace:*",
@@ -45,6 +46,7 @@
     "@platform/ports-jobs": "workspace:*",
     "@platform/ports-observability": "workspace:*",
     "@platform/ports-persistence": "workspace:*",
+    "@platform/ports-rate-limiter": "workspace:*",
     "@platform/ports-search": "workspace:*",
     "@platform/ports-storage": "workspace:*"
   },

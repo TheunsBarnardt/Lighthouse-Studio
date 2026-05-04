@@ -2,7 +2,7 @@
 
 This document records which platform features are available on each supported database driver. The schema designer reads this matrix and adjusts its UI accordingly — features not supported on the active driver are disabled with an explanation, never silently hidden.
 
-Last updated: 2026-05-03 (Objective 11)
+Last updated: 2026-05-03 (Objective 12)
 
 ---
 
@@ -48,15 +48,40 @@ Last updated: 2026-05-03 (Objective 11)
 
 ---
 
-## API Generation (Objective 12, forward reference)
+## REST API Generation (Objective 12)
+
+| Feature                                        | Postgres              | MSSQL                 | Mongo                                                        |
+| ---------------------------------------------- | --------------------- | --------------------- | ------------------------------------------------------------ |
+| CRUD endpoints (list/get/create/update/delete) | ✅                    | ✅                    | ✅                                                           |
+| Soft delete (archive) + restore                | ✅                    | ✅                    | ✅                                                           |
+| Hard delete                                    | ✅                    | ✅                    | ✅                                                           |
+| Bulk create (POST /bulk)                       | ✅                    | ✅                    | ✅                                                           |
+| Bulk update by filter (PATCH)                  | ✅                    | ✅                    | ✅                                                           |
+| Bulk delete by filter (DELETE)                 | ✅                    | ✅                    | ✅                                                           |
+| Count endpoint                                 | ✅                    | ✅                    | ✅                                                           |
+| Filter parameter syntax                        | ✅ `filter[f][_op]=v` | ✅ `filter[f][_op]=v` | ✅ `filter[f][_op]=v`                                        |
+| Cursor-based pagination                        | ✅                    | ✅                    | ✅                                                           |
+| Offset pagination                              | ✅ (slow at scale)    | ✅ (slow at scale)    | ✅ (slow at scale)                                           |
+| Sort (`?sort=field,-field`)                    | ✅                    | ✅                    | ✅                                                           |
+| Field selection (`?fields=...`)                | ✅                    | ✅                    | ✅                                                           |
+| PII redaction                                  | ✅                    | ✅                    | ✅                                                           |
+| API key authentication                         | ✅ HMAC-SHA-256       | ✅ HMAC-SHA-256       | ✅ HMAC-SHA-256                                              |
+| Rate limiting (token bucket)                   | ✅                    | ✅                    | ✅                                                           |
+| RFC 7807 error responses                       | ✅                    | ✅                    | ✅                                                           |
+| Row-level security on API                      | ✅ (RLS)              | ❌ (no native RLS)    | ❌ (no native RLS — application-layer owner check only)      |
+| Optimistic locking (`?_version`)               | ✅                    | ✅                    | ✅                                                           |
+| OpenAPI 3.1 spec generation                    | ✅                    | ✅                    | ✅                                                           |
+| Foreign key filtering (JOIN)                   | ✅                    | ✅                    | ⚠️ no JOIN — client must fetch related collection separately |
+
+---
+
+## GraphQL and Real-Time (Objective 13–14, forward reference)
 
 | Feature                      | Postgres  | MSSQL     | Mongo                 |
 | ---------------------------- | --------- | --------- | --------------------- |
-| REST CRUD                    | ✅        | ✅        | ✅                    |
 | GraphQL                      | ✅        | ✅        | ✅                    |
 | Filtering by FK relationship | ✅ (JOIN) | ✅ (JOIN) | ⚠️ lookup aggregation |
 | Real-time subscriptions      | ✅        | ✅        | ✅                    |
-| Row-level security on API    | ✅        | ❌        | ❌                    |
 
 ---
 

@@ -267,6 +267,13 @@ export const CreateSchemaInputSchema = z.object({
   databaseDriver: z.enum(['postgres', 'mssql', 'mongo']),
   initialTables: z.array(z.any()).optional(), // validated by SchemaValidator after parse
   templateId: z.string().optional(),
+  /** Workspace URL slug — used to initialize the per-workspace DB namespace on postgres/mssql. */
+  workspaceSlug: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9-]+$/)
+    .optional(),
 });
 
 export type CreateSchemaInput = z.infer<typeof CreateSchemaInputSchema>;

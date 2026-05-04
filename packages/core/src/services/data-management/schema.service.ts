@@ -46,6 +46,7 @@ import {
 import { observable } from '../../observability/observable.js';
 import { SCHEMA_AUDIT_EVENTS } from './audit-events.js';
 import { MigrationPlanner } from './migration-planner.js';
+import { createWorkspaceMssqlSchema, createWorkspacePostgresSchema } from './namespace.js';
 import {
   CreateSchemaInputSchema,
   DeleteSchemaOptionsSchema,
@@ -137,6 +138,17 @@ export class SchemaService {
     input: CreateSchemaInput,
   ) => Promise<Result<CustomerSchema, AppError>>;
 
+  /**
+   * Resolve a deployed schema by its slug within the request's workspace.
+   * Used by the auto-generated REST API handler on every request.
+   * Does NOT require schema.read permission — the API layer authorizes at the
+   * table level (data_table.read / data_table.write).
+   */
+  readonly resolveDeployedSchema!: (
+    ctx: RequestContext,
+    schemaSlug: string,
+  ) => Promise<Result<CustomerSchema, AppError>>;
+
   private readonly validator: SchemaValidator;
   private readonly planner: MigrationPlanner;
 
@@ -184,6 +196,12 @@ export class SchemaService {
       'createSchemaFromTemplate',
       obs,
       this._createSchemaFromTemplate.bind(this),
+    );
+    this.resolveDeployedSchema = observable(
+      s,
+      'resolveDeployedSchema',
+      obs,
+      this._resolveDeployedSchema.bind(this),
     );
   }
 
@@ -247,6 +265,28 @@ export class SchemaService {
 
     const createResult = await this.schemas.create(schema);
     if (createResult.isErr()) return err(new ConflictError(createResult.error.message));
+
+    // 4b. Ensure the per-workspace DB namespace (schema + roles) exists on postgres/mssql.
+    // Idempotent: uses IF NOT EXISTS. Only needed for relational drivers; Mongo uses collection
+    // prefixes that don't require pre-creation.
+    if (parsed.data.workspaceSlug && schema.databaseDriver !== 'mongo') {
+      const namespaceDdl =
+        schema.databaseDriver === 'postgres'
+          ? createWorkspacePostgresSchema(parsed.data.workspaceSlug)
+          : createWorkspaceMssqlSchema(parsed.data.workspaceSlug);
+      const nsResult = await this.migration.apply({
+        id: `ns-init-${wid}`,
+        name: `init-workspace-namespace-${parsed.data.workspaceSlug}`,
+        up: namespaceDdl,
+      });
+      if (nsResult.isErr()) {
+        this.logger.warn('Workspace namespace init failed; schema created without namespace', {
+          workspaceId: wid,
+          workspaceSlug: parsed.data.workspaceSlug,
+          error: nsResult.error.message,
+        });
+      }
+    }
 
     // 5. Audit
     await this.audit.write({
@@ -661,13 +701,26 @@ export class SchemaService {
       ...auditMeta(ctx),
     });
 
-    // Log PII-tagged columns for compliance tracking (bridge to personal data registry)
+    // Write PII-tagged columns to the audit log as the personal data registry entry.
+    // The compliance module queries SCHEMA_PII_COLUMNS_REGISTERED events to answer
+    // "what PII does workspace X store?" for GDPR Article 15/17 requests.
     const piiCols = extractPiiColumns(proposedTables);
     if (piiCols.length > 0) {
-      this.logger.info('PII-tagged columns deployed', {
-        schemaId,
+      await this.audit.write({
+        eventType: SCHEMA_AUDIT_EVENTS.SCHEMA_PII_COLUMNS_REGISTERED,
         workspaceId: schema.workspaceId,
-        piiColumns: piiCols,
+        actor: toAuditActor(ctx),
+        resource: { type: 'schema', id: schemaId },
+        action: 'pii_columns_registered',
+        outcome: 'success',
+        correlationId: ctx.correlationId,
+        metadata: {
+          schemaId,
+          schemaSlug: schema.slug,
+          version: newVersion,
+          piiColumns: piiCols,
+        },
+        ...auditMeta(ctx),
       });
     }
 
@@ -1102,6 +1155,27 @@ export class SchemaService {
     }
 
     return ok(schema);
+  }
+
+  // ── API resolution ───────────────────────────────────────────────────────────
+
+  private async _resolveDeployedSchema(
+    ctx: RequestContext,
+    schemaSlug: string,
+  ): Promise<Result<CustomerSchema, AppError>> {
+    if (!ctx.workspaceId) return err(new WorkspaceContextRequiredError());
+
+    const findResult = await this.schemas.findOne({
+      workspaceId: { _eq: ctx.workspaceId },
+      slug: { _eq: schemaSlug },
+    } as Filter<CustomerSchema>);
+
+    if (findResult.isErr()) return err(new ConflictError(findResult.error.message));
+    if (!findResult.value) {
+      return err(new NotFoundError('Schema', `${ctx.workspaceId}:${schemaSlug}`));
+    }
+
+    return ok(findResult.value);
   }
 
   // ── Audit helpers ────────────────────────────────────────────────────────────

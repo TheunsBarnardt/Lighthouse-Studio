@@ -87,6 +87,9 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['schema.rollback', 'schema'],
       ['schema.export', 'schema'],
       ['schema.import', 'schema'],
+      // Data management — full access to tables and rows
+      ['*', 'data_table'],
+      ['*', 'data_row'],
     ),
   },
   {
@@ -110,7 +113,12 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
     name: 'architect',
     description: 'Owns schema and architecture decisions',
     scope: 'workspace',
-    permissions: perms(['*', 'schema'], ['grant', 'approval.architecture']),
+    permissions: perms(
+      ['*', 'schema'],
+      ['grant', 'approval.architecture'],
+      ['read', 'data_table'],
+      ['read', 'data_row'],
+    ),
   },
   {
     name: 'developer',
@@ -126,6 +134,12 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['read', 'schema'],
       ['schema.read', 'schema'],
       ['schema.export', 'schema'],
+      // Developers can read and write customer data rows (needed for testing/development)
+      ['read', 'data_table'],
+      ['create', 'data_row'],
+      ['read', 'data_row'],
+      ['update', 'data_row'],
+      ['delete', 'data_row'],
     ),
   },
   {
@@ -137,6 +151,8 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['grant', 'approval.qa'],
       ['schema.read', 'schema'],
       ['schema.export', 'schema'],
+      ['read', 'data_table'],
+      ['read', 'data_row'],
     ),
   },
   {
@@ -163,6 +179,8 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['read', 'member'],
       ['schema.read', 'schema'],
       ['schema.export', 'schema'],
+      ['read', 'data_table'],
+      ['read', 'data_row'],
     ),
   },
   {
@@ -182,6 +200,8 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['read', 'workspace'],
       ['schema.read', 'schema'],
       ['schema.export', 'schema'],
+      ['read', 'data_table'],
+      ['read', 'data_row'],
     ),
   },
 ];

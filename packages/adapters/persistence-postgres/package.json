@@ -34,7 +34,9 @@
     "uuidv7": "^1.0.2"
   },
   "devDependencies": {
+    "@platform/adapter-observability-memory": "workspace:*",
     "@platform/config": "workspace:*",
+    "@platform/core": "workspace:*",
     "@types/pg": "^8.11.10",
     "drizzle-kit": "^0.31.0",
     "fast-check": "^3.23.0",

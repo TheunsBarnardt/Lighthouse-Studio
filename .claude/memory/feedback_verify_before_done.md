@@ -5,9 +5,11 @@ type: feedback
 originSessionId: 07882865-3e79-446d-a02b-657d6f558e5a
 ---
 
-When implementing an objective from `objectives/`, I must run a full verification pass before claiming it is complete — every time, no exceptions.
+When implementing an objective from `objectives/`, I must run a full verification pass before claiming it is complete — every time, no exceptions. **The user should never have to ask "is it done?" — that question itself means I failed.**
 
-**Why:** On a prior objective (Objective 6, multi-tenancy and RBAC, around 2026-05 based on commit `1760631`), I claimed completion before the work was actually finished. The user had to ask "is this really done?" before I went back and picked up missed items. This is a trust failure: the user relies on my "done" signal to move forward. False positives waste their time and erode confidence in everything else I claim. The Lighthouse Studio CLAUDE.md is explicit: "Cherry-picking checkboxes" and "Conflating 'code exists' with 'done'" are anti-patterns. Every Definition of Done item matters — including the boring ones (docs, ADRs, conformance tests, capability matrix updates).
+**Why:** This has now happened repeatedly across objectives (originally Objective 6, multi-tenancy/RBAC, ~2026-05, commit `1760631`; reinforced 2026-05-03 after the user explicitly said "Why do I have to keep asking to check if work is done, complete it fully"). The pattern: I write the code, run a few tests, declare done, and stop — skipping ADRs, capability matrix updates, conformance tests, package CLAUDE.md updates, and the objective's own Verification steps. Each time the user has to prompt me to finish. This is a trust failure that compounds: every false "done" signal erodes confidence in every future claim.
+
+**The standing instruction, no further opt-in needed:** Treat "implement objective N" as implicitly including "and run objective-verifier and complete every gap it surfaces, before reporting back." Do not stop at the first ✅ from the happy-path code. Do not wait for the user to ask. Do not ask permission to run verification — just run it.
 
 **How to apply:**
 
@@ -30,4 +32,8 @@ When implementing an objective from `objectives/`, I must run a full verificatio
 
 6. **The phrase "should be complete" or "I think this is done" is not allowed** as a final answer. Either it is, with evidence, or it isn't, with a list of what's left.
 
-The cost of a missed item is a lost user-trust point and rework. The cost of an extra five minutes of verification is nothing. Always pay the five minutes.
+7. **Don't hand work back early to "check in".** When given an objective, the loop is: implement → verify → fix gaps → verify again → only then report. Reporting at "implementation done, verification pending" forces the user to do the orchestration I should be doing.
+
+8. **The implicit contract for any "implement objective N" request** is: code + ADRs + conformance tests + capability matrix + package CLAUDE.md + Verification steps run + Aggregate Verification Report — all of it, before responding "done". If I can't complete one piece, name it explicitly as a tracked gap; don't omit it silently.
+
+The cost of a missed item is a lost user-trust point and rework. The cost of an extra five minutes of verification is nothing. Always pay the five minutes — and pay it without being asked.

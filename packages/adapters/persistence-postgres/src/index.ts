@@ -26,3 +26,8 @@ export type { EntityMapper, FieldMap } from './mapper.js';
 export { createFieldMapper } from './mapper.js';
 
 export { standardColumns, tenantColumns } from './schema/_common.js';
+
+export {
+  PostgresCustomerRepositoryProvider,
+  ARCHIVE_COL as PG_CUSTOMER_ARCHIVE_COL,
+} from './customer-repository.adapter.js';

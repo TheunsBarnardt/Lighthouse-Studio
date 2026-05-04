@@ -2,6 +2,32 @@
 // Extends the global AUDIT_EVENTS catalog in packages/core/src/compliance/audit-events.ts.
 // All event types follow the pattern: data_management.<entity>.<action>
 
+export const API_AUDIT_EVENTS = {
+  // Row mutations — emitted on every successful mutating operation
+  ROW_CREATED: 'data_management.api.row_created',
+  ROW_UPDATED: 'data_management.api.row_updated',
+  ROW_ARCHIVED: 'data_management.api.row_archived',
+  ROW_RESTORED: 'data_management.api.row_restored',
+  ROW_HARD_DELETED: 'data_management.api.row_hard_deleted',
+
+  // Bulk mutations — one event per operation, not per row
+  BULK_CREATED: 'data_management.api.bulk_created',
+  BULK_UPDATED: 'data_management.api.bulk_updated',
+  BULK_DELETED: 'data_management.api.bulk_deleted',
+
+  // Access control events
+  READ_DENIED: 'data_management.api.read_denied',
+  RATE_LIMITED: 'data_management.api.rate_limited',
+
+  // API key lifecycle
+  API_KEY_CREATED: 'data_management.api.api_key_created',
+  API_KEY_REVOKED: 'data_management.api.api_key_revoked',
+  // Sampled — not emitted on every request, only periodically
+  API_KEY_USED: 'data_management.api.api_key_used',
+} as const;
+
+export type ApiAuditEventType = (typeof API_AUDIT_EVENTS)[keyof typeof API_AUDIT_EVENTS];
+
 export const SCHEMA_AUDIT_EVENTS = {
   SCHEMA_CREATED: 'data_management.schema.created',
   SCHEMA_UPDATED: 'data_management.schema.updated',
@@ -12,6 +38,26 @@ export const SCHEMA_AUDIT_EVENTS = {
   SCHEMA_DEPLOY_FAILED: 'data_management.schema.deploy_failed',
   SCHEMA_ROLLED_BACK: 'data_management.schema.rolled_back',
   SCHEMA_VALIDATION_FAILED: 'data_management.schema.validation_failed',
+  /** Emitted on every successful deploy that includes PII-tagged columns. Feeds the personal data registry. */
+  SCHEMA_PII_COLUMNS_REGISTERED: 'data_management.schema.pii_columns_registered',
 } as const;
 
 export type SchemaAuditEventType = (typeof SCHEMA_AUDIT_EVENTS)[keyof typeof SCHEMA_AUDIT_EVENTS];
+
+export const GRAPHQL_AUDIT_EVENTS = {
+  // Sampled — not emitted on every query
+  QUERY_EXECUTED: 'data_management.graphql.query_executed',
+  // Always emitted; includes mutation name, table, and correlation id
+  MUTATION_EXECUTED: 'data_management.graphql.mutation_executed',
+  // Emitted when a query exceeds the configured limit
+  QUERY_COMPLEXITY_EXCEEDED: 'data_management.graphql.query_complexity_exceeded',
+  QUERY_DEPTH_EXCEEDED: 'data_management.graphql.query_depth_exceeded',
+  // Persisted query lifecycle
+  PERSISTED_QUERY_REGISTERED: 'data_management.graphql.persisted_query_registered',
+  PERSISTED_QUERY_REVOKED: 'data_management.graphql.persisted_query_revoked',
+  // Sampled — useful for security review
+  INTROSPECTION_QUERY: 'data_management.graphql.introspection_query',
+} as const;
+
+export type GraphQLAuditEventType =
+  (typeof GRAPHQL_AUDIT_EVENTS)[keyof typeof GRAPHQL_AUDIT_EVENTS];

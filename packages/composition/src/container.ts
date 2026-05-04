@@ -22,7 +22,9 @@ import type {
   SchemaDdlPort,
   SchemaMigrationPort,
   QueryPort,
+  CustomerRepositoryProviderPort,
 } from '@platform/ports-persistence';
+import type { RateLimiterPort } from '@platform/ports-rate-limiter';
 import type { FullTextSearchPort, VectorStorePort, EmbeddingPort } from '@platform/ports-search';
 import type { ObjectStoragePort } from '@platform/ports-storage';
 
@@ -34,10 +36,13 @@ export interface PersistenceBundle {
   query: QueryPort | null;
   /** Factory for creating a repository for a given entity type. */
   repository: <TEntity extends { id: string }>(entityName: string) => RepositoryPort<TEntity>;
+  /** Provider for dynamic customer table repositories (used by the data API). */
+  customerRepositoryProvider: CustomerRepositoryProviderPort | null;
 }
 
 export interface PlatformContainer {
   persistence: PersistenceBundle;
+  rateLimiter: RateLimiterPort;
   identity: IdentityProviderPort;
   userDirectory: UserDirectoryPort | null;
   session: SessionPort | null;

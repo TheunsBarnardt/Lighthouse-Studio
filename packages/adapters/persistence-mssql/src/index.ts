@@ -22,3 +22,8 @@ export type { EntityMapper, FieldMap } from './mapper.js';
 export { createFieldMapper, rowVersionToToken, tokenToRowVersion, coerceBit } from './mapper.js';
 
 export { STANDARD_COLUMN_DDL, TENANT_COLUMN_DDL, newEntityId } from './schema/_common.js';
+
+export {
+  MssqlCustomerRepositoryProvider,
+  ARCHIVE_COL as MSSQL_CUSTOMER_ARCHIVE_COL,
+} from './customer-repository.adapter.js';

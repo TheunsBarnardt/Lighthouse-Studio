@@ -618,7 +618,6 @@ export class SchemaValidator {
     errors: ValidationIssue[],
   ): void {
     const pk = table.primaryKey;
-
     const colIds = new Set(table.columns.map((c) => c.id));
 
     if (pk.kind === 'single') {

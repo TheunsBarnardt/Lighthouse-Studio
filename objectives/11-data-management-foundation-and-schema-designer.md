@@ -1,8 +1,10 @@
 # Objective 11: Data Management Module — Foundation & Schema Designer
 
-**Status:** Ready for development
+**Status:** Backend complete (2026-05-03); user-facing UI carved out to **Objective 11.5 — Schema Designer UI**
 **Prerequisites:** All foundation objectives (1 through 10) complete
 **Blocks:** Every other Data Management Module objective (12 through 19)
+
+> **2026-05-03 scope split.** The original Obj 11 bundled the schema-designer service layer with the schema-designer UI. Verification on 2026-05-03 confirmed the backend complete and exhaustively tested while the web app at `apps/web/src/` was effectively empty. Rather than block Stage One progress on a UI that has no dependants until Obj 18, the UI is split into [Objective 11.5](11.5-schema-designer-ui.md). This objective is closed against the backend Definition of Done; every UI-related checkbox in Section 10 below is satisfied through 11.5 instead. Backend evidence for closure: `packages/core/src/services/data-management/` (`schema.service.ts`, `schema-validator.ts`, `migration-planner.ts`, `schema-model.ts`, `audit-events.ts`, `templates/`), `packages/core/tests/leak-tests/cross-tenant-isolation.test.ts`, and ADRs 0094–0098 all Accepted.
 
 ---
 

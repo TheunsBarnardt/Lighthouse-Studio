@@ -21,3 +21,8 @@ export type { FilterTranslationError } from './filter-translator.js';
 
 export type { EntityMapper, FieldMap } from './mapper.js';
 export { createFieldMapper } from './mapper.js';
+
+export {
+  MongoCustomerRepositoryProvider,
+  ARCHIVE_FIELD as MONGO_CUSTOMER_ARCHIVE_FIELD,
+} from './customer-repository.adapter.js';

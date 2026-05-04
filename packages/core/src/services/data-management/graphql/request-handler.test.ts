@@ -81,7 +81,9 @@ const fakeSchemas = {
 
 // ── Test helpers ───────────────────────────────────────────────────────────────
 
-function makeHandler(opts: { denyAll?: boolean } = {}): GraphQLRequestHandler {
+function makeHandler(
+  opts: { denyAll?: boolean; maxQueryDepth?: number; maxQueryComplexity?: number } = {},
+): GraphQLRequestHandler {
   const audit = createInMemoryAudit();
   const authz = createInMemoryAuthz(opts.denyAll ? { deny: true } : {});
   const logger = createInMemoryLogger();
@@ -97,6 +99,12 @@ function makeHandler(opts: { denyAll?: boolean } = {}): GraphQLRequestHandler {
     logger,
     noopMetrics,
     rateLimiter,
+    {
+      ...(opts.maxQueryDepth !== undefined ? { maxQueryDepth: opts.maxQueryDepth } : {}),
+      ...(opts.maxQueryComplexity !== undefined
+        ? { maxQueryComplexity: opts.maxQueryComplexity }
+        : {}),
+    },
   );
 }
 
@@ -151,19 +159,57 @@ describe('GraphQLRequestHandler', () => {
   });
 
   describe('depth limit', () => {
-    it('rejects queries that exceed the default depth of 10', async () => {
-      // TODO: build a query of depth > 10 and assert rejection. Current
-      // assertion only proves a shallow query is accepted, not that deep
-      // queries are rejected.
-      const validQuery =
-        '{ productList(first: 5) { edges { node { id name } } pageInfo { hasNextPage } } }';
-      const resp = await handler.handle({
-        query: validQuery,
+    it('rejects queries that exceed the configured max depth', async () => {
+      // productList → edges → node → id reaches depth 4.
+      // Configure maxQueryDepth: 3 so the 'id' field at depth 4 is rejected.
+      const deepHandler = makeHandler({ maxQueryDepth: 3 });
+      const resp = await deepHandler.handle({
+        query: '{ productList { edges { node { id } } } }',
         ctx: BASE_CTX,
         schemaSlug: 'store',
         workspaceSlug: 'ws-test',
       });
-      // 200 because the query is valid and under depth limit
+      expect(resp.statusCode).toBe(400);
+      const codes = resp.body.errors?.map((e) => e.extensions?.['code']);
+      expect(codes).toContain('VALIDATION_ERROR');
+    });
+
+    it('allows queries within the configured max depth', async () => {
+      const shallowHandler = makeHandler({ maxQueryDepth: 5 });
+      const resp = await shallowHandler.handle({
+        query: '{ productList(first: 5) { edges { node { id name } } pageInfo { hasNextPage } } }',
+        ctx: BASE_CTX,
+        schemaSlug: 'store',
+        workspaceSlug: 'ws-test',
+      });
+      expect(resp.statusCode).toBe(200);
+    });
+  });
+
+  describe('complexity limit', () => {
+    it('rejects queries that exceed the configured complexity limit', async () => {
+      // productList(+1) → edges(+1) → node(+1) = complexity 3.
+      // Configure maxQueryComplexity: 2 so this query is rejected.
+      const complexHandler = makeHandler({ maxQueryComplexity: 2 });
+      const resp = await complexHandler.handle({
+        query: '{ productList { edges { node { id } } } }',
+        ctx: BASE_CTX,
+        schemaSlug: 'store',
+        workspaceSlug: 'ws-test',
+      });
+      expect(resp.statusCode).toBe(400);
+      expect(resp.body.errors?.[0]?.extensions?.['code']).toBe('QUERY_TOO_COMPLEX');
+    });
+
+    it('allows simple queries under the complexity limit', async () => {
+      // productCount has no nested selectionSet → complexity 0.
+      const complexHandler = makeHandler({ maxQueryComplexity: 2 });
+      const resp = await complexHandler.handle({
+        query: '{ productCount }',
+        ctx: BASE_CTX,
+        schemaSlug: 'store',
+        workspaceSlug: 'ws-test',
+      });
       expect(resp.statusCode).toBe(200);
     });
   });

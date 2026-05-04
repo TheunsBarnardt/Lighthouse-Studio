@@ -32,6 +32,12 @@ export type {
 } from './types.js';
 export { PageSchema, SortDirectionSchema } from './types.js';
 export type {
+  CustomerTableRepository,
+  CustomerTableDescriptor,
+  CustomerRepositoryProviderPort,
+  CustomerRow,
+} from './customer-repository.port.js';
+export type {
   ChangeStreamPort,
   ChangeStreamCapabilities,
   ChangeEvent,

@@ -12,6 +12,7 @@ import {
   NoopTracer,
 } from '@platform/adapter-observability-memory';
 import { InMemoryRepository, InMemoryUnitOfWork } from '@platform/adapter-persistence-memory';
+import { InMemoryRateLimiter } from '@platform/adapter-rate-limiter-memory';
 import { InMemoryFullTextSearch } from '@platform/adapter-search-memory';
 import { InMemoryObjectStorage } from '@platform/adapter-storage-memory';
 
@@ -33,7 +34,9 @@ export function composeMemory(): PlatformContainer {
         }
         return repositories.get(entityName) as InMemoryRepository<TEntity>;
       },
+      customerRepositoryProvider: null,
     },
+    rateLimiter: new InMemoryRateLimiter(),
     identity: new InMemoryIdentityProvider(),
     userDirectory: null,
     session: null,

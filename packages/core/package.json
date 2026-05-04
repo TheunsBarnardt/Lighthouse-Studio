@@ -9,6 +9,10 @@
     ".": {
       "import": "./dist/src/index.js",
       "types": "./dist/src/index.d.ts"
+    },
+    "./testing": {
+      "import": "./dist/src/testing/index.js",
+      "types": "./dist/src/testing/index.d.ts"
     }
   },
   "scripts": {
@@ -25,6 +29,11 @@
     "@platform/ports-identity": "workspace:*",
     "@platform/ports-observability": "workspace:*",
     "@platform/ports-persistence": "workspace:*",
+    "@platform/ports-rate-limiter": "workspace:*",
+    "@pothos/core": "^4.12.0",
+    "dataloader": "^2.2.3",
+    "graphql": "^16.13.2",
+    "graphql-yoga": "^5.21.0",
     "neverthrow": "8.2.0",
     "uuidv7": "^1.0.2",
     "zod": "3.24.4"
