@@ -114,9 +114,19 @@ export function ColumnRow({ tableId, column, isPrimaryKey, driver }: ColumnRowPr
       <td className="px-2 py-1.5">
         <Tooltip
           content={
-            !caps.arrays && column.type.kind === 'array'
-              ? `Array columns are not supported on ${driver.toUpperCase()}`
-              : undefined
+            !caps.arrays && column.type.kind === 'array' ? (
+              <span>
+                Array columns are not supported on {driver.toUpperCase()}.{' '}
+                <a
+                  href="/docs/architecture/capability-matrix.md#arrays"
+                  className="underline opacity-80"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  See capability matrix
+                </a>
+              </span>
+            ) : undefined
           }
           side="top"
         >
@@ -144,7 +154,11 @@ export function ColumnRow({ tableId, column, isPrimaryKey, driver }: ColumnRowPr
                 key={k}
                 value={k}
                 disabled={k === 'array' && !caps.arrays}
-                title={k === 'array' && !caps.arrays ? `Not supported on ${driver}` : undefined}
+                title={
+                  k === 'array' && !caps.arrays
+                    ? `Not supported on ${driver} — see docs/architecture/capability-matrix.md`
+                    : undefined
+                }
               >
                 {kindLabel(k)}
                 {k === 'array' && !caps.arrays ? ' (not supported)' : ''}

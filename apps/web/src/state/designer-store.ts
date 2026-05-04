@@ -16,6 +16,7 @@ import type {
 } from '@/lib/types';
 
 import { ApiClientError, schemaApi } from '@/lib/api-client';
+import { reportError, trackAction, withSpan } from '@/lib/telemetry';
 
 export type DesignerView = 'diagram' | 'table' | 'code';
 
@@ -148,6 +149,8 @@ export const useDesignerStore = create<DesignerState>()(
     },
 
     updateSchema(mutate) {
+      const { workspaceId } = get();
+      trackAction('edit', workspaceId);
       set((s) => {
         if (!s.schema) return;
         mutate(s.schema);
@@ -183,17 +186,21 @@ export const useDesignerStore = create<DesignerState>()(
     async validateChanges() {
       const { workspaceId, schema } = get();
       if (!workspaceId || !schema) return;
+      trackAction('validate', workspaceId);
       set((s) => {
         s.isLoading = true;
         s.error = null;
       });
       try {
         const changes: SchemaChanges = { tables: schema.tables };
-        const report = await schemaApi.validate(workspaceId, schema.id, changes);
+        const report = await withSpan('schema.validate', () =>
+          schemaApi.validate(workspaceId, schema.id, changes),
+        );
         set((s) => {
           s.validationReport = report;
         });
       } catch (err) {
+        if (err instanceof Error) reportError(err, { action: 'validate', workspaceId });
         set((s) => {
           s.error = err instanceof Error ? err.message : 'Validation failed.';
         });
@@ -207,17 +214,21 @@ export const useDesignerStore = create<DesignerState>()(
     async previewMigration() {
       const { workspaceId, schema } = get();
       if (!workspaceId || !schema) return;
+      trackAction('preview', workspaceId);
       set((s) => {
         s.isLoading = true;
         s.error = null;
       });
       try {
         const changes: SchemaChanges = { tables: schema.tables };
-        const preview = await schemaApi.previewMigration(workspaceId, schema.id, changes);
+        const preview = await withSpan('schema.preview', () =>
+          schemaApi.previewMigration(workspaceId, schema.id, changes),
+        );
         set((s) => {
           s.migrationPreview = preview;
         });
       } catch (err) {
+        if (err instanceof Error) reportError(err, { action: 'preview', workspaceId });
         set((s) => {
           s.error = err instanceof Error ? err.message : 'Preview failed.';
         });
@@ -231,17 +242,15 @@ export const useDesignerStore = create<DesignerState>()(
     async applyMigration() {
       const { workspaceId, schema } = get();
       if (!workspaceId || !schema) return;
+      trackAction('apply', workspaceId);
       set((s) => {
         s.isLoading = true;
         s.error = null;
       });
       try {
         const changes: SchemaChanges = { tables: schema.tables };
-        const result = await schemaApi.applyMigration(
-          workspaceId,
-          schema.id,
-          changes,
-          schema.version,
+        const result = await withSpan('schema.apply', () =>
+          schemaApi.applyMigration(workspaceId, schema.id, changes, schema.version),
         );
         if (result.outcome === 'succeeded' && result.newVersion !== undefined) {
           const newVersion = result.newVersion;
@@ -268,6 +277,7 @@ export const useDesignerStore = create<DesignerState>()(
             s.error = null;
           });
         } else {
+          if (err instanceof Error) reportError(err, { action: 'apply', workspaceId });
           set((s) => {
             s.error = err instanceof Error ? err.message : 'Apply migration failed.';
           });
@@ -282,12 +292,15 @@ export const useDesignerStore = create<DesignerState>()(
     async rollback(targetVersion) {
       const { workspaceId, schema } = get();
       if (!workspaceId || !schema) return;
+      trackAction('rollback', workspaceId);
       set((s) => {
         s.isLoading = true;
         s.error = null;
       });
       try {
-        await schemaApi.rollback(workspaceId, schema.id, targetVersion);
+        await withSpan('schema.rollback', () =>
+          schemaApi.rollback(workspaceId, schema.id, targetVersion),
+        );
         // Reload fresh state from API
         await get().loadSchema(schema.id);
       } catch (err) {

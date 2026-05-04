@@ -171,9 +171,15 @@ export function TableView() {
                 {selectedTable.columns.length} columns
               </span>
               {schema.databaseDriver === 'mongo' && selectedTable.foreignKeys.length > 0 && (
-                <span className="rounded bg-warning/10 px-2 py-0.5 text-xs text-warning">
+                <a
+                  href="/docs/architecture/capability-matrix.md#foreign-keys"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded bg-warning/10 px-2 py-0.5 text-xs text-warning underline-offset-2 hover:underline"
+                  title="Foreign keys are advisory only on MongoDB — referential integrity not enforced"
+                >
                   FK advisory on MongoDB
-                </span>
+                </a>
               )}
             </div>
 
