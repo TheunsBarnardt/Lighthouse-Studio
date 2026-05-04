@@ -88,9 +88,9 @@ export class SubscriptionManager {
       schemaId: opts.schemaId,
       tableId: opts.tableId,
       tableDef: opts.tableDef,
-      filter: opts.filter,
-      fields: opts.fields,
-      operations: opts.operations,
+      ...(opts.filter !== undefined && { filter: opts.filter }),
+      ...(opts.fields !== undefined && { fields: opts.fields }),
+      ...(opts.operations !== undefined && { operations: opts.operations }),
       mode: opts.mode,
       buffer: [],
       totalDropped: 0,
@@ -161,13 +161,14 @@ export class SubscriptionManager {
     const ac = new AbortController();
     const permCache = new PermissionCache(this.authz);
 
+    // Destructure out resumeExpiry so it is absent on the resumed subscription
+    const { resumeExpiry: _resumeExpiry, ...savedBase } = saved;
     const sub: ActiveSubscription = {
-      ...saved,
+      ...savedBase,
       connectionId: opts.connectionId,
       cancel: () => {
         ac.abort();
       },
-      resumeExpiry: undefined,
     };
 
     const connSubs = this.getOrCreateConnectionMap(opts.connectionId);
@@ -238,11 +239,11 @@ export class SubscriptionManager {
     const watchOpts: Parameters<ChangeStreamPort['watch']>[0] = {
       table: sub.tableId,
       schema: sub.schemaId,
-      operations: sub.operations,
+      ...(sub.operations !== undefined && { operations: sub.operations }),
     };
 
     if (resumeFromPosition && this.changeStreams.supports('replay_from_position')) {
-      (watchOpts as Record<string, unknown>)['resumeToken'] = resumeFromPosition;
+      (watchOpts as unknown as Record<string, unknown>)['resumeToken'] = resumeFromPosition;
     }
 
     // Emit any buffered events first (backlog from disconnect)

@@ -65,8 +65,6 @@ function makeTableDef(piiColumns: string[] = []): CustomerTableDefinition {
   return {
     id: 'tbl-users',
     name: 'users',
-    slug: 'users',
-    version: 1,
     columns: [
       { id: 'col-id', name: 'id', type: { kind: 'uuid' }, nullable: false },
       { id: 'col-active', name: 'active', type: { kind: 'boolean' }, nullable: false },
@@ -83,7 +81,6 @@ function makeTableDef(piiColumns: string[] = []): CustomerTableDefinition {
     indexes: [],
     foreignKeys: [],
     constraints: [],
-    softDelete: false,
   };
 }
 
@@ -174,8 +171,8 @@ describe('EventFilterPipeline.process', () => {
 
     const result = await pipeline.process(event, sub, ctx, permCache);
     expect(result).not.toBeNull();
-    expect(result?.after?.email).toBeNull();
-    expect(result?.after?.phone).toBeNull();
+    expect(result?.after?.['email']).toBeNull();
+    expect(result?.after?.['phone']).toBeNull();
     expect(result?.redacted).toContain('email');
     expect(result?.redacted).toContain('phone');
   });

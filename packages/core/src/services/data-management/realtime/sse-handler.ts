@@ -1,6 +1,6 @@
 import type { AuditPort } from '@platform/ports-audit';
-import type { AuthorizationPort, RequestContext } from '@platform/ports-authorization';
-import type { LoggerPort, MetricsPort } from '@platform/ports-observability';
+import type { RequestContext } from '@platform/ports-authorization';
+import type { MetricsPort } from '@platform/ports-observability';
 import type { RateLimiterPort } from '@platform/ports-rate-limiter';
 
 import { uuidv7 } from 'uuidv7';
@@ -73,10 +73,8 @@ export class SseHandler {
     private readonly schemas: SchemaService,
     private readonly connections: ConnectionManager,
     private readonly subscriptions: SubscriptionManager,
-    private readonly authz: AuthorizationPort,
     private readonly rateLimiter: RateLimiterPort,
     private readonly audit: AuditPort,
-    private readonly logger: LoggerPort,
     private readonly metrics: MetricsPort,
   ) {}
 
@@ -207,9 +205,9 @@ export class SseHandler {
           schemaId: customerSchema.id,
           tableId: decl.table,
           tableDef,
-          filter: decl.filter,
-          fields: decl.fields,
-          operations: decl.operations,
+          ...(decl.filter !== undefined && { filter: decl.filter }),
+          ...(decl.fields !== undefined && { fields: decl.fields }),
+          ...(decl.operations !== undefined && { operations: decl.operations }),
           mode: decl.mode,
         },
         ctx,
@@ -358,7 +356,12 @@ function parseSubscriptionDeclarations(
       .map((o) => o.trim() as 'insert' | 'update' | 'delete' | 'truncate')
       .filter(Boolean);
 
-    declarations.push({ table, mode, fields, operations });
+    declarations.push({
+      table,
+      mode,
+      ...(fields !== undefined && { fields }),
+      ...(operations !== undefined && { operations }),
+    });
   }
 
   return declarations;

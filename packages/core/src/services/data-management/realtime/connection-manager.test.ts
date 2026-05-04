@@ -7,7 +7,6 @@ import {
   createInMemoryAudit,
   createInMemoryAuthz,
   createInMemoryLogger,
-  createInMemoryRateLimiter,
   makeUserContext,
 } from '../../../testing/index.js';
 import { ConnectionManager } from './connection-manager.js';
@@ -37,7 +36,6 @@ function makeChangeStream() {
 
 function makeManager() {
   const authz = createInMemoryAuthz();
-  const rateLimiter = createInMemoryRateLimiter();
   const audit = createInMemoryAudit();
   const logger = createInMemoryLogger();
   const eventBus = new InProcessEventBus();
@@ -48,15 +46,7 @@ function makeManager() {
     logger,
     noopMetrics,
   );
-  const manager = new ConnectionManager(
-    authz,
-    rateLimiter,
-    audit,
-    logger,
-    noopMetrics,
-    eventBus,
-    subManager,
-  );
+  const manager = new ConnectionManager(authz, audit, logger, noopMetrics, eventBus, subManager);
   return { manager, eventBus, audit, logger };
 }
 

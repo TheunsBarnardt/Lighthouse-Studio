@@ -25,8 +25,6 @@ function makeTableDef(): CustomerTableDefinition {
   return {
     id: 'tbl-users',
     name: 'users',
-    slug: 'users',
-    version: 1,
     columns: [
       { id: 'col-id', name: 'id', type: { kind: 'uuid' }, nullable: false },
       { id: 'col-name', name: 'name', type: { kind: 'string' }, nullable: true },
@@ -35,7 +33,6 @@ function makeTableDef(): CustomerTableDefinition {
     indexes: [],
     foreignKeys: [],
     constraints: [],
-    softDelete: false,
   };
 }
 

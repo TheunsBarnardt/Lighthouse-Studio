@@ -47,7 +47,12 @@ export class PermissionCache {
       return cached.result;
     }
 
-    const result = await this.authz.authorize(ctx, action, resourceType, { resourceId });
+    const result = await this.authz.authorize(
+      ctx,
+      action,
+      resourceType,
+      resourceId !== undefined ? { resourceId } : undefined,
+    );
     const allowed = result.isOk();
 
     this.cache.set(key, { result: allowed, expiresAt: now + this.ttl });

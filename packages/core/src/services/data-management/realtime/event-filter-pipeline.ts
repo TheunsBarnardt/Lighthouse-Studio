@@ -214,8 +214,8 @@ export class EventFilterPipelineImpl implements EventFilterPipeline {
       kind,
       operation: event.operation,
       table: event.table,
-      before: projectedBefore,
-      after: projectedAfter,
+      ...(projectedBefore !== undefined && { before: projectedBefore }),
+      ...(projectedAfter !== undefined && { after: projectedAfter }),
       position: event.position,
       occurredAt: event.occurredAt.toISOString(),
     };

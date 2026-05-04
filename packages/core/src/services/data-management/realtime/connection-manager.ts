@@ -1,7 +1,6 @@
 import type { AuditPort } from '@platform/ports-audit';
 import type { AuthorizationPort, RequestContext } from '@platform/ports-authorization';
 import type { LoggerPort, MetricsPort } from '@platform/ports-observability';
-import type { RateLimiterPort } from '@platform/ports-rate-limiter';
 
 import { type Result, ok, err } from 'neverthrow';
 import { uuidv7 } from 'uuidv7';
@@ -56,7 +55,6 @@ export class ConnectionManager {
 
   constructor(
     private readonly authz: AuthorizationPort,
-    private readonly rateLimiter: RateLimiterPort,
     private readonly audit: AuditPort,
     private readonly logger: LoggerPort,
     private readonly metrics: MetricsPort,
@@ -107,7 +105,7 @@ export class ConnectionManager {
       transport: opts.transport,
       createdAt: now,
       lastHeartbeatAt: now,
-      sessionExpiresAt: opts.sessionExpiresAt,
+      ...(opts.sessionExpiresAt !== undefined && { sessionExpiresAt: opts.sessionExpiresAt }),
       subscriptions: new Map(),
     };
 
@@ -231,12 +229,12 @@ export class ConnectionManager {
   private onRevocationEvent(event: { kind: string; [k: string]: unknown }): void {
     switch (event.kind) {
       case 'session.revoked':
-        this.closeAllForUser(event.userId as string, 'session_expired');
+        this.closeAllForUser(event['userId'] as string, 'session_expired');
         break;
       case 'workspace.member_removed':
         this.closeAllForWorkspaceMember(
-          event.userId as string,
-          event.workspaceId as string,
+          event['userId'] as string,
+          event['workspaceId'] as string,
           'auth_revoked',
         );
         break;
@@ -244,14 +242,14 @@ export class ConnectionManager {
         // API key revocation: close connections authenticated with this key.
         // Tracking is done by sessionId in the connection state (not modelled here
         // for brevity; in production, ConnectionState would carry keyId).
-        this.logger.info('realtime.api_key_revoked', { keyId: event.keyId });
+        this.logger.info('realtime.api_key_revoked', { keyId: event['keyId'] });
         break;
       case 'permission.changed':
         // Invalidate permission caches rather than closing connections.
         // The next per-event permission check will pick up the change.
         this.logger.debug('realtime.permission_changed', {
-          userId: event.userId,
-          workspaceId: event.workspaceId,
+          userId: event['userId'],
+          workspaceId: event['workspaceId'],
         });
         break;
       default:

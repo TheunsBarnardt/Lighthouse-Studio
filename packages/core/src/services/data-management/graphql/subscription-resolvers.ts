@@ -162,11 +162,14 @@ function buildTableSubscriptionField(
       }
     },
 
-    resolve: (event: DeliverableEvent) => ({
-      ...event,
-      before: event.before ? JSON.stringify(event.before) : null,
-      after: event.after ? JSON.stringify(event.after) : null,
-    }),
+    resolve: (source: unknown) => {
+      const event = source as DeliverableEvent;
+      return {
+        ...event,
+        before: event.before ? JSON.stringify(event.before) : null,
+        after: event.after ? JSON.stringify(event.after) : null,
+      };
+    },
   };
 }
 
