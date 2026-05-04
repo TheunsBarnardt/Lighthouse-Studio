@@ -1,0 +1,71 @@
+@import './design-tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply antialiased;
+  }
+
+  h1 {
+    @apply text-3xl font-bold;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold;
+  }
+
+  h3 {
+    @apply text-xl font-semibold;
+  }
+
+  h4 {
+    @apply text-lg font-semibold;
+  }
+
+  h5 {
+    @apply text-base font-semibold;
+  }
+
+  h6 {
+    @apply text-sm font-semibold;
+  }
+
+  a {
+    @apply text-primary hover:text-primary/80 transition-colors;
+  }
+
+  button {
+    @apply transition-colors;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply transition-colors;
+  }
+}
+
+@layer components {
+  .text-muted {
+    @apply text-muted-foreground;
+  }
+
+  .border-subtle {
+    @apply border border-border;
+  }
+
+  .card {
+    @apply rounded-lg border bg-card shadow-sm;
+  }
+
+  .card-content {
+    @apply p-6;
+  }
+}

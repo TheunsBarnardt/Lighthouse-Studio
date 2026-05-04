@@ -20,7 +20,6 @@ interface TestEntity {
   value: number;
 }
 
-// eslint-disable-next-line no-restricted-syntax
 const POSTGRES_URL = process.env['POSTGRES_DIRECT_URL'] ?? process.env['POSTGRES_URL'];
 const TEST_TABLE = 'test_conformance';
 

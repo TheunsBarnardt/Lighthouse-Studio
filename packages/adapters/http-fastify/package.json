@@ -1,0 +1,39 @@
+{
+  "name": "@platform/adapter-http-fastify",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@platform/core": "workspace:*",
+    "@platform/ports-authorization": "workspace:*",
+    "@platform/ports-identity": "workspace:*",
+    "@platform/ports-observability": "workspace:*",
+    "fastify": "^5.2.1",
+    "graphql": "^16.13.2",
+    "graphql-yoga": "^5.21.0",
+    "neverthrow": "8.2.0"
+  },
+  "devDependencies": {
+    "@platform/config": "workspace:*",
+    "@platform/shared": "workspace:*",
+    "rimraf": "6.0.1",
+    "vitest": "3.2.3"
+  }
+}
