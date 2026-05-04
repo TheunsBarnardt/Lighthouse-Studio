@@ -64,8 +64,7 @@ export function useUpdateSchema(workspaceId: string, schemaId: string) {
     }: {
       expectedVersion: number;
       tables: TableDefinition[];
-    }) =>
-      schemaApi.update(workspaceId, schemaId, { schemaId, expectedVersion, changes: { tables } }),
+    }) => schemaApi.update(workspaceId, { schemaId, expectedVersion, changes: { tables } }),
     onSuccess: (updated: CustomerSchema) => {
       queryClient.setQueryData(schemaKeys.detail(workspaceId, schemaId), updated);
     },
@@ -74,7 +73,7 @@ export function useUpdateSchema(workspaceId: string, schemaId: string) {
 
 export function useExportSchema(workspaceId: string, schemaId: string) {
   return useMutation({
-    mutationFn: () => schemaApi.exportSchema(workspaceId, schemaId),
+    mutationFn: () => schemaApi.exportSchema(workspaceId, schemaId, 'json'),
   });
 }
 
