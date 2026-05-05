@@ -1,4 +1,4 @@
-# ADR-0105: Three Synchronized Views over One Schema Model
+# ADR-0119: Three Synchronized Views over One Schema Model
 
 **Status:** Accepted  
 **Date:** 2026-05-03
@@ -52,3 +52,7 @@ The invariant: **no view has local state that diverges from the store**. The onl
 **URL state / query params:** Schema state encoded in the URL. Rejected: schema JSON is too large for URLs; causes navigation side effects.
 
 **Server-authoritative sync (CRDT/OT):** Schema is always fetched from the server. Rejected: creates latency on every keystroke; overkill for a single-user editor.
+
+## Note
+
+Originally numbered ADR-0105; renumbered to avoid conflict with ADR-0105 (raw-graphql-js-for-dynamic-schema-generation, Objective 13).

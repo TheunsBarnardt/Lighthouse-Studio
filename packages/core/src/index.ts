@@ -87,6 +87,19 @@ export type {
   WorkspaceRetentionSettings,
 } from './services/audit-retention.service.js';
 
+export { WorkspaceAssetService } from './services/workspace-asset.service.js';
+export type {
+  ListByCategoryInput,
+  ReplaceWorkspaceAssetInput,
+  UploadWorkspaceAssetInput,
+} from './services/workspace-asset.service.js';
+export type {
+  ConsumedAssetEntry,
+  ConsumedAssetSnapshot,
+  StaleAssetEntry,
+  StalenessCheck,
+} from '@platform/ports-workspace-assets';
+
 // ── Approval routing ──────────────────────────────────────────────────────────
 export { ApprovalRoutingEngine } from './approvals/approval-routing.engine.js';
 export type { BlockReason, EvaluationInput, RoutingDecision } from './approvals/types.js';
@@ -172,3 +185,22 @@ export type {
   Connection,
   GraphQLAuditEventType,
 } from './services/data-management/index.js';
+
+// ── Storage Module ────────────────────────────────────────────────────────────
+export {
+  StorageService,
+  StorageQuotaExceededError,
+  StorageReconciliationJob,
+  STORAGE_AUDIT_EVENTS,
+} from './services/data-management/storage/index.js';
+export type {
+  StorageRealtimeEvent,
+  StorageAuditEventType,
+} from './services/data-management/storage/index.js';
+export {
+  MULTIPART_THRESHOLD_BYTES,
+  MAX_FILE_SIZE_BYTES,
+  DEFAULT_QUOTA_BYTES,
+  DEFAULT_SIGNED_URL_TTL_SECONDS,
+  MAX_SIGNED_URL_TTL_SECONDS,
+} from './services/data-management/storage/index.js';

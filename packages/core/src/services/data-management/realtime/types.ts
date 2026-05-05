@@ -83,6 +83,8 @@ export interface SubscribeOptions {
   fields?: string[];
   operations?: ChangeOperation[];
   mode: 'stream' | 'snapshot_then_stream';
+  /** Caller-supplied row count used to enforce SNAPSHOT_MAX_ROWS before starting a snapshot. */
+  rowCount?: number;
   resumeToken?: string;
 }
 

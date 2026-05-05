@@ -26,6 +26,7 @@
   "dependencies": {
     "@platform/ports-observability": "workspace:*",
     "@platform/ports-persistence": "workspace:*",
+    "@platform/ports-workspace-assets": "workspace:*",
     "mssql": "^11.0.1",
     "neverthrow": "8.2.0",
     "uuidv7": "^1.0.2"

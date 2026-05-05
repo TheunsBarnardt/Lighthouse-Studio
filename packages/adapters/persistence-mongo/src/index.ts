@@ -26,3 +26,5 @@ export {
   MongoCustomerRepositoryProvider,
   ARCHIVE_FIELD as MONGO_CUSTOMER_ARCHIVE_FIELD,
 } from './customer-repository.adapter.js';
+
+export { MongoWorkspaceAssetAdapter } from './workspace-asset.adapter.js';

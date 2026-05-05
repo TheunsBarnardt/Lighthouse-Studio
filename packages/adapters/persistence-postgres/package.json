@@ -28,6 +28,8 @@
     "@platform/ports-observability": "workspace:*",
     "@platform/ports-persistence": "workspace:*",
     "@platform/ports-search": "workspace:*",
+    "@platform/ports-storage": "workspace:*",
+    "@platform/ports-workspace-assets": "workspace:*",
     "neverthrow": "8.2.0",
     "pg": "^8.13.0",
     "drizzle-orm": "^0.44.0",

@@ -14,3 +14,4 @@ export {
   InMemoryCustomerRepoProvider,
 } from './in-memory-customer-repo.js';
 export { createInMemoryTracer } from './in-memory-tracer.js';
+export { createInMemoryObjectStorage } from './in-memory-storage.js';

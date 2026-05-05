@@ -252,6 +252,12 @@ export class ConnectionManager {
           workspaceId: event['workspaceId'],
         });
         break;
+      case 'schema.deployed':
+        // Notify all subscribers watching the changed schema so they can refresh.
+        // The subscription manager buffers a schema_change event into each affected stream.
+        this.logger.info('realtime.schema_deployed', { schemaId: event['schemaId'] });
+        this.subscriptions.notifySchemaChange(event['schemaId'] as string);
+        break;
       default:
         break;
     }

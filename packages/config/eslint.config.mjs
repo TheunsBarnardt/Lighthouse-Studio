@@ -60,6 +60,65 @@ const serviceMethodContextFirst = {
 };
 
 /**
+ * Public async methods on Service classes with an explicit return type
+ * annotation must include `Result` in that annotation. Unannotated methods
+ * are skipped — TypeScript catches mismatches at the call site.
+ */
+const serviceMethodReturnsResult = {
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description:
+        'Annotated public async Service methods must return Promise<Result<T, AppError>>',
+    },
+    schema: [],
+    messages: {
+      missingResult:
+        "Method '{{name}}' on '{{className}}' has return type '{{type}}' which does not include Result. Use Promise<Result<T, AppError>>.",
+    },
+  },
+  create(context) {
+    let currentClassName = '';
+    function checkReturnType(methodNode, methodName, fn) {
+      if (!fn.returnType) return;
+      const typeSrc = context.getSourceCode().getText(fn.returnType);
+      if (!typeSrc.includes('Result')) {
+        context.report({
+          node: methodNode,
+          messageId: 'missingResult',
+          data: { name: methodName, className: currentClassName, type: typeSrc.trim() },
+        });
+      }
+    }
+    return {
+      ClassDeclaration(node) {
+        currentClassName = node.id?.name ?? '';
+      },
+      ClassExpression(node) {
+        currentClassName = node.id?.name ?? '';
+      },
+      'ClassDeclaration:exit'() {
+        currentClassName = '';
+      },
+      'ClassExpression:exit'() {
+        currentClassName = '';
+      },
+      MethodDefinition(node) {
+        if (!currentClassName.endsWith('Service')) return;
+        if (node.kind !== 'method') return;
+        if (node.accessibility === 'private' || node.accessibility === 'protected') return;
+        if (node.static) return;
+        const fn = node.value;
+        if (!fn.async) return;
+        const methodName = node.key.type === 'Identifier' ? node.key.name : null;
+        if (!methodName || methodName.startsWith('_')) return;
+        checkReturnType(node, methodName, fn);
+      },
+    };
+  },
+};
+
+/**
  * `throw new Error(...)` is forbidden in service code. Use a typed AppError
  * subclass so errors are machine-readable and HTTP-mappable.
  */
@@ -261,6 +320,7 @@ const noLinuxOnlySignals = {
 const platformPlugin = {
   rules: {
     'service-method-context-first': serviceMethodContextFirst,
+    'service-method-returns-result': serviceMethodReturnsResult,
     'no-bare-error-throws': noBareErrorThrows,
     'audit-on-mutation': auditOnMutation,
     'no-path-concatenation': noPathConcatenation,
@@ -281,7 +341,10 @@ export default [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ['tests/**/*.ts', 'tests/**/*.tsx'],
+          defaultProject: './tsconfig.test.json',
+        },
       },
     },
     plugins: {
@@ -344,8 +407,13 @@ export default [
       // ── Platform service layer conventions (Objective 8) ──────────────────
       // Every public async Service method must receive ctx as first param
       'platform/service-method-context-first': 'error',
+      // Annotated async Service methods must return Promise<Result<T, AppError>>
+      'platform/service-method-returns-result': 'error',
       // No bare `throw new Error(...)` in service code — use typed AppError
       'platform/no-bare-error-throws': 'error',
+      // ── Authorization enforcement (Objective 6) ───────────────────────────
+      // Non-read-only async Service methods should call authz.authorize()
+      'platform/require-authz-call': 'warn',
       // Mutation methods (create/update/delete/…) should audit — soft warning
       'platform/audit-on-mutation': 'warn',
 

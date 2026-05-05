@@ -134,7 +134,7 @@ export default [
       parser: tsParser,
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['apps/*/scripts/*.mts'],
+          allowDefaultProject: ['apps/*/scripts/*.mts', 'packages/config/tests/lint-rules/*.ts'],
           defaultProject: './packages/config/tsconfig.base.json',
         },
       },

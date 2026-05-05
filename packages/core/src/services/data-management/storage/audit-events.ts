@@ -1,0 +1,29 @@
+export const STORAGE_AUDIT_EVENTS = {
+  BUCKET_CREATED: 'data_management.storage.bucket_created',
+  BUCKET_UPDATED: 'data_management.storage.bucket_updated',
+  BUCKET_DELETED: 'data_management.storage.bucket_deleted',
+  FILE_UPLOADED: 'data_management.storage.file_uploaded',
+  FILE_DOWNLOADED: 'data_management.storage.file_downloaded',
+  FILE_RENAMED: 'data_management.storage.file_renamed',
+  FILE_MOVED: 'data_management.storage.file_moved',
+  FILE_COPIED: 'data_management.storage.file_copied',
+  FILE_DELETED: 'data_management.storage.file_deleted',
+  BULK_DELETE: 'data_management.storage.bulk_delete',
+  BULK_MOVE: 'data_management.storage.bulk_move',
+  FOLDER_CREATED: 'data_management.storage.folder_created',
+  FOLDER_DELETED: 'data_management.storage.folder_deleted',
+  FOLDER_MOVED: 'data_management.storage.folder_moved',
+  SIGNED_URL_CREATED: 'data_management.storage.signed_url_created',
+  SIGNED_URL_USED: 'data_management.storage.signed_url_used',
+  SIGNED_URL_REVOKED: 'data_management.storage.signed_url_revoked',
+  ACL_SET: 'data_management.storage.acl_set',
+  ACL_REMOVED: 'data_management.storage.acl_removed',
+  TAGS_UPDATED: 'data_management.storage.tags_updated',
+  METADATA_UPDATED: 'data_management.storage.metadata_updated',
+  QUOTA_WARNING_80: 'data_management.storage.quota_warning_80',
+  QUOTA_WARNING_95: 'data_management.storage.quota_warning_95',
+  QUOTA_EXCEEDED: 'data_management.storage.quota_exceeded',
+} as const;
+
+export type StorageAuditEventType =
+  (typeof STORAGE_AUDIT_EVENTS)[keyof typeof STORAGE_AUDIT_EVENTS];

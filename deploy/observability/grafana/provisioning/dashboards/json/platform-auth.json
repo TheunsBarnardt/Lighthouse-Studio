@@ -1,0 +1,195 @@
+{
+  "editable": false,
+  "graphTooltip": 1,
+  "id": null,
+  "panels": [
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" } },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Sign-In Rate (successful / failed)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(platform_service_method_duration_seconds_count{service=\"AuthService\",method=\"completeSignIn\",outcome=\"success\"}[5m]))",
+          "legendFormat": "success"
+        },
+        {
+          "expr": "sum(rate(platform_service_method_duration_seconds_count{service=\"AuthService\",method=\"completeSignIn\",outcome=\"failure\"}[5m]))",
+          "legendFormat": "failure"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "percentunit" },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "failure rate" },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "green", "value": null },
+                    { "color": "yellow", "value": 0.05 },
+                    { "color": "red", "value": 0.15 }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "id": 2,
+      "title": "Sign-In Failure Rate",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "sum(rate(platform_service_method_duration_seconds_count{service=\"AuthService\",method=\"completeSignIn\",outcome=\"failure\"}[5m])) / sum(rate(platform_service_method_duration_seconds_count{service=\"AuthService\",method=\"completeSignIn\"}[5m]))",
+          "legendFormat": "failure rate"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "id": 3,
+      "title": "Sign-In Latency (p50 / p95 / p99)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(platform_service_method_duration_seconds_bucket{service=\"AuthService\",method=\"completeSignIn\"}[5m])) by (le))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(platform_service_method_duration_seconds_bucket{service=\"AuthService\",method=\"completeSignIn\"}[5m])) by (le))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(platform_service_method_duration_seconds_bucket{service=\"AuthService\",method=\"completeSignIn\"}[5m])) by (le))",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 4,
+      "title": "Auth Method Usage (sign-in begins)",
+      "type": "timeseries",
+      "description": "Broken down by authentication method (password, magic_link, oauth, oidc, saml)",
+      "targets": [
+        {
+          "expr": "sum(rate(platform_service_method_duration_seconds_count{service=\"AuthService\",method=\"beginSignIn\"}[5m])) by (method)",
+          "legendFormat": "{{method}}"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 5,
+      "title": "Token Verification Rate",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(platform_service_method_duration_seconds_count{service=\"AuthService\",method=\"verifyToken\",outcome=\"success\"}[5m]))",
+          "legendFormat": "valid tokens"
+        },
+        {
+          "expr": "sum(rate(platform_service_method_duration_seconds_count{service=\"AuthService\",method=\"verifyToken\",outcome=\"failure\"}[5m]))",
+          "legendFormat": "invalid/expired tokens"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "id": 6,
+      "title": "Session Operations",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(platform_service_method_duration_seconds_count{service=\"AuthService\",method=\"signOut\"}[5m]))",
+          "legendFormat": "sign-out"
+        },
+        {
+          "expr": "sum(rate(platform_service_method_duration_seconds_count{service=\"AuthService\",method=\"revokeAllSessions\"}[5m]))",
+          "legendFormat": "revoke-all-sessions"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "reqps" } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "id": 7,
+      "title": "MFA Operations",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(platform_service_method_duration_seconds_count{service=\"AuthService\",method=~\".*[Mm]fa.*\",outcome=\"success\"}[5m]))",
+          "legendFormat": "MFA success"
+        },
+        {
+          "expr": "sum(rate(platform_service_method_duration_seconds_count{service=\"AuthService\",method=~\".*[Mm]fa.*\",outcome=\"failure\"}[5m]))",
+          "legendFormat": "MFA failure"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": { "unit": "short", "noValue": "0" },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Value" },
+            "properties": [
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "green", "value": null },
+                    { "color": "yellow", "value": 10 },
+                    { "color": "red", "value": 50 }
+                  ]
+                }
+              },
+              { "id": "custom.displayMode", "value": "color-background" }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+      "id": 8,
+      "title": "Sign-In Failures by Outcome (last 1h)",
+      "type": "table",
+      "description": "High counts suggest brute-force attempts or account lockouts in progress",
+      "targets": [
+        {
+          "expr": "sum by (outcome) (increase(platform_service_method_duration_seconds_count{service=\"AuthService\",method=\"completeSignIn\",outcome!=\"success\"}[1h]))",
+          "legendFormat": "{{outcome}}",
+          "instant": true
+        }
+      ],
+      "transformations": [{ "id": "labelsToFields", "options": {} }]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["platform", "auth", "identity", "security"],
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Platform — Auth & Identity",
+  "uid": "platform-auth",
+  "version": 1
+}

@@ -3,3 +3,4 @@ packages:
   - 'packages/*'
   - 'packages/ports/*'
   - 'packages/adapters/*'
+  - 'tests/*'

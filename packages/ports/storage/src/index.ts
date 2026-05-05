@@ -9,3 +9,21 @@ export type {
   ListResult,
   StorageMetadata,
 } from './types.js';
+export type {
+  StorageClass,
+  FileStatus,
+  PiiCategory,
+  Bucket,
+  CreateBucketInput,
+  BucketUpdate,
+  FileRecord,
+  FileLocation,
+  UploadFileInput,
+  ListFilesOptions,
+  FileAcl,
+  SignedUrlRecord,
+  SignedUrlOptions,
+  StorageQuota,
+  BulkOperationResult,
+  StoragePaginatedResult,
+} from './domain.js';

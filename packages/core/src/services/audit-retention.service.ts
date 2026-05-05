@@ -7,6 +7,7 @@ import { ok, type Result } from 'neverthrow';
 import { randomUUID } from 'node:crypto';
 
 import type { AppError } from '../errors.js';
+import type { IdempotencyRecord } from '../idempotency/types.js';
 
 import { makeSystemContext } from '../context.js';
 
@@ -16,6 +17,11 @@ export interface RetentionEnforcementResult {
   workspaceId: string | null;
   eventsDeleted: number;
   skippedLegalHold: boolean;
+  ranAt: Date;
+}
+
+export interface IdempotencyCleanupResult {
+  recordsDeleted: number;
   ranAt: Date;
 }
 
@@ -51,6 +57,7 @@ export class AuditRetentionService {
     private readonly audit: AuditPort,
     private readonly workspaceSettings: RepositoryPort<WorkspaceRetentionSettings>,
     private readonly logger: LoggerPort,
+    private readonly idempotencyRecords?: RepositoryPort<IdempotencyRecord>,
   ) {}
 
   /**
@@ -97,6 +104,61 @@ export class AuditRetentionService {
     });
 
     return ok(results);
+  }
+
+  /**
+   * Deletes expired idempotency records across all workspaces.
+   *
+   * Called daily by the worker scheduler after audit retention runs.
+   * Idempotency records self-expire via `expiresAt`; this job hard-deletes
+   * them to keep the table lean. On MongoDB the TTL index handles this
+   * automatically, but SQL adapters need the explicit cleanup.
+   *
+   * Safe to skip if the idempotency repo was not injected (optional dep).
+   */
+  async cleanupExpiredIdempotencyRecords(
+    ctx?: SystemContext,
+  ): Promise<Result<IdempotencyCleanupResult, AppError>> {
+    if (!this.idempotencyRecords) {
+      return ok({ recordsDeleted: 0, ranAt: new Date() });
+    }
+
+    const resolvedCtx = ctx ?? makeSystemContext('idempotency-cleanup', randomUUID());
+    const now = new Date();
+
+    const expiredResult = await this.idempotencyRecords.findMany({
+      expiresAt: { _lt: now },
+    } as Parameters<RepositoryPort<IdempotencyRecord>['findMany']>[0]);
+
+    if (expiredResult.isErr()) {
+      this.logger.error('Failed to query expired idempotency records', {
+        error: expiredResult.error,
+        correlationId: resolvedCtx.correlationId,
+      });
+      return ok({ recordsDeleted: 0, ranAt: now });
+    }
+
+    const expired = expiredResult.value.items;
+    let recordsDeleted = 0;
+
+    for (const record of expired) {
+      const deleteResult = await this.idempotencyRecords.hardDelete(record.id);
+      if (deleteResult.isOk()) {
+        recordsDeleted++;
+      } else {
+        this.logger.warn('Failed to delete expired idempotency record', {
+          id: record.id,
+          error: deleteResult.error,
+        });
+      }
+    }
+
+    this.logger.info('Idempotency cleanup complete', {
+      recordsDeleted,
+      correlationId: resolvedCtx.correlationId,
+    });
+
+    return ok({ recordsDeleted, ranAt: now });
   }
 
   private async _enforceWorkspace(

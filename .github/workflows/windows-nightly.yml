@@ -1,0 +1,87 @@
+name: Windows Nightly
+
+on:
+  schedule:
+    # 02:00 UTC every night
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: windows-nightly
+  cancel-in-progress: false
+
+jobs:
+  windows-full-suite:
+    name: Full suite on Windows Server 2022
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$env:GITHUB_OUTPUT"
+        shell: pwsh
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: windows-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: windows-pnpm-
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: windows-turbo-${{ github.sha }}
+          restore-keys: windows-turbo-
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit + integration tests
+        run: pnpm test
+        env:
+          CI: 'true'
+
+      - name: Cross-platform tests
+        run: pnpm test:cross-platform
+
+      - name: Build
+        run: pnpm build
+
+      - name: Audit catalog check
+        run: pnpm audit:catalog
+
+  windows-2019-compat:
+    name: Compatibility check on Windows Server 2019
+    runs-on: windows-2019
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - uses: pnpm/action-setup@v4
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Cross-platform tests (2019)
+        run: pnpm test:cross-platform
+
+      - name: Build (2019)
+        run: pnpm build

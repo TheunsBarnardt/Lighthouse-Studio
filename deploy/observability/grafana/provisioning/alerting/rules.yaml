@@ -122,6 +122,131 @@ groups:
         labels:
           severity: critical
 
+  - orgId: 1
+    name: Platform Auth Alerts
+    folder: Platform
+    interval: 1m
+    rules:
+      - uid: platform-auth-failure-spike
+        title: 'Auth Failure Rate > 20% (5m)'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'sum(rate(platform_service_method_duration_seconds_count{service="AuthService",method="completeSignIn",outcome="failure"}[5m])) / sum(rate(platform_service_method_duration_seconds_count{service="AuthService",method="completeSignIn"}[5m]))'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [0.20], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: 'Auth failure rate above 20%'
+          description: '{{ humanizePercentage $values.A.Value }} of sign-in attempts are failing. Possible brute-force or credential stuffing attack.'
+        labels:
+          severity: warning
+          team: security
+
+      - uid: platform-auth-failure-burst
+        title: 'Auth Failures > 100 in 1m (burst)'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 60, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'sum(increase(platform_service_method_duration_seconds_count{service="AuthService",method="completeSignIn",outcome="failure"}[1m]))'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [100], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: 'More than 100 auth failures in the last minute'
+          description: '{{ $values.A.Value | printf "%.0f" }} sign-in failures in 1 minute — likely a credential stuffing or brute-force burst.'
+        labels:
+          severity: critical
+          team: security
+
+      - uid: platform-auth-token-invalid-spike
+        title: 'Invalid Token Rate > 30% (5m)'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'sum(rate(platform_service_method_duration_seconds_count{service="AuthService",method="verifyToken",outcome="failure"}[5m])) / sum(rate(platform_service_method_duration_seconds_count{service="AuthService",method="verifyToken"}[5m]))'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [0.30], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: 'High rate of invalid token rejections'
+          description: '{{ humanizePercentage $values.A.Value }} of token verifications are failing. May indicate replayed or forged tokens.'
+        labels:
+          severity: warning
+          team: security
+
+      - uid: platform-auth-mfa-failure-spike
+        title: 'MFA Failure Rate > 30% (5m)'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'sum(rate(platform_service_method_duration_seconds_count{service="AuthService",method=~".*[Mm]fa.*",outcome="failure"}[5m])) / sum(rate(platform_service_method_duration_seconds_count{service="AuthService",method=~".*[Mm]fa.*"}[5m]))'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [0.30], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: 'High MFA challenge failure rate'
+          description: '{{ humanizePercentage $values.A.Value }} of MFA challenges are failing. May indicate TOTP clock skew or a targeted attack.'
+        labels:
+          severity: warning
+          team: security
+
 contactPoints:
   - orgId: 1
     name: Platform Email

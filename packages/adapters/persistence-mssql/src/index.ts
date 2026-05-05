@@ -27,3 +27,5 @@ export {
   MssqlCustomerRepositoryProvider,
   ARCHIVE_COL as MSSQL_CUSTOMER_ARCHIVE_COL,
 } from './customer-repository.adapter.js';
+
+export { MssqlWorkspaceAssetAdapter } from './workspace-asset.adapter.js';

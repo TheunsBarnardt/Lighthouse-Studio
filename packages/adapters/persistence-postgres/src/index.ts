@@ -31,3 +31,5 @@ export {
   PostgresCustomerRepositoryProvider,
   ARCHIVE_COL as PG_CUSTOMER_ARCHIVE_COL,
 } from './customer-repository.adapter.js';
+
+export { PostgresWorkspaceAssetAdapter } from './workspace-asset.adapter.js';

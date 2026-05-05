@@ -5,7 +5,8 @@ export type AuditErrorCode =
   | 'EXPORT_FAILED'
   | 'NOT_FOUND'
   | 'PERMISSION_DENIED'
-  | 'UNKNOWN';
+  | 'UNKNOWN'
+  | 'NOT_IMPLEMENTED';
 
 export class AuditError extends Error {
   readonly code: AuditErrorCode;

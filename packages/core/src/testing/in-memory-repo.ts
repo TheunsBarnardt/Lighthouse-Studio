@@ -60,6 +60,7 @@ export function createInMemoryRepo<TEntity extends Entity>(): RepositoryPort<TEn
 
     findOne(filter: unknown): Promise<Result<TEntity | null, PError>> {
       for (const entity of store.values()) {
+        if ((entity as Record<string, unknown>)['archivedAt'] != null) continue;
         if (matchesFilter(entity, filter)) return Promise.resolve(ok(entity));
       }
       return Promise.resolve(ok(null));

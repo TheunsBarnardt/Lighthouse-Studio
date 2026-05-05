@@ -1,0 +1,16 @@
+{
+  "name": "@platform/tests-leak",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@platform/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@platform/config": "workspace:*",
+    "vitest": "3.2.3"
+  }
+}

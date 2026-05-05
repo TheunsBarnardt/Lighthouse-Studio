@@ -269,6 +269,206 @@ const auditOnMutation: Rule.RuleModule = {
   },
 };
 
+// ── platform/require-authz-call ───────────────────────────────────────────────
+// Heuristic: every public async method on a Service class should call
+// `authz.authorize(` somewhere in its body. Methods named `find*`, `get*`,
+// `list*`, `count*`, `exists*`, `verify*`, `check*` are excluded because read
+// operations are sometimes intentionally public (e.g., verifyToken).
+// This is a soft warning — not every method needs an explicit authorize call,
+// but the absence is worth flagging for review.
+
+const requireAuthzCall: Rule.RuleModule = {
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description:
+        'Public async Service methods should call authz.authorize() to enforce access control',
+    },
+    schema: [],
+    messages: {
+      missingAuthz:
+        "Method '{{name}}' on '{{className}}' does not call 'authz.authorize'. Add an authorization check or suppress this warning if the method is intentionally public.",
+    },
+  },
+
+  create(context) {
+    let currentClassName = '';
+
+    const READ_ONLY_PREFIXES = [
+      'find',
+      'get',
+      'list',
+      'count',
+      'exists',
+      'verify',
+      'check',
+      'resolve',
+      'lookup',
+      'fetch',
+      'load',
+      'search',
+    ];
+
+    function isReadOnly(methodName: string): boolean {
+      return READ_ONLY_PREFIXES.some((prefix) => methodName.toLowerCase().startsWith(prefix));
+    }
+
+    function hasAuthzCall(body: Rule.Node | null): boolean {
+      if (!body) return false;
+      const src = context.sourceCode.getText(body as never);
+      return src.includes('authz.authorize') || src.includes('.authorize(');
+    }
+
+    return {
+      ClassDeclaration(node) {
+        currentClassName = node.id.name;
+      },
+      ClassExpression(node) {
+        currentClassName = node.id?.name ?? '';
+      },
+      'ClassDeclaration:exit'() {
+        currentClassName = '';
+      },
+      'ClassExpression:exit'() {
+        currentClassName = '';
+      },
+
+      MethodDefinition(node) {
+        if (!currentClassName.endsWith('Service')) return;
+        if (node.kind !== 'method') return;
+        const tsNode = node as typeof node & { accessibility?: string };
+        if (tsNode.accessibility === 'private' || tsNode.accessibility === 'protected') return;
+        if (node.static) return;
+
+        const fn = node.value;
+        if (!fn.async) return;
+
+        const methodName = node.key.type === 'Identifier' ? node.key.name : null;
+        if (!methodName || methodName.startsWith('_')) return;
+        if (isReadOnly(methodName)) return;
+
+        if (!hasAuthzCall(fn.body as unknown as Rule.Node)) {
+          context.report({
+            node: node as unknown as Rule.Node,
+            messageId: 'missingAuthz',
+            data: { name: methodName, className: currentClassName },
+          });
+        }
+      },
+
+      PropertyDefinition(node) {
+        if (!currentClassName.endsWith('Service')) return;
+        const tsNode = node as typeof node & { accessibility?: string };
+        if (tsNode.accessibility === 'private' || tsNode.accessibility === 'protected') return;
+        if (node.static) return;
+
+        const methodName = node.key.type === 'Identifier' ? node.key.name : null;
+        if (!methodName || methodName.startsWith('_')) return;
+        if (isReadOnly(methodName)) return;
+
+        const src = node.value ? context.sourceCode.getText(node.value as never) : '';
+        if (!src.includes('authz.authorize') && !src.includes('.authorize(')) {
+          context.report({
+            node: node as unknown as Rule.Node,
+            messageId: 'missingAuthz',
+            data: { name: methodName, className: currentClassName },
+          });
+        }
+      },
+    };
+  },
+};
+
+// ── platform/service-method-returns-result ────────────────────────────────────
+// Every public async method on a Service class whose return type annotation is
+// explicitly declared must include `Result` in that annotation. Methods without
+// an annotation are allowed (TypeScript already catches mismatches at the call
+// site). This rule enforces the explicit-annotation convention and catches the
+// case where someone writes `Promise<User>` instead of `Promise<Result<User, AppError>>`.
+
+const serviceMethodReturnsResult: Rule.RuleModule = {
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description:
+        'Public async Service methods with an explicit return type must return Promise<Result<T, AppError>>',
+    },
+    schema: [],
+    messages: {
+      missingResult:
+        "Method '{{name}}' on '{{className}}' has return type '{{type}}' which does not include Result. Use Promise<Result<T, AppError>>.",
+    },
+  },
+
+  create(context) {
+    let currentClassName = '';
+
+    function checkReturnType(methodNode: Rule.Node, methodName: string, fn: unknown): void {
+      const fnNode = fn as { returnType?: unknown };
+      if (!fnNode.returnType) return; // unannotated — skip, TypeScript checks at call site
+      const typeSrc = context.sourceCode.getText(fnNode.returnType as never);
+      if (!typeSrc.includes('Result')) {
+        context.report({
+          node: methodNode,
+          messageId: 'missingResult',
+          data: { name: methodName, className: currentClassName, type: typeSrc.trim() },
+        });
+      }
+    }
+
+    return {
+      ClassDeclaration(node) {
+        currentClassName = node.id.name;
+      },
+      ClassExpression(node) {
+        currentClassName = node.id?.name ?? '';
+      },
+      'ClassDeclaration:exit'() {
+        currentClassName = '';
+      },
+      'ClassExpression:exit'() {
+        currentClassName = '';
+      },
+
+      MethodDefinition(node) {
+        if (!currentClassName.endsWith('Service')) return;
+        if (node.kind !== 'method') return;
+        const tsNode = node as typeof node & { accessibility?: string };
+        if (tsNode.accessibility === 'private' || tsNode.accessibility === 'protected') return;
+        if (node.static) return;
+
+        const fn = node.value;
+        if (!fn.async) return;
+
+        const methodName = node.key.type === 'Identifier' ? node.key.name : null;
+        if (!methodName || methodName.startsWith('_')) return;
+
+        checkReturnType(node as unknown as Rule.Node, methodName, fn);
+      },
+
+      PropertyDefinition(node) {
+        if (!currentClassName.endsWith('Service')) return;
+        const tsNode = node as typeof node & { accessibility?: string };
+        if (tsNode.accessibility === 'private' || tsNode.accessibility === 'protected') return;
+        if (node.static) return;
+
+        const methodName = node.key.type === 'Identifier' ? node.key.name : null;
+        if (!methodName || methodName.startsWith('_')) return;
+
+        const value = node.value as
+          | null
+          | { type: string; async?: boolean; returnType?: unknown }
+          | undefined;
+        if (!value) return;
+
+        if (value.type === 'ArrowFunctionExpression' && value.async) {
+          checkReturnType(node as unknown as Rule.Node, methodName, value);
+        }
+      },
+    };
+  },
+};
+
 // ── platform/no-path-concatenation ────────────────────────────────────────────
 // Reject string literals that look like Unix-style path separators used in
 // concatenation or template literals. Guides toward path.join / path.resolve.
@@ -418,7 +618,9 @@ const noLinuxOnlySignals: Rule.RuleModule = {
 export const platformPlugin = {
   rules: {
     'service-method-context-first': serviceMethodContextFirst,
+    'service-method-returns-result': serviceMethodReturnsResult,
     'no-bare-error-throws': noBareErrorThrows,
+    'require-authz-call': requireAuthzCall,
     'audit-on-mutation': auditOnMutation,
     'no-path-concatenation': noPathConcatenation,
     'no-hardcoded-tmp': noHardcodedTmp,

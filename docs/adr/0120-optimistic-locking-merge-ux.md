@@ -1,4 +1,4 @@
-# ADR-0106: Optimistic Locking with Manual Merge UX
+# ADR-0120: Optimistic Locking with Manual Merge UX
 
 **Status:** Accepted  
 **Date:** 2026-05-03
@@ -46,3 +46,7 @@ The Zustand store tracks `deployed` (last known server version) and `schema` (in
 **Pessimistic locking:** Lock the schema when a user opens it for editing. Rejected: impractical for a web UI (how long do you hold the lock? what if the browser closes?); blocks other users unnecessarily.
 
 **Real-time collaboration (OT/CRDT):** Changes are merged in real time. Rejected: massive complexity, requires WebSocket infrastructure, and the use case (schema editing) is relatively low-frequency. Not worth the investment for v1.
+
+## Note
+
+Originally numbered ADR-0106; renumbered to avoid conflict with ADR-0106 (graphql-yoga-as-http-transport, Objective 13).

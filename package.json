@@ -26,6 +26,8 @@
     "env:check": "tsx packages/config/src/env/validate.mts",
     "env:completeness": "tsx scripts/check-env-completeness.mts",
     "telemetry:coverage": "tsx scripts/telemetry-coverage.mts",
+    "pii:check": "tsx scripts/check-pii-registry.mts",
+    "audit:catalog": "tsx scripts/check-audit-catalog.mts",
     "setup": "tsx scripts/setup-local.mts",
     "setup:local-db": "docker compose -f infra/docker/local.yml up -d",
     "teardown:local-db": "docker compose -f infra/docker/local.yml down -v",
@@ -41,6 +43,7 @@
     "load:seed": "tsx tests/load/seed/generate.ts",
     "test:a11y": "vitest run --config tests/accessibility/vitest.config.ts",
     "test:chaos": "vitest run --config tests/chaos/vitest.config.ts",
+    "test:cross-platform": "vitest run --config tests/cross-platform/vitest.config.ts",
     "prepare": "husky"
   },
   "devDependencies": {

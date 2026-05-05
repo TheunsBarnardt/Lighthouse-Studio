@@ -1,4 +1,5 @@
 export type { AuditPort } from './audit.port.js';
+export type { ColdArchivePort } from './cold-archive.port.js';
 export * from './errors.js';
 export type {
   ActorKind,
@@ -10,6 +11,8 @@ export type {
   AuditPage,
   AuditResource,
   ChainVerification,
+  ColdArchiveChunk,
+  ColdArchiveVerification,
   DataSubjectExportJob,
   ErasureJob,
   ErasureOptions,

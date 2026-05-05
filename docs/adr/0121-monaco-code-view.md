@@ -1,4 +1,4 @@
-# ADR-0107: Monaco Editor for Schema Code View
+# ADR-0121: Monaco Editor for Schema Code View
 
 **Status:** Accepted  
 **Date:** 2026-05-03
@@ -50,3 +50,7 @@ Changes are debounced 600ms before updating the Zustand store. Invalid JSON sets
 **Plain `<textarea>`:** Zero bundle cost. Rejected: no syntax highlighting, error markers, or keyboard shortcuts. Poor experience for large schemas.
 
 **Ace Editor:** Mature, smaller than Monaco. Rejected: declining maintenance; Monaco is now the industry standard for browser-based code editing.
+
+## Note
+
+Originally numbered ADR-0107; renumbered to avoid conflict with ADR-0107 (dataloader-for-n-plus-1-prevention, Objective 13).

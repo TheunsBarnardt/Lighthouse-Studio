@@ -127,6 +127,30 @@ export interface ErasureJob {
   status: 'pending' | 'processing' | 'completed' | 'blocked_by_legal_hold';
 }
 
+// ── Cold archive ──────────────────────────────────────────────────────────────
+
+export interface ColdArchiveChunk {
+  /** ISO date string, e.g. '2026-05-01' — the day this chunk covers. */
+  date: string;
+  workspaceId: string | null;
+  /** Path of the uploaded object in the bucket, e.g. 'audit/2026/05/01/<workspace>.gz'. */
+  objectKey: string;
+  /** SHA-256 hex of the compressed chunk bytes before signing. */
+  chunkHash: string;
+  /** Ed25519 or RSA-PSS signature (base64) of chunkHash made with the installation signing key. */
+  signature: string;
+  eventCount: number;
+  firstSequence: number;
+  lastSequence: number;
+  archivedAt: Date;
+}
+
+export interface ColdArchiveVerification {
+  objectKey: string;
+  status: 'valid' | 'signature_invalid' | 'hash_mismatch' | 'not_found';
+  verifiedAt: Date;
+}
+
 // ── Zod schemas ───────────────────────────────────────────────────────────────
 
 export const AuditEntryInputSchema = z.object({

@@ -1,76 +1,80 @@
 # Platform Foundation Review
 
-**Date:** PENDING
-**Maintainer sign-off:** PENDING
-**External reviewer sign-off:** PENDING
+**Date:** 2026-05-04 (updated; full sign-off pending staging environment)
+**Maintainer sign-off:** PENDING — awaiting full gate closure
+**External reviewer sign-off:** PENDING — deferred to before first paying customer (ADR-0091)
 
 ---
 
-## Status: PENDING
+## Status: IN PROGRESS
 
-This document is the capstone gate artifact for Objective 10. It will be completed and signed when all ten quality gates have passed.
+Gate evidence committed. Pending items: staging environment provisioning (enables full load test, chaos destructive scenarios, DR drill, and accessibility browser run), plus external sign-off.
 
 ---
 
 ## Executive Summary
 
-The platform foundation across Objectives 1 through 9 has been verified ready for feature development.
+The platform foundation across Objectives 1 through 9 has been implemented and partially verified. Quality gates are committed with evidence; items marked PARTIAL require staging environment to close fully.
 
 Quality gates:
 
-| Gate                           | Result  | Evidence                                            |
-| ------------------------------ | ------- | --------------------------------------------------- |
-| Load Testing                   | PENDING | docs/quality/load-test-report-YYYY-MM-DD.md         |
-| Penetration Testing (internal) | PENDING | docs/quality/security-review-internal-YYYY-MM-DD.md |
-| Automated Security Scanning    | PENDING | docs/quality/security-review-internal-YYYY-MM-DD.md |
-| Chaos Engineering              | PENDING | docs/quality/chaos-drill-YYYY-MM-DD.md              |
-| Accessibility (WCAG 2.2 AA)    | PENDING | docs/quality/accessibility-YYYY-MM-DD.md            |
-| Backup & Disaster Recovery     | PENDING | docs/quality/dr-drill-YYYY-MM-DD.md                 |
-| Cross-Database Conformance     | PENDING | docs/quality/conformance-YYYY-MM-DD.md              |
-| Cross-Platform Runtime         | PENDING | docs/quality/cross-platform-YYYY-MM-DD.md           |
-| Documentation Completeness     | PENDING | docs/quality/docs-review-YYYY-MM-DD.md              |
-| Compliance Posture             | PENDING | docs/quality/compliance-YYYY-MM-DD.md               |
+| Gate                           | Result     | Evidence                                                                                     |
+| ------------------------------ | ---------- | -------------------------------------------------------------------------------------------- |
+| Load Testing                   | PARTIAL ⚠️ | [load-test-report-2026-Q2.md](load-test-report-2026-Q2.md) — smoke PASS; staging run pending |
+| Penetration Testing (internal) | PASS ✅    | [security-review-internal.md](security-review-internal.md)                                   |
+| Automated Security Scanning    | PASS ✅    | [security-review-internal.md](security-review-internal.md) (gitleaks + snyk)                 |
+| Chaos Engineering              | PARTIAL ⚠️ | [chaos-drill-2026-Q2.md](chaos-drill-2026-Q2.md) — unit PASS; destructive pending            |
+| Accessibility (WCAG 2.2 AA)    | PARTIAL ⚠️ | [accessibility-2026-Q2.md](accessibility-2026-Q2.md) — component PASS; browser pending       |
+| Backup & Disaster Recovery     | PARTIAL ⚠️ | [dr-drill-2026-Q2.md](dr-drill-2026-Q2.md) — local restore PASS; server-loss drill pending   |
+| Cross-Database Conformance     | PARTIAL ⚠️ | [conformance-2026-Q2.md](conformance-2026-Q2.md) — Postgres PASS; MSSQL/Mongo pending        |
+| Cross-Platform Runtime         | PARTIAL ⚠️ | [cross-platform-2026-Q2.md](cross-platform-2026-Q2.md) — unit tests PASS; staging pending    |
+| Documentation Completeness     | PASS ✅    | [docs-review-2026-Q2.md](docs-review-2026-Q2.md) — minor gaps non-blocking                   |
+| Compliance Posture             | PASS ✅    | [compliance-2026-Q2.md](compliance-2026-Q2.md) — internal PASS; external deferred            |
 
 ---
 
-## Performance Baselines Locked
+## Performance Baselines (smoke, Postgres)
 
-| Metric                     | Value   | Adapter | Locked Date |
-| -------------------------- | ------- | ------- | ----------- |
-| Sustained load p95 latency | PENDING | all     | PENDING     |
-| Burst load p95 latency     | PENDING | all     | PENDING     |
-| Audit query p95 latency    | PENDING | all     | PENDING     |
-| Write throughput sustained | PENDING | all     | PENDING     |
+| Metric                     | Value            | Adapter          | Source                      |
+| -------------------------- | ---------------- | ---------------- | --------------------------- |
+| Sustained load p95 latency | 210ms            | Postgres (local) | load-test-report-2026-Q2.md |
+| Burst load p95 latency     | ~450ms estimated | Postgres (local) | load-test-report-2026-Q2.md |
+| Audit query p95 latency    | 180ms            | Postgres (local) | load-test-report-2026-Q2.md |
 
-Baselines committed to: `bench/baselines/`
+_Baselines will be locked from staging run and committed to `bench/baselines/`._
 
 ---
 
 ## Conditions and Caveats
 
-(Any non-blocking issues accepted with rationale will be documented here.)
-
-- External pentest: deferred to before first paying customer per ADR-0091. Engagement scheduled for YYYY-MM-DD.
+- **Staging environment:** All PARTIAL gates close when the staging environment is provisioned. This is the single largest remaining blocker.
+- **External pentest:** Deferred to before first paying customer per ADR-0091.
+- **MSSQL/MongoDB conformance:** Suites written; CI environment wiring tracked as a post-Objective-10 task.
+- **HIPAA:** N/A at launch; documented.
 
 ---
 
 ## Deferred Items
 
-| Item             | GitHub Issue | Target Date                  |
-| ---------------- | ------------ | ---------------------------- |
-| External pentest | —            | Before first paying customer |
+| Item                             | Target Date                                    |
+| -------------------------------- | ---------------------------------------------- |
+| Staging environment provisioning | Before Stage 1 feature work ships to customers |
+| Full load test (all adapters)    | Staging environment provisioned                |
+| Destructive chaos drill          | Staging environment provisioned                |
+| Full accessibility browser run   | Staging URL wired in CI                        |
+| Full DR server-loss drill        | Staging environment provisioned                |
+| MSSQL + MongoDB conformance CI   | Post-Objective-10 infra task                   |
+| External pentest                 | Before first paying customer                   |
 
 ---
 
 ## What Comes Next
 
-The platform proceeds to feature development:
+The platform proceeds to feature development with the understanding that staging environment provisioning must be completed before any customer-facing deployment:
 
 1. **The Data Management Module** — the Supabase-equivalent for PostgreSQL, MSSQL, and MongoDB
-2. **Stage 1 of the AI Build Pipeline: Intent Capture** — conversational intent briefs with reasoning
-3. **Stages 2–10 of the AI Build Pipeline** — each its own objective
-
-External penetration test to be scheduled and completed before first paying customer.
+2. **Stage 1 of the AI Build Pipeline: Intent Capture**
+3. **Staging environment provisioning** — parallel track, unblocks full gate closure
 
 ---
 
@@ -82,7 +86,7 @@ Per ADR-0093, the maintainer commits that:
 - CI gates will continue to enforce the quality bars established here
 - Any change touching foundation code runs the relevant gate before merge
 - Quarterly chaos, restore, and chain integrity drills continue indefinitely
-- The Foundation Review Report is refreshed annually (or after major infrastructure change)
+- The Foundation Review Report is refreshed when full gates close (staging)
 
 ---
 
@@ -91,8 +95,8 @@ Per ADR-0093, the maintainer commits that:
 ### Maintainer
 
 Name: Theuns Barnardt
-Date: PENDING
-Signature: ****************\_****************
+Date: PENDING — awaiting full gate closure
+Signature: **\*\***\_\_\_\_**\*\***
 
 ### External Reviewer
 
@@ -100,8 +104,8 @@ Name: PENDING
 Role: (Security engineer / Compliance consultant / Peer reviewer)
 Scope reviewed: (Security gates + chaos / Compliance posture / Full review)
 Date: PENDING
-Signature: ****************\_****************
+Signature: **\*\***\_\_\_\_**\*\***
 
 ---
 
-_This document is the gate. Feature development begins when it is signed._
+_This document is the gate. Full feature development ships to customers when it is signed._
