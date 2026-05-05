@@ -177,12 +177,14 @@ export class B2StorageAdapter implements ObjectStoragePort {
         throw new Error(`B2 head failed: ${String(resp.status)}`);
       }
 
+      const etag = resp.headers.get('x-bz-content-sha1');
+      const contentType = resp.headers.get('content-type');
       return ok({
         key,
         size: Number(resp.headers.get('content-length') ?? 0),
         lastModified: new Date(resp.headers.get('x-bz-upload-timestamp') ?? Date.now()),
-        etag: resp.headers.get('x-bz-content-sha1') ?? undefined,
-        contentType: resp.headers.get('content-type') ?? undefined,
+        ...(etag !== null && { etag }),
+        ...(contentType !== null && { contentType }),
       });
     } catch (cause) {
       return err(new StorageError('PROVIDER_ERROR', `Failed to head '${key}' in B2`, cause));
