@@ -32,3 +32,36 @@ export function createStorageReconciliationJob(c: PlatformContainer): StorageRec
     c.metrics,
   );
 }
+
+/**
+ * Register the storage reconciliation job with the scheduler and job queue.
+ * Call once at application startup after the scheduler has started.
+ *
+ * The job runs nightly at 02:00 UTC and corrects quota drift > 10 MiB.
+ */
+export async function registerStorageJobs(
+  c: PlatformContainer,
+  reconciliationJob: StorageReconciliationJob,
+): Promise<void> {
+  const QUEUE = 'storage';
+  const TYPE = 'reconcile';
+
+  // Register the execution handler on the job queue
+  c.jobs.register(QUEUE, TYPE, async () => {
+    const corrected = await reconciliationJob.run();
+    c.logger.info('Storage reconciliation complete', { corrected });
+  });
+
+  // Schedule a nightly cron (02:00 UTC) via the scheduler port if present
+  if (c.scheduler) {
+    await c.scheduler.register({
+      id: 'storage-reconciliation',
+      name: 'Storage Quota Reconciliation',
+      cron: '0 2 * * *',
+      queue: QUEUE,
+      type: TYPE,
+      payload: {},
+      enabled: true,
+    });
+  }
+}

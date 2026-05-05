@@ -14,6 +14,20 @@ export async function GET(_req: Request, { params }: { params: Params }) {
       { status: 404 },
     );
   }
-  // Redirect to the underlying storage URL
-  return NextResponse.redirect(result.value.storageUrl);
+
+  const { storageUrl, cachePublic } = result.value;
+
+  const response = NextResponse.redirect(storageUrl);
+
+  if (cachePublic) {
+    // Public files may be served via CDN — allow shared caching for 1 hour.
+    // max-age matches the default signed URL TTL so the cached response stays
+    // valid within the URL's lifetime.
+    response.headers.set('Cache-Control', 'public, max-age=3600, s-maxage=3600');
+  } else {
+    // Private files must not be cached in shared caches.
+    response.headers.set('Cache-Control', 'private, no-store');
+  }
+
+  return response;
 }

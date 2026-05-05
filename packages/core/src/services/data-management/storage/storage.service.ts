@@ -19,6 +19,7 @@ import type {
   StorageQuota,
   UploadFileInput,
 } from '@platform/ports-storage';
+import type { Readable } from 'node:stream';
 
 import { err, ok, type Result } from 'neverthrow';
 import { createHash, randomBytes } from 'node:crypto';
@@ -51,6 +52,7 @@ import {
   SetMetadataInputSchema,
   SetTagsInputSchema,
   SignedUrlOptionsSchema,
+  THUMBNAIL_PREFIX,
   UploadFileInputSchema,
 } from './storage-model.js';
 
@@ -122,7 +124,7 @@ export class StorageService {
   readonly uploadFile!: (
     ctx: RequestContext,
     input: UploadFileInput,
-    data: Buffer,
+    data: Buffer | Readable,
   ) => Promise<Result<FileRecord, AppError>>;
 
   readonly copyFile!: (
@@ -188,7 +190,7 @@ export class StorageService {
 
   readonly resolveSignedUrl!: (
     token: string,
-  ) => Promise<Result<{ fileId: string; storageUrl: string }, AppError>>;
+  ) => Promise<Result<{ fileId: string; storageUrl: string; cachePublic: boolean }, AppError>>;
 
   readonly setTags!: (
     ctx: RequestContext,
@@ -211,6 +213,23 @@ export class StorageService {
   readonly removeFileAcl!: (ctx: RequestContext, fileId: string) => Promise<Result<void, AppError>>;
 
   readonly getQuota!: (ctx: RequestContext) => Promise<Result<StorageQuota, AppError>>;
+
+  readonly downloadFile!: (
+    ctx: RequestContext,
+    fileId: string,
+  ) => Promise<Result<{ stream: Readable; contentType: string; filename: string }, AppError>>;
+
+  /**
+   * Returns a signed URL to a thumbnail, generating it on first access.
+   * The `transform` function receives the original file stream and returns
+   * the thumbnail bytes — keeping sharp (or any image lib) out of core.
+   */
+  readonly getOrGenerateThumbnailUrl!: (
+    ctx: RequestContext,
+    fileId: string,
+    size: 'small' | 'medium' | 'large',
+    transform: (stream: Readable, contentType: string) => Promise<Buffer>,
+  ) => Promise<Result<string, AppError>>;
 
   constructor(
     private readonly authz: AuthorizationPort,
@@ -253,6 +272,13 @@ export class StorageService {
     this.setFileAcl = observable(s, 'setFileAcl', obs, this._setFileAcl.bind(this));
     this.removeFileAcl = observable(s, 'removeFileAcl', obs, this._removeFileAcl.bind(this));
     this.getQuota = observable(s, 'getQuota', obs, this._getQuota.bind(this));
+    this.downloadFile = observable(s, 'downloadFile', obs, this._downloadFile.bind(this));
+    this.getOrGenerateThumbnailUrl = observable(
+      s,
+      'getOrGenerateThumbnailUrl',
+      obs,
+      this._getOrGenerateThumbnailUrl.bind(this),
+    );
   }
 
   // ── Private implementations ──────────────────────────────────────────────────
@@ -552,7 +578,7 @@ export class StorageService {
   private async _uploadFile(
     ctx: RequestContext,
     input: UploadFileInput,
-    data: Buffer,
+    data: Buffer | Readable,
   ): Promise<Result<FileRecord, AppError>> {
     // 1. Validate
     const parsed = UploadFileInputSchema.safeParse(input);
@@ -1309,7 +1335,7 @@ export class StorageService {
 
   private async _resolveSignedUrl(
     token: string,
-  ): Promise<Result<{ fileId: string; storageUrl: string }, AppError>> {
+  ): Promise<Result<{ fileId: string; storageUrl: string; cachePublic: boolean }, AppError>> {
     const tokenHash = createHash('sha256').update(token).digest('hex');
 
     const urlResult = await this.signedUrls.findOne({
@@ -1338,6 +1364,15 @@ export class StorageService {
     if (fileResult.isErr()) return err(new InternalError(fileResult.error.message));
     if (!fileResult.value) return err(new NotFoundError('file_record', record.fileId));
 
+    // Check if the bucket has cachePublic enabled (stored in metadata)
+    const bucketResult = await this.buckets.findOne({
+      id: { _eq: fileResult.value.bucketId },
+    } as Parameters<BucketRepo['findOne']>[0]);
+    const cachePublic =
+      bucketResult.isOk() &&
+      bucketResult.value !== null &&
+      bucketResult.value.metadata['cachePublic'] === true;
+
     let storageUrl: string;
     if (record.directMode) {
       // Generate a short-lived direct URL from the storage adapter
@@ -1351,7 +1386,7 @@ export class StorageService {
       storageUrl = `/api/v1/storage/proxy/${record.id}`;
     }
 
-    return ok({ fileId: record.fileId, storageUrl });
+    return ok({ fileId: record.fileId, storageUrl, cachePublic });
   }
 
   private async _setTags(
@@ -1715,5 +1750,119 @@ export class StorageService {
     if (!this.events) return;
     const topic = `workspace:${workspaceId}:storage`;
     await this.events.publish(topic, { type, workspaceId, payload });
+  }
+
+  private async _downloadFile(
+    ctx: RequestContext,
+    fileId: string,
+  ): Promise<Result<{ stream: Readable; contentType: string; filename: string }, AppError>> {
+    if (!ctx.workspaceId) return err(new WorkspaceContextRequiredError());
+    const wid = ctx.workspaceId;
+
+    const authResult = await this.authz.authorize(ctx, 'storage_file.read', 'storage');
+    if (authResult.isErr()) return err(new ForbiddenError(authResult.error.message));
+
+    const result = await this.fileRecords.findOne({
+      id: { _eq: fileId },
+      workspaceId: { _eq: wid },
+    } as Parameters<FileRecordRepo['findOne']>[0]);
+    if (result.isErr()) return err(new InternalError(result.error.message));
+    if (!result.value) return err(new NotFoundError('file_record', fileId));
+
+    const record = result.value;
+    const streamResult = await this.storage.get(record.storageKey);
+    if (streamResult.isErr())
+      return err(new InternalError(`Storage get failed: ${streamResult.error.message}`));
+
+    await this.audit.write({
+      eventType: STORAGE_AUDIT_EVENTS.FILE_DOWNLOADED,
+      workspaceId: wid,
+      actor: toAuditActor(ctx),
+      resource: { type: 'file_record', id: fileId },
+      action: 'downloaded',
+      outcome: 'success',
+      correlationId: ctx.correlationId,
+    });
+
+    return ok({
+      stream: streamResult.value as unknown as Readable,
+      contentType: record.contentType ?? 'application/octet-stream',
+      filename: record.filename,
+    });
+  }
+
+  private async _getOrGenerateThumbnailUrl(
+    ctx: RequestContext,
+    fileId: string,
+    size: 'small' | 'medium' | 'large',
+    transform: (stream: Readable, contentType: string) => Promise<Buffer>,
+  ): Promise<Result<string, AppError>> {
+    if (!ctx.workspaceId) return err(new WorkspaceContextRequiredError());
+    const wid = ctx.workspaceId;
+
+    const authResult = await this.authz.authorize(ctx, 'storage_file.read', 'storage');
+    if (authResult.isErr()) return err(new ForbiddenError(authResult.error.message));
+
+    const result = await this.fileRecords.findOne({
+      id: { _eq: fileId },
+      workspaceId: { _eq: wid },
+    } as Parameters<FileRecordRepo['findOne']>[0]);
+    if (result.isErr()) return err(new InternalError(result.error.message));
+    if (!result.value) return err(new NotFoundError('file_record', fileId));
+
+    const record = result.value;
+    const thumbnailKey = `${record.storageKey}/${THUMBNAIL_PREFIX}/${size}.jpg`;
+
+    // Check if thumbnail already exists
+    const headResult = await this.storage.head(thumbnailKey);
+    const thumbnailExists = headResult.isOk() && headResult.value !== null;
+
+    if (!thumbnailExists) {
+      const originalStream = await this.storage.get(record.storageKey);
+      if (originalStream.isErr()) {
+        return err(
+          new InternalError(`Cannot read original for thumbnail: ${originalStream.error.message}`),
+        );
+      }
+
+      let thumbnailData: Buffer;
+      try {
+        thumbnailData = await transform(
+          originalStream.value as unknown as Readable,
+          record.contentType ?? 'image/jpeg',
+        );
+      } catch (e) {
+        return err(new InternalError(`Thumbnail generation failed: ${String(e)}`));
+      }
+
+      const putResult = await this.storage.put(thumbnailKey, thumbnailData, {
+        contentType: 'image/jpeg',
+      });
+      if (putResult.isErr()) {
+        this.logger.warn('Thumbnail put failed', { thumbnailKey, error: putResult.error.message });
+      } else {
+        await this.audit.write({
+          eventType: STORAGE_AUDIT_EVENTS.PREVIEW_GENERATED,
+          workspaceId: wid,
+          actor: toAuditActor(ctx),
+          resource: { type: 'file_record', id: fileId },
+          action: 'preview_generated',
+          outcome: 'success',
+          correlationId: ctx.correlationId,
+          metadata: { size },
+        });
+      }
+    }
+
+    // Return a short-lived signed URL to the thumbnail
+    const signedResult = await this.storage.signedUrl(thumbnailKey, 'GET', { expiresIn: 300 });
+    if (signedResult.isErr()) {
+      // Fallback: signed URL for original when adapter doesn't support signed URLs
+      const fallback = await this.storage.signedUrl(record.storageKey, 'GET', { expiresIn: 300 });
+      if (fallback.isErr()) return err(new InternalError('Cannot generate preview URL'));
+      return ok(fallback.value);
+    }
+
+    return ok(signedResult.value);
   }
 }

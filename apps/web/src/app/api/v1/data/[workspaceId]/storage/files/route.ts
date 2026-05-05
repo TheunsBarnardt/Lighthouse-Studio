@@ -17,9 +17,9 @@ export async function GET(req: Request, { params }: { params: Params }) {
 
   const ctx = requestContext(params.workspaceId, req);
   const result = await getStorageService().listFiles(ctx, {
-    bucketId,
-    folderPath,
-    search,
+    ...(bucketId !== undefined ? { bucketId } : {}),
+    ...(folderPath !== undefined ? { folderPath } : {}),
+    ...(search !== undefined ? { search } : {}),
     limit,
     offset,
   });
@@ -54,7 +54,7 @@ export async function POST(req: Request, { params }: { params: Params }) {
         folderPath: folderPath || '',
         filename: file.name,
         sizeBytes: file.size,
-        contentType: file.type || undefined,
+        ...(file.type ? { contentType: file.type } : {}),
       },
       buf,
     );

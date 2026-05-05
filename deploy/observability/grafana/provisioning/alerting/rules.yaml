@@ -123,6 +123,127 @@ groups:
           severity: critical
 
   - orgId: 1
+    name: Platform Storage Alerts
+    folder: Platform
+    interval: 1m
+    rules:
+      - uid: platform-storage-quota-critical
+        title: 'Storage Quota Critical (≥ 95%)'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'platform_storage_quota_warnings_total{level="critical"}'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [0], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: 'Workspace storage quota at or above 95%'
+          description: 'At least one workspace has reached the 95% storage quota threshold. Uploads will be blocked at 100%.'
+        labels:
+          severity: critical
+
+      - uid: platform-storage-quota-warning
+        title: 'Storage Quota Warning (≥ 80%)'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'platform_storage_quota_warnings_total{level="warning"}'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [0], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: 'Workspace storage quota at or above 80%'
+          description: 'At least one workspace is approaching its storage quota. Review usage and consider increasing the limit.'
+        labels:
+          severity: warning
+
+      - uid: platform-storage-orphans-detected
+        title: 'Storage Orphans Detected'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 86400, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'increase(platform_storage_orphans_detected_total[24h])'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [0], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 0m
+        annotations:
+          summary: 'Storage reconciliation found orphaned objects'
+          description: '{{ $values.A.Value }} orphan(s) detected in the past 24 hours. Check the reconciliation job logs.'
+        labels:
+          severity: warning
+
+      - uid: platform-storage-upload-error-rate
+        title: 'Storage Upload Error Rate > 5% (5m)'
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: 'prometheus'
+            model:
+              expr: 'sum(rate(platform_storage_uploads_total{status="error"}[5m])) / sum(rate(platform_storage_uploads_total[5m]))'
+              refId: A
+          - refId: C
+            datasourceUid: '__expr__'
+            model:
+              conditions:
+                - evaluator: { params: [0.05], type: gt }
+                  operator: { type: and }
+                  query: { params: [A] }
+                  reducer: { type: last }
+              refId: C
+              type: classic_conditions
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: 'Storage upload error rate above 5%'
+          description: '{{ humanizePercentage $values.A.Value }} of storage uploads are failing.'
+        labels:
+          severity: warning
+
+  - orgId: 1
     name: Platform Auth Alerts
     folder: Platform
     interval: 1m

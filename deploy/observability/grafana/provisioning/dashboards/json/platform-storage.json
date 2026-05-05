@@ -1,0 +1,154 @@
+{
+  "editable": false,
+  "graphTooltip": 1,
+  "id": null,
+  "panels": [
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "binBps" } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "id": 1,
+      "title": "Upload Rate (bytes/s)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(platform_storage_uploads_total[5m])) by (workspace, status)",
+          "legendFormat": "{{workspace}} ({{status}})"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "id": 2,
+      "title": "Upload Duration p95",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(platform_storage_upload_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(platform_storage_upload_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p50"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes", "color": { "mode": "palette-classic" } } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "title": "Bytes Used by Workspace (Top 10)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "topk(10, platform_storage_bytes_used)",
+          "legendFormat": "{{workspace}}"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "title": "File Count by Workspace (Top 10)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "topk(10, platform_storage_files_total)",
+          "legendFormat": "{{workspace}} / {{bucket}}"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "id": 5,
+      "title": "Active Signed URLs by Workspace",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "platform_storage_signed_urls_active",
+          "legendFormat": "{{workspace}}"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "id": 6,
+      "title": "Download Rate",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "sum(rate(platform_storage_downloads_total[5m])) by (workspace, via)",
+          "legendFormat": "{{workspace}} via {{via}}"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 1 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+      "id": 7,
+      "title": "Quota Warnings (80% & 95%)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "sum(platform_storage_quota_warnings_total) by (workspace, level)",
+          "legendFormat": "{{workspace}} ({{level}})"
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "prometheus" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+      "id": 8,
+      "title": "Orphans Detected (Reconciliation)",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "platform_storage_orphans_detected_total",
+          "legendFormat": "Orphans"
+        }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "tags": ["storage", "platform"],
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Platform — Storage",
+  "uid": "platform-storage",
+  "version": 1
+}

@@ -23,6 +23,7 @@ export const STORAGE_AUDIT_EVENTS = {
   QUOTA_WARNING_80: 'data_management.storage.quota_warning_80',
   QUOTA_WARNING_95: 'data_management.storage.quota_warning_95',
   QUOTA_EXCEEDED: 'data_management.storage.quota_exceeded',
+  PREVIEW_GENERATED: 'data_management.storage.preview_generated',
 } as const;
 
 export type StorageAuditEventType =

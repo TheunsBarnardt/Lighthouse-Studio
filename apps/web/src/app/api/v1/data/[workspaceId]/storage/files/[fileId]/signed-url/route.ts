@@ -15,10 +15,10 @@ export async function POST(req: Request, { params }: { params: Params }) {
   };
   const ctx = requestContext(params.workspaceId, req);
   const result = await getStorageService().createSignedUrl(ctx, params.fileId, {
-    ttlSeconds: body.ttlSeconds,
-    downloadLimit: body.downloadLimit,
-    description: body.description,
-    directMode: body.directMode,
+    ...(body.ttlSeconds !== undefined ? { ttlSeconds: body.ttlSeconds } : {}),
+    ...(body.downloadLimit !== undefined ? { downloadLimit: body.downloadLimit } : {}),
+    ...(body.description !== undefined ? { description: body.description } : {}),
+    ...(body.directMode !== undefined ? { directMode: body.directMode } : {}),
   });
   if (result.isErr()) return errorResponse(result.error);
   const record = result.value;
