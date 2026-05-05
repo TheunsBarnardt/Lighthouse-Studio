@@ -422,6 +422,7 @@ export class QueryConsoleService {
       truncated: r.truncated,
       durationMs: r.durationMs,
       columns: r.columns,
+      statementsAffected: r.statementsAffected,
     });
   }
 

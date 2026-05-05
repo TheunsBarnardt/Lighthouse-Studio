@@ -143,5 +143,7 @@ export type ExecuteQueryResult =
       truncated: boolean;
       durationMs: number;
       columns: Array<{ name: string; dataType: string }>;
+      /** Per-statement row counts for multi-statement write queries. */
+      statementsAffected?: { statement: number; rowsAffected: number }[];
     }
   | ConfirmationRequired;
