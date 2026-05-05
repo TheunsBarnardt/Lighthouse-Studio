@@ -41,7 +41,10 @@ export interface B2ColdArchiveConfig {
  * @throws {AuditError} with code 'NOT_IMPLEMENTED' on any method call until implemented.
  */
 export class B2ColdArchiveAdapter implements ColdArchivePort {
-  constructor(private readonly _config: B2ColdArchiveConfig) {}
+  // eslint-disable-next-line @typescript-eslint/no-useless-constructor
+  constructor(_config: B2ColdArchiveConfig) {
+    // Stub — config will be used once B2 archival is implemented (see ADR-0074)
+  }
 
   archiveDay(
     _workspaceId: string | null,
