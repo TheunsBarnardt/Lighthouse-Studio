@@ -41,7 +41,7 @@ export interface B2ColdArchiveConfig {
  * @throws {AuditError} with code 'NOT_IMPLEMENTED' on any method call until implemented.
  */
 export class B2ColdArchiveAdapter implements ColdArchivePort {
-  constructor(private readonly config: B2ColdArchiveConfig) {}
+  constructor(private readonly _config: B2ColdArchiveConfig) {}
 
   archiveDay(
     _workspaceId: string | null,
