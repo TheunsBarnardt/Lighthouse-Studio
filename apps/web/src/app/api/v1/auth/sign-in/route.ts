@@ -1,10 +1,10 @@
+import { makeSystemContext } from '@platform/core';
 import { NextResponse } from 'next/server';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
 import { errorResponse, okResponse } from '@/lib/server/api-helpers';
 import { getAuthService, getUserDirectory } from '@/lib/server/auth-service';
-import { makeSystemContext } from '@platform/core';
-import { randomUUID } from 'node:crypto';
 import { setSessionCookie } from '@/lib/server/session';
 
 const SignInSchema = z.object({
@@ -18,7 +18,10 @@ export async function POST(request: Request): Promise<NextResponse> {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ code: 'VALIDATION', message: 'Invalid JSON', statusCode: 400 }, { status: 400 });
+    return NextResponse.json(
+      { code: 'VALIDATION', message: 'Invalid JSON', statusCode: 400 },
+      { status: 400 },
+    );
   }
 
   const parsed = SignInSchema.safeParse(body);
@@ -29,7 +32,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  const ctx = makeSystemContext({ correlationId: randomUUID() });
+  const ctx = makeSystemContext('auth.sign-in', randomUUID());
   const authService = getAuthService();
 
   // Begin sign-in (password method with in-memory provider)
@@ -55,7 +58,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     const directory = getUserDirectory();
     const userResult = await directory.findById(userId);
     if (userResult.isErr() || !userResult.value) {
-      return NextResponse.json({ code: 'NOT_FOUND', message: 'User not found', statusCode: 404 }, { status: 404 });
+      return NextResponse.json(
+        { code: 'NOT_FOUND', message: 'User not found', statusCode: 404 },
+        { status: 404 },
+      );
     }
     const user = userResult.value;
 
@@ -86,5 +92,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  return NextResponse.json({ code: 'UNKNOWN', message: 'Unexpected challenge type', statusCode: 500 }, { status: 500 });
+  return NextResponse.json(
+    { code: 'UNKNOWN', message: 'Unexpected challenge type', statusCode: 500 },
+    { status: 500 },
+  );
 }

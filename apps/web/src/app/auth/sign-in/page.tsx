@@ -1,21 +1,35 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { AuthApiError, authApi } from '@/lib/auth-client';
 import { useAuth } from '@/context/auth-context';
+import { AuthApiError, authApi } from '@/lib/auth-client';
 
 const SignInSchema = z.object({
   email: z.string().email('Enter a valid email address'),
@@ -33,14 +47,19 @@ export default function SignInPage() {
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm<SignInValues>({
-    resolver: zodResolver(SignInSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- zod 3.25 / hookform 3.10 type incompatibility
+    resolver: zodResolver(SignInSchema as any),
     defaultValues: { email: '', password: '', remember: false },
   });
 
   async function onSubmit(values: SignInValues) {
     setError(null);
     try {
-      await authApi.signIn({ email: values.email, password: values.password, remember: values.remember });
+      await authApi.signIn({
+        email: values.email,
+        password: values.password,
+        ...(values.remember !== undefined && { remember: values.remember }),
+      });
       await refresh();
       const returnTo = searchParams.get('returnTo') ?? '/';
       router.replace(returnTo);
@@ -61,7 +80,13 @@ export default function SignInPage() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={(e) => { void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
+          <form
+            onSubmit={(e) => {
+              void form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-4"
+            noValidate
+          >
             <FormField
               control={form.control}
               name="email"
@@ -117,7 +142,7 @@ export default function SignInPage() {
                 <FormItem className="flex items-center space-x-2 space-y-0">
                   <FormControl>
                     <Checkbox
-                      checked={field.value}
+                      checked={field.value ?? false}
                       onCheckedChange={field.onChange}
                       id="remember"
                     />

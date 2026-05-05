@@ -17,10 +17,7 @@ const WRITE_STAGES = new Set(['$out', '$merge']);
 // ── Parameter binding for Mongo ───────────────────────────────────────────────
 // Replaces $$paramName occurrences in JSON strings with bound values.
 
-function bindMongoParams(
-  query: string,
-  parameters: Record<string, unknown>,
-): string {
+function bindMongoParams(query: string, parameters: Record<string, unknown>): string {
   return query.replace(/\$\$([a-zA-Z_][a-zA-Z0-9_]*)/g, (_match, name: string) => {
     const val = parameters[name];
     return JSON.stringify(val ?? null);
@@ -44,13 +41,25 @@ export interface MongoRawQueryDbs {
   readonly: Db;
   /** Mongo Db connected as the console-writer user. */
   console_writer: Db;
+  /**
+   * Optional Mongo Db connected to a secondary replica with readPreference=secondary.
+   * Used for read-only console queries to reduce load on the primary.
+   */
+  readonlyReplica?: Db;
 }
 
 export class MongoRawQueryAdapter implements RawQueryPort {
   constructor(private readonly dbs: MongoRawQueryDbs) {}
 
+  private _dbFor(role: 'readonly' | 'console_writer'): Db {
+    if (role === 'readonly' && this.dbs.readonlyReplica) {
+      return this.dbs.readonlyReplica;
+    }
+    return this.dbs[role];
+  }
+
   async execute(opts: RawExecuteOptions): Promise<Result<RawQueryResult, PersistenceError>> {
-    const db = this.dbs[opts.role];
+    const db = this._dbFor(opts.role);
     const start = Date.now();
 
     try {
@@ -59,7 +68,9 @@ export class MongoRawQueryAdapter implements RawQueryPort {
       try {
         pipeline = JSON.parse(boundQuery) as Document[];
       } catch (cause) {
-        return err(new PersistenceError('UNKNOWN', `Invalid Mongo pipeline JSON: ${String(cause)}`, cause));
+        return err(
+          new PersistenceError('UNKNOWN', `Invalid Mongo pipeline JSON: ${String(cause)}`, cause),
+        );
       }
 
       // Validate no write stages when role is readonly (defense-in-depth)
@@ -68,7 +79,10 @@ export class MongoRawQueryAdapter implements RawQueryPort {
           const stageName = Object.keys(stage)[0];
           if (stageName && WRITE_STAGES.has(stageName)) {
             return err(
-              new PersistenceError('PERMISSION_DENIED', `Write stage ${stageName} not allowed in read-only mode`),
+              new PersistenceError(
+                'PERMISSION_DENIED',
+                `Write stage ${stageName} not allowed in read-only mode`,
+              ),
             );
           }
         }

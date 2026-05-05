@@ -48,13 +48,22 @@ function injectRowLimit(query: string, limit: number): string {
 export interface MssqlRawQueryPools {
   readonly: mssql.ConnectionPool;
   console_writer: mssql.ConnectionPool;
+  /** Optional readable secondary for read-only console queries (MSSQL AG readable secondary). */
+  readonlyReplica?: mssql.ConnectionPool;
 }
 
 export class MssqlRawQueryAdapter implements RawQueryPort {
   constructor(private readonly pools: MssqlRawQueryPools) {}
 
+  private _poolFor(role: 'readonly' | 'console_writer'): mssql.ConnectionPool {
+    if (role === 'readonly' && this.pools.readonlyReplica) {
+      return this.pools.readonlyReplica;
+    }
+    return this.pools[role];
+  }
+
   async execute(opts: RawExecuteOptions): Promise<Result<RawQueryResult, PersistenceError>> {
-    const pool = this.pools[opts.role];
+    const pool = this._poolFor(opts.role);
     const start = Date.now();
 
     try {
@@ -69,8 +78,22 @@ export class MssqlRawQueryAdapter implements RawQueryPort {
         request.input(name, value);
       }
 
-      const limitedQuery = injectRowLimit(text, opts.rowLimit);
-      const result = await request.query(limitedQuery);
+      const limitedQuery = opts.wrapInTransaction
+        ? `BEGIN TRANSACTION;\n${injectRowLimit(text, opts.rowLimit)};\nCOMMIT;`
+        : injectRowLimit(text, opts.rowLimit);
+
+      let result;
+      try {
+        result = await request.query(limitedQuery);
+      } catch (innerCause) {
+        if (opts.wrapInTransaction) {
+          await pool
+            .request()
+            .query('IF @@TRANCOUNT > 0 ROLLBACK;')
+            .catch(() => undefined);
+        }
+        throw innerCause;
+      }
 
       const rows = result.recordset as Record<string, unknown>[];
       const truncated = rows.length > opts.rowLimit;

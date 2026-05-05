@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unnecessary-condition -- in-memory adapter types unresolved until packages rebuilt */
 import { NextResponse } from 'next/server';
 
 import { okResponse } from '@/lib/server/api-helpers';
@@ -14,11 +13,9 @@ export async function DELETE(request: Request): Promise<NextResponse> {
     );
   }
 
-  // TODO: AccountService.deleteAccount(session.userId, ctx) — sends confirmation email in real impl
   const directory = getUserDirectory();
-  try {
-    await directory.remove(session.userId);
-  } catch {
+  const archiveResult = await directory.archive(session.userId);
+  if (archiveResult.isErr()) {
     return NextResponse.json(
       { code: 'INTERNAL_ERROR', message: 'Failed to delete account', statusCode: 500 },
       { status: 500 },
@@ -37,22 +34,21 @@ export async function GET(request: Request): Promise<NextResponse> {
   }
 
   const directory = getUserDirectory();
-  let user;
-  try {
-    const userResult = await directory.findById(session.userId);
-    if (!userResult) {
-      return NextResponse.json(
-        { code: 'NOT_FOUND', message: 'User not found.', statusCode: 404 },
-        { status: 404 },
-      );
-    }
-    user = userResult;
-  } catch {
+  const userResult = await directory.findById(session.userId);
+  if (userResult.isErr()) {
     return NextResponse.json(
       { code: 'INTERNAL_ERROR', message: 'Failed to fetch user', statusCode: 500 },
       { status: 500 },
     );
   }
+  const user = userResult.value;
+  if (!user) {
+    return NextResponse.json(
+      { code: 'NOT_FOUND', message: 'User not found.', statusCode: 404 },
+      { status: 404 },
+    );
+  }
+
   return okResponse({
     id: user.id,
     email: user.primaryEmail,

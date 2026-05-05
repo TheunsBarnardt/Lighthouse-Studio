@@ -1,11 +1,12 @@
 import { z } from 'zod';
 
 export type PersistenceErrorCode =
+  | 'CANCELLED'
   | 'CONNECTION_FAILED'
-  | 'TIMEOUT'
   | 'CONSTRAINT_VIOLATION'
   | 'DEADLOCK'
   | 'PERMISSION_DENIED'
+  | 'TIMEOUT'
   | 'UNKNOWN';
 
 export class PersistenceError extends Error {
@@ -53,10 +54,11 @@ export class DdlError extends Error {
 }
 
 export const PersistenceErrorCodeSchema = z.enum([
+  'CANCELLED',
   'CONNECTION_FAILED',
-  'TIMEOUT',
   'CONSTRAINT_VIOLATION',
   'DEADLOCK',
   'PERMISSION_DENIED',
+  'TIMEOUT',
   'UNKNOWN',
 ]);

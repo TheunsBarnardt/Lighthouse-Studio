@@ -63,6 +63,22 @@ export function customerMigrateRole(workspaceSlug: string): string {
 }
 
 /**
+ * Derive the read-only query console role for a workspace (Postgres/MSSQL).
+ * This role has SELECT-only rights — used for console read queries.
+ */
+export function customerReadonlyRole(workspaceSlug: string): string {
+  return `cust_${sanitizeSlug(workspaceSlug)}_readonly`;
+}
+
+/**
+ * Derive the console writer role for a workspace (Postgres/MSSQL).
+ * This role has SELECT + INSERT/UPDATE/DELETE rights — used for console write queries.
+ */
+export function customerConsoleWriterRole(workspaceSlug: string): string {
+  return `cust_${sanitizeSlug(workspaceSlug)}_console_writer`;
+}
+
+/**
  * Generate the DDL to create the per-workspace Postgres schema and its roles.
  * Idempotent (IF NOT EXISTS / DO $$ IF NOT EXISTS).
  */

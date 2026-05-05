@@ -1,10 +1,10 @@
+import { makeSystemContext } from '@platform/core';
 import { NextResponse } from 'next/server';
+import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 
 import { okResponse } from '@/lib/server/api-helpers';
 import { getAuthService, getUserDirectory } from '@/lib/server/auth-service';
-import { makeSystemContext } from '@platform/core';
-import { randomUUID } from 'node:crypto';
 import { setSessionCookie } from '@/lib/server/session';
 
 const SetupSchema = z.object({
@@ -26,14 +26,23 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   let body: unknown;
-  try { body = await request.json(); } catch {
-    return NextResponse.json({ code: 'VALIDATION', message: 'Invalid JSON', statusCode: 400 }, { status: 400 });
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { code: 'VALIDATION', message: 'Invalid JSON', statusCode: 400 },
+      { status: 400 },
+    );
   }
 
   const parsed = SetupSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
-      { code: 'VALIDATION', message: parsed.error.issues[0]?.message ?? 'Invalid input', statusCode: 400 },
+      {
+        code: 'VALIDATION',
+        message: parsed.error.issues[0]?.message ?? 'Invalid input',
+        statusCode: 400,
+      },
       { status: 400 },
     );
   }
@@ -49,7 +58,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       emailVerified: true,
       primary: true,
     },
-    preferences: { role: 'installation_owner' },
+    preferences: {},
   });
 
   if (createResult.isErr()) {
@@ -62,7 +71,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   const user = createResult.value;
 
   // Sign the new user in immediately
-  const ctx = makeSystemContext({ correlationId: randomUUID() });
+  const ctx = makeSystemContext('auth.setup', randomUUID());
   const authService = getAuthService();
 
   const beginResult = await authService.beginSignIn(ctx, {

@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -34,7 +34,8 @@ export default function AdminWorkspacesPage() {
   }, []);
 
   const filtered = workspaces.filter(
-    (w) => !search || w.name.toLowerCase().includes(search.toLowerCase()) || w.slug.includes(search),
+    (w) =>
+      !search || w.name.toLowerCase().includes(search.toLowerCase()) || w.slug.includes(search),
   );
 
   return (
@@ -49,13 +50,17 @@ export default function AdminWorkspacesPage() {
             type="search"
             placeholder="Search by name or slug…"
             value={search}
-            onChange={(e) => { setSearch(e.target.value); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+            }}
             aria-label="Search workspaces"
           />
         </CardHeader>
         <CardContent>
           {loading && (
-            <p className="py-8 text-center text-sm text-muted-foreground" aria-live="polite">Loading…</p>
+            <p className="py-8 text-center text-sm text-muted-foreground" aria-live="polite">
+              Loading…
+            </p>
           )}
           {!loading && filtered.length === 0 && (
             <p className="py-8 text-center text-sm text-muted-foreground">No workspaces found.</p>
@@ -74,7 +79,10 @@ export default function AdminWorkspacesPage() {
                 {filtered.map((ws) => (
                   <tr key={ws.id} className="border-b last:border-0">
                     <td className="py-3 pr-4">
-                      <Link href={`/workspaces/${ws.slug}/members`} className="font-medium hover:text-primary">
+                      <Link
+                        href={`/admin/workspaces/${ws.id}`}
+                        className="font-medium hover:text-primary"
+                      >
                         {ws.name}
                       </Link>
                     </td>

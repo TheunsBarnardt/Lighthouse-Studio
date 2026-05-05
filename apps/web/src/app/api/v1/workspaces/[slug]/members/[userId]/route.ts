@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unnecessary-condition -- in-memory adapter types unresolved until packages rebuilt */
 import type { NextRequest } from 'next/server';
 
 import { NextResponse } from 'next/server';
@@ -20,29 +19,27 @@ export async function GET(
   }
 
   const directory = getUserDirectory();
-  let user;
-  try {
-    user = await directory.findById(userId);
-  } catch {
+  const userResult = await directory.findById(userId);
+  if (userResult.isErr()) {
     return NextResponse.json(
       { code: 'INTERNAL_ERROR', message: 'Failed to fetch member', statusCode: 500 },
       { status: 500 },
     );
   }
-  if (!user) {
+  if (!userResult.value) {
     return NextResponse.json(
       { code: 'NOT_FOUND', message: 'Member not found.', statusCode: 404 },
       { status: 404 },
     );
   }
+  const user = userResult.value;
 
   return NextResponse.json({
     id: user.id,
-    email: user.email,
-    displayName: user.displayName || null,
+    email: user.primaryEmail,
+    displayName: user.displayName,
     status: user.status,
-    roles: user.roles || [],
-    identities: user.identities || [],
+    identities: user.identities,
   });
 }
 
@@ -59,36 +56,27 @@ export async function PATCH(
     );
   }
 
-  const body = (await request.json()) as { roles?: string[]; status?: string };
+  const body = (await request.json()) as { displayName?: string; status?: string };
   const directory = getUserDirectory();
-  let user;
-  try {
-    user = await directory.findById(userId);
-  } catch {
-    return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: 'Failed to fetch member', statusCode: 500 },
-      { status: 500 },
-    );
-  }
-  if (!user) {
-    return NextResponse.json(
-      { code: 'NOT_FOUND', message: 'Member not found.', statusCode: 404 },
-      { status: 404 },
-    );
+
+  if (body.displayName !== undefined) {
+    const result = await directory.updateProfile(userId, { displayName: body.displayName });
+    if (result.isErr()) {
+      return NextResponse.json(
+        { code: 'INTERNAL_ERROR', message: 'Failed to update member', statusCode: 500 },
+        { status: 500 },
+      );
+    }
   }
 
-  try {
-    if (body.roles !== undefined) {
-      await directory.update(userId, { roles: body.roles });
+  if (body.status === 'archived') {
+    const result = await directory.archive(userId);
+    if (result.isErr()) {
+      return NextResponse.json(
+        { code: 'INTERNAL_ERROR', message: 'Failed to update member', statusCode: 500 },
+        { status: 500 },
+      );
     }
-    if (body.status !== undefined) {
-      await directory.update(userId, { status: body.status });
-    }
-  } catch {
-    return NextResponse.json(
-      { code: 'INTERNAL_ERROR', message: 'Failed to update member', statusCode: 500 },
-      { status: 500 },
-    );
   }
 
   return NextResponse.json({ message: 'Member updated.' });
@@ -108,9 +96,8 @@ export async function DELETE(
   }
 
   const directory = getUserDirectory();
-  try {
-    await directory.remove(userId);
-  } catch {
+  const result = await directory.archive(userId);
+  if (result.isErr()) {
     return NextResponse.json(
       { code: 'INTERNAL_ERROR', message: 'Failed to remove member', statusCode: 500 },
       { status: 500 },

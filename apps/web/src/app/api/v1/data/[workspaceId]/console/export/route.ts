@@ -1,4 +1,4 @@
-import { errorResponse, okResponse, requestContext } from '@/lib/server/api-helpers';
+import { errorResponse, requestContext } from '@/lib/server/api-helpers';
 
 interface Params {
   workspaceId: string;
@@ -9,5 +9,9 @@ interface Params {
 export async function POST(req: Request, { params }: { params: Params }) {
   void requestContext(params.workspaceId, req);
   void (await req.json());
-  return errorResponse({ code: 'NOT_IMPLEMENTED', message: 'Export requires the job queue adapter (Objective 23)', statusCode: 501 } as never);
+  return errorResponse({
+    code: 'NOT_IMPLEMENTED',
+    message: 'Export requires the job queue adapter (Objective 23)',
+    statusCode: 501,
+  } as never);
 }

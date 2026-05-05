@@ -41,6 +41,8 @@ export interface RawExecuteOptions {
   /** Maximum number of rows to return. */
   rowLimit: number;
   abortSignal?: AbortSignal;
+  /** When true, the adapter wraps execution in an explicit transaction (BEGIN/COMMIT/ROLLBACK). */
+  wrapInTransaction?: boolean;
 }
 
 // ── Result ────────────────────────────────────────────────────────────────────

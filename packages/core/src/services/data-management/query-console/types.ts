@@ -135,5 +135,13 @@ export interface ConfirmationRequired {
 }
 
 export type ExecuteQueryResult =
-  | { kind: 'result'; rows: Record<string, unknown>[]; rowCount: number; truncated: boolean; durationMs: number; columns: Array<{ name: string; dataType: string }> }
+  | {
+      kind: 'result';
+      executionId: string;
+      rows: Record<string, unknown>[];
+      rowCount: number;
+      truncated: boolean;
+      durationMs: number;
+      columns: Array<{ name: string; dataType: string }>;
+    }
   | ConfirmationRequired;

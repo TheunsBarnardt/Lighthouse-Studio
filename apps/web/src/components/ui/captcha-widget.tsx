@@ -15,11 +15,17 @@ interface CaptchaWidgetProps {
 declare global {
   interface Window {
     hcaptcha?: {
-      render: (el: HTMLElement, opts: { sitekey: string; callback: (t: string) => void; 'expired-callback'?: () => void }) => string;
+      render: (
+        el: HTMLElement,
+        opts: { sitekey: string; callback: (t: string) => void; 'expired-callback'?: () => void },
+      ) => string;
       reset: (widgetId: string) => void;
     };
     turnstile?: {
-      render: (el: HTMLElement, opts: { sitekey: string; callback: (t: string) => void; 'expired-callback'?: () => void }) => string;
+      render: (
+        el: HTMLElement,
+        opts: { sitekey: string; callback: (t: string) => void; 'expired-callback'?: () => void },
+      ) => string;
       reset: (widgetId: string) => void;
     };
   }
@@ -46,18 +52,20 @@ export function CaptchaWidget({ onToken, onExpire }: CaptchaWidgetProps) {
         widgetIdRef.current = window.hcaptcha.render(el, {
           sitekey: SITE_KEY,
           callback: onToken,
-          'expired-callback': onExpire,
+          ...(onExpire && { 'expired-callback': onExpire }),
         });
       } else if (PROVIDER === 'turnstile' && window.turnstile) {
         widgetIdRef.current = window.turnstile.render(el, {
           sitekey: SITE_KEY,
           callback: onToken,
-          'expired-callback': onExpire,
+          ...(onExpire && { 'expired-callback': onExpire }),
         });
       }
     }
 
-    const existing = document.querySelector<HTMLScriptElement>(`script[src^="${scriptSrc.split('?')[0] ?? scriptSrc}"]`);
+    const existing = document.querySelector<HTMLScriptElement>(
+      `script[src^="${scriptSrc.split('?')[0] ?? scriptSrc}"]`,
+    );
     if (existing) {
       mount();
       return;

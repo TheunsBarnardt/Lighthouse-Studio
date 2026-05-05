@@ -3,10 +3,10 @@
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { MongoEditor } from './components/editor/MongoEditor';
-import { SqlEditor } from './components/editor/SqlEditor';
 import { ConfirmWriteQueryDialog } from './components/dialogs/ConfirmWriteQueryDialog';
 import { SaveQueryDialog } from './components/dialogs/SaveQueryDialog';
+import { MongoEditor } from './components/editor/MongoEditor';
+import { SqlEditor } from './components/editor/SqlEditor';
 import { ExplainPanel } from './components/panels/ExplainPanel';
 import { HistoryPanel } from './components/panels/HistoryPanel';
 import { ParametersPanel } from './components/panels/ParametersPanel';
@@ -14,6 +14,7 @@ import { ResultsPanel } from './components/panels/ResultsPanel';
 import { SavedQueriesPanel } from './components/panels/SavedQueriesPanel';
 import { SchemaPanel } from './components/panels/SchemaPanel';
 
+// eslint-disable-next-line no-restricted-syntax -- client-side: must use NEXT_PUBLIC_* directly
 const DEFAULT_WORKSPACE_ID = process.env['NEXT_PUBLIC_DEFAULT_WORKSPACE_ID'] ?? 'default';
 
 type Language = 'sql_postgres' | 'sql_mssql' | 'mongo_aggregate' | 'mongo_find';
@@ -48,9 +49,13 @@ interface ConfirmState {
 
 function extractParams(query: string, language: Language): string[] {
   if (language === 'mongo_aggregate' || language === 'mongo_find') {
-    return Array.from(new Set([...query.matchAll(/\$([a-zA-Z_][a-zA-Z0-9_]*)/g)].map((m) => m[1] ?? '')));
+    return Array.from(
+      new Set([...query.matchAll(/\$([a-zA-Z_][a-zA-Z0-9_]*)/g)].map((m) => m[1] ?? '')),
+    );
   }
-  return Array.from(new Set([...query.matchAll(/:([a-zA-Z_][a-zA-Z0-9_]*)/g)].map((m) => m[1] ?? '')));
+  return Array.from(
+    new Set([...query.matchAll(/:([a-zA-Z_][a-zA-Z0-9_]*)/g)].map((m) => m[1] ?? '')),
+  );
 }
 
 export default function QueryConsolePage() {
@@ -69,14 +74,34 @@ export default function QueryConsolePage() {
   const [explainResult, setExplainResult] = useState<ExplainResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
+  const [executionId, setExecutionId] = useState<string | null>(null);
 
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
   const pendingConfirmRef = useRef(false);
 
   // History + saved queries
-  const [history, setHistory] = useState<{ id: string; queryText: string; queryLanguage: string; status: string; durationMs: number; createdAt: string }[]>([]);
-  const [savedQueries, setSavedQueries] = useState<{ id: string; name: string; description?: string | null; queryText: string; queryLanguage: string; folderPath?: string | null; shared: boolean }[]>([]);
+  const [history, setHistory] = useState<
+    {
+      id: string;
+      queryText: string;
+      queryLanguage: string;
+      status: string;
+      durationMs: number;
+      createdAt: string;
+    }[]
+  >([]);
+  const [savedQueries, setSavedQueries] = useState<
+    {
+      id: string;
+      name: string;
+      description?: string | null;
+      queryText: string;
+      queryLanguage: string;
+      folderPath?: string | null;
+      shared: boolean;
+    }[]
+  >([]);
 
   const paramNames = extractParams(query, language);
 
@@ -84,20 +109,24 @@ export default function QueryConsolePage() {
     try {
       const r = await fetch(`/api/v1/data/${workspaceId}/console/history`);
       if (r.ok) {
-        const data = await r.json() as { items?: typeof history };
+        const data = (await r.json()) as { items?: typeof history };
         setHistory(data.items ?? []);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [workspaceId]);
 
   const refreshSaved = useCallback(async () => {
     try {
       const r = await fetch(`/api/v1/data/${workspaceId}/console/saved?includeShared=true`);
       if (r.ok) {
-        const data = await r.json() as { items?: typeof savedQueries };
+        const data = (await r.json()) as { items?: typeof savedQueries };
         setSavedQueries(data.items ?? []);
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, [workspaceId]);
 
   useEffect(() => {
@@ -111,7 +140,11 @@ export default function QueryConsolePage() {
     try {
       const body = {
         workspaceSlug: params.schemaSlug,
-        databaseDriver: language.startsWith('sql_postgres') ? 'postgres' : language.startsWith('sql_mssql') ? 'mssql' : 'mongo',
+        databaseDriver: language.startsWith('sql_postgres')
+          ? 'postgres'
+          : language.startsWith('sql_mssql')
+            ? 'mssql'
+            : 'mongo',
         query,
         language,
         parameters: Object.fromEntries(Object.entries(paramValues).map(([k, v]) => [k, v])),
@@ -124,7 +157,19 @@ export default function QueryConsolePage() {
         body: JSON.stringify(body),
       });
 
-      const data = await res.json() as { kind?: string; rows?: Record<string, unknown>[]; columns?: Column[]; rowCount?: number; truncated?: boolean; durationMs?: number; statementCount?: number; affectedTables?: string[]; hasWriteStatements?: boolean; error?: string };
+      const data = (await res.json()) as {
+        kind?: string;
+        executionId?: string;
+        rows?: Record<string, unknown>[];
+        columns?: Column[];
+        rowCount?: number;
+        truncated?: boolean;
+        durationMs?: number;
+        statementCount?: number;
+        affectedTables?: string[];
+        hasWriteStatements?: boolean;
+        error?: string;
+      };
 
       if (!res.ok) {
         setError(data.error ?? 'Query failed');
@@ -135,6 +180,7 @@ export default function QueryConsolePage() {
           hasWriteStatements: data.hasWriteStatements ?? true,
         });
       } else {
+        setExecutionId(data.executionId ?? null);
         setResult({
           rows: data.rows ?? [],
           columns: data.columns ?? [],
@@ -152,13 +198,31 @@ export default function QueryConsolePage() {
     }
   }
 
+  async function cancelQuery() {
+    if (!executionId) return;
+    try {
+      await fetch(`/api/v1/data/${workspaceId}/console/cancel/${executionId}`, {
+        method: 'DELETE',
+      });
+      setExecutionId(null);
+      setRunning(false);
+      setError('Query cancelled');
+    } catch {
+      /* ignore */
+    }
+  }
+
   async function explainQuery() {
     setRunning(true);
     setError(null);
     try {
       const body = {
         workspaceSlug: params.schemaSlug,
-        databaseDriver: language.startsWith('sql_postgres') ? 'postgres' : language.startsWith('sql_mssql') ? 'mssql' : 'mongo',
+        databaseDriver: language.startsWith('sql_postgres')
+          ? 'postgres'
+          : language.startsWith('sql_mssql')
+            ? 'mssql'
+            : 'mongo',
         query,
         language,
         parameters: paramValues,
@@ -170,11 +234,20 @@ export default function QueryConsolePage() {
         body: JSON.stringify(body),
       });
 
-      const data = await res.json() as { plan?: unknown; format?: 'json' | 'xml' | 'text'; durationMs?: number; error?: string };
+      const data = (await res.json()) as {
+        plan?: unknown;
+        format?: 'json' | 'xml' | 'text';
+        durationMs?: number;
+        error?: string;
+      };
       if (!res.ok) {
         setError(data.error ?? 'Explain failed');
       } else {
-        setExplainResult({ plan: data.plan ?? {}, format: data.format ?? 'json', durationMs: data.durationMs ?? 0 });
+        setExplainResult({
+          plan: data.plan ?? {},
+          format: data.format ?? 'json',
+          durationMs: data.durationMs ?? 0,
+        });
         setBottomTab('explain');
       }
     } catch (e) {
@@ -184,7 +257,13 @@ export default function QueryConsolePage() {
     }
   }
 
-  async function saveQuery(opts: { name: string; description: string; folderPath: string; shared: boolean; sharedCanRun: boolean }) {
+  async function saveQuery(opts: {
+    name: string;
+    description: string;
+    folderPath: string;
+    shared: boolean;
+    sharedCanRun: boolean;
+  }) {
     await fetch(`/api/v1/data/${workspaceId}/console/saved`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -202,7 +281,9 @@ export default function QueryConsolePage() {
       <div className="flex items-center gap-2 border-b px-3 py-2">
         <select
           value={language}
-          onChange={(e) => { setLanguage(e.target.value as Language); }}
+          onChange={(e) => {
+            setLanguage(e.target.value as Language);
+          }}
           className="rounded border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           aria-label="Query language"
         >
@@ -214,16 +295,32 @@ export default function QueryConsolePage() {
 
         <button
           type="button"
-          onClick={() => { void executeQuery(); }}
+          onClick={() => {
+            void executeQuery();
+          }}
           disabled={running}
           className="rounded bg-primary px-3 py-1 text-sm text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {running ? 'Running…' : 'Run'}
         </button>
 
+        {running && (
+          <button
+            type="button"
+            onClick={() => {
+              void cancelQuery();
+            }}
+            className="rounded border border-destructive px-3 py-1 text-sm text-destructive hover:bg-destructive/10"
+          >
+            Cancel
+          </button>
+        )}
+
         <button
           type="button"
-          onClick={() => { void explainQuery(); }}
+          onClick={() => {
+            void explainQuery();
+          }}
           disabled={running}
           className="rounded border px-3 py-1 text-sm hover:bg-muted disabled:opacity-50"
         >
@@ -232,7 +329,9 @@ export default function QueryConsolePage() {
 
         <button
           type="button"
-          onClick={() => { setSaveDialogOpen(true); }}
+          onClick={() => {
+            setSaveDialogOpen(true);
+          }}
           className="rounded border px-3 py-1 text-sm hover:bg-muted"
         >
           Save
@@ -254,7 +353,9 @@ export default function QueryConsolePage() {
               <button
                 key={tab}
                 type="button"
-                onClick={() => { setSidebarTab(tab); }}
+                onClick={() => {
+                  setSidebarTab(tab);
+                }}
                 className={`flex-1 py-1.5 text-xs font-medium capitalize ${sidebarTab === tab ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 {tab}
@@ -265,19 +366,27 @@ export default function QueryConsolePage() {
             {sidebarTab === 'schema' && (
               <SchemaPanel
                 tables={[]}
-                onInsert={(text) => { setQuery((q) => `${q}${text}`); }}
+                onInsert={(text) => {
+                  setQuery((q) => `${q}${text}`);
+                }}
               />
             )}
             {sidebarTab === 'history' && (
               <HistoryPanel
                 entries={history}
-                onSelect={(q, lang) => { setQuery(q); setLanguage(lang as Language); }}
+                onSelect={(q, lang) => {
+                  setQuery(q);
+                  setLanguage(lang as Language);
+                }}
               />
             )}
             {sidebarTab === 'saved' && (
               <SavedQueriesPanel
                 queries={savedQueries}
-                onSelect={(q, lang) => { setQuery(q); setLanguage(lang as Language); }}
+                onSelect={(q, lang) => {
+                  setQuery(q);
+                  setLanguage(lang as Language);
+                }}
               />
             )}
           </div>
@@ -288,13 +397,21 @@ export default function QueryConsolePage() {
           {/* Editor */}
           <div className="flex-1 overflow-hidden">
             {language === 'mongo_aggregate' || language === 'mongo_find' ? (
-              <MongoEditor value={query} onChange={setQuery} onRun={() => { void executeQuery(); }} />
+              <MongoEditor
+                value={query}
+                onChange={setQuery}
+                onRun={() => {
+                  void executeQuery();
+                }}
+              />
             ) : (
               <SqlEditor
                 value={query}
                 onChange={setQuery}
                 language={language}
-                onRun={() => { void executeQuery(); }}
+                onRun={() => {
+                  void executeQuery();
+                }}
                 workspaceId={workspaceId}
                 schemaId={params.schemaSlug}
               />
@@ -308,12 +425,16 @@ export default function QueryConsolePage() {
                 <button
                   key={tab}
                   type="button"
-                  onClick={() => { setBottomTab(tab); }}
+                  onClick={() => {
+                    setBottomTab(tab);
+                  }}
                   className={`px-4 py-1.5 text-xs font-medium capitalize ${bottomTab === tab ? 'border-b-2 border-primary text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                 >
                   {tab}
                   {tab === 'parameters' && paramNames.length > 0 && (
-                    <span className="ml-1 rounded-full bg-muted px-1.5 text-xs">{paramNames.length}</span>
+                    <span className="ml-1 rounded-full bg-muted px-1.5 text-xs">
+                      {paramNames.length}
+                    </span>
                   )}
                 </button>
               ))}
@@ -337,7 +458,9 @@ export default function QueryConsolePage() {
                 <ParametersPanel
                   paramNames={paramNames}
                   values={paramValues}
-                  onChange={(name, value) => { setParamValues((prev) => ({ ...prev, [name]: value })); }}
+                  onChange={(name, value) => {
+                    setParamValues((prev) => ({ ...prev, [name]: value }));
+                  }}
                 />
               )}
 
@@ -360,8 +483,12 @@ export default function QueryConsolePage() {
       {/* Dialogs */}
       <SaveQueryDialog
         open={saveDialogOpen}
-        onClose={() => { setSaveDialogOpen(false); }}
-        onSave={(opts) => { void saveQuery(opts); }}
+        onClose={() => {
+          setSaveDialogOpen(false);
+        }}
+        onSave={(opts) => {
+          void saveQuery(opts);
+        }}
       />
 
       <ConfirmWriteQueryDialog
@@ -374,7 +501,9 @@ export default function QueryConsolePage() {
           setConfirmState(null);
           void executeQuery(true);
         }}
-        onCancel={() => { setConfirmState(null); }}
+        onCancel={() => {
+          setConfirmState(null);
+        }}
       />
     </div>
   );

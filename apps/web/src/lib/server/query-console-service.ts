@@ -1,4 +1,10 @@
-import { QueryClassifierImpl, QueryConsoleAutocomplete, QueryConsoleService } from '@platform/core';
+import {
+  ApprovalRoutingEngine,
+  QueryClassifierImpl,
+  QueryConsoleAutocomplete,
+  QueryConsoleService,
+  SchemaService,
+} from '@platform/core';
 import {
   createInMemoryAudit,
   createInMemoryAuthz,
@@ -8,22 +14,21 @@ import {
   createInMemoryMigration,
   createInMemoryRepo,
 } from '@platform/core/testing';
-import { SchemaService } from '@platform/core';
-import type { ApprovalsRoutingEnginePort } from '@platform/ports-approvals';
-
-// Minimal stub for ApprovalRoutingEngine (not needed in console context)
-const stubApprovals: ApprovalsRoutingEnginePort = {
-  async route() { return { isOk: () => true, isErr: () => false, value: [] } as never; },
-};
 
 // In-memory stub executor satisfies RawQueryPort for dev/test environments.
 // Production wires a real PostgresRawQueryAdapter / MssqlRawQueryAdapter / MongoRawQueryAdapter.
+const NOT_IMPLEMENTED = {
+  isOk: () => false,
+  isErr: () => true,
+  error: { code: 'NOT_IMPLEMENTED', message: 'Raw query executor not wired in this environment' },
+} as never;
+
 const stubExecutor = {
-  async execute() {
-    return { isOk: () => false, isErr: () => true, error: { code: 'NOT_IMPLEMENTED', message: 'Raw query executor not wired in this environment' } } as never;
+  execute(): Promise<never> {
+    return Promise.resolve(NOT_IMPLEMENTED);
   },
-  async explain() {
-    return { isOk: () => false, isErr: () => true, error: { code: 'NOT_IMPLEMENTED', message: 'Raw query executor not wired in this environment' } } as never;
+  explain(): Promise<never> {
+    return Promise.resolve(NOT_IMPLEMENTED);
   },
 };
 
@@ -56,7 +61,7 @@ export function getQueryConsoleAutocomplete(): QueryConsoleAutocomplete {
       createInMemoryMigration(),
       createInMemoryAudit(),
       createInMemoryLogger(),
-      stubApprovals,
+      new ApprovalRoutingEngine(),
     );
     _autocomplete = new QueryConsoleAutocomplete(schemaService);
   }

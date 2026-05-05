@@ -66,6 +66,12 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['*', 'approval'],
       ['*', 'data_table'],
       ['*', 'data_row'],
+      // Query console — owners have all query permissions including write
+      ['query.read', 'workspace'],
+      ['query.write', 'workspace'],
+      ['query.long_running', 'workspace'],
+      ['query.large_result', 'workspace'],
+      ['query.export', 'workspace'],
     ),
   },
   {
@@ -90,6 +96,11 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       // Data management — full access to tables and rows
       ['*', 'data_table'],
       ['*', 'data_row'],
+      // Query console — admins can read, run long queries, fetch large results, and export; no write by default
+      ['query.read', 'workspace'],
+      ['query.long_running', 'workspace'],
+      ['query.large_result', 'workspace'],
+      ['query.export', 'workspace'],
     ),
   },
   {
@@ -118,6 +129,9 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['grant', 'approval.architecture'],
       ['read', 'data_table'],
       ['read', 'data_row'],
+      // Query console — architects can read and export
+      ['query.read', 'workspace'],
+      ['query.export', 'workspace'],
     ),
   },
   {
@@ -140,6 +154,9 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['read', 'data_row'],
       ['update', 'data_row'],
       ['delete', 'data_row'],
+      // Query console — developers can read and export
+      ['query.read', 'workspace'],
+      ['query.export', 'workspace'],
     ),
   },
   {
@@ -153,6 +170,8 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['schema.export', 'schema'],
       ['read', 'data_table'],
       ['read', 'data_row'],
+      // Query console — QA can read via console
+      ['query.read', 'workspace'],
     ),
   },
   {
@@ -181,6 +200,8 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['schema.export', 'schema'],
       ['read', 'data_table'],
       ['read', 'data_row'],
+      // Query console — reviewers can read via console
+      ['query.read', 'workspace'],
     ),
   },
   {
@@ -202,6 +223,8 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['schema.export', 'schema'],
       ['read', 'data_table'],
       ['read', 'data_row'],
+      // Query console — viewers can read via console
+      ['query.read', 'workspace'],
     ),
   },
 ];

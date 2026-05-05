@@ -1,8 +1,10 @@
 import type { AuditPort } from '@platform/ports-audit';
 import type { AuthorizationPort, RequestContext } from '@platform/ports-authorization';
-import type { LoggerPort } from '@platform/ports-observability';
+import type { LoggerPort, MetricsPort } from '@platform/ports-observability';
 import type {
   PaginatedResult,
+  QueryLanguage,
+  QueryPlan,
   RawQueryPort,
   RepositoryPort,
 } from '@platform/ports-persistence';
@@ -18,7 +20,6 @@ import type {
   ExecuteQueryInput,
   ExecuteQueryResult,
   ExplainQueryInput,
-  ExportInput,
   ListHistoryOptions,
   ListSavedQueriesOptions,
   QueryHistoryRecord,
@@ -28,16 +29,15 @@ import type {
 } from './types.js';
 
 import { auditMeta, toAuditActor } from '../../../context.js';
-import {
-  ForbiddenError,
-  NotFoundError,
-  TimeoutError,
-  ValidationError,
-} from '../../../errors.js';
+import { ForbiddenError, NotFoundError, TimeoutError, ValidationError } from '../../../errors.js';
 import { observable } from '../../../observability/observable.js';
 import { QUERY_AUDIT_EVENTS } from '../audit-events.js';
 import { customerConsoleWriterRole, customerReadonlyRole } from '../namespace.js';
 import { QUERY_DEFAULTS, QUERY_PERMISSIONS } from './permissions.js';
+
+// Matches parameter names that are likely to contain PII (best-effort heuristic).
+const PII_PARAM_PATTERNS =
+  /\b(email|password|passwd|ssn|dob|date_of_birth|phone|mobile|credit_card|card_number|cvv|national_id|tax_id|passport|ip_address|ip_addr|address|street|zip|postcode|secret|token|api_key)\b/i;
 
 // ── Input schemas ─────────────────────────────────────────────────────────────
 
@@ -106,6 +106,20 @@ const ListSavedQueriesOptionsSchema = z.object({
 // ── Service ───────────────────────────────────────────────────────────────────
 
 export class QueryConsoleService {
+  // ── In-flight execution registry (executionId → AbortController) ─────────────
+  // Keyed by executionId; stores controller + enough metadata to write a cancel history record.
+  private readonly _inflight = new Map<
+    string,
+    {
+      controller: AbortController;
+      workspaceId: string;
+      userId: string;
+      queryText: string;
+      queryLanguage: string;
+      startedAt: Date;
+    }
+  >();
+
   // ── Public API (observable-wrapped) ─────────────────────────────────────────
 
   readonly execute!: (
@@ -116,7 +130,13 @@ export class QueryConsoleService {
   readonly explain!: (
     ctx: RequestContext,
     input: ExplainQueryInput,
-  ) => Promise<Result<import('@platform/ports-persistence').QueryPlan, AppError>>;
+  ) => Promise<Result<QueryPlan, AppError>>;
+
+  readonly cancelExecution!: (
+    ctx: RequestContext,
+    executionId: string,
+    workspaceId: string,
+  ) => Promise<Result<void, AppError>>;
 
   readonly listHistory!: (
     ctx: RequestContext,
@@ -163,19 +183,36 @@ export class QueryConsoleService {
     private readonly history: RepositoryPort<QueryHistoryRecord>,
     private readonly savedQueries: RepositoryPort<SavedQuery>,
     private readonly audit: AuditPort,
-    private readonly logger: LoggerPort,
+    logger: LoggerPort,
+    metrics?: MetricsPort,
   ) {
-    const obs = { logger };
+    const obs = { logger, ...(metrics !== undefined ? { metrics } : {}) };
     const s = 'QueryConsoleService';
     this.execute = observable(s, 'execute', obs, this._execute.bind(this));
     this.explain = observable(s, 'explain', obs, this._explain.bind(this));
+    this.cancelExecution = observable(s, 'cancelExecution', obs, this._cancelExecution.bind(this));
     this.listHistory = observable(s, 'listHistory', obs, this._listHistory.bind(this));
     this.deleteHistory = observable(s, 'deleteHistory', obs, this._deleteHistory.bind(this));
     this.saveQuery = observable(s, 'saveQuery', obs, this._saveQuery.bind(this));
-    this.updateSavedQuery = observable(s, 'updateSavedQuery', obs, this._updateSavedQuery.bind(this));
-    this.listSavedQueries = observable(s, 'listSavedQueries', obs, this._listSavedQueries.bind(this));
+    this.updateSavedQuery = observable(
+      s,
+      'updateSavedQuery',
+      obs,
+      this._updateSavedQuery.bind(this),
+    );
+    this.listSavedQueries = observable(
+      s,
+      'listSavedQueries',
+      obs,
+      this._listSavedQueries.bind(this),
+    );
     this.getSavedQuery = observable(s, 'getSavedQuery', obs, this._getSavedQuery.bind(this));
-    this.deleteSavedQuery = observable(s, 'deleteSavedQuery', obs, this._deleteSavedQuery.bind(this));
+    this.deleteSavedQuery = observable(
+      s,
+      'deleteSavedQuery',
+      obs,
+      this._deleteSavedQuery.bind(this),
+    );
   }
 
   // ── Private implementations ──────────────────────────────────────────────────
@@ -187,7 +224,12 @@ export class QueryConsoleService {
     // 1. Validate
     const parsed = ExecuteQueryInputSchema.safeParse(input);
     if (!parsed.success) {
-      return err(new ValidationError('Invalid query input', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message }))));
+      return err(
+        new ValidationError(
+          'Invalid query input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
     }
     const data = parsed.data;
 
@@ -198,7 +240,10 @@ export class QueryConsoleService {
     }
 
     // 3. Classify the query
-    const classResult = this.classifier.classify({ query: data.query, language: data.language as QueryLanguage });
+    const classResult = this.classifier.classify({
+      query: data.query,
+      language: data.language as QueryLanguage,
+    });
     if (classResult.isErr()) {
       return err(new ValidationError(`Query parse error: ${classResult.error.message}`));
     }
@@ -213,13 +258,15 @@ export class QueryConsoleService {
         resource: { type: 'query_console', id: data.workspaceId },
         action: 'ddl_attempted',
         outcome: 'denied',
-        metadata: auditMeta({ queryLanguage: data.language }),
+        metadata: { ...auditMeta(ctx), queryLanguage: data.language },
         correlationId: ctx.correlationId,
       });
-      return err(new ForbiddenError(
-        'DDL statements (CREATE, ALTER, DROP, etc.) are not permitted in the query console. ' +
-        'Use the Schema Designer to make schema changes.',
-      ));
+      return err(
+        new ForbiddenError(
+          'DDL statements (CREATE, ALTER, DROP, etc.) are not permitted in the query console. ' +
+            'Use the Schema Designer to make schema changes.',
+        ),
+      );
     }
 
     // 5. Check write permission for non-read-only queries
@@ -233,7 +280,7 @@ export class QueryConsoleService {
           resource: { type: 'query_console', id: data.workspaceId },
           action: 'write_denied',
           outcome: 'denied',
-          metadata: auditMeta({ queryLanguage: data.language }),
+          metadata: { ...auditMeta(ctx), queryLanguage: data.language },
           correlationId: ctx.correlationId,
         });
         return err(new ForbiddenError('query.write permission required to execute write queries'));
@@ -257,11 +304,25 @@ export class QueryConsoleService {
 
     // 8. Select database role
     const role = classification.isReadOnly ? 'readonly' : 'console_writer';
-    const customerSchema = role === 'readonly'
-      ? customerReadonlyRole(data.workspaceSlug)
-      : customerConsoleWriterRole(data.workspaceSlug);
+    const customerSchema =
+      role === 'readonly'
+        ? customerReadonlyRole(data.workspaceSlug)
+        : customerConsoleWriterRole(data.workspaceSlug);
 
-    // 9. Execute
+    // 9. Register AbortController for cancel support
+    const executionId = uuidv7();
+    const abortController = new AbortController();
+    this._inflight.set(executionId, {
+      controller: abortController,
+      workspaceId: data.workspaceId,
+      userId: ctx.userId,
+      queryText: data.query,
+      queryLanguage: data.language,
+      startedAt: new Date(),
+    });
+
+    // 10. Execute — wrap in transaction for confirmed multi-statement or write queries
+    const wrapInTransaction = !classification.isReadOnly && !!data.confirmed;
     const start = Date.now();
     const execResult = await this.executor.execute({
       workspaceId: data.workspaceId,
@@ -272,16 +333,22 @@ export class QueryConsoleService {
       role,
       timeoutMs,
       rowLimit,
+      abortSignal: abortController.signal,
+      wrapInTransaction,
     });
+    this._inflight.delete(executionId);
 
     const durationMs = Date.now() - start;
+    const cancelled = execResult.isErr() && execResult.error.code === 'CANCELLED';
     const status = execResult.isOk()
       ? 'succeeded'
       : execResult.error.code === 'TIMEOUT'
         ? 'timeout'
-        : 'failed';
+        : cancelled
+          ? 'cancelled'
+          : 'failed';
 
-    // 10. Record in history
+    // 11. Record in history (redact PII-named params)
     const historyRecord: QueryHistoryRecord = {
       id: uuidv7(),
       version: 1,
@@ -289,13 +356,17 @@ export class QueryConsoleService {
       userId: ctx.userId,
       queryText: data.query,
       queryLanguage: data.language as QueryLanguage,
-      parameters: data.parameters ?? null,
+      parameters: this._redactPiiParams(data.parameters ?? {}, classification.parameterNames),
       durationMs,
       rowsAffected: execResult.isOk() ? execResult.value.rowCount : null,
       errorMessage: execResult.isErr() ? execResult.error.message : null,
       status,
       resultSummary: execResult.isOk()
-        ? { columns: execResult.value.columns, rowCount: execResult.value.rowCount, truncated: execResult.value.truncated }
+        ? {
+            columns: execResult.value.columns,
+            rowCount: execResult.value.rowCount,
+            truncated: execResult.value.truncated,
+          }
         : null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -311,21 +382,25 @@ export class QueryConsoleService {
       : QUERY_AUDIT_EVENTS.EXECUTED_WRITE;
 
     await this.audit.write({
-      eventType: status === 'timeout' ? QUERY_AUDIT_EVENTS.TIMED_OUT
-        : status === 'failed' ? QUERY_AUDIT_EVENTS.FAILED
-        : auditEvent,
+      eventType:
+        status === 'timeout'
+          ? QUERY_AUDIT_EVENTS.TIMED_OUT
+          : status === 'failed'
+            ? QUERY_AUDIT_EVENTS.FAILED
+            : auditEvent,
       workspaceId: data.workspaceId,
       actor: toAuditActor(ctx),
       resource: { type: 'query_console', id: data.workspaceId },
       action: status === 'succeeded' ? 'executed' : status,
       outcome: status === 'succeeded' ? 'success' : 'failure',
-      metadata: auditMeta({
+      metadata: {
+        ...auditMeta(ctx),
         queryLanguage: data.language,
         statementCount: classification.statementCount,
         durationMs,
-        rowCount: execResult.isOk() ? execResult.value.rowCount : undefined,
+        ...(execResult.isOk() && { rowCount: execResult.value.rowCount }),
         affectedTables: classification.affectedTables,
-      }),
+      },
       correlationId: ctx.correlationId,
     });
 
@@ -341,6 +416,7 @@ export class QueryConsoleService {
     const r = execResult.value;
     return ok({
       kind: 'result' as const,
+      executionId,
       rows: r.rows,
       rowCount: r.rowCount,
       truncated: r.truncated,
@@ -349,14 +425,76 @@ export class QueryConsoleService {
     });
   }
 
+  private async _cancelExecution(
+    ctx: RequestContext,
+    executionId: string,
+    workspaceId: string,
+  ): Promise<Result<void, AppError>> {
+    const authResult = await this.authz.authorize(ctx, QUERY_PERMISSIONS.READ, 'workspace');
+    if (authResult.isErr()) {
+      return err(new ForbiddenError('query.read permission required'));
+    }
+
+    const inflight = this._inflight.get(executionId);
+    if (!inflight) {
+      // Already completed or never existed — treat as success
+      return ok(undefined);
+    }
+
+    inflight.controller.abort();
+    this._inflight.delete(executionId);
+
+    const now = new Date();
+    const durationMs = now.getTime() - inflight.startedAt.getTime();
+
+    // Write cancelled history record
+    await this.history.create({
+      id: uuidv7(),
+      version: 1,
+      workspaceId: inflight.workspaceId,
+      userId: inflight.userId,
+      queryText: inflight.queryText,
+      queryLanguage: inflight.queryLanguage as QueryLanguage,
+      parameters: null,
+      durationMs,
+      rowsAffected: null,
+      errorMessage: 'Query cancelled by user',
+      status: 'cancelled',
+      resultSummary: null,
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null,
+      createdBy: ctx.userId,
+      updatedBy: ctx.userId,
+    });
+
+    await this.audit.write({
+      eventType: QUERY_AUDIT_EVENTS.CANCELLED,
+      workspaceId,
+      actor: toAuditActor(ctx),
+      resource: { type: 'query_console', id: workspaceId },
+      action: 'cancelled',
+      outcome: 'success',
+      metadata: { ...auditMeta(ctx), executionId, durationMs },
+      correlationId: ctx.correlationId,
+    });
+
+    return ok(undefined);
+  }
+
   private async _explain(
     ctx: RequestContext,
     input: ExplainQueryInput,
-  ): Promise<Result<import('@platform/ports-persistence').QueryPlan, AppError>> {
+  ): Promise<Result<QueryPlan, AppError>> {
     // 1. Validate
     const parsed = ExplainQueryInputSchema.safeParse(input);
     if (!parsed.success) {
-      return err(new ValidationError('Invalid explain input', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message }))));
+      return err(
+        new ValidationError(
+          'Invalid explain input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
     }
     const data = parsed.data;
 
@@ -399,11 +537,15 @@ export class QueryConsoleService {
     }
 
     const userId = parsed.data.userId ?? ctx.userId;
-    const result = await this.history.find(
-      { workspaceId: { _eq: parsed.data.workspaceId }, userId: { _eq: userId }, deletedAt: { _is_null: true } } as Parameters<typeof this.history.find>[0],
-      { createdAt: 'desc' } as Parameters<typeof this.history.find>[1],
-      { limit: parsed.data.limit, offset: parsed.data.offset },
-    );
+    const result = await this.history.findMany({
+      filter: {
+        workspaceId: { _eq: parsed.data.workspaceId },
+        userId: { _eq: userId },
+        deletedAt: { _is_null: true },
+      } as never,
+      sort: { createdAt: 'desc' } as never,
+      page: { limit: parsed.data.limit, offset: parsed.data.offset },
+    });
 
     if (result.isErr()) {
       return err(new ValidationError(result.error.message));
@@ -426,10 +568,10 @@ export class QueryConsoleService {
     if (existing.isErr()) return err(new NotFoundError('QueryHistory', historyId));
     if (!existing.value) return err(new NotFoundError('QueryHistory', historyId));
     if (existing.value.workspaceId !== workspaceId || existing.value.userId !== ctx.userId) {
-      return err(new ForbiddenError('Cannot delete another user\'s history entry'));
+      return err(new ForbiddenError("Cannot delete another user's history entry"));
     }
 
-    const delResult = await this.history.archive(historyId, existing.value.version);
+    const delResult = await this.history.archive(historyId);
     if (delResult.isErr()) return err(new ValidationError(delResult.error.message));
     return ok(undefined);
   }
@@ -440,7 +582,12 @@ export class QueryConsoleService {
   ): Promise<Result<SavedQuery, AppError>> {
     const parsed = SaveQueryInputSchema.safeParse(input);
     if (!parsed.success) {
-      return err(new ValidationError('Invalid saved query input', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message }))));
+      return err(
+        new ValidationError(
+          'Invalid saved query input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
     }
     const data = parsed.data;
 
@@ -482,7 +629,11 @@ export class QueryConsoleService {
       resource: { type: 'saved_query', id: savedQuery.id },
       action: 'saved',
       outcome: 'success',
-      metadata: auditMeta({ name: data.name, shared: data.shared }),
+      metadata: {
+        ...auditMeta(ctx),
+        name: data.name,
+        ...(data.shared !== undefined && { shared: data.shared }),
+      },
       correlationId: ctx.correlationId,
     });
 
@@ -495,7 +646,12 @@ export class QueryConsoleService {
   ): Promise<Result<SavedQuery, AppError>> {
     const parsed = UpdateSavedQueryInputSchema.safeParse(input);
     if (!parsed.success) {
-      return err(new ValidationError('Invalid update input', parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message }))));
+      return err(
+        new ValidationError(
+          'Invalid update input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
     }
     const data = parsed.data;
 
@@ -509,14 +665,14 @@ export class QueryConsoleService {
       return err(new ForbiddenError('Only the query owner can update it'));
     }
 
-    const updated: SavedQuery = {
-      ...sq,
+    const changes: Partial<Omit<SavedQuery, 'id'>> = {
       version: sq.version + 1,
       name: data.name ?? sq.name,
       description: data.description !== undefined ? data.description : sq.description,
       queryText: data.queryText ?? sq.queryText,
-      queryLanguage: (data.queryLanguage as QueryLanguage | undefined) ?? sq.queryLanguage,
-      defaultParameters: data.defaultParameters !== undefined ? data.defaultParameters : sq.defaultParameters,
+      queryLanguage: data.queryLanguage ?? sq.queryLanguage,
+      defaultParameters:
+        data.defaultParameters !== undefined ? data.defaultParameters : sq.defaultParameters,
       folderPath: data.folderPath !== undefined ? data.folderPath : sq.folderPath,
       shared: data.shared !== undefined ? data.shared : sq.shared,
       sharedCanRun: data.sharedCanRun !== undefined ? data.sharedCanRun : sq.sharedCanRun,
@@ -524,10 +680,13 @@ export class QueryConsoleService {
       updatedBy: ctx.userId,
     };
 
-    const updateResult = await this.savedQueries.update(updated);
+    const updateResult = await this.savedQueries.update(sq.id, changes, {
+      expectedVersion: sq.version,
+    });
     if (updateResult.isErr()) {
       return err(new ValidationError(updateResult.error.message));
     }
+    const updated = updateResult.value;
 
     if (data.shared !== undefined && data.shared !== sq.shared) {
       await this.audit.write({
@@ -537,7 +696,10 @@ export class QueryConsoleService {
         resource: { type: 'saved_query', id: data.id },
         action: data.shared ? 'shared' : 'unshared',
         outcome: 'success',
-        metadata: auditMeta({ sharedCanRun: data.sharedCanRun }),
+        metadata: {
+          ...auditMeta(ctx),
+          ...(data.sharedCanRun !== undefined && { sharedCanRun: data.sharedCanRun }),
+        },
         correlationId: ctx.correlationId,
       });
     }
@@ -563,14 +725,18 @@ export class QueryConsoleService {
 
     // Build filter: my queries + shared queries (if requested)
     const filter = data.includeShared
-      ? { workspaceId: { _eq: data.workspaceId }, deletedAt: { _is_null: true } } as Parameters<typeof this.savedQueries.find>[0]
-      : { workspaceId: { _eq: data.workspaceId }, createdByUserId: { _eq: ctx.userId }, deletedAt: { _is_null: true } } as Parameters<typeof this.savedQueries.find>[0];
+      ? ({ workspaceId: { _eq: data.workspaceId }, deletedAt: { _is_null: true } } as never)
+      : ({
+          workspaceId: { _eq: data.workspaceId },
+          createdByUserId: { _eq: ctx.userId },
+          deletedAt: { _is_null: true },
+        } as never);
 
-    const result = await this.savedQueries.find(
+    const result = await this.savedQueries.findMany({
       filter,
-      { name: 'asc' } as Parameters<typeof this.savedQueries.find>[1],
-      { limit: data.limit, offset: data.offset },
-    );
+      sort: { name: 'asc' } as never,
+      page: { limit: data.limit, offset: data.offset },
+    });
 
     if (result.isErr()) {
       return err(new ValidationError(result.error.message));
@@ -622,7 +788,7 @@ export class QueryConsoleService {
       return err(new ForbiddenError('Only the query owner can delete it'));
     }
 
-    const delResult = await this.savedQueries.archive(queryId, sq.version);
+    const delResult = await this.savedQueries.archive(queryId);
     if (delResult.isErr()) return err(new ValidationError(delResult.error.message));
 
     await this.audit.write({
@@ -632,7 +798,7 @@ export class QueryConsoleService {
       resource: { type: 'saved_query', id: queryId },
       action: 'deleted',
       outcome: 'success',
-      metadata: auditMeta({ name: sq.name }),
+      metadata: { ...auditMeta(ctx), name: sq.name },
       correlationId: ctx.correlationId,
     });
 
@@ -641,25 +807,60 @@ export class QueryConsoleService {
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
 
-  private async _resolveRowLimit(ctx: RequestContext, requested: number | undefined): Promise<number> {
+  private async _resolveRowLimit(
+    ctx: RequestContext,
+    requested: number | undefined,
+  ): Promise<number> {
     if (!requested) return QUERY_DEFAULTS.ROW_LIMIT;
 
     if (requested > QUERY_DEFAULTS.ROW_LIMIT) {
-      const largeResult = await this.authz.authorize(ctx, QUERY_PERMISSIONS.LARGE_RESULT, 'workspace');
+      const largeResult = await this.authz.authorize(
+        ctx,
+        QUERY_PERMISSIONS.LARGE_RESULT,
+        'workspace',
+      );
       if (largeResult.isErr()) return QUERY_DEFAULTS.ROW_LIMIT;
     }
 
     return Math.min(requested, QUERY_DEFAULTS.MAX_ROW_LIMIT);
   }
 
-  private async _resolveTimeout(ctx: RequestContext, requested: number | undefined): Promise<number> {
+  private async _resolveTimeout(
+    ctx: RequestContext,
+    requested: number | undefined,
+  ): Promise<number> {
     if (!requested) return QUERY_DEFAULTS.TIMEOUT_MS;
 
     if (requested > QUERY_DEFAULTS.TIMEOUT_MS) {
-      const longRunning = await this.authz.authorize(ctx, QUERY_PERMISSIONS.LONG_RUNNING, 'workspace');
+      const longRunning = await this.authz.authorize(
+        ctx,
+        QUERY_PERMISSIONS.LONG_RUNNING,
+        'workspace',
+      );
       if (longRunning.isErr()) return QUERY_DEFAULTS.TIMEOUT_MS;
     }
 
     return Math.min(requested, QUERY_DEFAULTS.MAX_TIMEOUT_MS);
+  }
+
+  // Redact values for parameter names that look like PII fields.
+  // Best-effort heuristic: checks against known PII field name patterns.
+  // Full accuracy requires SchemaService PII column registry (future wiring).
+  private _redactPiiParams(
+    parameters: Record<string, unknown>,
+    paramNames: string[],
+  ): Record<string, unknown> | null {
+    if (paramNames.length === 0) return null;
+    const redacted: Record<string, unknown> = {};
+    let anyRedacted = false;
+    for (const name of paramNames) {
+      if (PII_PARAM_PATTERNS.test(name)) {
+        redacted[name] = '[REDACTED]';
+        anyRedacted = true;
+      } else {
+        redacted[name] = parameters[name];
+      }
+    }
+    return anyRedacted ? redacted : parameters;
   }
 }

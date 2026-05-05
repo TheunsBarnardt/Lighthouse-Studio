@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import type { QueryHistoryRecord, SavedQuery } from './types.js';
+
 import {
   createInMemoryAudit,
   createInMemoryAuthz,
@@ -9,14 +11,15 @@ import {
 } from '../../../testing/index.js';
 import { QueryClassifierImpl } from './classifier.js';
 import { QueryConsoleService } from './query-console.service.js';
-import type { QueryHistoryRecord, SavedQuery } from './types.js';
 
 // ── Stub executor ──────────────────────────────────────────────────────────────
 
-function makeOkExecutor(overrides?: Partial<{ rows: Record<string, unknown>[]; rowCount: number; truncated: boolean }>) {
+function makeOkExecutor(
+  overrides?: Partial<{ rows: Record<string, unknown>[]; rowCount: number; truncated: boolean }>,
+) {
   return {
-    async execute() {
-      return {
+    execute(): Promise<never> {
+      return Promise.resolve({
         isOk: () => true,
         isErr: () => false,
         value: {
@@ -26,25 +29,14 @@ function makeOkExecutor(overrides?: Partial<{ rows: Record<string, unknown>[]; r
           durationMs: 10,
           columns: [{ name: 'id', type: 'int4' }],
         },
-      } as never;
+      } as never);
     },
-    async explain() {
-      return {
+    explain(): Promise<never> {
+      return Promise.resolve({
         isOk: () => true,
         isErr: () => false,
         value: { format: 'json' as const, plan: { 'Node Type': 'SeqScan' }, durationMs: 5 },
-      } as never;
-    },
-  };
-}
-
-function makeErrExecutor(code: string, message: string) {
-  return {
-    async execute() {
-      return { isOk: () => false, isErr: () => true, error: { code, message } } as never;
-    },
-    async explain() {
-      return { isOk: () => false, isErr: () => true, error: { code, message } } as never;
+      } as never);
     },
   };
 }
@@ -56,7 +48,9 @@ function makeService(opts?: {
   denyActions?: string[];
   executor?: ReturnType<typeof makeOkExecutor>;
 }) {
-  const authz = createInMemoryAuthz(opts?.deny ? { deny: true } : opts?.denyActions ? { denyActions: opts.denyActions } : {});
+  const authz = createInMemoryAuthz(
+    opts?.deny ? { deny: true } : opts?.denyActions ? { denyActions: opts.denyActions } : {},
+  );
   const executor = opts?.executor ?? makeOkExecutor();
   const history = createInMemoryRepo<QueryHistoryRecord>();
   const savedQueries = createInMemoryRepo<SavedQuery>();
@@ -141,7 +135,9 @@ describe('QueryConsoleService.execute', () => {
 
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().code).toBe('FORBIDDEN');
-    expect(audit.events.some((e) => e.eventType === 'data_management.query.ddl_attempted')).toBe(true);
+    expect(audit.events.some((e) => e.eventType === 'data_management.query.ddl_attempted')).toBe(
+      true,
+    );
   });
 
   it('returns confirmation_required for write query without query.write permission', async () => {
@@ -183,7 +179,7 @@ describe('QueryConsoleService.execute', () => {
       workspaceId: 'ws-1',
       workspaceSlug: 'test-ws',
       databaseDriver: 'postgres',
-      query: 'INSERT INTO users (name) VALUES (\'alice\')',
+      query: "INSERT INTO users (name) VALUES ('alice')",
       language: 'sql_postgres',
     });
 
@@ -201,7 +197,9 @@ describe('QueryConsoleService.execute', () => {
       language: 'sql_postgres',
     });
 
-    const historyEntries = Array.from((history as { store: Map<string, QueryHistoryRecord> }).store.values());
+    const historyEntries = Array.from(
+      (history as { store: Map<string, QueryHistoryRecord> }).store.values(),
+    );
     expect(historyEntries.length).toBe(1);
     expect(historyEntries[0]?.status).toBe('succeeded');
   });
@@ -213,7 +211,10 @@ describe('QueryClassifierImpl', () => {
   const classifier = new QueryClassifierImpl();
 
   it('classifies SELECT as read-only Postgres', () => {
-    const result = classifier.classify({ query: 'SELECT id, name FROM users', language: 'sql_postgres' });
+    const result = classifier.classify({
+      query: 'SELECT id, name FROM users',
+      language: 'sql_postgres',
+    });
     expect(result.isOk()).toBe(true);
     const val = result._unsafeUnwrap();
     expect(val.isReadOnly).toBe(true);
@@ -222,19 +223,28 @@ describe('QueryClassifierImpl', () => {
   });
 
   it('classifies INSERT as not read-only', () => {
-    const result = classifier.classify({ query: 'INSERT INTO t (a) VALUES (1)', language: 'sql_postgres' });
+    const result = classifier.classify({
+      query: 'INSERT INTO t (a) VALUES (1)',
+      language: 'sql_postgres',
+    });
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap().isReadOnly).toBe(false);
   });
 
   it('detects DDL in Postgres', () => {
-    const result = classifier.classify({ query: 'CREATE TABLE foo (id INT)', language: 'sql_postgres' });
+    const result = classifier.classify({
+      query: 'CREATE TABLE foo (id INT)',
+      language: 'sql_postgres',
+    });
     expect(result.isOk()).toBe(true);
     expect(result._unsafeUnwrap().containsDdl).toBe(true);
   });
 
   it('detects named parameters in SQL', () => {
-    const result = classifier.classify({ query: 'SELECT * FROM users WHERE id = :userId AND status = :status', language: 'sql_postgres' });
+    const result = classifier.classify({
+      query: 'SELECT * FROM users WHERE id = :userId AND status = :status',
+      language: 'sql_postgres',
+    });
     expect(result.isOk()).toBe(true);
     const val = result._unsafeUnwrap();
     expect(val.hasParameters).toBe(true);
@@ -244,7 +254,10 @@ describe('QueryClassifierImpl', () => {
 
   it('classifies Mongo aggregate pipeline as read-only', () => {
     const result = classifier.classify({
-      query: JSON.stringify([{ $match: { status: 'active' } }, { $group: { _id: '$role', count: { $sum: 1 } } }]),
+      query: JSON.stringify([
+        { $match: { status: 'active' } },
+        { $group: { _id: '$role', count: { $sum: 1 } } },
+      ]),
       language: 'mongo_aggregate',
     });
     expect(result.isOk()).toBe(true);

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unnecessary-condition -- in-memory adapter types unresolved until packages rebuilt */
 import type { NextRequest } from 'next/server';
 
 import { NextResponse } from 'next/server';
@@ -14,30 +13,36 @@ export async function GET(
   const { userId } = await params;
   const session = await verifySessionFromRequest(request);
   if (!session) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated.', statusCode: 401 }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated.', statusCode: 401 },
+      { status: 401 },
+    );
   }
 
   const directory = getUserDirectory();
-  let user;
-  try {
-    user = await directory.findById(userId);
-  } catch {
-    return NextResponse.json({ code: 'INTERNAL_ERROR', message: 'Failed to fetch user', statusCode: 500 }, { status: 500 });
+  const userResult = await directory.findById(userId);
+  if (userResult.isErr()) {
+    return NextResponse.json(
+      { code: 'INTERNAL_ERROR', message: 'Failed to fetch user', statusCode: 500 },
+      { status: 500 },
+    );
   }
-  if (!user) {
-    return NextResponse.json({ code: 'NOT_FOUND', message: 'User not found.', statusCode: 404 }, { status: 404 });
+  if (!userResult.value) {
+    return NextResponse.json(
+      { code: 'NOT_FOUND', message: 'User not found.', statusCode: 404 },
+      { status: 404 },
+    );
   }
+  const user = userResult.value;
 
   return okResponse({
     id: user.id,
-    email: user.primaryEmail || user.email,
-    displayName: user.displayName || null,
+    email: user.primaryEmail,
+    displayName: user.displayName,
     status: user.status,
-    mfaEnabled: user.mfaEnabled || false,
-    roles: user.roles || [],
-    identities: user.identities || [],
+    mfaEnabled: user.mfaEnabled,
+    identities: user.identities,
     createdAt: user.createdAt,
-    lastSignIn: user.lastSignIn || null,
   });
 }
 
@@ -48,30 +53,43 @@ export async function PATCH(
   const { userId } = await params;
   const session = await verifySessionFromRequest(request);
   if (!session) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated.', statusCode: 401 }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated.', statusCode: 401 },
+      { status: 401 },
+    );
   }
 
   const body = (await request.json()) as { status?: string; mfaEnabled?: boolean };
   const directory = getUserDirectory();
-  const updates: Record<string, unknown> = {};
-  if (body.status !== undefined) updates['status'] = body.status;
-  if (body.mfaEnabled !== undefined) updates['mfaEnabled'] = body.mfaEnabled;
 
-  try {
-    await directory.update(userId, updates);
-  } catch {
-    return NextResponse.json({ code: 'INTERNAL_ERROR', message: 'Failed to update user', statusCode: 500 }, { status: 500 });
+  // Handle status changes (archive/restore)
+  if (body.status === 'archived') {
+    const result = await directory.archive(userId);
+    if (result.isErr()) {
+      return NextResponse.json(
+        { code: 'INTERNAL_ERROR', message: 'Failed to update user', statusCode: 500 },
+        { status: 500 },
+      );
+    }
+  } else if (body.status === 'active') {
+    const result = await directory.restore(userId);
+    if (result.isErr()) {
+      return NextResponse.json(
+        { code: 'INTERNAL_ERROR', message: 'Failed to update user', statusCode: 500 },
+        { status: 500 },
+      );
+    }
   }
 
   // Audit MFA admin reset — per spec, always at info level.
   if (body.mfaEnabled === false) {
     await getAuditAdapter().write({
       eventType: 'data_management.installation.mfa_admin_reset',
-      actor: { type: 'user', id: session.userId, email: session.email ?? undefined },
+      actor: { kind: 'user', id: session.userId },
       resource: { type: 'user', id: userId },
       action: 'mfa_admin_reset',
       outcome: 'success',
-      severity: 'info',
+      correlationId: session.id,
       metadata: { targetUserId: userId },
     });
   }

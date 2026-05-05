@@ -12,12 +12,12 @@ export async function GET(req: Request, { params }: { params: Params }) {
   const limit = Math.min(Number(url.searchParams.get('limit') ?? '50'), 200);
   const offset = Number(url.searchParams.get('offset') ?? '0');
   const includeShared = url.searchParams.get('includeShared') === 'true';
-  const folderPath = url.searchParams.get('folderPath') ?? undefined;
+  const folderPathRaw = url.searchParams.get('folderPath');
 
   const result = await getQueryConsoleService().listSavedQueries(ctx, {
     workspaceId: params.workspaceId,
     includeShared,
-    folderPath,
+    ...(folderPathRaw !== null && { folderPath: folderPathRaw }),
     limit,
     offset,
   });
@@ -29,7 +29,7 @@ export async function GET(req: Request, { params }: { params: Params }) {
 export async function POST(req: Request, { params }: { params: Params }) {
   const ctx = requestContext(params.workspaceId, req);
 
-  const body = await req.json() as {
+  const body = (await req.json()) as {
     name?: string;
     description?: string;
     queryText?: string;
@@ -43,13 +43,17 @@ export async function POST(req: Request, { params }: { params: Params }) {
   const result = await getQueryConsoleService().saveQuery(ctx, {
     workspaceId: params.workspaceId,
     name: body.name ?? '',
-    description: body.description,
+    ...(body.description !== undefined && { description: body.description }),
     queryText: body.queryText ?? '',
-    queryLanguage: (body.queryLanguage ?? 'sql_postgres') as 'sql_postgres' | 'sql_mssql' | 'mongo_aggregate' | 'mongo_find',
-    defaultParameters: body.defaultParameters,
-    folderPath: body.folderPath,
-    shared: body.shared,
-    sharedCanRun: body.sharedCanRun,
+    queryLanguage: (body.queryLanguage ?? 'sql_postgres') as
+      | 'sql_postgres'
+      | 'sql_mssql'
+      | 'mongo_aggregate'
+      | 'mongo_find',
+    ...(body.defaultParameters !== undefined && { defaultParameters: body.defaultParameters }),
+    ...(body.folderPath !== undefined && { folderPath: body.folderPath }),
+    ...(body.shared !== undefined && { shared: body.shared }),
+    ...(body.sharedCanRun !== undefined && { sharedCanRun: body.sharedCanRun }),
   });
 
   if (result.isErr()) return errorResponse(result.error);

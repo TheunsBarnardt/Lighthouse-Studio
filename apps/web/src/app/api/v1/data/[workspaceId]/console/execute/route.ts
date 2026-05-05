@@ -8,7 +8,7 @@ interface Params {
 export async function POST(req: Request, { params }: { params: Params }) {
   const ctx = requestContext(params.workspaceId, req);
 
-  const body = await req.json() as {
+  const body = (await req.json()) as {
     workspaceSlug?: string;
     databaseDriver?: string;
     query?: string;
@@ -24,11 +24,15 @@ export async function POST(req: Request, { params }: { params: Params }) {
     workspaceSlug: body.workspaceSlug ?? '',
     databaseDriver: (body.databaseDriver ?? 'postgres') as 'postgres' | 'mssql' | 'mongo',
     query: body.query ?? '',
-    language: (body.language ?? 'sql_postgres') as 'sql_postgres' | 'sql_mssql' | 'mongo_aggregate' | 'mongo_find',
-    parameters: body.parameters,
-    rowLimit: body.rowLimit,
-    timeoutMs: body.timeoutMs,
-    confirmed: body.confirmed,
+    language: (body.language ?? 'sql_postgres') as
+      | 'sql_postgres'
+      | 'sql_mssql'
+      | 'mongo_aggregate'
+      | 'mongo_find',
+    ...(body.parameters !== undefined && { parameters: body.parameters }),
+    ...(body.rowLimit !== undefined && { rowLimit: body.rowLimit }),
+    ...(body.timeoutMs !== undefined && { timeoutMs: body.timeoutMs }),
+    ...(body.confirmed !== undefined && { confirmed: body.confirmed }),
   });
 
   if (result.isErr()) return errorResponse(result.error);

@@ -1,17 +1,31 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CaptchaWidget } from '@/components/ui/captcha-widget';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { AuthApiError, authApi } from '@/lib/auth-client';
 
@@ -30,7 +44,8 @@ export default function SignUpPage() {
   const [captchaToken, setCaptchaToken] = useState<string>('');
 
   const form = useForm<SignUpValues>({
-    resolver: zodResolver(SignUpSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- zod 3.25 / hookform 3.10 type incompatibility
+    resolver: zodResolver(SignUpSchema as any),
     defaultValues: { displayName: '', email: '', password: '' },
   });
 
@@ -38,7 +53,7 @@ export default function SignUpPage() {
     setError(null);
     setSuccess(null);
     try {
-      await authApi.signUp({ ...values, captchaToken: captchaToken || undefined });
+      await authApi.signUp({ ...values, ...(captchaToken ? { captchaToken } : {}) });
       setSuccess(t('successMessage', { email: values.email }));
       form.reset();
       setCaptchaToken('');
@@ -73,7 +88,13 @@ export default function SignUpPage() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={(e) => { void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
+          <form
+            onSubmit={(e) => {
+              void form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-4"
+            noValidate
+          >
             <FormField
               control={form.control}
               name="displayName"
@@ -81,7 +102,12 @@ export default function SignUpPage() {
                 <FormItem>
                   <FormLabel>{t('displayNameLabel')}</FormLabel>
                   <FormControl>
-                    <Input autoComplete="name" placeholder={t('displayNamePlaceholder')} aria-required {...field} />
+                    <Input
+                      autoComplete="name"
+                      placeholder={t('displayNamePlaceholder')}
+                      aria-required
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -94,7 +120,13 @@ export default function SignUpPage() {
                 <FormItem>
                   <FormLabel>{t('emailLabel')}</FormLabel>
                   <FormControl>
-                    <Input type="email" autoComplete="email" placeholder={t('emailPlaceholder')} aria-required {...field} />
+                    <Input
+                      type="email"
+                      autoComplete="email"
+                      placeholder={t('emailPlaceholder')}
+                      aria-required
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -107,14 +139,25 @@ export default function SignUpPage() {
                 <FormItem>
                   <FormLabel>{t('passwordLabel')}</FormLabel>
                   <FormControl>
-                    <Input type="password" autoComplete="new-password" placeholder={t('passwordPlaceholder')} aria-required {...field} />
+                    <Input
+                      type="password"
+                      autoComplete="new-password"
+                      placeholder={t('passwordPlaceholder')}
+                      aria-required
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <CaptchaWidget onToken={setCaptchaToken} onExpire={() => { setCaptchaToken(''); }} />
+            <CaptchaWidget
+              onToken={setCaptchaToken}
+              onExpire={() => {
+                setCaptchaToken('');
+              }}
+            />
 
             {error && (
               <Alert variant="destructive" aria-live="polite">

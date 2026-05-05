@@ -1,5 +1,8 @@
 'use client';
 
+import { useVirtualizer } from '@tanstack/react-virtual';
+import { useRef } from 'react';
+
 interface Column {
   name: string;
   type?: string;
@@ -23,7 +26,10 @@ function CellValue({ value }: { value: unknown }) {
   if (typeof value === 'number') {
     return <span className="font-mono text-green-700 dark:text-green-400">{String(value)}</span>;
   }
-  const str = typeof value === 'object' ? JSON.stringify(value) : String(value);
+  const str =
+    typeof value === 'object'
+      ? JSON.stringify(value)
+      : String(value as string | number | boolean | bigint);
   const display = str.length > 120 ? `${str.slice(0, 120)}…` : str;
   return (
     <span className="font-mono" title={str.length > 120 ? str : undefined}>
@@ -32,14 +38,32 @@ function CellValue({ value }: { value: unknown }) {
   );
 }
 
-export function ResultsPanel({ rows, columns, rowCount, truncated, durationMs }: ResultsPanelProps) {
+export function ResultsPanel({
+  rows,
+  columns,
+  rowCount,
+  truncated,
+  durationMs,
+}: ResultsPanelProps) {
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 32,
+    overscan: 10,
+  });
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
+      {/* Status bar */}
       <div className="flex items-center gap-4 border-b px-3 py-1 text-xs text-muted-foreground">
-        <span>{rowCount} row{rowCount !== 1 ? 's' : ''}</span>
+        <span>
+          {rowCount} row{rowCount !== 1 ? 's' : ''}
+        </span>
         {truncated && (
           <span className="rounded bg-yellow-100 px-1.5 py-0.5 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-            Truncated — enable query.large_result to fetch more
+            Truncated — grant query.large_result to fetch more
           </span>
         )}
         <span className="ml-auto">{durationMs}ms</span>
@@ -50,36 +74,48 @@ export function ResultsPanel({ rows, columns, rowCount, truncated, durationMs }:
           No rows returned
         </div>
       ) : (
-        <div className="flex-1 overflow-auto">
-          <table className="min-w-full text-sm">
-            <thead className="sticky top-0 border-b bg-muted/50">
-              <tr>
-                {columns.map((col) => (
-                  <th
-                    key={col.name}
-                    className="whitespace-nowrap px-3 py-1.5 text-left font-medium text-muted-foreground"
+        <div className="flex flex-col flex-1 overflow-hidden">
+          {/* Sticky header */}
+          <div className="flex border-b bg-muted/50">
+            {columns.map((col) => (
+              <div
+                key={col.name}
+                className="shrink-0 w-40 overflow-hidden whitespace-nowrap px-3 py-1.5 text-left text-xs font-medium text-muted-foreground"
+              >
+                {col.name}
+                {col.type && <span className="ml-1 opacity-60">{col.type}</span>}
+              </div>
+            ))}
+          </div>
+
+          {/* Virtualised body */}
+          <div ref={parentRef} className="flex-1 overflow-auto">
+            <div
+              style={{ height: `${String(rowVirtualizer.getTotalSize())}px`, position: 'relative' }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const row = rows[virtualRow.index];
+                return (
+                  <div
+                    key={virtualRow.key}
+                    data-index={virtualRow.index}
+                    ref={rowVirtualizer.measureElement}
+                    className="flex border-b hover:bg-muted/30"
+                    style={{ position: 'absolute', top: virtualRow.start, left: 0, width: '100%' }}
                   >
-                    <span>{col.name}</span>
-                    {col.type && (
-                      <span className="ml-1 text-xs opacity-60">{col.type}</span>
-                    )}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, i) => (
-                // biome-ignore lint: stable key for static result set
-                <tr key={i} className="border-b hover:bg-muted/30">
-                  {columns.map((col) => (
-                    <td key={col.name} className="max-w-xs overflow-hidden px-3 py-1.5">
-                      <CellValue value={row[col.name]} />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    {columns.map((col) => (
+                      <div
+                        key={col.name}
+                        className="w-40 shrink-0 overflow-hidden px-3 py-1.5 text-sm"
+                      >
+                        <CellValue value={row?.[col.name]} />
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>
