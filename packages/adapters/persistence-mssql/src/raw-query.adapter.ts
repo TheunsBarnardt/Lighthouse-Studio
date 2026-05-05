@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument -- raw-query types not yet in ports-persistence dist; rebuild package to resolve */
 import type {
   ColumnMeta,
   QueryPlan,
@@ -17,10 +18,7 @@ interface ConvertedQuery {
   inputs: Array<{ name: string; value: unknown }>;
 }
 
-function convertNamedParams(
-  query: string,
-  parameters: Record<string, unknown>,
-): ConvertedQuery {
+function convertNamedParams(query: string, parameters: Record<string, unknown>): ConvertedQuery {
   const inputs: Array<{ name: string; value: unknown }> = [];
   const nameToParam = new Map<string, string>();
 
@@ -30,7 +28,8 @@ function convertNamedParams(
       inputs.push({ name: paramName, value: parameters[name] ?? null });
       nameToParam.set(name, paramName);
     }
-    return `@${nameToParam.get(name)}`;
+    // nameToParam.set() was called above, so get() is always defined
+    return `@${nameToParam.get(name) as string}`;
   });
 
   return { text, inputs };
@@ -74,14 +73,14 @@ export class MssqlRawQueryAdapter implements RawQueryPort {
       const limitedQuery = injectRowLimit(text, opts.rowLimit);
       const result = await request.query(limitedQuery);
 
-      const rows = (result.recordset as Record<string, unknown>[]) ?? [];
+      const rows = result.recordset as Record<string, unknown>[];
       const truncated = rows.length > opts.rowLimit;
       const limited = rows.slice(0, opts.rowLimit);
 
       const columns: ColumnMeta[] = result.recordset.columns
         ? Object.entries(result.recordset.columns).map(([name, meta]) => ({
             name,
-            dataType: String((meta as Record<string, unknown>)['type'] ?? 'unknown'),
+            dataType: (meta as { type?: string }).type ?? 'unknown',
           }))
         : [];
 
@@ -123,7 +122,10 @@ export class MssqlRawQueryAdapter implements RawQueryPort {
       });
     } catch (cause) {
       // Ensure SHOWPLAN_XML is turned off even on error
-      await pool.request().query('SET SHOWPLAN_XML OFF').catch(() => undefined);
+      await pool
+        .request()
+        .query('SET SHOWPLAN_XML OFF')
+        .catch(() => undefined);
       return err(mapMssqlError(cause));
     }
   }

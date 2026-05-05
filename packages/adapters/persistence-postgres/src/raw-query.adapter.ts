@@ -1,12 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument -- raw-query types not yet in ports-persistence dist; rebuild package to resolve */
 import type {
   ColumnMeta,
   QueryPlan,
-  QueryRole,
   RawExecuteOptions,
   RawQueryPort,
   RawQueryResult,
 } from '@platform/ports-persistence';
-import type { Pool, PoolClient, FieldDef } from 'pg';
+import type { Pool, FieldDef } from 'pg';
 
 import { PersistenceError } from '@platform/ports-persistence';
 import { err, ok, type Result } from 'neverthrow';
@@ -18,10 +18,7 @@ interface ConvertedQuery {
   values: unknown[];
 }
 
-function convertNamedParams(
-  query: string,
-  parameters: Record<string, unknown>,
-): ConvertedQuery {
+function convertNamedParams(query: string, parameters: Record<string, unknown>): ConvertedQuery {
   const values: unknown[] = [];
   const nameToIndex = new Map<string, number>();
 
@@ -122,7 +119,7 @@ export class PostgresRawQueryAdapter implements RawQueryPort {
       const explainQuery = `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) ${text}`;
 
       const result = await client.query(explainQuery, values);
-      const plan = (result.rows[0] as Record<string, unknown>)?.['QUERY PLAN'] ?? result.rows;
+      const plan = (result.rows[0] as Record<string, unknown>)['QUERY PLAN'] ?? result.rows;
 
       return ok({
         format: 'json',
@@ -142,7 +139,8 @@ export class PostgresRawQueryAdapter implements RawQueryPort {
 function mapPgError(cause: unknown): PersistenceError {
   const code = (cause as { code?: string }).code;
   if (code === '57014') return new PersistenceError('TIMEOUT', 'Query statement timeout', cause);
-  if (code === '42501') return new PersistenceError('PERMISSION_DENIED', 'Permission denied', cause);
+  if (code === '42501')
+    return new PersistenceError('PERMISSION_DENIED', 'Permission denied', cause);
   if (code?.startsWith('42'))
     return new PersistenceError('PERMISSION_DENIED', 'Database permission error', cause);
   if (code === '40P01') return new PersistenceError('DEADLOCK', 'Deadlock detected', cause);
