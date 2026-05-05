@@ -69,6 +69,7 @@ Small/speculative tail ideas the scout would surface alongside the main options.
 - **GitHub Codespaces template** — a one-click "open this generated app in Codespaces" button. Vendor-locked, but trivial to add and removable.
 - **VS Code Web Preview integration** — when the user runs the generated app in the platform's sandbox, expose a Simple Browser-compatible preview URL.
 - **Schema export to Prisma/Drizzle for VS Code users** — if the user prefers their local IDE, export the canonical schema in a format their TypeScript ORM understands.
+- **Pattern scout for block-library categories** — _promoted to B11 in Part 2 once IP scope clarified (ideas, not code)._
 
 The pattern: capture, tag as `parking-lot`, don't elevate to an objective unless it gets cross-referenced by another scout finding later (e.g., devcontainers become relevant when Stage 6/Deploy gets an objective).
 
@@ -155,8 +156,16 @@ Organized by layer. Each item is a candidate objective; numbering is provisional
 - **B6. Collaborative editing of generation inputs.** Multi-user real-time PRD/design editing. Obj 14 is realtime for data, not for the generation pipeline.
 - **B7. Visible cost meter to the user during generation.** Surface Obj 20's internal cost tracking as UX.
 - **B8. Time-travel / undo / branch a generation.** Compare AI runs, revert, fork. Distinct from git versioning of output.
-- **B9. Safety / security review of generated code before merge.** Static scan, dep license check, secret scan on every AI artifact. Should be in Obj 27 but isn't called out.
+- **B9. Safety / security / IP review of generated code before merge.** Static scan, dep license check, secret scan, AND **substantial-similarity scan** for AI-generated UI artifacts against a corpus of known copyrighted blocks (commercial libraries, popular templates, the pattern-scout's provenance database). Output that exceeds a similarity threshold is flagged or refused, with a UX path to "regenerate with more variation" or "import this legitimately via the curated lane (C4)." Pairs with a user-facing warranty in the prompt UX: by submitting a generation prompt, the user warrants their inputs are theirs to use and accepts responsibility for shipped output. Should be in Obj 27 but isn't called out today; promoted to V2 explicitly because it's the platform's primary IP-liability defense.
 - **B10. VS Code surfaces.** Per Part 1 — Option A (code-server embed), Option B (VS Code extension), Option C (LSP upgrade for Monaco). Treat the three as separate V2 candidates ranked by thesis-fit and effort.
+- **B11. Pattern scout for marketplace block coverage.** A watcher (architecturally similar to the idea-scout in Part 1) that monitors block libraries broadly — _any_ source, paid or free, since the scout only extracts patterns — for _pattern categories and design trends_ the first-party marketplace doesn't yet cover. Reasonable starting watch list: shadcnblocks, Aceternity, Magic UI, Tailwind UI catalogs, awwwards, dribbble; expand as needed. Two output modes:
+
+  - **Issue mode:** files a marketplace gap issue — "no pricing-table-with-comparison block; observed 5 variants in the wild; here are 3 reference _shapes_ (textual description, not code)" — for a human or the AI pipeline to implement clean-room.
+  - **Generate mode:** feeds a textual pattern description directly to the Stage 4 codegen pipeline, which produces a fresh first-party block on platform tokens, routed through the same review gates as any other generated artifact.
+
+  Hard rule: the scout's _stored output_ is text descriptions only. It never persists, ships, or republishes third-party code, markup, CSS, images, or copy. Provenance metadata (which libraries informed a description) is recorded for transparency. Source paywalls, where they exist, are respected operationally (the scout uses publicly accessible pages or documented API access; it is not a paywall-bypass tool).
+
+  Effort: medium. Risk: low if the hard rule is enforced (output is text, not scraped assets). Requires careful prompt engineering for the description-extraction step. Pairs with C4's pattern-scout-fed lane.
 
 ### Layer C — platform GTM & ecosystem
 
@@ -165,7 +174,15 @@ Organized by layer. Each item is a candidate objective; numbering is provisional
 - **C1. Workspace-level billing & usage metering.** Stripe, invoices, plan tiers, usage-based. Obj 6 has budgets but not commercial billing.
 - **C2. Self-service customer portal.** Signup, plan upgrade, team invites, payment methods.
 - **C3. Plugin / extension model.** Third-party adapters, prompts, UI components. Without this the ecosystem is closed.
-- **C4. Marketplace.** Components, templates, prompts. Where the ecosystem lives.
+- **C4. Marketplace.** Components, templates, prompts — the ecosystem surface. Composed of four lanes:
+
+  - **First-party blocks.** ~50–100 blocks built on shadcn/ui (MIT) + platform design tokens. Each ships with a Storybook story, a11y validation, and an AI-composable variant so the generation pipeline can use it. Free to draw inspiration from any block library on the web — copying _patterns and ideas_ is fine; what gets shipped is fresh code on platform tokens.
+  - **Pattern-scout-fed blocks.** Output of the pattern scout (B11) — first-party blocks built clean-room from textual descriptions of patterns observed on third-party libraries. Same standards as the first-party lane; tracked separately for provenance.
+  - **Curated upstream imports.** A small allowlist of explicitly-permissive sources (shadcn examples, OSS Magic UI, etc.). Each import is a deliberate PR — license preserved, attribution intact, tokens reconciled. **Not** an automated crawl.
+  - **Community contributions under a CLA.** Submission flow with automated checks (license header, a11y, design-token compliance, no secrets, dep allowlist). Rejected on any failure.
+
+  **The rule (one line):** ideas are free, expression is licensed. The scout and the team can observe _any_ library — paid, free, restrictive, permissive — and learn from it. What can be _stored and shipped_ in the marketplace is (a) fresh first-party code on platform tokens (any inspiration source), or (b) verbatim imports only from explicitly-permissive sources. Auto-crawling and republishing third-party code/assets is infringement regardless of the source's price tag.
+
 - **C5. Public app sharing & community.** "Look what I built." Top-of-funnel.
 - **C6. Forking / cloning a public generated app.** Adoption accelerator.
 
@@ -182,15 +199,32 @@ These are the most important V2 additions because they're what makes the platfor
 
 ## Critical note on Layer D
 
-**Layers A/B/C are V2 features. Layer D is V1 _property_.** D1–D6 should be promoted into V1 as success criteria attached to existing objectives (Obj 27, 29, 30, 31), not deferred to V2. Reason: if V1 ships generated output that _doesn't_ run standalone, doesn't round-trip, doesn't have CI, doesn't manage secrets cleanly — then V1 has shipped Lovable-with-self-hosting, not the dev-grade alternative. The thesis fails before V2 starts.
+**Layers A/B/C are V2 features. Layer D is V1 _property_.** D1–D6 are V1 success criteria attached to existing objectives, not deferred to V2. Reason: if V1 ships generated output that _doesn't_ run standalone, doesn't round-trip, doesn't have CI, doesn't manage secrets cleanly — then V1 has shipped Lovable-with-self-hosting, not the dev-grade alternative. The thesis fails before V2 starts.
 
-Recommended action _before V2 planning_: open a small V1 amendment that adds D1–D6 as explicit Definition-of-Done items on the relevant objectives, even though no other change to V1 scope is needed.
+**Status (2026-05-05):** Promoted into V1. D1–D6 are now Definition-of-Done items on the relevant objectives:
+
+- **Obj 27 (Code Generation):** D1 standalone runnable, D4 secrets management, D5 local dev experience
+- **Obj 29 (Deployment):** D3 generated CI/CD config, D4 secrets boundary at deploy time
+- **Obj 30 (Maintenance & Evolution):** D2 round-trip durability proof (with regression tests)
+- **Obj 31 (Auto-Generated Documentation):** D6 end-user-facing docs as a distinct surface
+
+V2 inherits no Layer D items. If a Layer D goal is later found to need work the V1 DoD didn't cover, that's a V1 amendment, not a V2 candidate.
+
+See also Layer E below — a parallel category of implicit-but-undeclared properties of _the platform itself_ (rather than the generated app), awaiting the same kind of promotion decision.
+
+### Layer E — platform operability (currently _implicit_, must become _explicit_)
+
+These are properties of _the self-hosted platform itself_ that the thesis assumes but no V1 objective declares. Layer D covers the _generated app's_ dev-grade properties; Layer E covers what self-hosted operators need from the platform.
+
+- **E1. Self-hosted upgrade procedure.** Documented, tested upgrade path across platform versions: migration ordering on PostgreSQL/MSSQL/MongoDB, downtime expectations, rollback steps, cross-version compatibility window, version-skew handling for HA deployments. Without this, "self-hostable" customers cannot safely move from v1.0 to v1.1, and the thesis pillar collapses on the second release.
+
+  **Status (2026-05-05): Promoted to V1 as [Objective 9.5: Platform Upgrade & Versioning](../../objectives/9.5-platform-upgrade-and-versioning.md).** Foundational scaffolding (the `platform_versions` table on all three databases) was backfilled into Obj 4 / 4a / 4b as migrations `0009_platform_versions` (Postgres) and `0007_platform_versions` (MSSQL, Mongo). The full orchestrator, CLI, operator UI, runbooks, and ADRs land when Obj 9.5 is implemented.
 
 ## V2 prioritization (when V1 closes)
 
 Three tiers:
 
-- **Tier 1 — block first revenue:** A1 (end-user auth), C1 (platform billing), C2 (self-service portal). Plus the elevated Layer D items if they didn't make it into V1.
+- **Tier 1 — block first revenue:** A1 (end-user auth), C1 (platform billing), C2 (self-service portal). _(Layer D was promoted into V1 — see Status note above. If any Layer D item slips out of V1, it returns to this tier.)_
 - **Tier 2 — block "we replace Lovable/Bolt" claims:** B1 (templates), B2 (multimodal), A5 (Stripe), A7 (custom domains), B3 (iterative chat), A14 (marketing sites). And A2 (workflow builder) if pursuing Budibase users.
 - **Tier 3 — ecosystem flywheel:** C3 (plugin model), C4 (marketplace), C5 (public sharing), B4 (migration importers).
 

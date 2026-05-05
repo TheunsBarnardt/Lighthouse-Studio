@@ -743,6 +743,7 @@ If all 20 pass, the objective is met.
 - [ ] Migration checksum verification active
 - [ ] CI promotion pipeline applies migrations to dev automatically
 - [ ] Staging and prod migration jobs designed and gated
+- [ ] **`platform_versions` table** present (added in migration `0009_platform_versions`). Append-only audit log of platform release-version upgrades, distinct from `__platform_migrations` (which tracks schema migrations). Read by the upgrade orchestrator (Objective 9.5) to determine the platform's current release version on this database. See [objectives/9.5-platform-upgrade-and-versioning.md](9.5-platform-upgrade-and-versioning.md).
 
 **Observability**
 

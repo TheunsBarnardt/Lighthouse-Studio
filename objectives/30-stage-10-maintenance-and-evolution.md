@@ -885,6 +885,15 @@ If all 26 pass, the objective is met.
 - [ ] All runbooks in Section 6.11 written
 - [ ] Customer-facing maintenance guide
 
+**Dev-Grade Output (D-series, per [docs/roadmap/v2-future-scope.md](../docs/roadmap/v2-future-scope.md))**
+
+- [ ] **D2 — Round-trip durability proof.** When a developer hand-edits generated code and the AI re-runs the generator over that artifact, hand edits are either preserved or surfaced as a real merge conflict in the existing conflict resolution flow — never silently overwritten. Verified by a regression test suite that:
+  - Generates an artifact
+  - Applies a representative hand edit (function body change, added comment, renamed local, added import)
+  - Re-runs the generator with a prompt change that does _not_ affect the edited region → asserts the edit survives untouched
+  - Re-runs the generator with a prompt change that _does_ overlap the edited region → asserts a conflict is raised and routed to the merge UI rather than silently overwritten
+- [ ] These regression tests run in CI on every change to maintenance prompts, generation prompts (Obj 27), or the merge/diff layer.
+
 **Verification**
 
 - [ ] All 26 verification steps in Section 9 pass

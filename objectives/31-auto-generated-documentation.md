@@ -124,6 +124,7 @@ Both the in-platform and standalone docs include full-text search. In-platform u
 6. Telemetry can be disabled per export via a config flag; disabling does not break docs functionality.
 7. Search works in both in-platform (server-backed) and standalone (static index) modes.
 8. Workspace brand assets (logo, colors, fonts) are applied to the docs site automatically — no manual theming required.
+9. **D6 — End-user-facing documentation for the generated app's users** (per [docs/roadmap/v2-future-scope.md](../docs/roadmap/v2-future-scope.md)). The two-surface model produces docs aimed at _the dev's customers_, not just the dev team — generated from app intent, schema, and UI surfaces with end-user voice (task-oriented "how do I…" rather than implementation-oriented). Internal-developer docs and end-user docs are distinguishable surfaces (separate navigation roots or section labels) so the dev can publish the end-user surface without leaking implementation detail.
 
 ---
 

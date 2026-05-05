@@ -45,6 +45,24 @@ _Baselines will be locked from staging run and committed to `bench/baselines/`._
 
 ---
 
+## Performance Regression Policy
+
+**Policy (per ADR-0093 / Foundation Stability Commitment):** No release ships if any baseline metric in `bench/baselines/` regresses by more than:
+
+- **10%** on p95 latency
+- **15%** on throughput
+
+versus the currently locked baseline, except via explicit ADR amendment that re-locks the baseline with documented justification.
+
+**Enforcement:**
+
+- CI runs the smoke baseline suite on every PR touching `packages/core`, `packages/ports/*`, or `packages/adapters/*` and blocks on regression beyond the threshold.
+- Quarterly: re-run the full staging baseline suite; update locked baselines if non-regressing changes have legitimately shifted them.
+
+**Status:** Policy declared (2026-05-05); CI script implementation tracked as a deferred item below.
+
+---
+
 ## Conditions and Caveats
 
 - **Staging environment:** All PARTIAL gates close when the staging environment is provisioned. This is the single largest remaining blocker.
@@ -56,15 +74,16 @@ _Baselines will be locked from staging run and committed to `bench/baselines/`._
 
 ## Deferred Items
 
-| Item                             | Target Date                                    |
-| -------------------------------- | ---------------------------------------------- |
-| Staging environment provisioning | Before Stage 1 feature work ships to customers |
-| Full load test (all adapters)    | Staging environment provisioned                |
-| Destructive chaos drill          | Staging environment provisioned                |
-| Full accessibility browser run   | Staging URL wired in CI                        |
-| Full DR server-loss drill        | Staging environment provisioned                |
-| MSSQL + MongoDB conformance CI   | Post-Objective-10 infra task                   |
-| External pentest                 | Before first paying customer                   |
+| Item                                    | Target Date                                    |
+| --------------------------------------- | ---------------------------------------------- |
+| Staging environment provisioning        | Before Stage 1 feature work ships to customers |
+| Full load test (all adapters)           | Staging environment provisioned                |
+| Destructive chaos drill                 | Staging environment provisioned                |
+| Full accessibility browser run          | Staging URL wired in CI                        |
+| Full DR server-loss drill               | Staging environment provisioned                |
+| MSSQL + MongoDB conformance CI          | Post-Objective-10 infra task                   |
+| External pentest                        | Before first paying customer                   |
+| Performance-regression-policy CI script | Before staging promotion                       |
 
 ---
 

@@ -873,6 +873,12 @@ If all 26 pass, the objective is met.
 - [ ] All runbooks in Section 6.10 written
 - [ ] Customer-facing deployment guide
 
+**Dev-Grade Output (D-series, per [docs/roadmap/v2-future-scope.md](../docs/roadmap/v2-future-scope.md))**
+
+- [ ] **D3 — Generated CI/CD config.** Every deployment plan emits a CI/CD config (GitHub Actions by default; GitLab CI as a documented alternative) into the generated project repo. The config runs the same test/build/migration pipeline the platform runs — so the dev's team can execute the pipeline themselves without re-binding to Lighthouse Studio. Verified by a fresh checkout of a generated project running the emitted workflow end-to-end on a clean runner.
+- [ ] **D4 — Secrets boundary at deploy time.** Deployment writes secrets into the target environment's standard secret mechanism (env vars, cloud secret manager, k8s secrets) — no runtime callbacks to the platform's SecretStorePort to fetch app-runtime secrets. Generated apps remain runnable with the platform offline. Verified by deploying a sample app, taking the platform offline, and confirming the deployed app continues to serve requests and access its secrets.
+- [ ] **D8 (deploy slice) — Observability hooks survive deployment.** Deployment plans wire `/health` into the platform's deployment monitor AND leave `/health` and `/metrics` accessible to the dev's own observability stack (Prometheus scrape target, OTel collector endpoint). Deployed apps remain observable when the platform is offline. Verified by deploying a sample app, taking the platform offline, and scraping `/metrics` from outside the platform.
+
 **Verification**
 
 - [ ] All 26 verification steps in Section 9 pass

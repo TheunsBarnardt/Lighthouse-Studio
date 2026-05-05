@@ -877,6 +877,9 @@ New files in `docs/runbooks/`:
 - **ADR-0156: Tool Use Typed and Audited** — typed definitions; permission-gated; audited
 - **ADR-0157: Per-Workspace Token Budgets** — cost control; soft warnings; hard limits
 - **ADR-0158: Quality Signals as Continuous Improvement** — tracking what works; feeding prompt iteration
+- **ADR-0159: Determinism Verification on Cache Miss** — cache covers happy path; nightly verification re-establishes structural stability of `temperature: 0` prompts against the underlying model
+- **ADR-0160: Reasoning-Capture as a CI Gate** — promote ADR-0153's mandate from convention to enforced check; what the lint rule asserts; how violations surface
+- **ADR-0161: Per-Prompt Cost-Regression Budget** — declared per-prompt budget; CI gate threshold; override procedure via budget-amending ADR
 
 ---
 
@@ -1007,9 +1010,15 @@ If all 23 pass, the objective is met.
 - [ ] All metrics emitted
 - [ ] Grafana dashboards for AI usage
 
+**Determinism, Enforcement & Cost Discipline (per [docs/roadmap/v2-future-scope.md](../docs/roadmap/v2-future-scope.md))**
+
+- [ ] **Determinism verification on cache miss.** For every prompt declared `temperature: 0`, a nightly CI job bypasses the cache and runs the prompt N=5 times against a frozen golden-input set; asserts structural stability (same artifact shape, same field set, identical key choices) across runs. Variance beyond declared tolerance fails the build. Caching covers the happy path; this verifies the underlying model still produces stable outputs when the cache is cold.
+- [ ] **Reasoning-capture CI gate.** Lint/CI rule rejects any artifact-record fixture, migration, or test that lacks a populated `ReasoningRecord` structure. Runs on every PR; can't merge a prompt or artifact change that drops reasoning. Promotes ADR-0153's mandate from convention to enforced gate.
+- [ ] **Cost regression budget on prompt PRs.** Every prompt declares a per-call token budget. CI runs golden inputs against the new prompt version; if average tokens-in + tokens-out increases >20% vs. the prompt's previous version (or the declared budget, whichever is tighter), CI fails. Budget overrides require explicit ADR amendment that re-locks the budget with documented justification.
+
 **Documentation**
 
-- [ ] ADRs 0151–0158 written and Accepted
+- [ ] ADRs 0151–0161 written and Accepted
 - [ ] All runbooks in Section 6.10 written
 - [ ] Prompt authoring guide
 - [ ] Tool authoring guide

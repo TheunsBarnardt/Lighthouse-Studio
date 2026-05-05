@@ -797,6 +797,7 @@ If all 22 pass, the objective is met.
 - [ ] Up + down for every migration
 - [ ] Migration checksum verification active
 - [ ] CI promotion supports Mongo migration jobs (gated until Mongo customer activates)
+- [ ] **`platform_versions` collection** present (added in migration `0007_platform_versions`). Append-only audit log of platform release-version upgrades, distinct from `__platform_migrations`. Read by the upgrade orchestrator (Objective 9.5). See [objectives/9.5-platform-upgrade-and-versioning.md](9.5-platform-upgrade-and-versioning.md).
 
 **Observability**
 

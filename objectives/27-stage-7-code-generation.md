@@ -779,6 +779,8 @@ interface ServerCodeQualitySignals {
 - **ADR-0202: Static Analysis as Second Line of Defense** — beyond TypeScript; forbidden patterns
 - **ADR-0203: Permissions Declared and Verified** — declared in manifest; enforced at invocation; verified via static analysis
 - **ADR-0204: Versioning with Rollback** — every version preserved; rollback is a single action
+- **ADR-0205: Generated Code IP & License Posture** — what license generated repos ship under; per-workspace configurability; AI-assisted-authorship declaration in NOTICE; third-party content provenance from prompts/templates
+- **ADR-0206: Generated App Observability Defaults** — structured JSON logs, `/health`, `/metrics`, OTel spans enabled by default; disable-by-config; rationale for "monitorable when platform offline"
 
 ---
 
@@ -920,6 +922,14 @@ If all 26 pass, the objective is met.
 - [ ] All runbooks in Section 6.11 written
 - [ ] Customer-facing code generation guide
 - [ ] Integration usage examples
+
+**Dev-Grade Output (D-series, per [docs/roadmap/v2-future-scope.md](../docs/roadmap/v2-future-scope.md))**
+
+- [ ] **D1 — Standalone runnable.** Generated server code project clones from git and runs locally with `npm install && npm run dev` (or equivalent) without Lighthouse Studio running. Verified by an automated test that bootstraps a generated project in a clean environment and exercises a representative function.
+- [ ] **D4 — Secrets management.** Generated functions read secrets from environment variables / standard secret stores; no platform-coupled secret resolution baked into emitted code. Local `.env.example` shipped with every generated project; secret names match the platform's SecretStorePort contract so platform-deployed and standalone-deployed runs are configuration-compatible.
+- [ ] **D5 — Local dev experience.** Generated project ships with hot-reload dev script, seed/fixture loader, and a `.devcontainer.json` so VS Code (or any container-aware IDE) opens with a consistent environment. Verified by the same standalone-bootstrap test plus a devcontainer lint.
+- [ ] **D7 — LICENSE & NOTICE emission.** Generated server code project ships with a `LICENSE` file (configurable per workspace; default MIT, alternatives Apache-2.0 or a proprietary template) and a `NOTICE` file declaring AI-assisted authorship and any third-party content provenance from prompts/templates. Verified by automated test asserting both files exist with the configured content in every generated project. ADR documents the IP position.
+- [ ] **D8 — Generated app observability primitives.** Generated server code emits structured JSON logs (level configurable via env var), exposes `/health` (liveness + readiness) and `/metrics` (Prometheus-format) endpoints by default, and emits OpenTelemetry-compatible spans on request paths. Disable-by-config available; enabled-by-default. Verified by a standalone-bootstrap test that exercises all three surfaces with the platform offline — the dev's ops team must be able to monitor the deployed app without depending on Lighthouse Studio.
 
 **Verification**
 
