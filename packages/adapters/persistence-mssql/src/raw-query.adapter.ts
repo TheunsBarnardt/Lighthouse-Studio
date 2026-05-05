@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-argument -- raw-query types not yet in ports-persistence dist; rebuild package to resolve */
 import type {
   ColumnMeta,
   QueryPlan,
@@ -61,8 +60,8 @@ export class MssqlRawQueryAdapter implements RawQueryPort {
     try {
       const request = pool.request();
 
-      // Set query timeout
-      request.timeout = opts.timeoutMs;
+      // Set query timeout — timeout is a runtime-only property not in @types/mssql
+      (request as unknown as { timeout: number }).timeout = opts.timeoutMs;
 
       // Bind named parameters
       const { text, inputs } = convertNamedParams(opts.query, opts.parameters);
@@ -77,12 +76,12 @@ export class MssqlRawQueryAdapter implements RawQueryPort {
       const truncated = rows.length > opts.rowLimit;
       const limited = rows.slice(0, opts.rowLimit);
 
-      const columns: ColumnMeta[] = result.recordset.columns
-        ? Object.entries(result.recordset.columns).map(([name, meta]) => ({
-            name,
-            dataType: (meta as { type?: string }).type ?? 'unknown',
-          }))
-        : [];
+      const columns: ColumnMeta[] = Object.entries(result.recordset.columns).map(
+        ([name, meta]) => ({
+          name,
+          dataType: (meta as unknown as { type?: string }).type ?? 'unknown',
+        }),
+      );
 
       return ok({
         rows: limited,
@@ -106,7 +105,7 @@ export class MssqlRawQueryAdapter implements RawQueryPort {
       await setupReq.query('SET SHOWPLAN_XML ON');
 
       const planReq = pool.request();
-      planReq.timeout = opts.timeoutMs;
+      (planReq as unknown as { timeout: number }).timeout = opts.timeoutMs;
       const { text, inputs } = convertNamedParams(opts.query, opts.parameters);
       for (const { name, value } of inputs) {
         planReq.input(name, value);
