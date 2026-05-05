@@ -138,6 +138,34 @@ export {
   encodeCursor,
   decodeCursor,
   GRAPHQL_AUDIT_EVENTS,
+  // Query Console
+  QueryConsoleService,
+  QueryClassifierImpl,
+  QueryConsoleAutocomplete,
+  QUERY_PERMISSIONS,
+  QUERY_DEFAULTS,
+  QUERY_AUDIT_EVENTS,
+} from './services/data-management/index.js';
+export type {
+  // Query Console types
+  QueryClassifierPort,
+  QueryClassification,
+  ClassifyInput,
+  CompletionItem,
+  QueryPermission,
+  QueryAuditEventType,
+  QueryHistoryRecord,
+  SavedQuery,
+  ExecuteQueryInput,
+  ExplainQueryInput,
+  SaveQueryInput,
+  UpdateSavedQueryInput,
+  ListHistoryOptions,
+  ListSavedQueriesOptions,
+  ExportInput,
+  ExecuteQueryResult,
+  ConfirmationRequired,
+  QueryStatus,
 } from './services/data-management/index.js';
 export type {
   CustomerSchema,
