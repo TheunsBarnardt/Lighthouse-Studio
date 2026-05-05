@@ -3,6 +3,15 @@ export type { LockPort } from './lock.port.js';
 export { LockTimeoutError } from './lock.port.js';
 export type { UnitOfWorkPort, TransactionContext } from './unit-of-work.port.js';
 export type { QueryPort } from './query.port.js';
+export type {
+  RawQueryPort,
+  RawExecuteOptions,
+  RawQueryResult,
+  QueryPlan,
+  QueryLanguage,
+  QueryRole,
+  ColumnMeta,
+} from './raw-query.port.js';
 export type { SchemaIntrospectionPort } from './schema-introspection.port.js';
 export type { SchemaMigrationPort } from './schema-migration.port.js';
 export type { SchemaDdlPort } from './schema-ddl.port.js';

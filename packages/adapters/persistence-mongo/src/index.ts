@@ -28,3 +28,6 @@ export {
 } from './customer-repository.adapter.js';
 
 export { MongoWorkspaceAssetAdapter } from './workspace-asset.adapter.js';
+
+export { MongoRawQueryAdapter } from './raw-query.adapter.js';
+export type { MongoRawQueryDbs } from './raw-query.adapter.js';

@@ -30,6 +30,12 @@ export default function SchemaLayout({
         >
           History
         </a>
+        <a
+          href={`/data-management/${params.schemaSlug}/query-console`}
+          className="rounded-t-lg px-4 py-2 font-semibold text-muted-foreground hover:text-foreground"
+        >
+          Query Console
+        </a>
       </div>
       <div className="flex-1">{children}</div>
     </div>

@@ -1,0 +1,394 @@
+{
+  "auth": {
+    "signIn": {
+      "title": "Sign in to your account",
+      "subtitle": "Welcome back",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Your password",
+      "rememberMe": "Remember me for 30 days",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "orContinueWith": "Or continue with",
+      "magicLink": "Sign in with magic link",
+      "accountLocked": "Your account is locked until {until}. Too many failed attempts.",
+      "emailNotVerified": "Email not verified. {resendLink}",
+      "resendVerification": "Resend verification email",
+      "error": "Invalid email or password."
+    },
+    "signUp": {
+      "title": "Create your account",
+      "displayNameLabel": "Display name",
+      "displayNamePlaceholder": "Your name",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Choose a strong password",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "alreadyHaveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "successTitle": "Check your email",
+      "successMessage": "We sent a verification link to {email}. Click it to activate your account.",
+      "disabledMessage": "Self-service sign-up is not enabled for this workspace. Request access from your administrator.",
+      "error": "Failed to create account."
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email and we'll send a reset link.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "successTitle": "Check your email",
+      "successMessage": "If an account exists for {email}, a reset link has been sent.",
+      "backToSignIn": "Back to sign in"
+    },
+    "resetPassword": {
+      "title": "Set a new password",
+      "passwordLabel": "New password",
+      "passwordPlaceholder": "Strong password",
+      "confirmLabel": "Confirm password",
+      "confirmPlaceholder": "Repeat password",
+      "submit": "Set password",
+      "submitting": "Saving…",
+      "successTitle": "Password changed",
+      "successMessage": "Your password has been updated. Sign in with your new password.",
+      "invalidToken": "This link is invalid or has expired. Request a new one.",
+      "mismatch": "Passwords do not match."
+    },
+    "verifyEmail": {
+      "title": "Verifying your email…",
+      "successTitle": "Email verified",
+      "successMessage": "Your email has been verified. You can now sign in.",
+      "invalidToken": "This verification link is invalid or has expired.",
+      "signIn": "Sign in"
+    },
+    "magicLink": {
+      "requestTitle": "Sign in with magic link",
+      "requestSubtitle": "We'll send a one-time sign-in link to your email.",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Send magic link",
+      "submitting": "Sending…",
+      "successTitle": "Check your email",
+      "successMessage": "A sign-in link has been sent to {email}.",
+      "consumingTitle": "Signing you in…",
+      "invalidToken": "This magic link is invalid or has expired."
+    },
+    "mfaChallenge": {
+      "title": "Two-factor authentication",
+      "subtitle": "Enter the 6-digit code from your authenticator app.",
+      "codeLabel": "Authentication code",
+      "codePlaceholder": "000000",
+      "submit": "Verify",
+      "submitting": "Verifying…",
+      "useRecoveryCode": "Use a recovery code instead",
+      "recoveryCodeLabel": "Recovery code",
+      "recoveryCodePlaceholder": "xxxx-xxxx-xxxx",
+      "lostDevice": "Lost your device?",
+      "lostDeviceMessage": "Contact your workspace administrator to reset your two-factor authentication.",
+      "error": "Invalid code. {attemptsLeft} attempts remaining.",
+      "tooManyAttempts": "Too many failed attempts. Please sign in again."
+    },
+    "acceptInvitation": {
+      "title": "Accept invitation",
+      "loading": "Verifying your invitation…",
+      "invitedTo": "You've been invited to join {workspaceName}.",
+      "signedInAs": "You are signed in as {email}.",
+      "switchAccount": "Sign in as {email} to accept this invitation.",
+      "accept": "Accept and join",
+      "accepting": "Joining…",
+      "expired": "This invitation has expired. Ask the workspace admin to send a new one.",
+      "alreadyAccepted": "This invitation has already been accepted.",
+      "success": "You've joined {workspaceName}!",
+      "goToWorkspace": "Go to workspace"
+    },
+    "oauthCallback": {
+      "title": "Completing sign-in…",
+      "error": "Sign-in failed. {message}"
+    },
+    "samlCallback": {
+      "title": "Completing SAML sign-in…",
+      "error": "SAML sign-in failed. {message}"
+    }
+  },
+  "account": {
+    "nav": {
+      "profile": "Profile",
+      "password": "Password",
+      "email": "Email",
+      "mfa": "Two-factor auth",
+      "sessions": "Active sessions",
+      "identities": "Linked accounts",
+      "preferences": "Preferences",
+      "dangerZone": "Danger zone"
+    },
+    "profile": {
+      "title": "Profile",
+      "displayNameLabel": "Display name",
+      "displayNamePlaceholder": "Your name",
+      "emailLabel": "Primary email",
+      "avatarLabel": "Profile photo",
+      "uploadAvatar": "Upload photo",
+      "removeAvatar": "Remove photo",
+      "localeLabel": "Language",
+      "timezoneLabel": "Timezone",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "saved": "Profile saved."
+    },
+    "password": {
+      "title": "Change password",
+      "currentLabel": "Current password",
+      "newLabel": "New password",
+      "confirmLabel": "Confirm new password",
+      "save": "Change password",
+      "saving": "Saving…",
+      "saved": "Password changed.",
+      "mismatch": "Passwords do not match.",
+      "forgotCurrent": "Forgot your current password?"
+    },
+    "email": {
+      "title": "Change email address",
+      "currentEmail": "Current email: {email}",
+      "newEmailLabel": "New email address",
+      "newEmailPlaceholder": "new@example.com",
+      "submit": "Send verification",
+      "submitting": "Sending…",
+      "pending": "A verification email has been sent to {email}. Check your inbox.",
+      "saved": "Email address updated."
+    },
+    "mfa": {
+      "title": "Two-factor authentication",
+      "enabled": "Two-factor authentication is enabled.",
+      "disabled": "Two-factor authentication is not enabled.",
+      "enable": "Enable 2FA",
+      "disable": "Disable 2FA",
+      "disableConfirm": "Disable two-factor authentication? This reduces your account security.",
+      "enrollTitle": "Set up authenticator app",
+      "enrollStep1": "Scan the QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.)",
+      "enrollStep2": "Enter the 6-digit code to confirm",
+      "enrollCodeLabel": "Verification code",
+      "enrollSubmit": "Enable 2FA",
+      "recoveryCodes": "Recovery codes",
+      "recoveryCodesInfo": "Save these codes in a safe place. Each can be used once to sign in if you lose your authenticator.",
+      "downloadCodes": "Download codes",
+      "savedCodes": "I have saved my recovery codes",
+      "regenerateCodes": "Generate new recovery codes",
+      "regenerateConfirm": "Generating new codes invalidates all existing recovery codes.",
+      "confirmReauth": "Enter your password to confirm"
+    },
+    "sessions": {
+      "title": "Active sessions",
+      "currentDevice": "This device",
+      "lastSeen": "Last seen {time}",
+      "signedInAt": "Signed in {time}",
+      "revoke": "Revoke",
+      "revokeConfirm": "Sign out from this device?",
+      "revokeAll": "Sign out everywhere",
+      "revokeAllConfirm": "This will sign you out from all devices, including this one.",
+      "revokeAllOthers": "Sign out everywhere else",
+      "noSessions": "No active sessions found.",
+      "location": "{city}, {country}"
+    },
+    "identities": {
+      "title": "Linked accounts",
+      "link": "Link account",
+      "unlink": "Unlink",
+      "unlinkConfirm": "Unlink {provider} from your account?",
+      "primary": "Primary",
+      "makePrimary": "Make primary",
+      "noIdentities": "No linked accounts.",
+      "cannotUnlinkLast": "You must keep at least one linked identity."
+    },
+    "preferences": {
+      "title": "Preferences",
+      "languageLabel": "Language",
+      "timezoneLabel": "Timezone",
+      "emailNotificationsLabel": "Email notifications",
+      "save": "Save preferences",
+      "saved": "Preferences saved."
+    },
+    "dangerZone": {
+      "title": "Danger zone",
+      "exportData": "Export my data",
+      "exportDataDescription": "Download a copy of all your personal data (GDPR / CCPA data subject access request).",
+      "export": "Request data export",
+      "deleteAccount": "Delete account",
+      "deleteAccountDescription": "Permanently delete your account and all associated data. This action cannot be undone.",
+      "delete": "Delete my account",
+      "deleteConfirmTitle": "Delete account?",
+      "deleteConfirmMessage": "This will permanently delete your account. Type your email to confirm.",
+      "deleteConfirmPlaceholder": "Your email address",
+      "deleteConfirm": "Permanently delete account",
+      "gracePeriod": "Your account will be deleted after a 30-day grace period."
+    }
+  },
+  "workspace": {
+    "members": {
+      "title": "Members",
+      "invite": "Invite member",
+      "pendingTab": "Pending invitations",
+      "membersTab": "Members",
+      "searchPlaceholder": "Search by name or email…",
+      "filterRole": "Filter by role",
+      "filterStatus": "Filter by status",
+      "noMembers": "No members found.",
+      "noPending": "No pending invitations.",
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "lastSignIn": "Last sign-in",
+        "joined": "Joined"
+      },
+      "status": {
+        "active": "Active",
+        "pending_verification": "Pending verification",
+        "suspended": "Suspended",
+        "archived": "Removed"
+      },
+      "actions": {
+        "viewDetails": "View details",
+        "changeRole": "Change role",
+        "remove": "Remove from workspace",
+        "viewAudit": "View audit history",
+        "resendInvitation": "Resend invitation",
+        "revokeInvitation": "Revoke invitation"
+      },
+      "removeConfirm": "Remove {name} from this workspace?",
+      "revokeConfirm": "Revoke this invitation?"
+    },
+    "invitations": {
+      "title": "Pending invitations",
+      "loading": "Loading…",
+      "empty": "No pending invitations.",
+      "revoke": "Revoke",
+      "revoking": "Revoking…",
+      "columns": {
+        "email": "Email",
+        "roles": "Roles",
+        "expires": "Expires"
+      }
+    },
+    "invite": {
+      "title": "Invite member",
+      "emailLabel": "Email address",
+      "emailPlaceholder": "colleague@example.com",
+      "roleLabel": "Role",
+      "submit": "Send invitation",
+      "submitting": "Sending…",
+      "success": "Invitation sent to {email}.",
+      "error": "Failed to send invitation."
+    },
+    "branding": {
+      "title": "Workspace branding",
+      "logoLabel": "Logo",
+      "uploadLogo": "Upload logo",
+      "removeLogo": "Remove logo",
+      "primaryColorLabel": "Primary color",
+      "primaryColorPlaceholder": "#6366F1",
+      "companyNameLabel": "Company name",
+      "companyNamePlaceholder": "Acme Corp",
+      "customCssLabel": "Custom CSS variables",
+      "customCssPlaceholder": "--color-primary: #6366F1;",
+      "customCssHelp": "Only CSS variable declarations are allowed. Unsupported rules are stripped.",
+      "emailFromNameLabel": "Email from name",
+      "emailFromNamePlaceholder": "Acme Corp",
+      "save": "Save branding",
+      "saving": "Saving…",
+      "saved": "Branding saved.",
+      "reset": "Reset to defaults",
+      "resetConfirm": "Reset workspace branding to platform defaults?"
+    }
+  },
+  "admin": {
+    "users": {
+      "title": "All users",
+      "searchPlaceholder": "Search by name or email…",
+      "noUsers": "No users found.",
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "status": "Status",
+        "workspaces": "Workspaces",
+        "lastSignIn": "Last sign-in",
+        "created": "Created"
+      },
+      "actions": {
+        "viewDetails": "View details",
+        "suspend": "Suspend account",
+        "restore": "Restore account",
+        "resetMfa": "Reset 2FA",
+        "viewAudit": "View audit history"
+      },
+      "resetMfaConfirm": "Reset two-factor authentication for {name}? They will need to re-enroll on next sign-in.",
+      "resetMfaSuccess": "Two-factor authentication has been reset for {name}.",
+      "suspendConfirm": "Suspend {name}'s account?",
+      "restoreConfirm": "Restore {name}'s account?"
+    },
+    "audit": {
+      "title": "Audit log",
+      "searchPlaceholder": "Search events…",
+      "filterEventType": "Filter by event type",
+      "filterActor": "Filter by actor",
+      "noEvents": "No audit events found.",
+      "columns": {
+        "timestamp": "Time",
+        "event": "Event",
+        "actor": "Actor",
+        "resource": "Resource",
+        "outcome": "Outcome"
+      }
+    }
+  },
+  "setup": {
+    "title": "Welcome to Lighthouse Studio",
+    "subtitle": "Let's get your installation set up. This wizard runs once.",
+    "ownerSectionTitle": "Create owner account",
+    "ownerNameLabel": "Your name",
+    "ownerNamePlaceholder": "Jane Smith",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "jane@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Strong password",
+    "workspaceSectionTitle": "First workspace",
+    "workspaceNameLabel": "Workspace name",
+    "workspaceNamePlaceholder": "My Company",
+    "workspaceSlugLabel": "Workspace slug",
+    "workspaceSlugPlaceholder": "my-company",
+    "workspaceSlugHint": "Used in URLs — lowercase letters, numbers and hyphens only.",
+    "submit": "Complete setup",
+    "submitting": "Setting up…",
+    "alreadyInitialized": "This installation has already been set up."
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong.",
+    "retry": "Try again",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "close": "Close",
+    "edit": "Edit",
+    "remove": "Remove",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "required": "Required",
+    "optional": "Optional",
+    "yes": "Yes",
+    "no": "No",
+    "or": "or"
+  }
+}

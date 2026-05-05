@@ -1,0 +1,7 @@
+{
+  "version": "0.0.0",
+  "minPreviousVersion": "0.0.0",
+  "breakingMigrations": [],
+  "expectedDowntimeSeconds": 0,
+  "rollbackSupported": true
+}

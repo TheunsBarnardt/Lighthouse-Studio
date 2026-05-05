@@ -29,3 +29,6 @@ export {
 } from './customer-repository.adapter.js';
 
 export { MssqlWorkspaceAssetAdapter } from './workspace-asset.adapter.js';
+
+export { MssqlRawQueryAdapter } from './raw-query.adapter.js';
+export type { MssqlRawQueryPools } from './raw-query.adapter.js';

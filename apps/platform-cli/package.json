@@ -1,0 +1,43 @@
+{
+  "name": "@platform/platform-cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "platform": "./dist/src/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "clean": "rimraf dist",
+    "dev": "tsx src/cli.ts"
+  },
+  "dependencies": {
+    "@platform/adapter-platform-version-mongo": "workspace:*",
+    "@platform/adapter-platform-version-mssql": "workspace:*",
+    "@platform/adapter-platform-version-postgres": "workspace:*",
+    "@platform/adapter-persistence-mongo": "workspace:*",
+    "@platform/adapter-persistence-mssql": "workspace:*",
+    "@platform/adapter-persistence-postgres": "workspace:*",
+    "@platform/adapter-audit-postgres": "workspace:*",
+    "@platform/core": "workspace:*",
+    "@platform/ports-platform-version": "workspace:*",
+    "commander": "^12.1.0",
+    "mongodb": "^6.12.0",
+    "mssql": "^11.0.1",
+    "neverthrow": "8.2.0",
+    "pg": "^8.13.0",
+    "zod": "3.24.4"
+  },
+  "devDependencies": {
+    "@platform/config": "workspace:*",
+    "@types/mssql": "^9.1.5",
+    "@types/pg": "^8.11.10",
+    "rimraf": "6.0.1",
+    "tsx": "4.19.4",
+    "vitest": "3.2.3"
+  }
+}

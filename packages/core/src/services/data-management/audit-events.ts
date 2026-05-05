@@ -79,3 +79,24 @@ export const REALTIME_AUDIT_EVENTS = {
 
 export type RealtimeAuditEventType =
   (typeof REALTIME_AUDIT_EVENTS)[keyof typeof REALTIME_AUDIT_EVENTS];
+
+export const QUERY_AUDIT_EVENTS = {
+  // Always audited — console queries are higher-stakes than API reads
+  EXECUTED: 'data_management.query.executed',
+  EXECUTED_WRITE: 'data_management.query.executed_write',
+  TIMED_OUT: 'data_management.query.timed_out',
+  CANCELLED: 'data_management.query.cancelled',
+  FAILED: 'data_management.query.failed',
+  // Security events
+  DDL_ATTEMPTED: 'data_management.query.ddl_attempted',
+  WRITE_DENIED: 'data_management.query.write_denied',
+  // Export lifecycle
+  EXPORTED: 'data_management.query.exported',
+  // Saved query lifecycle
+  SAVED: 'data_management.query.saved',
+  UPDATED: 'data_management.query.updated',
+  SHARED: 'data_management.query.shared',
+  DELETED_SAVE: 'data_management.query.deleted_save',
+} as const;
+
+export type QueryAuditEventType = (typeof QUERY_AUDIT_EVENTS)[keyof typeof QUERY_AUDIT_EVENTS];

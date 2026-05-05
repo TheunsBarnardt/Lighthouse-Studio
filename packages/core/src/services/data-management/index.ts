@@ -11,6 +11,8 @@ export {
   customerCollectionName,
   customerAppRole,
   customerMigrateRole,
+  customerReadonlyRole,
+  customerConsoleWriterRole,
   createWorkspacePostgresSchema,
   createWorkspaceMssqlSchema,
   dropWorkspacePostgresSchema,
@@ -131,3 +133,32 @@ export type {
   InternalRevocationEvent,
 } from './realtime/types.js';
 export { REALTIME_DEFAULTS } from './realtime/types.js';
+
+// ── Query Console (Objective 17) ──────────────────────────────────────────────
+export { QueryConsoleService } from './query-console/query-console.service.js';
+export { QueryClassifierImpl } from './query-console/classifier.js';
+export type {
+  QueryClassifierPort,
+  QueryClassification,
+  ClassifyInput,
+} from './query-console/classifier.js';
+export { QueryConsoleAutocomplete } from './query-console/autocomplete.js';
+export type { CompletionItem } from './query-console/autocomplete.js';
+export { QUERY_PERMISSIONS, QUERY_DEFAULTS } from './query-console/permissions.js';
+export type { QueryPermission } from './query-console/permissions.js';
+export { QUERY_AUDIT_EVENTS } from './audit-events.js';
+export type { QueryAuditEventType } from './audit-events.js';
+export type {
+  QueryHistoryRecord,
+  SavedQuery,
+  ExecuteQueryInput,
+  ExplainQueryInput,
+  SaveQueryInput,
+  UpdateSavedQueryInput,
+  ListHistoryOptions,
+  ListSavedQueriesOptions,
+  ExportInput,
+  ExecuteQueryResult,
+  ConfirmationRequired,
+  QueryStatus,
+} from './query-console/types.js';
