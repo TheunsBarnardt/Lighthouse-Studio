@@ -204,3 +204,34 @@ export {
   DEFAULT_SIGNED_URL_TTL_SECONDS,
   MAX_SIGNED_URL_TTL_SECONDS,
 } from './services/data-management/storage/index.js';
+
+// ── Platform versioning & upgrade (Objective 9.5) ────────────────────────────
+export { PLATFORM_VERSION } from './platform/version.js';
+export { UpgradeOrchestrator, UpgradeError } from './upgrade/orchestrator.js';
+export type {
+  DbTarget,
+  RollbackResult,
+  UpgradeErrorCode,
+  UpgradeOptions,
+  UpgradeOrchestratorDeps,
+  UpgradeResult,
+} from './upgrade/orchestrator.js';
+export { parseReleaseManifest, ReleaseManifestSchema } from './upgrade/release-manifest.js';
+export type { ReleaseManifest } from './upgrade/release-manifest.js';
+
+// ── Auth UI Services (Objective 16) ──────────────────────────────────────────
+export { AvatarService } from './services/avatar.service.js';
+export type { UploadAvatarInput } from './services/avatar.service.js';
+export { InvitationFlowService } from './services/invitation-flow.service.js';
+export { UserSearchService } from './services/user-search.service.js';
+export type { UserSearchQuery } from './services/user-search.service.js';
+export { BrandingService } from './services/branding.service.js';
+export type { WorkspaceBranding, WorkspaceBrandingRecord } from './services/branding.service.js';
+export { EmailTemplateService, TEMPLATE_KEYS } from './services/email-template.service.js';
+export type {
+  TemplateKey,
+  TemplateContext,
+  RenderedEmail,
+  TemplateOverride,
+  WorkspaceEmailTemplateRecord,
+} from './services/email-template.service.js';

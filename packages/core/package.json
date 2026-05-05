@@ -30,6 +30,7 @@
     "@platform/ports-identity": "workspace:*",
     "@platform/ports-observability": "workspace:*",
     "@platform/ports-persistence": "workspace:*",
+    "@platform/ports-platform-version": "workspace:*",
     "@platform/ports-rate-limiter": "workspace:*",
     "@platform/ports-storage": "workspace:*",
     "@platform/ports-workspace-assets": "workspace:*",

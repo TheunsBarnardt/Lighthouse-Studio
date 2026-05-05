@@ -40,6 +40,7 @@
     "@platform/adapter-storage-memory": "workspace:*",
     "@platform/ports-ai": "workspace:*",
     "@platform/ports-audit": "workspace:*",
+    "@platform/ports-authorization": "workspace:*",
     "@platform/ports-communication": "workspace:*",
     "@platform/ports-config": "workspace:*",
     "@platform/ports-eventing": "workspace:*",
