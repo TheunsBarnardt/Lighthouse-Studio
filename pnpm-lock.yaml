@@ -403,7 +403,130 @@ importers:
         specifier: ^5.4.0
         version: 5.4.21(@types/node@22.15.0)(terser@5.46.2)
 
+  packages/adapters/ai-anthropic:
+    dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.51.0
+        version: 0.51.0
+      '@platform/ports-ai':
+        specifier: workspace:*
+        version: link:../../ports/ai
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jsdom@25.0.1)(terser@5.46.2)
+
+  packages/adapters/ai-azure-openai:
+    dependencies:
+      '@platform/ports-ai':
+        specifier: workspace:*
+        version: link:../../ports/ai
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jsdom@25.0.1)(terser@5.46.2)
+
+  packages/adapters/ai-bedrock:
+    dependencies:
+      '@platform/ports-ai':
+        specifier: workspace:*
+        version: link:../../ports/ai
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jsdom@25.0.1)(terser@5.46.2)
+
   packages/adapters/ai-memory:
+    dependencies:
+      '@platform/ports-ai':
+        specifier: workspace:*
+        version: link:../../ports/ai
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      uuidv7:
+        specifier: 1.0.2
+        version: 1.0.2
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jsdom@25.0.1)(terser@5.46.2)
+
+  packages/adapters/ai-ollama:
+    dependencies:
+      '@platform/ports-ai':
+        specifier: workspace:*
+        version: link:../../ports/ai
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jsdom@25.0.1)(terser@5.46.2)
+
+  packages/adapters/ai-openai:
+    dependencies:
+      '@platform/ports-ai':
+        specifier: workspace:*
+        version: link:../../ports/ai
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      openai:
+        specifier: ^4.85.0
+        version: 4.104.0(ws@8.20.0)(zod@3.25.76)
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jsdom@25.0.1)(terser@5.46.2)
+
+  packages/adapters/ai-vllm:
     dependencies:
       '@platform/ports-ai':
         specifier: workspace:*
@@ -1276,6 +1399,9 @@ importers:
 
   packages/adapters/persistence-postgres:
     dependencies:
+      '@platform/ports-ai':
+        specifier: workspace:*
+        version: link:../../ports/ai
       '@platform/ports-observability':
         specifier: workspace:*
         version: link:../../ports/observability
@@ -1762,6 +1888,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@platform/ports-ai':
+        specifier: workspace:*
+        version: link:../ports/ai
       '@platform/ports-audit':
         specifier: workspace:*
         version: link:../ports/audit
@@ -2364,6 +2493,10 @@ packages:
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
+
+  '@anthropic-ai/sdk@0.51.0':
+    resolution: {integrity: sha512-fAFC/uHhyzfw7rs65EPVV+scXDytGNm5BjttxHf6rP/YGvaBRKEvp2lwyuMigTwMI95neeG4bzrZigz7KCikjw==}
+    hasBin: true
 
   '@asamuzakjp/css-color@3.2.0':
     resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}
@@ -6864,6 +6997,10 @@ packages:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
 
+  agentkeepalive@4.6.0:
+    resolution: {integrity: sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ==}
+    engines: {node: '>= 8.0.0'}
+
   aggregate-error@3.1.0:
     resolution: {integrity: sha512-4I7Td01quW/RpocfNayFdFVk1qSuoh0E7JrbRJ16nH01HhKFQ88INq9Sd+nd72zqRySlr9BmDA8xlEJ6vJMrYA==}
     engines: {node: '>=8'}
@@ -8311,9 +8448,16 @@ packages:
       typescript: '>3.6.0'
       webpack: ^5.11.0
 
+  form-data-encoder@1.7.2:
+    resolution: {integrity: sha512-qfqtYan3rxrnCk1VYaA4H+Ms9xdpPqvLZa6xmMgFvhO32x7/3J/ExcTd6qpxM0vH2GdMI+poehyBZvqfMTto8A==}
+
   form-data@4.0.5:
     resolution: {integrity: sha512-8RipRLol37bNs2bhoV67fiTEvdTrbMUYcFTiy3+wuuOnUog2QBHCZWXDRijWQfAkhBj2Uf5UnVaiWwA5vdd82w==}
     engines: {node: '>= 6'}
+
+  formdata-node@4.4.1:
+    resolution: {integrity: sha512-0iirZp3uVDjVGt9p49aTaqjk84TrglENEDuqfdlZQ1roC9CWlPk6Avf8EEnZNcAqPonwkG35x4n3ww/1THYAeQ==}
+    engines: {node: '>= 12.20'}
 
   forwarded-parse@2.1.2:
     resolution: {integrity: sha512-alTFZZQDKMporBH77856pXgzhEzaUVmLCDk+egLgIgHst3Tpndzz8MnKe+GzRJRfvVdn69HhpW7cmXzvtLvJAw==}
@@ -8596,6 +8740,9 @@ packages:
   human-signals@5.0.0:
     resolution: {integrity: sha512-AXcZb6vzzrFAUE61HnN4mpLqd/cSIwNQjtNWR0euPm6y0iqx3G4gOXaIDdtdDwZmhwe82LA6+zinmW4UBWVePQ==}
     engines: {node: '>=16.17.0'}
+
+  humanize-ms@1.2.1:
+    resolution: {integrity: sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ==}
 
   husky@9.1.7:
     resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
@@ -9551,6 +9698,11 @@ packages:
     resolution: {integrity: sha512-tmPX422rYgofd4epzrNoOXiE8XFZYOcCq1vD7MAXCDO+O+zndlA2ztdKKMa+EeuBG5tHETpr4ml4RGgpqDCCAg==}
     engines: {node: '>= 0.10.5'}
 
+  node-domexception@1.0.0:
+    resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
+    engines: {node: '>=10.5.0'}
+    deprecated: Use your platform's native DOMException instead
+
   node-fetch-native@1.6.7:
     resolution: {integrity: sha512-g9yhqoedzIUm0nTnTqAQvueMPVOuIY16bqgAJJC8XOOubYFNwz6IER9qs0Gq2Xd0+CecCKFjtdDTMA4u4xG06Q==}
 
@@ -9675,6 +9827,18 @@ packages:
   open@8.4.2:
     resolution: {integrity: sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ==}
     engines: {node: '>=12'}
+
+  openai@4.104.0:
+    resolution: {integrity: sha512-p99EFNsA/yX6UhVO93f5kJsDRLAg+CTA2RBqdHK4RtK8u5IJw32Hyb2dTGKbnnFmnuoBv5r7Z2CURI9sGZpSuA==}
+    hasBin: true
+    peerDependencies:
+      ws: ^8.18.0
+      zod: ^3.23.8
+    peerDependenciesMeta:
+      ws:
+        optional: true
+      zod:
+        optional: true
 
   openapi-typescript@7.13.0:
     resolution: {integrity: sha512-EFP392gcqXS7ntPvbhBzbF8TyBA+baIYEm791Hy5YkjDYKTnk/Tn5OQeKm5BIZvJihpp8Zzr4hzx0Irde1LNGQ==}
@@ -11356,6 +11520,10 @@ packages:
   wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
 
+  web-streams-polyfill@4.0.0-beta.3:
+    resolution: {integrity: sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==}
+    engines: {node: '>= 14'}
+
   webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
@@ -11600,6 +11768,8 @@ snapshots:
   '@adobe/css-tools@4.4.4': {}
 
   '@alloc/quick-lru@5.2.0': {}
+
+  '@anthropic-ai/sdk@0.51.0': {}
 
   '@asamuzakjp/css-color@3.2.0':
     dependencies:
@@ -17159,6 +17329,10 @@ snapshots:
 
   agent-base@7.1.4: {}
 
+  agentkeepalive@4.6.0:
+    dependencies:
+      humanize-ms: 1.2.1
+
   aggregate-error@3.1.0:
     dependencies:
       clean-stack: 2.2.0
@@ -18767,6 +18941,8 @@ snapshots:
       typescript: 5.8.3
       webpack: 5.106.2(@swc/core@1.15.33)
 
+  form-data-encoder@1.7.2: {}
+
   form-data@4.0.5:
     dependencies:
       asynckit: 0.4.0
@@ -18774,6 +18950,11 @@ snapshots:
       es-set-tostringtag: 2.1.0
       hasown: 2.0.3
       mime-types: 2.1.35
+
+  formdata-node@4.4.1:
+    dependencies:
+      node-domexception: 1.0.0
+      web-streams-polyfill: 4.0.0-beta.3
 
   forwarded-parse@2.1.2: {}
 
@@ -19071,6 +19252,10 @@ snapshots:
   human-signals@2.1.0: {}
 
   human-signals@5.0.0: {}
+
+  humanize-ms@1.2.1:
+    dependencies:
+      ms: 2.1.3
 
   husky@9.1.7: {}
 
@@ -19973,6 +20158,8 @@ snapshots:
     dependencies:
       minimatch: 3.1.5
 
+  node-domexception@1.0.0: {}
+
   node-fetch-native@1.6.7: {}
 
   node-fetch@2.7.0:
@@ -20097,6 +20284,21 @@ snapshots:
       define-lazy-prop: 2.0.0
       is-docker: 2.2.1
       is-wsl: 2.2.0
+
+  openai@4.104.0(ws@8.20.0)(zod@3.25.76):
+    dependencies:
+      '@types/node': 18.19.130
+      '@types/node-fetch': 2.6.13
+      abort-controller: 3.0.0
+      agentkeepalive: 4.6.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0
+    optionalDependencies:
+      ws: 8.20.0
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - encoding
 
   openapi-typescript@7.13.0(typescript@5.8.3):
     dependencies:
@@ -21985,6 +22187,8 @@ snapshots:
   wcwidth@1.0.1:
     dependencies:
       defaults: 1.0.4
+
+  web-streams-polyfill@4.0.0-beta.3: {}
 
   webidl-conversions@3.0.1: {}
 

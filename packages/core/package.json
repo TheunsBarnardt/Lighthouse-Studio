@@ -34,6 +34,7 @@
     "@platform/ports-rate-limiter": "workspace:*",
     "@platform/ports-jobs": "workspace:*",
     "@platform/ports-storage": "workspace:*",
+    "@platform/ports-ai": "workspace:*",
     "@platform/ports-workspace-assets": "workspace:*",
     "@pothos/core": "^4.12.0",
     "dataloader": "^2.2.3",

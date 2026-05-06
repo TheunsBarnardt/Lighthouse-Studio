@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "@platform/ports-ai": "workspace:*",
-    "neverthrow": "8.2.0"
+    "neverthrow": "8.2.0",
+    "uuidv7": "1.0.2"
   },
   "devDependencies": {
     "@platform/config": "workspace:*",

@@ -36,3 +36,5 @@ export { PostgresWorkspaceAssetAdapter } from './workspace-asset.adapter.js';
 
 export { PostgresRawQueryAdapter } from './raw-query.adapter.js';
 export type { RawQueryPools } from './raw-query.adapter.js';
+
+export { PostgresAiCacheAdapter } from './ai-cache.adapter.js';

@@ -15,3 +15,8 @@ export {
 } from './in-memory-customer-repo.js';
 export { createInMemoryTracer } from './in-memory-tracer.js';
 export { createInMemoryObjectStorage } from './in-memory-storage.js';
+export {
+  createInMemoryArtifactRepo,
+  createInMemoryAiCache,
+  createInMemoryCostTracking,
+} from './in-memory-ai-ports.js';

@@ -1,0 +1,83 @@
+name: AI Prompt Determinism (Nightly)
+
+on:
+  schedule:
+    # 02:00 UTC daily — same window as load-nightly, before business hours
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ai-nightly
+  cancel-in-progress: false # never cancel a running nightly determinism job
+
+jobs:
+  determinism:
+    name: Prompt determinism check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Get pnpm store path
+        id: pnpm-cache
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run prompt determinism tests
+        id: prompt-tests
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: pnpm --filter @platform/core test -- --reporter=verbose src/ai/prompts
+
+      - name: Create failure issue
+        if: failure() && steps.prompt-tests.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "AI prompt determinism failure [$(date -u +%Y-%m-%d)]" \
+            --body "## AI Prompt Determinism Failure
+
+          The nightly determinism check failed on **$(date -u +%Y-%m-%d)** (run [\`${{ github.run_id }}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})).
+
+          ### What this means
+
+          One or more prompts with \`temperature: 0\` produced output whose **structure** (JSON keys / schema shape) differed from the expected shape. This indicates a model version drift or a prompt regression — not merely a content change.
+
+          ### Next steps
+
+          1. Open the failed run and expand the **Run prompt determinism tests** step to identify which prompt(s) failed.
+          2. Compare the actual output schema against the golden schema defined in \`packages/core/src/ai/prompts/\`.
+          3. If the model legitimately changed its output shape, update the golden schema and the prompt's semver patch version.
+          4. If the prompt is broken, fix it and add a regression test.
+          5. Re-run this workflow manually (\`workflow_dispatch\`) to confirm the fix.
+
+          ### References
+
+          - Workflow: \`ai-nightly.yml\`
+          - ADR: ADR-0159 (nightly determinism contract)
+          - Prompts directory: \`packages/core/src/ai/prompts/\`
+          " \
+            --label "ai,nightly-failure,prompt-determinism"

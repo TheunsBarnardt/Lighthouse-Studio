@@ -263,3 +263,29 @@ export type {
   TemplateOverride,
   WorkspaceEmailTemplateRecord,
 } from './services/email-template.service.js';
+
+// ── AI Pipeline Foundation (Objective 20) ─────────────────────────────────────
+export { ArtifactService } from './services/ai/artifact.service.js';
+export type {
+  CreateArtifactServiceInput,
+  UpdateContentInput,
+  RecordQualityInput,
+} from './services/ai/artifact.service.js';
+export { GenerationService } from './services/ai/generation.service.js';
+export type {
+  CacheControl,
+  GenerateInput,
+  GenerationResult,
+} from './services/ai/generation.service.js';
+export { PromptService, registerPrompt } from './services/ai/prompt.service.js';
+export type {
+  RenderedPrompt,
+  RedactionRecord,
+  PromptTestResult,
+} from './services/ai/prompt.service.js';
+export { CostTrackingService } from './services/ai/cost-tracking.service.js';
+export { ToolRegistry } from './services/ai/tool-registry.js';
+export { StagePipelineService } from './services/ai/stage-pipeline.service.js';
+export { defineTool, zodToJsonSchema } from './ai/define-tool.js';
+export { definePrompt } from './ai/define-prompt.js';
+export { createReadSchemaTool, createListArtifactsTool } from './ai/tools/index.js';

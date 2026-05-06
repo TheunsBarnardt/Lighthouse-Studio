@@ -89,6 +89,36 @@ export const AUDIT_EVENTS = {
   DATA_MANAGEMENT_SCHEMA_ROLLED_BACK: 'data_management.schema.rolled_back',
   DATA_MANAGEMENT_SCHEMA_VALIDATION_FAILED: 'data_management.schema.validation_failed',
 
+  // ── AI Artifacts ─────────────────────────────────────────────────────────────
+  AI_ARTIFACT_CREATED: 'ai.artifact.created',
+  AI_ARTIFACT_UPDATED: 'ai.artifact.updated',
+  AI_ARTIFACT_SUBMITTED: 'ai.artifact.submitted_for_approval',
+  AI_ARTIFACT_APPROVED: 'ai.artifact.approved',
+  AI_ARTIFACT_REJECTED: 'ai.artifact.rejected',
+  AI_ARTIFACT_REVISED: 'ai.artifact.revised',
+  AI_ARTIFACT_ARCHIVED: 'ai.artifact.archived',
+
+  // ── AI Generation ────────────────────────────────────────────────────────────
+  AI_GENERATION_STARTED: 'ai.generation.started',
+  AI_GENERATION_COMPLETED: 'ai.generation.completed',
+  AI_GENERATION_FAILED: 'ai.generation.failed',
+  AI_GENERATION_CACHE_HIT: 'ai.generation.cached_hit',
+  AI_GENERATION_TIMEOUT: 'ai.generation.timeout',
+
+  // ── AI Tool calls ────────────────────────────────────────────────────────────
+  AI_TOOL_CALLED: 'ai.tool.called',
+  AI_TOOL_FAILED: 'ai.tool.failed',
+
+  // ── AI Budget ────────────────────────────────────────────────────────────────
+  AI_BUDGET_WARNING_80: 'ai.budget.warning_80',
+  AI_BUDGET_WARNING_95: 'ai.budget.warning_95',
+  AI_BUDGET_EXCEEDED: 'ai.budget.exceeded',
+  AI_BUDGET_UPDATED: 'ai.budget.updated',
+
+  // ── AI Prompt / Quality ──────────────────────────────────────────────────────
+  AI_PROMPT_TEST_FAILED: 'ai.prompt.test_failed',
+  AI_QUALITY_RECORDED: 'ai.quality.recorded',
+
   // ── System ──────────────────────────────────────────────────────────────────
   SYSTEM_CONFIG_CHANGED: 'system.config.changed',
   SYSTEM_MIGRATION_APPLIED: 'system.migration.applied',

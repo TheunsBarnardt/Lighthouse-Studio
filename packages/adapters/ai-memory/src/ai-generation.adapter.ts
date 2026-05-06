@@ -1,50 +1,83 @@
 import type {
+  AIProviderCapabilities,
+  AIProviderPort,
   AiError,
-  AiGenerationOptions,
-  AiGenerationPort,
-  AiGenerationResult,
-  AiMessage,
-  AiStreamChunk,
+  GenerationEvent,
+  GenerationRequest,
+  GenerationResponse,
+  HealthStatus,
+  ModelInfo,
 } from '@platform/ports-ai';
 import type { Result } from 'neverthrow';
 
 import { ok } from 'neverthrow';
 
-export class EchoAiAdapter implements AiGenerationPort {
-  generate(
-    messages: AiMessage[],
-    _opts?: AiGenerationOptions,
-  ): Promise<Result<AiGenerationResult, AiError>> {
-    const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+const MEMORY_MODEL = 'memory-echo-v1';
+
+export class EchoAiAdapter implements AIProviderPort {
+  readonly id = 'memory';
+
+  readonly capabilities: AIProviderCapabilities = {
+    streaming: true,
+    toolUse: false,
+    structuredOutput: false,
+    imageInput: false,
+    maxContextTokens: 8192,
+  };
+
+  listModels(): Promise<Result<ModelInfo[], AiError>> {
+    return Promise.resolve(
+      ok([
+        {
+          id: MEMORY_MODEL,
+          displayName: 'Memory Echo v1',
+          contextWindow: 8192,
+          supportsTools: false,
+          supportsStreaming: true,
+        },
+      ]),
+    );
+  }
+
+  generate(request: GenerationRequest): Promise<Result<GenerationResponse, AiError>> {
+    const lastUser = [...request.messages].reverse().find((m) => m.role === 'user');
     const content = lastUser ? `Echo: ${lastUser.content}` : 'Echo: (no user message)';
-    const inputTokens = messages.reduce((sum, m) => sum + Math.ceil(m.content.length / 4), 0);
+    const inputTokens = request.messages.reduce(
+      (sum, m) => sum + Math.ceil(m.content.length / 4),
+      0,
+    );
     const outputTokens = Math.ceil(content.length / 4);
     return Promise.resolve(
       ok({
         content,
-        model: 'memory-echo-v1',
+        model: request.model || MEMORY_MODEL,
         usage: { inputTokens, outputTokens, totalTokens: inputTokens + outputTokens },
-        finishReason: 'stop',
+        finishReason: 'stop' as const,
       }),
     );
   }
 
-  async *stream(messages: AiMessage[], opts?: AiGenerationOptions): AsyncIterable<AiStreamChunk> {
-    const result = await this.generate(messages, opts);
+  async *generateStream(request: GenerationRequest): AsyncIterable<GenerationEvent> {
+    const result = await this.generate(request);
     const content = result.isOk() ? result.value.content : '';
-    yield { delta: content, done: false };
-    yield { delta: '', done: true };
+    const inputTokens = request.messages.reduce(
+      (sum, m) => sum + Math.ceil(m.content.length / 4),
+      0,
+    );
+    const outputTokens = Math.ceil(content.length / 4);
+    yield { type: 'text_delta', delta: content };
+    yield {
+      type: 'done',
+      usage: { inputTokens, outputTokens, totalTokens: inputTokens + outputTokens },
+      finishReason: 'stop',
+    };
   }
 
-  countTokens(
-    messages: AiMessage[],
-    _opts?: Pick<AiGenerationOptions, 'model' | 'systemPrompt'>,
-  ): Promise<Result<number, AiError>> {
-    const count = messages.reduce((sum, m) => sum + Math.ceil(m.content.length / 4), 0);
-    return Promise.resolve(ok(count));
+  countTokens(text: string, _model: string): Promise<Result<number, AiError>> {
+    return Promise.resolve(ok(Math.ceil(text.length / 4)));
   }
 
-  availableModels(): string[] {
-    return ['memory-echo-v1'];
+  healthCheck(): Promise<Result<HealthStatus, AiError>> {
+    return Promise.resolve(ok({ healthy: true, latencyMs: 0 }));
   }
 }

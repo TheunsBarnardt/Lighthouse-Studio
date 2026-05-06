@@ -1,5 +1,5 @@
-import { runAiGenerationConformance } from '@platform/ports-ai/conformance';
+import { runAiProviderConformance } from '@platform/ports-ai/conformance';
 
 import { EchoAiAdapter } from '../src/index.js';
 
-runAiGenerationConformance('EchoAiAdapter', () => Promise.resolve(new EchoAiAdapter()));
+runAiProviderConformance('EchoAiAdapter', () => Promise.resolve(new EchoAiAdapter()));
