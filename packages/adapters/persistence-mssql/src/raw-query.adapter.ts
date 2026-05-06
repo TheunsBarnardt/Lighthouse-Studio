@@ -7,7 +7,7 @@ import type {
 } from '@platform/ports-persistence';
 
 import { PersistenceError } from '@platform/ports-persistence';
-import * as mssql from 'mssql';
+import mssql from 'mssql';
 import { err, ok, type Result } from 'neverthrow';
 
 // ── Named-parameter → @p1, @p2, ... conversion ───────────────────────────────

@@ -1,0 +1,22 @@
+{
+  "entryPoints": [
+    "src/index.ts",
+    "src/auth/index.ts",
+    "src/data/index.ts",
+    "src/realtime/index.ts",
+    "src/storage/index.ts",
+    "src/query/index.ts",
+    "src/errors/index.ts"
+  ],
+  "entryPointStrategy": "resolve",
+  "out": "../../docs/api/sdk",
+  "name": "@platform/sdk",
+  "readme": "none",
+  "excludePrivate": true,
+  "excludeInternal": true,
+  "includeVersion": true,
+  "categorizeByGroup": true,
+  "navigationLinks": {
+    "GitHub": "https://github.com/your-org/platform"
+  }
+}

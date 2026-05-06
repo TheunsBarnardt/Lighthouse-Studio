@@ -1,0 +1,15 @@
+{
+  "extends": "@platform/config/tsconfig/lib.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "composite": false,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  },
+  "include": ["src"],
+  "exclude": ["dist", "node_modules"]
+}

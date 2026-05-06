@@ -2,29 +2,30 @@
  * Server-side AuthService singleton for Next.js route handlers.
  * Uses in-memory adapters for development; replace via production composition root.
  */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable no-restricted-syntax */
+import type { AuthService } from '@platform/core';
 import type { AuditPort } from '@platform/ports-audit';
 import type { SessionPort, UserDirectoryPort } from '@platform/ports-identity';
 
-import { AuthService } from '@platform/core';
+import { composeAuthMemory, type AuthMemoryBundle } from '@platform/composition';
 import {
   createInMemoryAudit,
   createInMemoryAuthz,
   createInMemoryLogger,
 } from '@platform/core/testing';
-import { composeAuthMemory, type AuthMemoryBundle } from '@platform/composition';
 
 interface ServerBundle {
   authBundle: AuthMemoryBundle;
   audit: AuditPort;
 }
 
-let _server: ServerBundle | null = null;
+// Use globalThis so the singleton survives Next.js hot module replacement in dev mode
+const g = globalThis as typeof globalThis & { _lighthouseServer?: ServerBundle };
 
 function getServer(): ServerBundle {
-  if (!_server) {
+  if (!g._lighthouseServer) {
     const audit = createInMemoryAudit();
-    _server = {
+    g._lighthouseServer = {
       authBundle: composeAuthMemory({
         authz: createInMemoryAuthz(),
         audit,
@@ -32,8 +33,25 @@ function getServer(): ServerBundle {
       }),
       audit,
     };
+    // Seed a dev user from env so the state survives hot-reloads transparently
+    const seedEmail = process.env['SEED_ADMIN_EMAIL'];
+    if (seedEmail) {
+      const dir = g._lighthouseServer.authBundle.userDirectory;
+      void dir.create({
+        email: seedEmail,
+        displayName: process.env['SEED_ADMIN_NAME'] ?? 'Admin',
+        identity: {
+          providerId: 'builtin',
+          subject: seedEmail,
+          email: seedEmail,
+          emailVerified: true,
+          primary: true,
+        },
+        preferences: {},
+      });
+    }
   }
-  return _server;
+  return g._lighthouseServer;
 }
 
 function getBundle(): AuthMemoryBundle {

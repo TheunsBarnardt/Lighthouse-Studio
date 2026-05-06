@@ -43,6 +43,7 @@
     "immer": "^10.1.1",
     "lucide-react": "^1.14.0",
     "monaco-editor": "^0.52.0",
+    "mssql": "^11.0.1",
     "next": "^14.2.0",
     "next-intl": "^4.11.0",
     "papaparse": "^5.5.3",

@@ -2,7 +2,7 @@ import type { NextRequest } from 'next/server';
 
 import { NextResponse } from 'next/server';
 
-import { SESSION_COOKIE } from './lib/server/session';
+import { SESSION_COOKIE } from './lib/server/session-constants';
 
 /** Routes that require authentication. */
 const PROTECTED_PREFIXES = ['/account', '/workspaces', '/admin'];

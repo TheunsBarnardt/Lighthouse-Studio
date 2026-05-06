@@ -1,13 +1,23 @@
-import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const require = createRequire(import.meta.url);
+function findNearestPackageJson(start: string): { version: string } {
+  let dir = start;
+  for (let i = 0; i < 10; i++) {
+    try {
+      // eslint-disable-next-line security/detect-non-literal-fs-filename
+      return JSON.parse(readFileSync(resolve(dir, 'package.json'), 'utf-8')) as { version: string };
+    } catch {
+      const parent = resolve(dir, '..');
+      if (parent === dir) break;
+      dir = parent;
+    }
+  }
+  return { version: '0.0.0' };
+}
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-const pkg = require('../../../../package.json');
-
-/**
- * The platform's current release version, sourced from the root package.json.
- * This is the single source of truth per ADR-0136.
- */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-export const PLATFORM_VERSION: string = pkg.version as string;
+/** The platform's current release version, sourced from the nearest package.json. */
+export const PLATFORM_VERSION: string = findNearestPackageJson(
+  dirname(fileURLToPath(import.meta.url)),
+).version;

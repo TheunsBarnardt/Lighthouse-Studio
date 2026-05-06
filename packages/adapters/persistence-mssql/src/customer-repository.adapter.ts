@@ -10,7 +10,7 @@ import type {
 import type { Result } from 'neverthrow';
 
 import { ConflictError, EntityNotFoundError, PersistenceError } from '@platform/ports-persistence';
-import * as mssql from 'mssql';
+import mssql from 'mssql';
 import { err, ok } from 'neverthrow';
 
 import { translateFilter } from './filter-translator.js';

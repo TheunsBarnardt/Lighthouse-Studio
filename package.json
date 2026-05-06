@@ -44,6 +44,9 @@
     "test:a11y": "vitest run --config tests/accessibility/vitest.config.ts",
     "test:chaos": "vitest run --config tests/chaos/vitest.config.ts",
     "test:cross-platform": "vitest run --config tests/cross-platform/vitest.config.ts",
+    "sdk:bundle-size": "node scripts/check-bundle-size.mjs",
+    "sdk:docs": "pnpm --filter @platform/sdk docs:api",
+    "test:sdk-e2e": "vitest run --config tests/sdk-e2e/vitest.config.ts",
     "prepare": "husky"
   },
   "devDependencies": {

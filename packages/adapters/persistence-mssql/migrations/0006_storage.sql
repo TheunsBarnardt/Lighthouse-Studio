@@ -45,7 +45,7 @@ BEGIN
     [bucket_id]         UNIQUEIDENTIFIER  NOT NULL,
     [storage_key]       NVARCHAR(MAX)     NOT NULL,
     [filename]          NVARCHAR(512)     NOT NULL,
-    [folder_path]       NVARCHAR(MAX)     NOT NULL DEFAULT '',
+    [folder_path]       NVARCHAR(900)     NOT NULL DEFAULT '',
     [size_bytes]        BIGINT            NOT NULL CONSTRAINT [CK_file_records_size] CHECK ([size_bytes] >= 0),
     [content_type]      NVARCHAR(255)     NULL,
     [etag]              NVARCHAR(128)     NULL,

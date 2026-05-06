@@ -1,0 +1,47 @@
+{
+  "name": "@platform/sdk-react",
+  "version": "0.1.0",
+  "description": "React hooks for the Platform SDK",
+  "license": "AGPL-3.0",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "clean": "rimraf dist"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "@tanstack/react-query": ">=5.0.0"
+  },
+  "dependencies": {
+    "@platform/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@platform/config": "workspace:*",
+    "@tanstack/react-query": "^5.56.0",
+    "@types/react": "^18.3.0",
+    "@types/node": "22.15.0",
+    "react": "^18.3.0",
+    "rimraf": "6.0.1",
+    "tsup": "^8.4.0",
+    "typescript": "5.8.3",
+    "vitest": "3.2.3"
+  }
+}

@@ -4,3 +4,4 @@ packages:
   - 'packages/ports/*'
   - 'packages/adapters/*'
   - 'tests/*'
+  - 'examples/*'

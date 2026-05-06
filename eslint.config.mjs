@@ -126,6 +126,7 @@ export default [
       '**/*.cjs',
       '**/*.mjs',
       'prototype/**',
+      'examples/**',
     ],
   },
   {
@@ -134,7 +135,16 @@ export default [
       parser: tsParser,
       parserOptions: {
         projectService: {
-          allowDefaultProject: ['apps/*/scripts/*.mts', 'packages/config/tests/lint-rules/*.ts'],
+          allowDefaultProject: [
+            'apps/*/scripts/*.mts',
+            'packages/config/tests/lint-rules/*.ts',
+            'packages/sdk/tests/*.ts',
+            'packages/sdk/tsup.config.ts',
+            'packages/sdk/vitest.config.ts',
+            'packages/sdk-react/tsup.config.ts',
+            'packages/sdk-vue/tsup.config.ts',
+            'packages/cli/tsup.config.ts',
+          ],
           defaultProject: './packages/config/tsconfig.base.json',
         },
       },
@@ -214,6 +224,8 @@ export default [
     // process.env is allowed in test setup; fs non-literal paths are expected in test fixtures.
     // console output is intentional in integration/chaos/load tests for progress reporting.
     // Template-literal numbers and unsafe-* calls are common in test infrastructure code.
+    // Empty classes (class {}) are common mock/stub patterns in tests.
+    // Async test helpers often have no explicit await (vitest lifecycle hooks are async by convention).
     files: ['**/*.spec.ts', '**/*.test.ts', '**/tests/**/*.ts'],
     rules: {
       'no-restricted-imports': 'off',
@@ -226,6 +238,20 @@ export default [
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/no-extraneous-class': 'off',
+      '@typescript-eslint/require-await': 'off',
+    },
+  },
+  {
+    // CLI package is a command-line tool: console output and direct fs/process access are intentional.
+    files: ['packages/cli/src/**/*.ts'],
+    rules: {
+      'no-console': 'off',
+      'no-restricted-syntax': 'off',
+      'security/detect-non-literal-fs-filename': 'off',
+      'security/detect-possible-timing-attacks': 'off',
+      '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/no-base-to-string': 'off',
     },
   },
   {
