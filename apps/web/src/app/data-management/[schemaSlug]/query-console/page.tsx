@@ -452,7 +452,9 @@ export default function QueryConsolePage() {
                   rowCount={result.rowCount}
                   truncated={result.truncated}
                   durationMs={result.durationMs}
-                  statementsAffected={result.statementsAffected}
+                  {...(result.statementsAffected !== undefined && {
+                    statementsAffected: result.statementsAffected,
+                  })}
                 />
               ) : bottomTab === 'results' ? (
                 <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
