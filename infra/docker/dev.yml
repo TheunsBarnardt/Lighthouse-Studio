@@ -104,6 +104,46 @@ services:
       retries: 3
       start_period: 30s
 
+  postgres-backup-dev:
+    image: postgres:17-alpine
+    container_name: postgres-backup-dev
+    restart: unless-stopped
+    environment:
+      PGHOST: postgres-dev
+      PGPORT: 5432
+      PGDATABASE: platform_dev
+      PGUSER: platform
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      BACKUP_RETENTION_DAYS: '7'
+    volumes:
+      - platform-postgres-backups-dev:/backups
+      - ./scripts/pg-backup.sh:/pg-backup.sh:ro
+    networks:
+      - platform-dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        chmod +x /pg-backup.sh
+        echo "0 2 * * * /pg-backup.sh >> /var/log/pg-backup.log 2>&1" > /etc/crontabs/root
+        crond -f -d 8
+
+  postgres-exporter-dev:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: postgres-exporter-dev
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: >-
+        postgresql://platform:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres-dev:5432/platform_dev?sslmode=disable
+    networks:
+      - platform-dev
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+
   # worker-dev is intentionally absent in the initial deployment.
   # Phase 1: worker runs on the maintainer's local machine using pm2 and the Claude CLI.
   # Phase 2: uncomment and configure this service when the worker moves to the server.
@@ -131,6 +171,8 @@ volumes:
     name: platform-postgres-dev-data
   platform-redis-dev-data:
     name: platform-redis-dev-data
+  platform-postgres-backups-dev:
+    name: platform-postgres-backups-dev
 
 networks:
   platform-dev:

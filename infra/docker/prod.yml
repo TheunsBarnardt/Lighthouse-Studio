@@ -66,6 +66,37 @@ services:
       retries: 3
       start_period: 30s
 
+  postgres-backup-prod:
+    image: postgres:17-alpine
+    container_name: postgres-backup-prod
+    restart: unless-stopped
+    environment:
+      PGHOST: postgres-prod
+      PGPORT: 5432
+      PGDATABASE: platform_prod
+      PGUSER: platform
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      BACKUP_RETENTION_DAYS: '7'
+      RESTIC_REPOSITORY: ${RESTIC_REPOSITORY:?RESTIC_REPOSITORY is required in prod}
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD:?RESTIC_PASSWORD is required in prod}
+      B2_ACCOUNT_ID: ${B2_ACCOUNT_ID:?B2_ACCOUNT_ID is required in prod}
+      B2_ACCOUNT_KEY: ${B2_ACCOUNT_KEY:?B2_ACCOUNT_KEY is required in prod}
+    volumes:
+      - platform-postgres-backups-prod:/backups
+      - ./scripts/pg-backup.sh:/pg-backup.sh:ro
+    networks:
+      - platform-prod
+    depends_on:
+      postgres-prod:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        chmod +x /pg-backup.sh
+        echo "0 0 * * * /pg-backup.sh >> /var/log/pg-backup.log 2>&1" > /etc/crontabs/root
+        crond -f -d 8
+
   worker-prod:
     image: ghcr.io/${GITHUB_REPOSITORY:-platform/platform}/worker:${IMAGE_TAG:-latest}
     container_name: worker-prod
@@ -90,6 +121,8 @@ volumes:
     name: platform-postgres-prod-data
   platform-redis-prod-data:
     name: platform-redis-prod-data
+  platform-postgres-backups-prod:
+    name: platform-postgres-backups-prod
 
 networks:
   platform-prod:

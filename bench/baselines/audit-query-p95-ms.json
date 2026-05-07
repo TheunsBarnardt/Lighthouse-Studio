@@ -1,0 +1,12 @@
+{
+  "postgres": { "p50": 12, "p95": 87, "p99": 198 },
+  "mssql": { "p50": 15, "p95": 94, "p99": 210 },
+  "mongodb": { "p50": 11, "p95": 82, "p99": 189 },
+  "_meta": {
+    "established": "2026-05-07",
+    "method": "audit log query benchmark, 1M audit rows, mixed filter patterns",
+    "target_p95_ms": 200,
+    "regression_threshold_pct": 20,
+    "status": "initial-placeholder — replace with measured values after first staging load test"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "postgres": { "p50": 68, "p95": 612, "p99": 1240 },
+  "mssql": { "p50": 74, "p95": 643, "p99": 1310 },
+  "mongodb": { "p50": 61, "p95": 589, "p99": 1180 },
+  "_meta": {
+    "established": "2026-05-07",
+    "method": "seed-based synthetic load, 100k rows, 50 VUs burst for 30s",
+    "target_p95_ms": 1000,
+    "regression_threshold_pct": 20,
+    "status": "initial-placeholder — replace with measured values after first staging load test"
+  }
+}

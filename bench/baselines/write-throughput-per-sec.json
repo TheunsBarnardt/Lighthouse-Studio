@@ -1,0 +1,12 @@
+{
+  "postgres": { "p50": 120, "p95": 95, "p99": 72 },
+  "mssql": { "p50": 108, "p95": 86, "p99": 65 },
+  "mongodb": { "p50": 145, "p95": 118, "p99": 89 },
+  "_meta": {
+    "established": "2026-05-07",
+    "method": "sustained write benchmark, mixed insert/update, 10 VUs, 60s",
+    "target_min_per_sec": 50,
+    "regression_threshold_pct": 20,
+    "status": "initial-placeholder — replace with measured values after first staging load test"
+  }
+}

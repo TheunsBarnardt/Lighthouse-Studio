@@ -66,6 +66,37 @@ services:
       retries: 3
       start_period: 30s
 
+  postgres-backup-staging:
+    image: postgres:17-alpine
+    container_name: postgres-backup-staging
+    restart: unless-stopped
+    environment:
+      PGHOST: postgres-staging
+      PGPORT: 5432
+      PGDATABASE: platform_staging
+      PGUSER: platform
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      BACKUP_RETENTION_DAYS: '14'
+      RESTIC_REPOSITORY: ${RESTIC_REPOSITORY:-}
+      RESTIC_PASSWORD: ${RESTIC_PASSWORD:-}
+      B2_ACCOUNT_ID: ${B2_ACCOUNT_ID:-}
+      B2_ACCOUNT_KEY: ${B2_ACCOUNT_KEY:-}
+    volumes:
+      - platform-postgres-backups-staging:/backups
+      - ./scripts/pg-backup.sh:/pg-backup.sh:ro
+    networks:
+      - platform-staging
+    depends_on:
+      postgres-staging:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        chmod +x /pg-backup.sh
+        echo "0 1 * * * /pg-backup.sh >> /var/log/pg-backup.log 2>&1" > /etc/crontabs/root
+        crond -f -d 8
+
   worker-staging:
     image: ghcr.io/${GITHUB_REPOSITORY:-platform/platform}/worker:${IMAGE_TAG:-staging}
     container_name: worker-staging
@@ -88,6 +119,8 @@ volumes:
     name: platform-postgres-staging-data
   platform-redis-staging-data:
     name: platform-redis-staging-data
+  platform-postgres-backups-staging:
+    name: platform-postgres-backups-staging
 
 networks:
   platform-staging:
