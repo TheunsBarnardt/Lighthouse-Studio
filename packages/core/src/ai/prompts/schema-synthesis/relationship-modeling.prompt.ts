@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   relationships: z.array(z.object({
@@ -39,7 +39,8 @@ export const relationshipModelingPrompt = definePrompt({
   description: 'Translate PRD relationships into FK constraints, junction tables, or document references',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.2 },
   systemPrompt: `Translate entity relationships to database-appropriate constructs. SQL: use FK columns for one-to-many, junction tables for many-to-many. MSSQL: never use array columns; always junction tables. Mongo: use embedded arrays for owned-by relationships; advisory references ($ref pattern) for many-to-many. Always add indexes on FK columns. Cascade delete only when the child entity cannot exist without the parent.`,
   userPromptTemplate: `Relationships: {{relationships}}
 Generated tables: {{generatedTables}}
@@ -57,7 +58,7 @@ Model all relationships appropriately for the target database.`,
       },
       assertions: [
         (output: z.infer<typeof outputs>) => output.foreignKeys.length >= 1,
-        (output: z.infer<typeof outputs>) => output.foreignKeys[0].fromTable === 'posts' || output.foreignKeys[0].toTable === 'users',
+        (output: z.infer<typeof outputs>) => (output.foreignKeys[0]?.fromTable === 'posts' || output.foreignKeys[0]?.toTable === 'users'),
       ],
     },
   ],

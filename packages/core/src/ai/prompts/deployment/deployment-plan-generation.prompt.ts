@@ -53,7 +53,8 @@ export const deploymentPlanGenerationPrompt = definePrompt({
       riskAssessment: z.string(),
     }),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 3000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 3000, temperature: 0.2 },
   systemPrompt: `You are a senior DevOps architect generating a deployment plan for an AI-generated application.
 Standard environment progression: dev (auto-deploy, no tests required) → staging (workspace_admin approval, tests required) → prod (architect+owner approval, tests required, blue_green for zero-downtime).
 Rules:

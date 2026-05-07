@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   tableName: z.string(),
@@ -27,7 +27,8 @@ export const regenerationPrompt = definePrompt({
   description: 'Regenerate a single table with user feedback',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 2500, temperature: 0.3 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 2500, temperature: 0.3 },
   systemPrompt: `Regenerate a table's columns based on user feedback. Always preserve the standard columns (id, created_at, updated_at, _version). Apply the feedback meaningfully. Respect the database driver. Provide reasoning per column.`,
   userPromptTemplate: `Table: {{tableName}} — {{entityDescription}}
 Current columns: {{currentColumns}}

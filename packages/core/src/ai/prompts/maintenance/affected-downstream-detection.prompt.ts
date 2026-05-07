@@ -24,7 +24,8 @@ export const affectedDownstreamDetectionPrompt = definePrompt({
     totalAffected: z.number(),
     totalStale: z.number(),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 1500, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 1500, temperature: 0.1 },
   systemPrompt: `Identify which downstream artifacts are affected by a change to an upstream artifact.
 
 Status definitions:

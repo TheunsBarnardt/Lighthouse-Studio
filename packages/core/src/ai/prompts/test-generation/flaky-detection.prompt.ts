@@ -24,7 +24,8 @@ export const flakyDetectionPrompt = definePrompt({
     fixedSource: z.string().optional(),
     confidence: z.number().min(0).max(1),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 2000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 2000, temperature: 0.1 },
   systemPrompt: `You are a senior QA engineer identifying flaky test patterns.
 Common flakiness causes:
 - Hardcoded timeouts instead of proper await/retry

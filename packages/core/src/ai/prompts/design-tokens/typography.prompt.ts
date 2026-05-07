@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   projectType: z.string(),
@@ -30,7 +30,8 @@ export const typographyPrompt = definePrompt({
   description: 'Generate typography tokens (families, scale, weights)',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 2048, temperature: 0.3 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 2048, temperature: 0.3 },
   systemPrompt: `You are a typography expert. Choose system font stacks by default (no auto-bundled web fonts). Use rem units for font sizes. Generate a harmonious 8-step modular scale. Weights must be standard (400, 500, 600, 700).`,
 
   userPromptTemplate: `Project type: {{projectType}}

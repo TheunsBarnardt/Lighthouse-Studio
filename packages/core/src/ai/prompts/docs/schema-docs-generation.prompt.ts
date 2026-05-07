@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt } from '../define-prompt.js';
+import { definePrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   sourceType: z.enum(['schema', 'api_rest', 'api_graphql', 'ui_component', 'webhook_config', 'auth_config']),
@@ -27,8 +27,8 @@ export const schemaDocsGenerationPrompt = definePrompt({
   description: 'Generate an MDX documentation page from a schema entity, API spec, or UI component definition',
   inputs,
   outputs,
-  modelConfig: {
-    model: 'claude-opus-4-7',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7',
     maxTokens: 3000,
     temperature: 0.2,
   },

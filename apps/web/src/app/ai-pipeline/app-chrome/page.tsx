@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { RegionPicker } from './components/RegionPicker.js';
-import { PageOverridesPanel } from './components/PageOverridesPanel.js';
-import { ChromePreview } from './components/ChromePreview.js';
+import { RegionPicker } from './components/RegionPicker';
+import { PageOverridesPanel } from './components/PageOverridesPanel';
+import { ChromePreview } from './components/ChromePreview';
 
 type Layout = 'sidenav-with-topbar' | 'topnav-only';
 type Tab = 'configure' | 'overrides';

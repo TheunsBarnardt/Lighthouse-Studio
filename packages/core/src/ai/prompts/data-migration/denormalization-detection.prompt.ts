@@ -43,8 +43,8 @@ export const denormalizationDetectionPrompt = definePrompt({
   description: 'Detect denormalized columns in source that should split into normalized target tables',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: {
-    model: 'claude-haiku-4-5-20251001',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001',
     maxTokens: 2000,
     temperature: 0.15,
   },

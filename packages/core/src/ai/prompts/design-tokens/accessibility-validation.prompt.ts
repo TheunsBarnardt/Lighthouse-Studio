@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   failingPairs: z.array(z.object({
@@ -28,7 +28,8 @@ export const accessibilityValidationPrompt = definePrompt({
   description: 'Suggest color adjustments to pass WCAG AA contrast requirements',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 2048, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 2048, temperature: 0.2 },
   systemPrompt: `You are an accessibility expert. For each failing contrast pair (ratio < 4.5), suggest minimal adjustments to the foreground or background color to achieve WCAG AA compliance (≥ 4.5:1 ratio). Preserve the brand identity; adjust lightness first, then chroma. Explain each adjustment.`,
   userPromptTemplate: `Failing contrast pairs: {{failingPairs}}. Primary color scale: {{primaryScale}}. Vibe: {{vibeDescriptors}}. Suggest adjustments.`,
   tests: [
@@ -41,7 +42,7 @@ export const accessibilityValidationPrompt = definePrompt({
       },
       assertions: [
         (output: z.infer<typeof outputs>) => output.adjustments.length >= 1,
-        (output: z.infer<typeof outputs>) => output.adjustments[0].expectedRatio >= 4.5,
+        (output: z.infer<typeof outputs>) => (output.adjustments[0]?.expectedRatio ?? 0) >= 4.5,
       ],
     },
   ],

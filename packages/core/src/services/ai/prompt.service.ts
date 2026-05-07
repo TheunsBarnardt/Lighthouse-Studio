@@ -77,7 +77,10 @@ export class PromptService {
 
     // PII redaction is workspace-aware; for now we pass through
     // The PersonalDataRegistry (Obj 7) integration would happen here
-    const userPrompt = prompt.userPromptTemplate(parsed.data);
+    const userPrompt =
+      typeof prompt.userPromptTemplate === 'function'
+        ? prompt.userPromptTemplate(parsed.data)
+        : prompt.userPromptTemplate;
 
     return ok({
       systemPrompt: prompt.systemPrompt,

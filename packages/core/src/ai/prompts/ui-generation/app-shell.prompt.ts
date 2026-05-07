@@ -25,7 +25,8 @@ export const appShellPrompt = definePrompt({
   description: 'Generate the app shell: navigation, layout wrapper, auth guard',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
   systemPrompt: `You generate the app shell for a React application.
 
 Components to generate:

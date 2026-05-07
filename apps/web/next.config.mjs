@@ -18,7 +18,13 @@ const nextConfig = {
       'pg-native',
     ],
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, webpack }) => {
+    // Resolve .js imports to .ts/.tsx for ESM-style imports
+    config.resolve.extensionAlias = {
+      '.js': ['.ts', '.tsx', '.js'],
+      '.jsx': ['.tsx', '.jsx'],
+    };
+
     if (isServer) {
       // Allow node: protocol imports on server side
       config.externals = config.externals ?? [];
@@ -30,6 +36,35 @@ const nextConfig = {
           callback();
         });
       }
+    } else {
+      // On the client side, strip node: prefix so webpack fallback can handle them
+      config.plugins.push(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
+          resource.request = resource.request.replace(/^node:/, '');
+        }),
+      );
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        crypto: false,
+        fs: false,
+        path: false,
+        url: false,
+        os: false,
+        child_process: false,
+        stream: false,
+        buffer: false,
+        events: false,
+        net: false,
+        tls: false,
+        http: false,
+        https: false,
+        zlib: false,
+        assert: false,
+        util: false,
+        querystring: false,
+        vm: false,
+      };
     }
     return config;
   },

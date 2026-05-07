@@ -29,8 +29,8 @@ const prompt = definePrompt({
   description: 'Plan the server code generation sequence (phases, parallelism, cost estimate).',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: {
-    model: 'claude-haiku-4-5-20251001',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001',
     maxTokens: 1500,
     temperature: 0.1,
   },

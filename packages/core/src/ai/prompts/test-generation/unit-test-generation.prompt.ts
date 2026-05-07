@@ -25,7 +25,8 @@ export const unitTestGenerationPrompt = definePrompt({
     source: z.string(),
     reasoning: ReasoningSchema,
   }),
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.1 },
   systemPrompt: `You are an expert TypeScript developer generating Vitest unit tests.
 Rules:
 - Use vitest (import from 'vitest')
@@ -47,7 +48,7 @@ Target Artifact: {{testCase.targetArtifactId}}`,
   tests: [
     {
       name: 'generates valid vitest source',
-      inputs: {
+      input: {
         testCase: {
           id: 'tc-ac001-unit-1',
           acId: 'AC-001',

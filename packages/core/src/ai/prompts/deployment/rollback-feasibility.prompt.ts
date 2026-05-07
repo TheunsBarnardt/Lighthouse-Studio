@@ -24,7 +24,8 @@ export const rollbackFeasibilityPrompt = definePrompt({
     recommendedAction: z.string(),
     warning: z.string().optional(),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 1000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 1000, temperature: 0.1 },
   systemPrompt: `Assess rollback feasibility for a deployment.
 If all migrations are reversible: fullyReversible = true.
 If any migration is irreversible: partiallyReversible = true; describe what happens if code is rolled back but schema cannot be.

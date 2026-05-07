@@ -21,7 +21,8 @@ export const healthCheckConfigPrompt = definePrompt({
     timeoutSeconds: z.number(),
     rationale: z.string(),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 1000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 1000, temperature: 0.1 },
   systemPrompt: `Derive health check endpoints for post-deployment verification.
 Always include:
 - /api/health (critical: true) — standard health endpoint

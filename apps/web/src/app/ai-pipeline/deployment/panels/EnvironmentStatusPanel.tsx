@@ -92,7 +92,7 @@ export function EnvironmentStatusPanel({ onDeploy }: Props) {
                     </Button>
                   )}
                   {env.status === 'deployed' && i < environments.length - 1 && !environments[i + 1]?.status?.startsWith('deployed') && (
-                    <Button size="sm" variant="outline" onClick={() => setPromoteTarget(environments[i + 1].name)}>
+                    <Button size="sm" variant="outline" onClick={() => setPromoteTarget(environments[i + 1]?.name ?? '')}>
                       Promote →
                     </Button>
                   )}

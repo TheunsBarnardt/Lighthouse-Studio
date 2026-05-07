@@ -29,8 +29,8 @@ const prompt = definePrompt({
   description: 'Generate a cron-scheduled TypeScript server function.',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: {
-    model: 'claude-opus-4-7',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7',
     maxTokens: 3000,
     temperature: 0.1,
   },

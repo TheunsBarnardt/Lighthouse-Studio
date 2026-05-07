@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt } from '../define-prompt.js';
+import { definePrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   appName: z.string(),
@@ -29,8 +29,8 @@ export const quickstartGenerationPrompt = definePrompt({
   description: 'Generate a getting-started guide tailored to the app and its target audience',
   inputs,
   outputs,
-  modelConfig: {
-    model: 'claude-opus-4-7',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7',
     maxTokens: 3000,
     temperature: 0.3,
   },

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt } from '../define-prompt.js';
+import { definePrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   pageTitle: z.string(),
@@ -30,8 +30,8 @@ export const pageRegenerationPrompt = definePrompt({
   description: 'Regenerate specific sections of a documentation page in response to a source change, preserving human edits',
   inputs,
   outputs,
-  modelConfig: {
-    model: 'claude-opus-4-7',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7',
     maxTokens: 3000,
     temperature: 0.1,
   },

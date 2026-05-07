@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt } from '../define-prompt.js';
+import { definePrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   apiSpec: z.string().describe('OpenAPI 3.x JSON or GraphQL SDL string'),
@@ -29,8 +29,8 @@ export const apiDocsGenerationPrompt = definePrompt({
   description: 'Generate REST or GraphQL API reference documentation from an OpenAPI spec or SDL',
   inputs,
   outputs,
-  modelConfig: {
-    model: 'claude-opus-4-7',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7',
     maxTokens: 4000,
     temperature: 0.1,
   },

@@ -24,7 +24,8 @@ export const dependencyAdvisoryImpactPrompt = definePrompt({
     recommendedAction: z.enum(['upgrade_now', 'upgrade_soon', 'monitor', 'not_applicable']),
     urgency: z.enum(['immediate', 'this_sprint', 'next_sprint', 'backlog']),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 800, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 800, temperature: 0.1 },
   systemPrompt: `Assess whether a dependency advisory affects a specific customer application.
 Determine if the app's installed version falls within the advisory's affected range.
 If affected, assess exploitability in the context of how the app uses the package.

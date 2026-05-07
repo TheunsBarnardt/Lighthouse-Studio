@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   prdContent: z.string(),
@@ -32,7 +32,8 @@ export const entityExtractionPrompt = definePrompt({
   description: 'Extract database entities and relationships from a PRD',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 4096, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 4096, temperature: 0.2 },
   systemPrompt: `You are a data modeling expert. Extract persistent domain entities and their relationships from a Product Requirements Document. Focus on nouns that represent data that needs to be stored. Use snake_case plural for table names (users, posts, comments). Identify all relationships and flag any ambiguous cases for user confirmation.`,
   userPromptTemplate: `PRD content: {{prdContent}}
 Project type: {{projectType}}

@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils';
 
 export interface DialogProps {
   open: boolean;
-  onClose: () => void;
+  onClose?: () => void;
+  onOpenChange?: (open: boolean) => void;
   title?: string;
   description?: string;
   children: ReactNode;
@@ -27,17 +28,22 @@ const sizes = {
 function Dialog({
   open,
   onClose,
+  onOpenChange,
   title,
   description,
   children,
   className,
   size = 'md',
 }: DialogProps) {
+  const handleClose = () => {
+    onClose?.();
+    onOpenChange?.(false);
+  };
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') handleClose();
     };
     if (open) {
       document.addEventListener('keydown', handleKey);
@@ -60,7 +66,7 @@ function Dialog({
       aria-describedby={description ? 'dialog-description' : undefined}
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={(e) => {
-        if (e.target === overlayRef.current) onClose();
+        if (e.target === overlayRef.current) handleClose();
       }}
     >
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
@@ -104,4 +110,29 @@ function DialogFooter({ children, className }: DialogFooterProps) {
   );
 }
 
-export { Dialog, DialogFooter };
+// shadcn/ui-compatible sub-components
+function DialogContent({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={cn('p-6', className)}>{children}</div>;
+}
+
+function DialogHeader({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={cn('flex flex-col space-y-1.5 mb-4', className)}>{children}</div>;
+}
+
+function DialogTitle({ children, className }: { children: ReactNode; className?: string }) {
+  return <h2 className={cn('text-lg font-semibold leading-none tracking-tight', className)}>{children}</h2>;
+}
+
+function DialogDescription({ children, className }: { children: ReactNode; className?: string }) {
+  return <p className={cn('text-sm text-muted-foreground', className)}>{children}</p>;
+}
+
+function DialogTrigger({ children }: { children: ReactNode }) {
+  return <>{children}</>;
+}
+
+function DialogClose({ children, className }: { children?: ReactNode; className?: string }) {
+  return <button type="button" className={cn('', className)}>{children}</button>;
+}
+
+export { Dialog, DialogFooter, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogClose };

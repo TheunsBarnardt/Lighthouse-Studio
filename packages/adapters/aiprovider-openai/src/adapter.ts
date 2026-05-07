@@ -22,10 +22,8 @@ export class OpenAIProvider implements AIProviderPort {
   readonly providerId = 'openai';
 
   private readonly client: OpenAI;
-  private readonly config: OpenAIProviderConfig;
 
   constructor(config: OpenAIProviderConfig) {
-    this.config = config;
     this.client = new OpenAI({
       apiKey: config.apiKey,
       baseURL: config.baseUrl,

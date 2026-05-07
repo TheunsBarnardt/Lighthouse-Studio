@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   tables: z.array(z.object({
@@ -35,7 +35,8 @@ export const namingValidationPrompt = definePrompt({
   description: 'Validate table and column names against database naming rules',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 1500, temperature: 0.0 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 1500, temperature: 0.0 },
   systemPrompt: `Validate naming. Check: snake_case convention, no reserved words, identifier length limits, no leading/trailing underscores, no consecutive underscores. Auto-resolve: camelCase → snake_case, reserved words → add prefix (e.g. order → order_record). Flag ambiguous cases for user review.`,
   userPromptTemplate: `Tables and columns: {{tables}}
 Database: {{databaseDriver}}

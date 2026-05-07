@@ -19,7 +19,8 @@ export const testRegenerationPrompt = definePrompt({
     source: z.string(),
     reasoning: ReasoningSchema,
   }),
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.1 },
   systemPrompt: `You are a senior test engineer regenerating a test file based on feedback.
 Rules:
 - Preserve the original test intent and Given/When/Then structure

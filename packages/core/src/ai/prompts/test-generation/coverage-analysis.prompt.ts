@@ -34,7 +34,8 @@ export const coverageAnalysisPrompt = definePrompt({
     })),
     overallAssessment: z.string(),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 2000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 2000, temperature: 0.2 },
   systemPrompt: `You are a QA engineer analysing test coverage gaps.
 Given a coverage report and AC coverage data, identify:
 1. Files with low coverage and suggest specific tests to improve them

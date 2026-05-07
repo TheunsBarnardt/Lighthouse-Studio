@@ -1,6 +1,8 @@
 import type { AuditActor, AuditEntryInput } from '@platform/ports-audit';
 import type { RequestContext, SystemContext } from '@platform/ports-authorization';
 
+export type { RequestContext, SystemContext };
+
 import { randomUUID } from 'node:crypto';
 
 // ── Factories ──────────────────────────────────────────────────────────────────

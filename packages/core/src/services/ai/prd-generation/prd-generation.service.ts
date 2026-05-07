@@ -6,9 +6,9 @@ import type { AuthorizationPort, RequestContext } from '@platform/ports-authoriz
 import type { LoggerPort } from '@platform/ports-observability';
 import type { RepositoryPort } from '@platform/ports-persistence';
 
-import { ForbiddenError, InternalError, NotFoundError, ValidationError } from '../../errors.js';
-import { auditMeta, toAuditActor } from '../../context.js';
-import { observable } from '../../observability/observable.js';
+import { ForbiddenError, InternalError, NotFoundError, ValidationError } from '../../../errors.js';
+import { auditMeta, toAuditActor } from '../../../context.js';
+import { observable } from '../../../observability/observable.js';
 import type { ArtifactService } from '../artifact.service.js';
 import type { GenerationService } from '../generation.service.js';
 import type { StagePipelineService } from '../stage-pipeline.service.js';

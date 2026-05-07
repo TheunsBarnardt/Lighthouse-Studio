@@ -24,8 +24,8 @@ const prompt = definePrompt({
   description: 'Regenerate a server function with optional user feedback.',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: {
-    model: 'claude-opus-4-7',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7',
     maxTokens: 3000,
     temperature: 0.1,
   },

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   tables: z.array(z.object({
@@ -30,7 +30,8 @@ export const piiDetectionPrompt = definePrompt({
   description: 'Detect PII columns in synthesized tables',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 2048, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 2048, temperature: 0.1 },
   systemPrompt: `Identify columns containing Personal Identifiable Information. Consider context: "name" in a users table is PII; "name" in a tags table is not. Categories: name, email, phone, address, national_id, financial, health, biometric, behavioral. Flag with confidence levels. Heuristic patterns: ${PII_HEURISTIC_NAMES.join(', ')}.`,
   userPromptTemplate: `Tables and columns: {{tables}}
 Domain context: {{domainContext}}

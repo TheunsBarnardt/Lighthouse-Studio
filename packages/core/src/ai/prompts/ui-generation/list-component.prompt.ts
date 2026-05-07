@@ -26,7 +26,8 @@ export const listComponentPrompt = definePrompt({
   description: 'Generate a list/table component for a schema entity',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 5000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 5000, temperature: 0.2 },
   systemPrompt: `You generate a React list/table component for a schema entity.
 
 Requirements:

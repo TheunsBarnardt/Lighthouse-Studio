@@ -20,8 +20,8 @@ const prompt = definePrompt({
   description: 'Analyse function source code to verify and derive required permissions.',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: {
-    model: 'claude-haiku-4-5-20251001',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001',
     maxTokens: 1000,
     temperature: 0,
   },

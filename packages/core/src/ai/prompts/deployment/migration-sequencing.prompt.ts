@@ -20,7 +20,8 @@ export const migrationSequencingPrompt = definePrompt({
     multiPhaseRequired: z.boolean(),
     multiPhaseWarning: z.string().optional(),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 2000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 2000, temperature: 0.1 },
   systemPrompt: `You are a database migration expert. Order migrations for safe deployment:
 1. Additive changes (new columns with defaults, new tables, indexes) deploy BEFORE code
 2. Destructive changes (drop column, rename, type change) require multi-phase deployment

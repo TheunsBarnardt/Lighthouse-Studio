@@ -85,8 +85,8 @@ export const mappingGenerationPrompt = definePrompt({
   description: 'Generate a source-to-target column mapping plan from source introspection and target schema',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: {
-    model: 'claude-opus-4-7',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7',
     maxTokens: 6000,
     temperature: 0.2,
   },

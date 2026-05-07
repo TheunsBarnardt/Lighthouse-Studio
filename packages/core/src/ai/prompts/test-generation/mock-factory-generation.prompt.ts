@@ -17,7 +17,8 @@ export const mockFactoryGenerationPrompt = definePrompt({
       designDecisions: z.array(z.string()),
     }),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 4000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 4000, temperature: 0.1 },
   systemPrompt: `You are an expert developer generating TypeScript mock factories for test data.
 Rules:
 - Generate one factory function per entity/table in the schema

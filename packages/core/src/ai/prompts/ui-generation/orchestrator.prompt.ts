@@ -24,7 +24,8 @@ export const orchestratorPrompt = definePrompt({
   description: 'Plan the UI generation strategy: component ordering, parallelism, cost estimate',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 1500, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 1500, temperature: 0.2 },
   systemPrompt: `You plan the UI generation strategy for a project.
 
 Determine:

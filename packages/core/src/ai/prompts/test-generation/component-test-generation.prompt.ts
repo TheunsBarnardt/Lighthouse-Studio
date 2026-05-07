@@ -25,7 +25,8 @@ export const componentTestGenerationPrompt = definePrompt({
     source: z.string(),
     reasoning: ReasoningSchema,
   }),
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.1 },
   systemPrompt: `You are an expert React developer generating component tests with Vitest and React Testing Library.
 Rules:
 - Use @testing-library/react for rendering, @testing-library/user-event for interactions

@@ -13,20 +13,44 @@ export type PromptAssertionType =
   | 'contains_field'
   | 'field_equals'
   | 'field_not_empty'
-  | 'custom';
+  | 'output_field_matches'
+  | 'output_field_min_items'
+  | 'output_field_includes_name'
+  | 'output_present'
+  | 'output_contains'
+  | 'output_range'
+  | 'output_value'
+  | 'custom'
+  | 'output-contains'
+  | 'output-valid-schema'
+  | 'output-contains-string';
 
 export interface PromptAssertion {
-  type: PromptAssertionType;
+  type?: PromptAssertionType;
   field?: string;
+  path?: string;
   expected?: unknown;
+  value?: unknown;
+  equals?: unknown;
+  oneOf?: unknown[];
+  count?: number;
+  minItems?: number;
+  min?: number;
+  max?: number;
+  gte?: number;
+  contains?: unknown;
   message?: string;
   check?: (output: unknown) => boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type PromptAssertionFn = (output: any) => boolean;
+
 export interface PromptTest<TIn = unknown> {
+  name?: string;
   description?: string;
   input: TIn;
-  assertions: PromptAssertion[];
+  assertions: Array<PromptAssertion | PromptAssertionFn>;
 }
 
 export interface PromptDefinition<TIn = unknown, TOut = unknown> {
@@ -37,7 +61,8 @@ export interface PromptDefinition<TIn = unknown, TOut = unknown> {
   outputs: ZodSchema<TOut>;
   modelConfig: ModelConfig;
   systemPrompt: string;
-  userPromptTemplate: (inputs: TIn) => string;
+  /** Accepts a plain string (for prompts that don't interpolate inputs) or a function. */
+  userPromptTemplate: string | ((inputs: TIn) => string);
   examples?: PromptExample<TIn>[];
   tests?: PromptTest<TIn>[];
 }

@@ -38,8 +38,8 @@ const prompt = definePrompt({
   description: 'Propose an App Chrome configuration (layout, chrome blocks, page overrides) from a PRD and brand identity.',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: {
-    model: 'claude-haiku-4-5-20251001',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001',
     maxTokens: 2000,
     temperature: 0.2,
   },

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   prdSummary: z.string(),
@@ -28,7 +28,8 @@ export const orchestratorPrompt = definePrompt({
   description: 'Plan design token generation from PRD and brand inputs',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 2048, temperature: 0.3 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 2048, temperature: 0.3 },
   systemPrompt: `You are a design system strategist. Given a PRD and brand inputs, produce a generation plan for all token categories. Define the overall design direction that will guide each category prompt. Identify any special considerations (e.g., locked brand colors, specific accessibility requirements).`,
   userPromptTemplate: `PRD summary: {{prdSummary}}
 Brand inputs: {{brandInputs}}

@@ -16,7 +16,8 @@ export const signalDeduplicationPrompt = definePrompt({
     cluster: z.string().optional(),
     reasoning: z.string(),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 800, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 800, temperature: 0.1 },
   systemPrompt: `Determine if an incoming signal is a duplicate of existing signals.
 Signals are duplicates if they represent the same underlying issue (same error, same endpoint, same root cause).
 They may differ in exact message or timestamp while still being the same issue.

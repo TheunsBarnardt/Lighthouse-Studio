@@ -21,7 +21,8 @@ export const dashboardComponentPrompt = definePrompt({
   description: 'Generate a dashboard page with stats cards and recent activity',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
   systemPrompt: `You generate a React dashboard page.
 
 Standard dashboard layout:

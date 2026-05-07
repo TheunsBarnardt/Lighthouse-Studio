@@ -38,8 +38,8 @@ const prompt = definePrompt({
   description: 'Extract the minimal set of server functions needed by scanning the PRD, UI manifest, and schema.',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: {
-    model: 'claude-opus-4-7',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7',
     maxTokens: 4000,
     temperature: 0.1,
   },

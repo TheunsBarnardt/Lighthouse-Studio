@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   category: z.enum(['colors', 'typography', 'spacing', 'sizing', 'borderRadius', 'shadows', 'motion', 'zIndex', 'breakpoints']),
@@ -19,7 +19,8 @@ export const regenerationPrompt = definePrompt({
   description: 'Regenerate a specific token category with user feedback',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.4 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.4 },
   systemPrompt: `Regenerate a specific design token category based on user feedback. Preserve locked brand colors exactly. Return tokens in the same structure as the input. Apply the feedback meaningfully — if the user says "more muted", reduce saturation.`,
   userPromptTemplate: `Category: {{category}}. Current tokens: {{currentTokens}}. User feedback: "{{feedback}}". Brand inputs: {{brandInputs}}. Regenerate this category.`,
   tests: [

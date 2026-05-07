@@ -25,7 +25,8 @@ export const e2eTestGenerationPrompt = definePrompt({
     source: z.string(),
     reasoning: ReasoningSchema,
   }),
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.1 },
   systemPrompt: `You are an expert developer generating Playwright e2e tests.
 Rules:
 - Use @playwright/test (test, expect, Page)

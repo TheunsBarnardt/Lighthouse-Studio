@@ -19,7 +19,8 @@ export const storybookStoryPrompt = definePrompt({
   description: 'Generate a Storybook story file for a generated component',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 2000, temperature: 0.15 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 2000, temperature: 0.15 },
   systemPrompt: `You generate a Storybook CSF3 story file for a React component.
 
 Include:

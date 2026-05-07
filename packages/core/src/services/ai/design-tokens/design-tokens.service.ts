@@ -4,9 +4,9 @@ import type { AuditPort } from '@platform/ports-audit';
 import type { AuthorizationPort, RequestContext } from '@platform/ports-authorization';
 import type { LoggerPort } from '@platform/ports-observability';
 
-import { ForbiddenError, NotFoundError, ValidationError } from '../../errors.js';
-import { auditMeta, toAuditActor } from '../../context.js';
-import { observable } from '../../observability/observable.js';
+import { ForbiddenError, NotFoundError, ValidationError } from '../../../errors.js';
+import { auditMeta, toAuditActor } from '../../../context.js';
+import { observable } from '../../../observability/observable.js';
 import type { ArtifactService } from '../artifact.service.js';
 import type { GenerationService } from '../generation.service.js';
 import type { StagePipelineService } from '../stage-pipeline.service.js';

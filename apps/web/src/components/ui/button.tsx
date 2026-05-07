@@ -5,6 +5,7 @@ import { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
 const variants = {
+  default: 'bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary',
   primary: 'bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary',
   secondary:
     'bg-secondary text-secondary-foreground hover:bg-secondary/90 focus-visible:ring-secondary',

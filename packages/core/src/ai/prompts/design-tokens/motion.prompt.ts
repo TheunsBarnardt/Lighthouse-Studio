@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({ vibeDescriptors: z.array(z.string()) });
 
@@ -20,7 +20,8 @@ export const motionPrompt = definePrompt({
   description: 'Generate motion/animation tokens',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 512, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 512, temperature: 0.2 },
   systemPrompt: `Generate motion tokens: durations in ms (fast: 100-150ms, base: 200-250ms, slow: 400-500ms). Easings as CSS cubic-bezier or named keywords. Playful vibes use bounce; professional vibes use subtle ease-out.`,
   userPromptTemplate: `Vibe: {{vibeDescriptors}}. Generate motion tokens.`,
   tests: [

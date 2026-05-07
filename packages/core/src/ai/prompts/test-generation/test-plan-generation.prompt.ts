@@ -28,7 +28,8 @@ export const testPlanGenerationPrompt = definePrompt({
       e2e: z.number(),
     }),
   }),
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
   systemPrompt: `You are a senior QA engineer analysing a PRD to produce a comprehensive test plan.
 Your goal is to map every acceptance criterion (AC) to one or more test cases.
 Rules:
@@ -53,14 +54,14 @@ Generate a complete test plan. Map every AC to test cases. Flag any ACs that can
   tests: [
     {
       name: 'basic PRD produces test cases',
-      inputs: {
+      input: {
         prdContent: 'AC-001: Users can register with email and password. AC-002: Login returns JWT.',
         schemaContent: 'users table: id, email, password_hash',
         uiProjectSummary: 'Registration and login forms',
         serverCodeSummary: 'POST /auth/register, POST /auth/login',
       },
       assertions: [
-        { type: 'output-contains', field: 'testCases', check: (v: unknown[]) => v.length >= 2 },
+        { type: 'output-contains', field: 'testCases', check: (v: unknown) => Array.isArray(v) && v.length >= 2 },
         { type: 'output-valid-schema' },
       ],
     },

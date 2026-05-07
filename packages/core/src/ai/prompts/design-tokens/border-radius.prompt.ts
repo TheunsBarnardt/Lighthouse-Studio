@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({ projectType: z.string(), vibeDescriptors: z.array(z.string()) });
 
@@ -15,7 +15,8 @@ export const borderRadiusPrompt = definePrompt({
   description: 'Generate border radius tokens',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 512, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 512, temperature: 0.2 },
   systemPrompt: `Generate 8 border radius tokens: none=0, sm, base, md, lg, xl, 2xl, full=9999px. Adjust overall scale for vibe (minimal=sharper corners; playful=rounder corners). Use rem or px.`,
   userPromptTemplate: `Project: {{projectType}}, Vibe: {{vibeDescriptors}}. Generate border radius tokens.`,
   tests: [

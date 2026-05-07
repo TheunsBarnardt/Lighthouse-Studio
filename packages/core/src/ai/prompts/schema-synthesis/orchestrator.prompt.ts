@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   prdSummary: z.string(),
@@ -23,7 +23,8 @@ export const orchestratorPrompt = definePrompt({
   description: 'Plan the schema synthesis strategy from PRD and capabilities',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 2048, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 2048, temperature: 0.2 },
   systemPrompt: `You are a database architect. Plan the schema synthesis: which entities to prioritize, how to handle relationships for the chosen database, and any special considerations (high-cardinality tables, PII-heavy domains, existing schema constraints). Output a synthesis strategy that subsequent prompts will execute.`,
   userPromptTemplate: `PRD summary: {{prdSummary}}
 Project type: {{projectType}}

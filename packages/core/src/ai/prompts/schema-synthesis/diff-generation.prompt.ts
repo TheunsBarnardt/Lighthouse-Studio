@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   synthesizedTables: z.array(z.object({
@@ -28,7 +28,8 @@ export const diffGenerationPrompt = definePrompt({
   description: 'Generate an additive diff between synthesized and existing schema',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 2048, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 2048, temperature: 0.1 },
   systemPrompt: `Compare synthesized and existing schemas. Identify: new tables (in synthesis but not existing), new columns on existing tables, new foreign keys. NEVER propose dropping tables or columns automatically — only list them as potential destructive changes for user awareness. Additive changes are the primary output.`,
   userPromptTemplate: `Synthesized tables: {{synthesizedTables}}
 Existing tables: {{existingTables}}

@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { InventoryPanel } from './panels/InventoryPanel.js';
-import { FunctionViewPanel } from './panels/FunctionViewPanel.js';
-import { RegenerateFunctionDialog } from './dialogs/RegenerateFunctionDialog.js';
-import { RollbackFunctionDialog } from './dialogs/RollbackFunctionDialog.js';
+import { InventoryPanel } from './panels/InventoryPanel';
+import { FunctionViewPanel } from './panels/FunctionViewPanel';
+import { RegenerateFunctionDialog } from './dialogs/RegenerateFunctionDialog';
+import { RollbackFunctionDialog } from './dialogs/RollbackFunctionDialog';
 
 type ViewMode = 'inventory' | 'review';
 
@@ -42,7 +42,7 @@ export default function CodeGenerationPage() {
     await new Promise(r => setTimeout(r, 3000));
     setIsGenerating(false);
     setGenerated(true);
-    setSelectedFn(MOCK_FUNCTIONS[0]);
+    setSelectedFn(MOCK_FUNCTIONS[0] ?? null);
     setViewMode('review');
   }
 

@@ -19,7 +19,8 @@ export const outcomeAssessmentPrompt = definePrompt({
     regressionDescription: z.string().optional(),
     recommendedAction: z.string().optional(),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 800, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 800, temperature: 0.2 },
   systemPrompt: `Assess whether a deployed change resolved the signals that triggered it.
 Compare pre/post deployment metrics. A fix is resolved if the signal-driving metric improved significantly.
 Flag any regressions (new metrics that got worse after the change).

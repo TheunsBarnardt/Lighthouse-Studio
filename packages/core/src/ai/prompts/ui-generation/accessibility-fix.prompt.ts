@@ -18,7 +18,8 @@ export const accessibilityFixPrompt = definePrompt({
   description: 'Fix axe-core accessibility violations in a generated component',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 4000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 4000, temperature: 0.1 },
   systemPrompt: `You fix accessibility violations in React components.
 
 For each axe-core violation, apply the minimal change needed:

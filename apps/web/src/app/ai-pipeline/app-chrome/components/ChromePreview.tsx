@@ -24,8 +24,8 @@ function ChromeLockBadge({ label }: { label: string }) {
 }
 
 function MockHeader({ config }: { config?: RegionConfig }) {
-  const productName = (config?.params.productName as string) ?? 'My App';
-  const showSearch = config?.params.showSearch !== false;
+  const productName = (config?.params['productName'] as string) ?? 'My App';
+  const showSearch = config?.params['showSearch'] !== false;
   const isMarketing = config?.blockId === 'chrome-header-marketing';
   const isMinimal = config?.blockId === 'chrome-header-minimal';
 
@@ -80,7 +80,7 @@ function MockSidenav({ config }: { config?: RegionConfig }) {
 }
 
 function MockBreadcrumb({ config }: { config?: RegionConfig }) {
-  const sep = (config?.params.separator as string) ?? '/';
+  const sep = (config?.params['separator'] as string) ?? '/';
   const isTabbed = config?.blockId === 'chrome-breadcrumb-tabbed';
 
   return (
@@ -101,7 +101,7 @@ function MockBreadcrumb({ config }: { config?: RegionConfig }) {
 }
 
 function MockFooter({ config }: { config?: RegionConfig }) {
-  const productName = (config?.params.productName as string) ?? 'My App';
+  const productName = (config?.params['productName'] as string) ?? 'My App';
   const isStandard = config?.blockId === 'chrome-footer-standard';
 
   return (
@@ -150,7 +150,7 @@ export function ChromePreview({ chrome }: { chrome: ChromeState }) {
           {chrome.header && <MockHeader config={chrome.header} />}
 
           <div className="flex flex-1 overflow-hidden">
-            {showSidenav && <MockSidenav config={chrome.sidenav} />}
+            {showSidenav && <MockSidenav {...(chrome.sidenav !== undefined ? { config: chrome.sidenav } : {})} />}
 
             <div className="flex-1 flex flex-col overflow-hidden">
               {chrome.breadcrumb && <MockBreadcrumb config={chrome.breadcrumb} />}

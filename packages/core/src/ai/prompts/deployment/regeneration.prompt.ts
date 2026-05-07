@@ -21,7 +21,8 @@ export const deploymentRegenerationPrompt = definePrompt({
       riskAssessment: z.string(),
     }),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 3000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 3000, temperature: 0.2 },
   systemPrompt: `Regenerate a deployment plan incorporating the user's feedback.
 Preserve unchanged sections. Apply feedback precisely.
 Output ONLY valid JSON matching the deployment plan schema.`,

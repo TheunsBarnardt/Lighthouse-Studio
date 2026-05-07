@@ -25,7 +25,8 @@ export const buildConfigPrompt = definePrompt({
   description: 'Generate project build configuration: package.json, tsconfig, vite, tailwind, eslint, prettier',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 3000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 3000, temperature: 0.1 },
   systemPrompt: `You generate build configuration for a Vite + React + TypeScript + Tailwind project.
 
 package.json: include react, react-dom, react-router-dom, @tanstack/react-query, react-hook-form, zod, tailwindcss, vite, typescript, eslint, prettier.

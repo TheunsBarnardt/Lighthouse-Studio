@@ -59,7 +59,7 @@ Return JSON with:
       },
       assertions: [
         (output: z.infer<typeof OutputSchema>) => output.steps.length >= 2,
-        (output: z.infer<typeof OutputSchema>) => output.steps[0].step === 1,
+        (output: z.infer<typeof OutputSchema>) => (output.steps[0]?.step ?? 0) === 1,
       ],
     },
   ],

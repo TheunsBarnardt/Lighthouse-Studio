@@ -17,7 +17,8 @@ export const routingConfigPrompt = definePrompt({
   description: 'Generate React Router v6 routing configuration from the information architecture',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 2000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 2000, temperature: 0.1 },
   systemPrompt: `You generate a React Router v6 routing configuration.
 
 Use createBrowserRouter with route objects.

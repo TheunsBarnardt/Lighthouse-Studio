@@ -63,7 +63,7 @@ Return JSON with:
       },
       assertions: [
         (output: z.infer<typeof OutputSchema>) => output.items.length >= 1,
-        (output: z.infer<typeof OutputSchema>) => output.items[0].whyHard.length > 20,
+        (output: z.infer<typeof OutputSchema>) => (output.items[0]?.whyHard?.length ?? 0) > 20,
       ],
     },
   ],

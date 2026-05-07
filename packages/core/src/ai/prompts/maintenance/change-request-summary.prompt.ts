@@ -16,7 +16,8 @@ export const changeRequestSummaryPrompt = definePrompt({
     proposedFix: z.string(),
     affectedAreas: z.array(z.string()),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 1000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 1000, temperature: 0.2 },
   systemPrompt: `You are a senior engineer writing a change request from production signals.
 The description should be clear, actionable, and include: what's happening, where it's happening, and what the fix likely is.
 Keep it concise (3–5 sentences). The root cause should be a hypothesis, not a certainty.

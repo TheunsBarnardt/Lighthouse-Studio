@@ -32,8 +32,8 @@ export const transformationSuggestionPrompt = definePrompt({
   description: 'Suggest transformation chain for a type/format mismatch between source and target column',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: {
-    model: 'claude-haiku-4-5-20251001',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001',
     maxTokens: 1000,
     temperature: 0.1,
   },

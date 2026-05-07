@@ -22,8 +22,8 @@ const prompt = definePrompt({
   description: 'Fix static analysis violations in generated server code.',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: {
-    model: 'claude-haiku-4-5-20251001',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001',
     maxTokens: 2000,
     temperature: 0,
   },

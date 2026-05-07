@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   projectType: z.string(),
@@ -42,7 +42,8 @@ export const colorPalettePrompt = definePrompt({
   description: 'Generate semantic color palettes with light + dark theme surfaces',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 4096, temperature: 0.3 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 4096, temperature: 0.3 },
   systemPrompt: `You are a visual design expert specialising in accessible color systems. You generate color palettes using OKLCH principles (perceptually uniform). Output all colors as 6-digit hex strings. WCAG AA contrast is mandatory; AAA preferred.
 
 Generate light + dark themes together. Light: surfaces at 95-100% lightness; dark: surfaces at 5-15% lightness. Both must pass WCAG AA for text on surface.

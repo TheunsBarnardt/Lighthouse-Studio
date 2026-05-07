@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   projectType: z.string(),
@@ -20,7 +20,8 @@ export const spacingPrompt = definePrompt({
   description: 'Generate spacing scale tokens',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 1024, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 1024, temperature: 0.1 },
   systemPrompt: `Generate a 13-step spacing scale using rem values based on a 4px base unit. Values must follow visual rhythm (0, 0.25rem, 0.5rem, 0.75rem, 1rem, 1.25rem, 1.5rem, 2rem, 2.5rem, 3rem, 4rem, 5rem, 6rem).`,
 
   userPromptTemplate: `Project: {{projectType}}, Vibe: {{vibeDescriptors}}, Base unit: {{baseUnit}}px. Generate 13 spacing tokens.`,

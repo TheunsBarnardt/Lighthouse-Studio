@@ -20,7 +20,8 @@ export const regenerationPrompt = definePrompt({
   description: 'Regenerate a UI component with user feedback, preserving consistency with the project',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 5000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 5000, temperature: 0.2 },
   systemPrompt: `You regenerate a React component based on user feedback.
 
 Apply the feedback precisely. Preserve everything not mentioned.

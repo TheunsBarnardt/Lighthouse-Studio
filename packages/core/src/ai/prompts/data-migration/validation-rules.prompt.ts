@@ -58,8 +58,8 @@ export const validationRulesPrompt = definePrompt({
   description: 'Generate per-column validation rules and pre/post execution checks for a migration plan',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: {
-    model: 'claude-haiku-4-5-20251001',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001',
     maxTokens: 2000,
     temperature: 0.1,
   },

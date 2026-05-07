@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   extractedEntities: z.array(z.object({ name: z.string(), suggestedTableName: z.string() })),
@@ -22,7 +22,8 @@ export const coverageValidationPrompt = definePrompt({
   description: 'Validate that the synthesized schema covers all PRD entities and requirements',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 2048, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 2048, temperature: 0.1 },
   systemPrompt: `Verify that all entities and functional requirements from the PRD have corresponding schema support. Each extracted entity should have a corresponding table. Each functional requirement involving data storage or retrieval should have supporting tables/columns. Coverage gaps are warnings, not errors. Calculate coverage rate as (covered entities) / (total entities).`,
   userPromptTemplate: `Extracted entities: {{extractedEntities}}
 Generated tables: {{generatedTables}}

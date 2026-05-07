@@ -17,7 +17,8 @@ export const signalClassificationPrompt = definePrompt({
     })),
     affectedArtifactIds: z.array(z.string()),
   }),
-  modelConfig: { model: 'claude-haiku-4-5', maxTokens: 1500, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5', maxTokens: 1500, temperature: 0.2 },
   systemPrompt: `You are a senior engineer classifying production signals to route them to the correct pipeline stage.
 
 Pipeline stages:

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt } from '../define-prompt.js';
+import { definePrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   componentName: z.string(),
@@ -35,8 +35,8 @@ export const componentDocsGenerationPrompt = definePrompt({
   description: 'Generate component reference documentation from TSX source or component interface',
   inputs,
   outputs,
-  modelConfig: {
-    model: 'claude-opus-4-7',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7',
     maxTokens: 2500,
     temperature: 0.2,
   },

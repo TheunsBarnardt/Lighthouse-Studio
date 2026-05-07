@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const columnSchema = z.object({
   id: z.string(),
@@ -46,7 +46,8 @@ export const tableGenerationPrompt = definePrompt({
   description: 'Generate a database table with columns from an entity definition',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.2 },
   systemPrompt: `Generate a complete table definition in snake_case. Always include: id (UUID v7, PK), created_at (timestamp, default now()), updated_at (timestamp, default now()), _version (integer, default 1 for optimistic locking). Add domain columns based on the entity. Respect the database driver capabilities (no array columns for MSSQL; embedded docs for Mongo as JSONB). Flag PII columns. Use appropriate types for the driver. Add reasoning per column.`,
   userPromptTemplate: `Entity: {{entityName}} — {{entityDescription}}
 Attributes: {{entityAttributes}}

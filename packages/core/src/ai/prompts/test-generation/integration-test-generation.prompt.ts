@@ -25,7 +25,8 @@ export const integrationTestGenerationPrompt = definePrompt({
     source: z.string(),
     reasoning: ReasoningSchema,
   }),
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 3000, temperature: 0.1 },
   systemPrompt: `You are an expert developer generating integration tests with Vitest.
 Rules:
 - Integration tests use real database connections via TEST_DATABASE_URL env var

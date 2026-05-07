@@ -37,7 +37,8 @@ export const informationArchitecturePrompt = definePrompt({
   description: 'Extract information architecture (pages, routes, navigation) from PRD and schema',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
   systemPrompt: `You extract the information architecture for a web application from a PRD and schema.
 
 Generate a complete page list with routes, types, entities, permissions, and navigation structure.

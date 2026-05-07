@@ -19,7 +19,8 @@ export const consistencyCheckPrompt = definePrompt({
   description: 'Verify that generated components are visually and structurally consistent with each other',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 2000, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 2000, temperature: 0.1 },
   systemPrompt: `You verify consistency across generated React components.
 
 Check for:

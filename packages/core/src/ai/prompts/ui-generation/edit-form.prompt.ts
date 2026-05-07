@@ -23,7 +23,8 @@ export const editFormPrompt = definePrompt({
   description: 'Generate an edit form component for a schema entity (pre-populated, with optimistic concurrency)',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
   systemPrompt: `You generate a React edit form component using react-hook-form + zod.
 
 Differences from create form:

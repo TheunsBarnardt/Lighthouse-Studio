@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt, registerPrompt } from '../registry.js';
+import { definePrompt, registerPrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   tables: z.array(z.object({
@@ -29,7 +29,8 @@ export const indexRecommendationPrompt = definePrompt({
   description: 'Recommend indexes based on tables, FK columns, and filterable columns from PRD',
   inputs,
   outputs,
-  modelConfig: { model: 'claude-haiku-4-5-20251001', maxTokens: 1500, temperature: 0.1 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001', maxTokens: 1500, temperature: 0.1 },
   systemPrompt: `Recommend database indexes. Always index: PK columns (already indexed), FK columns (always add). Also index: columns marked filterable or sortable in PRD. For Postgres: use GIN for JSONB, btree for everything else. For MSSQL: nonclustered for most. For Mongo: single or compound. Be conservative — indexes have write costs. Do not index every column.`,
   userPromptTemplate: `Tables: {{tables}}
 Filterable columns from PRD: {{filterableColumns}}

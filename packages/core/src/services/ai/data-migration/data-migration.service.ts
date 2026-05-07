@@ -1,10 +1,9 @@
 import { ok, err, type Result } from 'neverthrow';
 import { observable } from '../../../observability/observable.js';
 import { ValidationError, NotFoundError, AuthorizationError, ForbiddenError } from '../../../errors.js';
-import type { RequestContext } from '@platform/ports-auth';
-import type { AuthorizationPort } from '@platform/ports-auth';
+import type { RequestContext, AuthorizationPort } from '@platform/ports-authorization';
 import type { AuditPort } from '@platform/ports-audit';
-import type { LoggerPort } from '@platform/ports-logger';
+import type { LoggerPort } from '@platform/ports-observability';
 import type { AppError } from '../../../errors.js';
 import { ArtifactService } from '../artifact.service.js';
 import { GenerationService } from '../generation.service.js';

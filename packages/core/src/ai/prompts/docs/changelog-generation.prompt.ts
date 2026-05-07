@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { definePrompt } from '../define-prompt.js';
+import { definePrompt } from '../../define-prompt.js';
 
 const inputs = z.object({
   deploymentVersion: z.string(),
@@ -36,8 +36,8 @@ export const changelogGenerationPrompt = definePrompt({
   description: 'Generate a human-readable changelog entry from deployment events and artifact changes',
   inputs,
   outputs,
-  modelConfig: {
-    model: 'claude-haiku-4-5-20251001',
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-haiku-4-5-20251001',
     maxTokens: 1500,
     temperature: 0.2,
   },

@@ -21,7 +21,8 @@ export const workflowComponentPrompt = definePrompt({
   description: 'Generate a multi-step workflow component from a PRD user story',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 5000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 5000, temperature: 0.2 },
   systemPrompt: `You generate a multi-step workflow React component (wizard) for a user story.
 
 Requirements:

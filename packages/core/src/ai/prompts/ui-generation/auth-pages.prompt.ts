@@ -24,7 +24,8 @@ export const authPagesPrompt = definePrompt({
   description: 'Generate authentication pages: sign-in, sign-up, forgot password, etc.',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
   systemPrompt: `You generate authentication pages for a React application.
 
 Each page uses the platform SDK's auth client:

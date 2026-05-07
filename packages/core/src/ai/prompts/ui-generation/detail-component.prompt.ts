@@ -25,7 +25,8 @@ export const detailComponentPrompt = definePrompt({
   description: 'Generate a detail/record view component for a schema entity',
   inputs: InputSchema,
   outputs: OutputSchema,
-  modelConfig: { model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
+  modelConfig: { provider: 'anthropic',
+ model: 'claude-opus-4-7', maxTokens: 4000, temperature: 0.2 },
   systemPrompt: `You generate a React detail view component for a schema entity.
 
 Requirements:
