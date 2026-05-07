@@ -627,3 +627,38 @@ export {
   TEST_GENERATION_PERMISSIONS,
   TEST_GENERATION_DEFAULT_GRANTS,
 } from './services/ai/test-generation/index.js';
+
+// ── Objective 29: Deployment ───────────────────────────────────────────────────
+export { DeploymentService } from './services/ai/deployment/index.js';
+export type {
+  DeployMode,
+  DeploymentStepType,
+  StepStatus,
+  DeploymentStatus,
+  DeploymentEventType,
+  HealthCheckConfig,
+  EnvironmentDeploymentConfig,
+  SchemaMigrationStep,
+  IrreversibleOperation,
+  DeploymentPlan,
+  DeploymentStep,
+  HealthCheckResults,
+  Deployment,
+  DeploymentSummary,
+  DeploymentEvent,
+  DeploymentQualitySignals,
+  GeneratePlanInput,
+  UpdatePlanInput,
+  DeployToEnvironmentInput,
+  RollbackInput,
+  DeploymentAuditEventType,
+} from './services/ai/deployment/index.js';
+export {
+  GeneratePlanInputSchema,
+  UpdatePlanInputSchema,
+  DeployToEnvironmentInputSchema,
+  RollbackInputSchema,
+  DEPLOYMENT_AUDIT_EVENTS,
+  DEPLOYMENT_PERMISSIONS,
+  DEPLOYMENT_DEFAULT_GRANTS,
+} from './services/ai/deployment/index.js';

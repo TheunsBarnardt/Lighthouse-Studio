@@ -1,0 +1,33 @@
+export { DeploymentService } from './deployment.service.js';
+export type {
+  DeployMode,
+  DeploymentStepType,
+  StepStatus,
+  DeploymentStatus,
+  DeploymentEventType,
+  HealthCheckConfig,
+  EnvironmentDeploymentConfig,
+  SchemaMigrationStep,
+  IrreversibleOperation,
+  DeploymentPlan,
+  DeploymentStep,
+  HealthCheckResults,
+  Deployment,
+  DeploymentSummary,
+  DeploymentEvent,
+  DeploymentQualitySignals,
+  GeneratePlanInput,
+  UpdatePlanInput,
+  DeployToEnvironmentInput,
+  RollbackInput,
+  DeploymentAuditEventType,
+} from './types.js';
+export {
+  GeneratePlanInputSchema,
+  UpdatePlanInputSchema,
+  DeployToEnvironmentInputSchema,
+  RollbackInputSchema,
+  DEPLOYMENT_AUDIT_EVENTS,
+  DEPLOYMENT_PERMISSIONS,
+  DEPLOYMENT_DEFAULT_GRANTS,
+} from './types.js';
