@@ -1,4 +1,5 @@
 import type { AuditPort } from '@platform/ports-audit';
+import type { MetricsPort } from '@platform/ports-observability';
 import type { SchemaMigrationPort } from '@platform/ports-persistence';
 import type { PlatformVersionPort } from '@platform/ports-platform-version';
 
@@ -35,6 +36,8 @@ export interface UpgradeOrchestratorDeps {
   manifest: ReleaseManifest;
   /** Current code version (from PLATFORM_VERSION). */
   codeVersion: string;
+  /** Optional metrics port — when present, emits upgrade gauges/histograms/counters. */
+  metrics?: MetricsPort;
 }
 
 export interface UpgradeOptions {
@@ -117,12 +120,14 @@ export class UpgradeOrchestrator {
   private readonly audit: AuditPort;
   private readonly manifest: ReleaseManifest;
   private readonly codeVersion: string;
+  private readonly metrics: MetricsPort | undefined;
 
   constructor(deps: UpgradeOrchestratorDeps) {
     this.dbs = deps.dbs;
     this.audit = deps.audit;
     this.manifest = deps.manifest;
     this.codeVersion = deps.codeVersion;
+    this.metrics = deps.metrics;
   }
 
   /**
@@ -185,6 +190,7 @@ export class UpgradeOrchestrator {
             opts.appliedBy,
           ),
         );
+        this.recordUpgradeFailure(compatResult.error.code, toVersion);
         return err(compatResult.error);
       }
     }
@@ -206,6 +212,7 @@ export class UpgradeOrchestrator {
           opts.appliedBy,
         ),
       );
+      this.recordUpgradeFailure(e.code, toVersion);
       return err(e);
     }
 
@@ -236,6 +243,7 @@ export class UpgradeOrchestrator {
               opts.appliedBy,
             ),
           );
+          this.recordUpgradeFailure(e.code, toVersion);
           return err(e);
         }
       } else {
@@ -270,6 +278,7 @@ export class UpgradeOrchestrator {
             opts.appliedBy,
           ),
         );
+        this.recordUpgradeFailure(e.code, toVersion);
         return err(e);
       }
       preflightChecks[`${db.id}.disk`] = 'ok';
@@ -345,6 +354,7 @@ export class UpgradeOrchestrator {
           opts.appliedBy,
         ),
       );
+      this.recordUpgradeFailure(firstErr.error.code, toVersion);
       return err(firstErr.error);
     }
 
@@ -395,13 +405,13 @@ export class UpgradeOrchestrator {
           opts.appliedBy,
         ),
       );
-      return err(
-        new UpgradeError(
-          'VERSION_RECORD_FAILED',
-          `Failed to record version on database "${firstRecordErr.dbId}". Re-run upgrade to retry.`,
-          { dbId: firstRecordErr.dbId },
-        ),
+      const recordErr = new UpgradeError(
+        'VERSION_RECORD_FAILED',
+        `Failed to record version on database "${firstRecordErr.dbId}". Re-run upgrade to retry.`,
+        { dbId: firstRecordErr.dbId },
       );
+      this.recordUpgradeFailure(recordErr.code, toVersion);
+      return err(recordErr);
     }
 
     // ── Step 7: Post-upgrade health gate ─────────────────────────────────────
@@ -428,6 +438,7 @@ export class UpgradeOrchestrator {
           opts.appliedBy,
         ),
       );
+      this.recordUpgradeFailure(e.code, toVersion);
       return err(e);
     }
 
@@ -443,6 +454,28 @@ export class UpgradeOrchestrator {
         opts.appliedBy,
       ),
     );
+
+    // ── Emit metrics ──────────────────────────────────────────────────────────
+
+    if (this.metrics) {
+      this.metrics
+        .histogram('platform_upgrade_duration_seconds', {
+          description: 'Time taken to complete a platform upgrade',
+          unit: 's',
+          boundaries: [1, 5, 15, 30, 60, 120, 300],
+        })
+        .record(durationMs / 1_000, {
+          from_version: fromVersion ?? 'fresh',
+          to_version: toVersion,
+          db_count: String(this.dbs.length),
+        });
+
+      this.metrics
+        .gauge('platform_version_info', {
+          description: 'Current deployed platform version (value=1, labels carry the version)',
+        })
+        .set(1, { version: toVersion });
+    }
 
     return ok({ fromVersion, toVersion, durationMs, dbs: migrationCounts, dryRun: false });
   }
@@ -483,7 +516,12 @@ export class UpgradeOrchestrator {
           db.kind === 'mssql'
             ? 'MSSQL schema was not reverted (no down-migrations). Version row removed only.'
             : undefined;
-        dbResults.push({ id: db.id, kind: db.kind, success: true, ...(warning ? { warning } : {}) });
+        dbResults.push({
+          id: db.id,
+          kind: db.kind,
+          success: true,
+          ...(warning ? { warning } : {}),
+        });
       }
     }
 
@@ -507,6 +545,14 @@ export class UpgradeOrchestrator {
   }
 
   // ── Private helpers ──────────────────────────────────────────────────────────
+
+  private recordUpgradeFailure(code: UpgradeErrorCode, toVersion: string): void {
+    this.metrics
+      ?.counter('platform_upgrade_failures_total', {
+        description: 'Total number of failed platform upgrade attempts',
+      })
+      .add(1, { error_code: code, to_version: toVersion });
+  }
 
   private checkCompatibility(from: string, to: string): Result<void, UpgradeError> {
     const fromV = parseSemver(from);
