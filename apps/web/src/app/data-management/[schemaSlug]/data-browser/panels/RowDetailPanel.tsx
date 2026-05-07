@@ -101,8 +101,9 @@ export function RowDetailPanel({
               onChange: (v: unknown) => {
                 setEdits((prev) => ({ ...prev, [col.id]: v }));
               },
-              onCommit: () => {
+              onCommit: (): Promise<void> => {
                 setEditingField(null);
+                return Promise.resolve();
               },
               onCancel: () => {
                 setEdits((prev) => {
