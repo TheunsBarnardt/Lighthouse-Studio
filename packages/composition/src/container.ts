@@ -1,4 +1,6 @@
 import type { AiGenerationPort } from '@platform/ports-ai';
+import type { ArtifactRepositoryPort } from '@platform/ports-ai-artifacts';
+import type { AIProviderPort, AICachePort } from '@platform/ports-ai-provider';
 import type { AuditPort } from '@platform/ports-audit';
 import type { EmailPort } from '@platform/ports-communication';
 import type { SecretStorePort, FeatureFlagPort } from '@platform/ports-config';
@@ -54,6 +56,9 @@ export interface PlatformContainer {
   vectorStore: VectorStorePort | null;
   embeddings: EmbeddingPort | null;
   ai: AiGenerationPort;
+  aiProvider: AIProviderPort | null;
+  aiCache: AICachePort | null;
+  artifactRepo: ArtifactRepositoryPort | null;
   jobs: JobQueuePort;
   scheduler: SchedulerPort | null;
   audit: AuditPort;

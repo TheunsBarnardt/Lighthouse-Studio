@@ -150,6 +150,12 @@ importers:
       '@platform/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@platform/ports-ai-artifacts':
+        specifier: workspace:*
+        version: link:../../packages/ports/ai-artifacts
+      '@platform/ports-ai-provider':
+        specifier: workspace:*
+        version: link:../../packages/ports/ai-provider
       '@platform/ports-audit':
         specifier: workspace:*
         version: link:../../packages/ports/audit
@@ -222,6 +228,9 @@ importers:
       mssql:
         specifier: ^11.0.1
         version: 11.0.1(@azure/core-client@1.10.1)
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
       next:
         specifier: ^14.2.0
         version: 14.2.35(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -246,6 +255,9 @@ importers:
       tailwind-merge:
         specifier: ^2.2.1
         version: 2.6.1
+      uuidv7:
+        specifier: 1.0.2
+        version: 1.0.2
       zod:
         specifier: ^3.22.4
         version: 3.25.76
@@ -408,6 +420,28 @@ importers:
       '@platform/ports-ai':
         specifier: workspace:*
         version: link:../../ports/ai
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jsdom@25.0.1)(terser@5.46.2)
+
+  packages/adapters/aiprovider-anthropic:
+    dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.55.0
+        version: 0.55.1
+      '@platform/ports-ai-provider':
+        specifier: workspace:*
+        version: link:../../ports/ai-provider
       neverthrow:
         specifier: 8.2.0
         version: 8.2.0
@@ -1276,6 +1310,9 @@ importers:
 
   packages/adapters/persistence-postgres:
     dependencies:
+      '@platform/ports-ai-artifacts':
+        specifier: workspace:*
+        version: link:../../ports/ai-artifacts
       '@platform/ports-observability':
         specifier: workspace:*
         version: link:../../ports/observability
@@ -1673,6 +1710,12 @@ importers:
       '@platform/ports-ai':
         specifier: workspace:*
         version: link:../ports/ai
+      '@platform/ports-ai-artifacts':
+        specifier: workspace:*
+        version: link:../ports/ai-artifacts
+      '@platform/ports-ai-provider':
+        specifier: workspace:*
+        version: link:../ports/ai-provider
       '@platform/ports-audit':
         specifier: workspace:*
         version: link:../ports/audit
@@ -1709,6 +1752,12 @@ importers:
       '@platform/ports-storage':
         specifier: workspace:*
         version: link:../ports/storage
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      uuidv7:
+        specifier: 1.0.2
+        version: 1.0.2
     devDependencies:
       '@platform/shared':
         specifier: workspace:*
@@ -1762,6 +1811,12 @@ importers:
 
   packages/core:
     dependencies:
+      '@platform/ports-ai-artifacts':
+        specifier: workspace:*
+        version: link:../ports/ai-artifacts
+      '@platform/ports-ai-provider':
+        specifier: workspace:*
+        version: link:../ports/ai-provider
       '@platform/ports-audit':
         specifier: workspace:*
         version: link:../ports/audit
@@ -1855,6 +1910,50 @@ importers:
         version: 3.2.3(@types/node@22.15.0)(jsdom@25.0.1)(terser@5.46.2)
 
   packages/ports/ai:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      '@platform/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jsdom@25.0.1)(terser@5.46.2)
+
+  packages/ports/ai-artifacts:
+    dependencies:
+      neverthrow:
+        specifier: 8.2.0
+        version: 8.2.0
+      zod:
+        specifier: 3.24.4
+        version: 3.24.4
+    devDependencies:
+      '@platform/config':
+        specifier: workspace:*
+        version: link:../../config
+      '@platform/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+      vitest:
+        specifier: 3.2.3
+        version: 3.2.3(@types/node@22.15.0)(jsdom@25.0.1)(terser@5.46.2)
+
+  packages/ports/ai-provider:
     dependencies:
       neverthrow:
         specifier: 8.2.0
@@ -2364,6 +2463,10 @@ packages:
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
+
+  '@anthropic-ai/sdk@0.55.1':
+    resolution: {integrity: sha512-gjOMS4chmm8BxClKmCjNHmvf1FrO1Cn++CSX6K3YCZjz5JG4I9ZttQ/xEH4FBsz6HQyZvnUpiKlOAkmxaGmEaQ==}
+    hasBin: true
 
   '@asamuzakjp/css-color@3.2.0':
     resolution: {integrity: sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==}
@@ -4324,6 +4427,7 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
+      zod: ^3.25 || ^4.0
     peerDependenciesMeta:
       '@cfworker/json-schema':
         optional: true
@@ -6873,11 +6977,6 @@ packages:
 
   ajv-formats@3.0.1:
     resolution: {integrity: sha512-8iUql50EUR+uUcdRQ3HDqa6EVyo3docL8g5WJ3FNcWmu62IbkGUue/pEyLBW8VGKKucTPgqeks4fIU1DA4yowQ==}
-    peerDependencies:
-      ajv: ^8.0.0
-    peerDependenciesMeta:
-      ajv:
-        optional: true
 
   ajv-keywords@3.5.2:
     resolution: {integrity: sha512-5p6WTN0DdTGVQk6VjcEju19IgaHudalcfabD7yhDGeA6bcQnmL+CpveLJq/3hvfwd1aof6L386Ougkx6RfyMIQ==}
@@ -11601,6 +11700,8 @@ snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
 
+  '@anthropic-ai/sdk@0.55.1': {}
+
   '@asamuzakjp/css-color@3.2.0':
     dependencies:
       '@csstools/css-calc': 2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
@@ -13580,7 +13681,7 @@ snapshots:
   '@fastify/ajv-compiler@4.0.5':
     dependencies:
       ajv: 8.20.0
-      ajv-formats: 3.0.1(ajv@8.20.0)
+      ajv-formats: 3.0.1
       fast-uri: 3.1.0
 
   '@fastify/busboy@3.2.0': {}
@@ -13913,11 +14014,11 @@ snapshots:
       '@types/react': 18.3.28
       react: 18.3.1
 
-  '@modelcontextprotocol/sdk@1.29.0':
+  '@modelcontextprotocol/sdk@1.29.0(zod@3.25.76)':
     dependencies:
       '@hono/node-server': 1.19.14(hono@4.12.16)
       ajv: 8.20.0
-      ajv-formats: 3.0.1(ajv@8.20.0)
+      ajv-formats: 3.0.1
       content-type: 1.0.5
       cors: 2.8.6
       cross-spawn: 7.0.6
@@ -17168,8 +17269,8 @@ snapshots:
     dependencies:
       ajv: 8.20.0
 
-  ajv-formats@3.0.1(ajv@8.20.0):
-    optionalDependencies:
+  ajv-formats@3.0.1:
+    dependencies:
       ajv: 8.20.0
 
   ajv-keywords@3.5.2(ajv@6.15.0):
@@ -18351,7 +18452,7 @@ snapshots:
       '@humanfs/node': 0.16.8
       '@humanwhocodes/module-importer': 1.0.1
       '@humanwhocodes/retry': 0.4.3
-      '@modelcontextprotocol/sdk': 1.29.0
+      '@modelcontextprotocol/sdk': 1.29.0(zod@3.25.76)
       '@types/estree': 1.0.8
       '@types/json-schema': 7.0.15
       ajv: 6.15.0
@@ -18564,7 +18665,7 @@ snapshots:
     dependencies:
       '@fastify/merge-json-schemas': 0.2.1
       ajv: 8.20.0
-      ajv-formats: 3.0.1(ajv@8.20.0)
+      ajv-formats: 3.0.1
       fast-uri: 3.1.0
       json-schema-ref-resolver: 3.0.0
       rfdc: 1.4.1

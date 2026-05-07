@@ -64,8 +64,15 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['*', 'deploy'],
       ['*', 'artifact'],
       ['*', 'approval'],
+      ['*', 'ai_artifact'],
       ['*', 'data_table'],
       ['*', 'data_row'],
+      // AI pipeline — owners have full intent capture access
+      ['ai.intent_capture.create', 'workspace'],
+      ['ai.intent_capture.read', 'workspace'],
+      ['ai.intent_capture.edit', 'workspace'],
+      ['ai.intent_capture.delete', 'workspace'],
+      ['ai.intent_capture.approve', 'workspace'],
       // Query console — owners have all query permissions including write
       ['query.read', 'workspace'],
       ['query.write', 'workspace'],
@@ -96,6 +103,11 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       // Data management — full access to tables and rows
       ['*', 'data_table'],
       ['*', 'data_row'],
+      // AI pipeline — admins can create, read, edit, and submit intent captures
+      ['ai.intent_capture.create', 'workspace'],
+      ['ai.intent_capture.read', 'workspace'],
+      ['ai.intent_capture.edit', 'workspace'],
+      ['ai.artifact.submit', 'ai_artifact'],
       // Query console — admins can read, run long queries, fetch large results, and export; no write by default
       ['query.read', 'workspace'],
       ['query.long_running', 'workspace'],
@@ -112,6 +124,14 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['*', 'prd'],
       ['*', 'brd'],
       ['grant', 'approval.requirements'],
+      // AI pipeline — BAs own the intent capture stage
+      ['ai.intent_capture.create', 'workspace'],
+      ['ai.intent_capture.read', 'workspace'],
+      ['ai.intent_capture.edit', 'workspace'],
+      ['ai.intent_capture.delete', 'workspace'],
+      ['ai.intent_capture.approve', 'workspace'],
+      ['ai.artifact.submit', 'ai_artifact'],
+      ['ai.artifact.approve', 'ai_artifact'],
     ),
   },
   {
@@ -148,6 +168,8 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['read', 'schema'],
       ['schema.read', 'schema'],
       ['schema.export', 'schema'],
+      // AI pipeline — developers can read intent captures
+      ['ai.intent_capture.read', 'workspace'],
       // Developers can read and write customer data rows (needed for testing/development)
       ['read', 'data_table'],
       ['create', 'data_row'],
@@ -200,6 +222,8 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['schema.export', 'schema'],
       ['read', 'data_table'],
       ['read', 'data_row'],
+      // AI pipeline — reviewers can read intent captures
+      ['ai.intent_capture.read', 'workspace'],
       // Query console — reviewers can read via console
       ['query.read', 'workspace'],
     ),
@@ -223,6 +247,8 @@ export const BUILT_IN_ROLES: BuiltInRoleDefinition[] = [
       ['schema.export', 'schema'],
       ['read', 'data_table'],
       ['read', 'data_row'],
+      // AI pipeline — viewers can read intent captures
+      ['ai.intent_capture.read', 'workspace'],
       // Query console — viewers can read via console
       ['query.read', 'workspace'],
     ),

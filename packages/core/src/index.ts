@@ -263,3 +263,65 @@ export type {
   TemplateOverride,
   WorkspaceEmailTemplateRecord,
 } from './services/email-template.service.js';
+
+// ── AI Build Pipeline — Objective 20 ─────────────────────────────────────────
+export { definePrompt, registerPrompt, getPrompt, getAllPrompts } from './ai/define-prompt.js';
+export type { PromptDefinition, PromptExample, PromptTest } from './ai/define-prompt.js';
+export { defineTool, toProviderToolDefinition } from './ai/define-tool.js';
+export type { PlatformToolDefinition } from './ai/define-tool.js';
+export { ToolRegistry } from './ai/tool-registry.js';
+
+export { PromptService } from './services/ai/prompt.service.js';
+export type { RenderedPrompt } from './services/ai/prompt.service.js';
+export { CostTrackingService, estimateCostUsd } from './services/ai/cost-tracking.service.js';
+export type { RecordUsageInput } from './services/ai/cost-tracking.service.js';
+export { ArtifactService } from './services/ai/artifact.service.js';
+export type {
+  CreateArtifactServiceInput,
+  UpdateArtifactServiceInput,
+} from './services/ai/artifact.service.js';
+export { StagePipelineService } from './services/ai/stage-pipeline.service.js';
+export { GenerationService } from './services/ai/generation.service.js';
+export type { GenerateInput, GenerationResult } from './services/ai/generation.service.js';
+
+// ── AI Build Pipeline — Objective 21 (Intent Capture) ─────────────────────────
+export { IntentCaptureService } from './services/ai/intent-capture/intent-capture.service.js';
+export type {
+  StartConversationInput,
+  SendMessageInput,
+  ListConversationsOptions,
+  ListTemplatesOptions,
+} from './services/ai/intent-capture/intent-capture.service.js';
+export type {
+  IntentBrief,
+  Conversation,
+  ConversationMessage,
+  ConversationEvent,
+  BriefDraft,
+  BriefEdit,
+  BriefFieldStatus,
+  BriefFieldState,
+  Goal,
+  TargetUser,
+  SuccessCriterion,
+  Constraint,
+  Assumption,
+  Risk,
+  Reference,
+  IntentBriefTemplate,
+} from './services/ai/intent-capture/types.js';
+export {
+  IntentBriefSchema,
+  GoalSchema,
+  TargetUserSchema,
+  SuccessCriterionSchema,
+  ConstraintSchema,
+  AssumptionSchema,
+  RiskSchema,
+  ReferenceSchema,
+} from './services/ai/intent-capture/types.js';
+export { INTENT_CAPTURE_AUDIT_EVENTS } from './services/ai/intent-capture/audit-events.js';
+export {
+  INTENT_CAPTURE_PERMISSIONS,
+  INTENT_CAPTURE_ROLE_GRANTS,
+} from './services/ai/intent-capture/permissions.js';
