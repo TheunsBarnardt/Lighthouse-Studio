@@ -77,32 +77,38 @@ export async function buildDbTargets(env: CliEnv): Promise<DbConnections> {
     });
   }
 
-  if (env.mssqlServer && env.mssqlDatabase && env.mssqlUser && env.mssqlPassword) {
+  if (env.mssqlServer && env.mssqlDatabase && (env.mssqlTrustedConnection || (env.mssqlUser && env.mssqlPassword))) {
+    const mssqlBaseOptions = { encrypt: false, trustServerCertificate: true };
+    const mssqlAuth = env.mssqlTrustedConnection
+      ? { options: { ...mssqlBaseOptions, trustedConnection: true as const } }
+      : { user: env.mssqlUser ?? '', password: env.mssqlPassword ?? '', options: mssqlBaseOptions };
+
     // App pool: read/write only.
     const pool = await mssql.connect({
       server: env.mssqlServer,
       database: env.mssqlDatabase,
-      user: env.mssqlUser,
-      password: env.mssqlPassword,
-      options: { encrypt: true, trustServerCertificate: true },
+      ...mssqlAuth,
     });
     teardowns.push(() => pool.close());
 
     // Migrate pool: DDL-privileged user for schema migrations.
     // Set MSSQL_MIGRATE_USER / MSSQL_MIGRATE_PASSWORD for a user with ALTER/CREATE rights.
+    // With integrated auth, the Windows identity already has the required privileges.
     const migrateUser = env.mssqlMigrateUser ?? env.mssqlUser;
     const migratePassword = env.mssqlMigratePassword ?? env.mssqlPassword;
-    const migratePool =
-      migrateUser !== env.mssqlUser || migratePassword !== env.mssqlPassword
-        ? await mssql.connect({
-            server: env.mssqlServer,
-            database: env.mssqlDatabase,
-            user: migrateUser,
-            password: migratePassword,
-            options: { encrypt: true, trustServerCertificate: true },
-          })
-        : pool;
-    if (migratePool !== pool) {
+    const needsSeparateMigratePool =
+      !env.mssqlTrustedConnection &&
+      (migrateUser !== env.mssqlUser || migratePassword !== env.mssqlPassword);
+    const migratePool = needsSeparateMigratePool
+      ? await mssql.connect({
+          server: env.mssqlServer,
+          database: env.mssqlDatabase,
+          user: migrateUser ?? '',
+          password: migratePassword ?? '',
+          options: mssqlBaseOptions,
+        })
+      : pool;
+    if (needsSeparateMigratePool) {
       teardowns.push(() => migratePool.close());
     }
 

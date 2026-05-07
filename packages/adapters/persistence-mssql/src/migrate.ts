@@ -269,6 +269,8 @@ async function main(): Promise<void> {
   // eslint-disable-next-line no-restricted-syntax
   const database = process.env['MSSQL_DATABASE'] ?? 'platform';
   // eslint-disable-next-line no-restricted-syntax
+  const trustedConnection = process.env['MSSQL_TRUSTED_CONNECTION'] === 'true';
+  // eslint-disable-next-line no-restricted-syntax
   const user = process.env['MSSQL_USER'] ?? 'sa';
   // eslint-disable-next-line no-restricted-syntax
   const password = process.env['MSSQL_PASSWORD'] ?? '';
@@ -277,9 +279,13 @@ async function main(): Promise<void> {
     server,
     port,
     database,
-    user,
-    password,
-    options: { encrypt: false, trustServerCertificate: true, enableArithAbort: true },
+    ...(trustedConnection ? {} : { user, password }),
+    options: {
+      encrypt: false,
+      trustServerCertificate: true,
+      enableArithAbort: true,
+      trustedConnection,
+    },
   });
 
   const __filename = url.fileURLToPath(import.meta.url);

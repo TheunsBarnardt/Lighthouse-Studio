@@ -15,6 +15,7 @@ export interface CliEnv {
   postgresMigrateUrl: string | undefined;
   mssqlServer: string | undefined;
   mssqlDatabase: string | undefined;
+  mssqlTrustedConnection: boolean;
   mssqlUser: string | undefined;
   mssqlPassword: string | undefined;
   /** DDL-privileged user for MSSQL migrations. Falls back to mssqlUser. */
@@ -37,6 +38,7 @@ export function readEnv(): CliEnv {
       process.env['POSTGRES_URL'],
     mssqlServer: process.env['MSSQL_SERVER'],
     mssqlDatabase: process.env['MSSQL_DATABASE'],
+    mssqlTrustedConnection: process.env['MSSQL_TRUSTED_CONNECTION'] === 'true',
     mssqlUser: process.env['MSSQL_USER'],
     mssqlPassword: process.env['MSSQL_PASSWORD'],
     mssqlMigrateUser: process.env['MSSQL_MIGRATE_USER'] ?? process.env['MSSQL_USER'],

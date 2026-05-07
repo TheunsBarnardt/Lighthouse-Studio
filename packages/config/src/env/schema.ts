@@ -49,7 +49,8 @@ const mssqlEnvSchema = z.object({
   MSSQL_DATABASE: z.string().optional(),
   MSSQL_USER: z.string().optional(),
   MSSQL_PASSWORD: z.string().optional(),
-  MSSQL_ENCRYPT: z.coerce.boolean().default(true),
+  MSSQL_ENCRYPT: z.coerce.boolean().default(false),
+  MSSQL_TRUSTED_CONNECTION: z.coerce.boolean().default(false),
 });
 
 // ========== MONGO ADAPTER ==========
@@ -183,12 +184,22 @@ export const serverEnvSchema = foundationEnvSchema
         path: ['POSTGRES_URL'],
       });
     }
-    if (v.DATABASE_DRIVER === 'mssql' && (!v.MSSQL_SERVER || !v.MSSQL_DATABASE)) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'MSSQL_SERVER and MSSQL_DATABASE are required when DATABASE_DRIVER=mssql',
-        path: ['MSSQL_SERVER'],
-      });
+    if (v.DATABASE_DRIVER === 'mssql') {
+      if (!v.MSSQL_SERVER || !v.MSSQL_DATABASE) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'MSSQL_SERVER and MSSQL_DATABASE are required when DATABASE_DRIVER=mssql',
+          path: ['MSSQL_SERVER'],
+        });
+      }
+      if (!v.MSSQL_TRUSTED_CONNECTION && (!v.MSSQL_USER || !v.MSSQL_PASSWORD)) {
+        ctx.addIssue({
+          code: 'custom',
+          message:
+            'MSSQL_USER and MSSQL_PASSWORD are required when DATABASE_DRIVER=mssql and MSSQL_TRUSTED_CONNECTION is not set',
+          path: ['MSSQL_USER'],
+        });
+      }
     }
     if (v.DATABASE_DRIVER === 'mongo' && !v.MONGO_URL) {
       ctx.addIssue({
