@@ -9,6 +9,14 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./auth-memory": {
+      "import": "./dist/auth-memory.js",
+      "types": "./dist/auth-memory.d.ts"
+    },
+    "./compose": {
+      "import": "./dist/compose.js",
+      "types": "./dist/compose.d.ts"
     }
   },
   "scripts": {

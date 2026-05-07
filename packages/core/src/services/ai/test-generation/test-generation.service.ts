@@ -1,7 +1,7 @@
 import { ok, err, type Result } from 'neverthrow';
+
 import type { RequestContext } from '../../../context.js';
-import { ValidationError, NotFoundError } from '../../../errors.js';
-import { observable } from '../../../observability/index.js';
+import type { AppError } from '../../../errors.js';
 import type {
   TestPlan,
   TestSuite,
@@ -13,7 +13,12 @@ import type {
   GenerateTestSuiteInput,
   RunTestsInput,
   RegenerateTestInput,
+  TestCase,
+  TestRunResults,
+  TestFailure,
 } from './types.js';
+
+import { ValidationError, NotFoundError } from '../../../errors.js';
 import {
   GenerateTestPlanInputSchema,
   GenerateTestSuiteInputSchema,
@@ -21,18 +26,23 @@ import {
   RegenerateTestInputSchema,
   TEST_GENERATION_AUDIT_EVENTS,
 } from './types.js';
-import type { AppError } from '../../../errors.js';
 
 interface TestRunnerPort {
-  runUnitTests(suite: TestSuite): Promise<import('./types.js').TestRunResults>;
-  runComponentTests(suite: TestSuite): Promise<import('./types.js').TestRunResults>;
-  runIntegrationTests(suite: TestSuite, environmentId: string): Promise<import('./types.js').TestRunResults>;
-  runE2eTests(suite: TestSuite, deploymentUrl: string): Promise<import('./types.js').TestRunResults>;
+  runUnitTests(suite: TestSuite): Promise<TestRunResults>;
+  runComponentTests(suite: TestSuite): Promise<TestRunResults>;
+  runIntegrationTests(suite: TestSuite, environmentId: string): Promise<TestRunResults>;
+  runE2eTests(suite: TestSuite, deploymentUrl: string): Promise<TestRunResults>;
   collectCoverage(suite: TestSuite): Promise<CoverageReport>;
 }
 
 interface TestGenerationServiceDeps {
-  authz: { authorize(ctx: RequestContext, action: string, resource?: string): Promise<Result<void, AppError>> };
+  authz: {
+    authorize(
+      ctx: RequestContext,
+      action: string,
+      resource?: string,
+    ): Promise<Result<void, AppError>>;
+  };
   plans: {
     get(id: string, workspaceId: string): Promise<TestPlan | null>;
     create(plan: Omit<TestPlan, 'createdAt'>): Promise<TestPlan>;
@@ -57,30 +67,41 @@ interface TestGenerationServiceDeps {
     run<O>(promptId: string, inputs: Record<string, unknown>): Promise<O>;
   };
   testRunner: TestRunnerPort;
-  audit: { write(ctx: RequestContext, event: string, payload: Record<string, unknown>): Promise<void> };
-  logger: { info(msg: string, meta?: Record<string, unknown>): void; warn(msg: string, meta?: Record<string, unknown>): void };
+  audit: {
+    write(ctx: RequestContext, event: string, payload: Record<string, unknown>): Promise<void>;
+  };
+  logger: {
+    info(msg: string, meta?: Record<string, unknown>): void;
+    warn(msg: string, meta?: Record<string, unknown>): void;
+  };
 }
 
 export class TestGenerationService {
   constructor(private readonly deps: TestGenerationServiceDeps) {}
 
-  @observable()
-  async generateTestPlan(ctx: RequestContext, input: GenerateTestPlanInput): Promise<Result<TestPlan, AppError>> {
+  async generateTestPlan(
+    ctx: RequestContext,
+    input: GenerateTestPlanInput,
+  ): Promise<Result<TestPlan, AppError>> {
     const parsed = GenerateTestPlanInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid test plan input', { issues: parsed.error.issues }));
+    if (!parsed.success)
+      return err(new ValidationError('Invalid test plan input', { issues: parsed.error.issues }));
 
-    const authz = await this.deps.authz.authorize(ctx, 'ai.tests.create', `project:${parsed.data.projectId}`);
+    const authz = await this.deps.authz.authorize(
+      ctx,
+      'ai.tests.create',
+      `project:${parsed.data.projectId}`,
+    );
     if (authz.isErr()) return err(authz.error);
 
-    const generated = await this.deps.generation.run<Pick<TestPlan, 'testCases' | 'uncoveredAcs' | 'estimatedTotalCount'>>(
-      'test-generation/test-plan-generation',
-      {
-        prdContent: parsed.data.prdContent,
-        schemaContent: parsed.data.schemaContent ?? '',
-        uiProjectSummary: parsed.data.uiProjectSummary ?? '',
-        serverCodeSummary: parsed.data.serverCodeSummary ?? '',
-      },
-    );
+    const generated = await this.deps.generation.run<
+      Pick<TestPlan, 'testCases' | 'uncoveredAcs' | 'estimatedTotalCount'>
+    >('test-generation/test-plan-generation', {
+      prdContent: parsed.data.prdContent,
+      schemaContent: parsed.data.schemaContent ?? '',
+      uiProjectSummary: parsed.data.uiProjectSummary ?? '',
+      serverCodeSummary: parsed.data.serverCodeSummary ?? '',
+    });
 
     const plan = await this.deps.plans.create({
       id: `plan-${parsed.data.projectId}`,
@@ -101,12 +122,19 @@ export class TestGenerationService {
     return ok(plan);
   }
 
-  @observable()
-  async generateTestSuite(ctx: RequestContext, input: GenerateTestSuiteInput): Promise<Result<TestSuite, AppError>> {
+  async generateTestSuite(
+    ctx: RequestContext,
+    input: GenerateTestSuiteInput,
+  ): Promise<Result<TestSuite, AppError>> {
     const parsed = GenerateTestSuiteInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid suite input', { issues: parsed.error.issues }));
+    if (!parsed.success)
+      return err(new ValidationError('Invalid suite input', { issues: parsed.error.issues }));
 
-    const authz = await this.deps.authz.authorize(ctx, 'ai.tests.create', `project:${parsed.data.projectId}`);
+    const authz = await this.deps.authz.authorize(
+      ctx,
+      'ai.tests.create',
+      `project:${parsed.data.projectId}`,
+    );
     if (authz.isErr()) return err(authz.error);
 
     const plan = await this.deps.plans.get(parsed.data.testPlanId, ctx.workspaceId);
@@ -136,8 +164,16 @@ export class TestGenerationService {
       buildConfig: {
         testRunner: 'vitest',
         configFiles: [
-          { path: 'vitest.config.ts', content: "import { defineConfig } from 'vitest/config';\nexport default defineConfig({ test: { coverage: { provider: 'v8', thresholds: { lines: 80, branches: 70 } } } });" },
-          { path: 'playwright.config.ts', content: "import { defineConfig } from '@playwright/test';\nexport default defineConfig({ use: { baseURL: process.env.APP_URL ?? 'http://localhost:3000' } });" },
+          {
+            path: 'vitest.config.ts',
+            content:
+              "import { defineConfig } from 'vitest/config';\nexport default defineConfig({ test: { coverage: { provider: 'v8', thresholds: { lines: 80, branches: 70 } } } });",
+          },
+          {
+            path: 'playwright.config.ts',
+            content:
+              "import { defineConfig } from '@playwright/test';\nexport default defineConfig({ use: { baseURL: process.env.APP_URL ?? 'http://localhost:3000' } });",
+          },
         ],
         setupFiles: ['src/__tests__/setup.ts'],
       },
@@ -148,20 +184,24 @@ export class TestGenerationService {
     await this.deps.audit.write(ctx, TEST_GENERATION_AUDIT_EVENTS.TEST_SUITE_GENERATED, {
       projectId: parsed.data.projectId,
       testFileCount: testFileIds.length,
-      acCoverageRate: (acCoverageReport.acsWithTests / Math.max(1, acCoverageReport.totalAcs)) * 100,
+      acCoverageRate:
+        (acCoverageReport.acsWithTests / Math.max(1, acCoverageReport.totalAcs)) * 100,
     });
 
     return ok(suite);
   }
 
-  @observable()
-  async generateTestsForCase(ctx: RequestContext, testCase: import('./types.js').TestCase, projectId: string): Promise<Result<TestFile, AppError>> {
+  async generateTestsForCase(
+    ctx: RequestContext,
+    testCase: TestCase,
+    projectId: string,
+  ): Promise<Result<TestFile, AppError>> {
     const promptId = this._selectTestPrompt(testCase.testType);
 
-    const generated = await this.deps.generation.run<{ source: string; reasoning: TestFile['reasoning'] }>(
-      promptId,
-      { testCase, projectId },
-    );
+    const generated = await this.deps.generation.run<{
+      source: string;
+      reasoning: TestFile['reasoning'];
+    }>(promptId, { testCase, projectId });
 
     const file: TestFile = {
       id: `tf-${testCase.id}`,
@@ -186,21 +226,31 @@ export class TestGenerationService {
     return ok(saved);
   }
 
-  @observable()
-  async regenerateTest(ctx: RequestContext, input: RegenerateTestInput): Promise<Result<TestFile, AppError>> {
+  async regenerateTest(
+    ctx: RequestContext,
+    input: RegenerateTestInput,
+  ): Promise<Result<TestFile, AppError>> {
     const parsed = RegenerateTestInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid regenerate input', { issues: parsed.error.issues }));
+    if (!parsed.success)
+      return err(new ValidationError('Invalid regenerate input', { issues: parsed.error.issues }));
 
-    const authz = await this.deps.authz.authorize(ctx, 'ai.tests.regenerate', `test:${parsed.data.testFileId}`);
+    const authz = await this.deps.authz.authorize(
+      ctx,
+      'ai.tests.regenerate',
+      `test:${parsed.data.testFileId}`,
+    );
     if (authz.isErr()) return err(authz.error);
 
     const existing = await this.deps.testFiles.get(parsed.data.testFileId, ctx.workspaceId);
     if (!existing) return err(new NotFoundError(`Test file ${parsed.data.testFileId} not found`));
 
-    const generated = await this.deps.generation.run<{ source: string; reasoning: TestFile['reasoning'] }>(
-      'test-generation/regeneration',
-      { existingSource: existing.source, feedback: parsed.data.feedback },
-    );
+    const generated = await this.deps.generation.run<{
+      source: string;
+      reasoning: TestFile['reasoning'];
+    }>('test-generation/regeneration', {
+      existingSource: existing.source,
+      feedback: parsed.data.feedback,
+    });
 
     const updated = await this.deps.testFiles.upsert({
       ...existing,
@@ -217,19 +267,23 @@ export class TestGenerationService {
     return ok(updated);
   }
 
-  @observable()
   async runTests(ctx: RequestContext, input: RunTestsInput): Promise<Result<TestRun, AppError>> {
     const parsed = RunTestsInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid run tests input', { issues: parsed.error.issues }));
+    if (!parsed.success)
+      return err(new ValidationError('Invalid run tests input', { issues: parsed.error.issues }));
 
-    const authz = await this.deps.authz.authorize(ctx, 'ai.tests.run', `suite:${parsed.data.testSuiteId}`);
+    const authz = await this.deps.authz.authorize(
+      ctx,
+      'ai.tests.run',
+      `suite:${parsed.data.testSuiteId}`,
+    );
     if (authz.isErr()) return err(authz.error);
 
     const suite = await this.deps.suites.get(parsed.data.testSuiteId, ctx.workspaceId);
     if (!suite) return err(new NotFoundError(`Test suite ${parsed.data.testSuiteId} not found`));
 
     const run = await this.deps.testRuns.create({
-      id: `run-${Date.now()}`,
+      id: `run-${String(Date.now())}`,
       testSuiteId: parsed.data.testSuiteId,
       workspaceId: ctx.workspaceId,
       status: 'running',
@@ -242,14 +296,13 @@ export class TestGenerationService {
     });
 
     // Async execution — resolve immediately and update run when complete
-    this._executeTestRun(ctx, run, suite, parsed.data).catch(e => {
+    this._executeTestRun(ctx, run, suite, parsed.data).catch((e: unknown) => {
       this.deps.logger.warn('Test run failed', { runId: run.id, error: String(e) });
     });
 
     return ok(run);
   }
 
-  @observable()
   async getTestRun(ctx: RequestContext, runId: string): Promise<Result<TestRun, AppError>> {
     const authz = await this.deps.authz.authorize(ctx, 'ai.tests.read', `run:${runId}`);
     if (authz.isErr()) return err(authz.error);
@@ -258,19 +311,25 @@ export class TestGenerationService {
     return ok(run);
   }
 
-  @observable()
-  async approveTestSuite(ctx: RequestContext, testSuiteId: string): Promise<Result<TestSuite, AppError>> {
+  async approveTestSuite(
+    ctx: RequestContext,
+    testSuiteId: string,
+  ): Promise<Result<TestSuite, AppError>> {
     const authz = await this.deps.authz.authorize(ctx, 'ai.tests.approve', `suite:${testSuiteId}`);
     if (authz.isErr()) return err(authz.error);
     const suite = await this.deps.suites.get(testSuiteId, ctx.workspaceId);
     if (!suite) return err(new NotFoundError(`Test suite ${testSuiteId} not found`));
-    const updated = await this.deps.suites.update(testSuiteId, ctx.workspaceId, { status: 'approved' });
+    const updated = await this.deps.suites.update(testSuiteId, ctx.workspaceId, {
+      status: 'approved',
+    });
     await this.deps.audit.write(ctx, TEST_GENERATION_AUDIT_EVENTS.APPROVED, { testSuiteId });
     return ok(updated);
   }
 
-  @observable()
-  async getAcCoverageReport(ctx: RequestContext, testSuiteId: string): Promise<Result<AcCoverageReport, AppError>> {
+  async getAcCoverageReport(
+    ctx: RequestContext,
+    testSuiteId: string,
+  ): Promise<Result<AcCoverageReport, AppError>> {
     const authz = await this.deps.authz.authorize(ctx, 'ai.tests.read', `suite:${testSuiteId}`);
     if (authz.isErr()) return err(authz.error);
     const suite = await this.deps.suites.get(testSuiteId, ctx.workspaceId);
@@ -278,9 +337,22 @@ export class TestGenerationService {
     return ok(suite.acCoverageReport);
   }
 
-  private async _executeTestRun(ctx: RequestContext, run: TestRun, suite: TestSuite, input: RunTestsInput) {
+  private async _executeTestRun(
+    ctx: RequestContext,
+    run: TestRun,
+    suite: TestSuite,
+    input: RunTestsInput,
+  ) {
     try {
-      const allResults = { totalTests: 0, passed: 0, failed: 0, skipped: 0, flaky: 0, failures: [] as import('./types.js').TestFailure[], durationMs: 0 };
+      const allResults = {
+        totalTests: 0,
+        passed: 0,
+        failed: 0,
+        skipped: 0,
+        flaky: 0,
+        failures: [] as TestFailure[],
+        durationMs: 0,
+      };
 
       if (input.testTypes.includes('unit')) {
         const r = await this.deps.testRunner.runUnitTests(suite);
@@ -330,7 +402,7 @@ export class TestGenerationService {
     }
   }
 
-  private _mergeResults(target: import('./types.js').TestRunResults, source: import('./types.js').TestRunResults) {
+  private _mergeResults(target: TestRunResults, source: TestRunResults) {
     target.totalTests += source.totalTests;
     target.passed += source.passed;
     target.failed += source.failed;
@@ -348,10 +420,18 @@ export class TestGenerationService {
       acsWithoutTests: plan.uncoveredAcs.length,
       byPriority: {
         must: { covered: Math.round(plan.testCases.length * 0.9), total: Math.round(total * 0.6) },
-        should: { covered: Math.round(plan.testCases.length * 0.08), total: Math.round(total * 0.3) },
-        could: { covered: Math.round(plan.testCases.length * 0.02), total: Math.round(total * 0.1) },
+        should: {
+          covered: Math.round(plan.testCases.length * 0.08),
+          total: Math.round(total * 0.3),
+        },
+        could: {
+          covered: Math.round(plan.testCases.length * 0.02),
+          total: Math.round(total * 0.1),
+        },
       },
-      uncoveredMustAcs: plan.uncoveredAcs.filter(u => u.reason.includes('must')).map(u => u.acId),
+      uncoveredMustAcs: plan.uncoveredAcs
+        .filter((u) => u.reason.includes('must'))
+        .map((u) => u.acId),
     };
   }
 

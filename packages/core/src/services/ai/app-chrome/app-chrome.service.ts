@@ -1,7 +1,7 @@
 import { ok, err, type Result } from 'neverthrow';
+
 import type { RequestContext } from '../../../context.js';
-import { ValidationError, NotFoundError } from '../../../errors.js';
-import { observable } from '../../../observability/index.js';
+import type { AppError } from '../../../errors.js';
 import type {
   AppChromeConfig,
   ChromeProposal,
@@ -9,12 +9,24 @@ import type {
   ProposeChromeInput,
   ApplyChromeProposalInput,
 } from './types.js';
-import { UpdateChromeConfigInputSchema, ProposeChromInputSchema, ApplyChromeProposalInputSchema, APP_CHROME_AUDIT_EVENTS } from './types.js';
-import type { AppError } from '../../../errors.js';
+
+import { ValidationError, NotFoundError } from '../../../errors.js';
 import { STARTER_CHROME_BLOCKS } from './starter-blocks.js';
+import {
+  UpdateChromeConfigInputSchema,
+  ProposeChromInputSchema,
+  ApplyChromeProposalInputSchema,
+  APP_CHROME_AUDIT_EVENTS,
+} from './types.js';
 
 interface AppChromeServiceDeps {
-  authz: { authorize(ctx: RequestContext, action: string, resource?: string): Promise<Result<void, AppError>> };
+  authz: {
+    authorize(
+      ctx: RequestContext,
+      action: string,
+      resource?: string,
+    ): Promise<Result<void, AppError>>;
+  };
   configs: {
     getByProjectId(projectId: string, workspaceId: string): Promise<AppChromeConfig | null>;
     upsert(config: Omit<AppChromeConfig, 'createdAt' | 'updatedAt'>): Promise<AppChromeConfig>;
@@ -35,8 +47,10 @@ interface AppChromeServiceDeps {
 export class AppChromeService {
   constructor(private readonly deps: AppChromeServiceDeps) {}
 
-  @observable()
-  async getConfig(ctx: RequestContext, projectId: string): Promise<Result<AppChromeConfig | null, AppError>> {
+  async getConfig(
+    ctx: RequestContext,
+    projectId: string,
+  ): Promise<Result<AppChromeConfig | null, AppError>> {
     const authz = await this.deps.authz.authorize(ctx, 'app_chrome.view', `project:${projectId}`);
     if (authz.isErr()) return err(authz.error);
 
@@ -44,12 +58,21 @@ export class AppChromeService {
     return ok(config);
   }
 
-  @observable()
-  async updateConfig(ctx: RequestContext, input: UpdateChromeConfigInput): Promise<Result<AppChromeConfig, AppError>> {
+  async updateConfig(
+    ctx: RequestContext,
+    input: UpdateChromeConfigInput,
+  ): Promise<Result<AppChromeConfig, AppError>> {
     const parsed = UpdateChromeConfigInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid chrome config input', { issues: parsed.error.issues }));
+    if (!parsed.success)
+      return err(
+        new ValidationError('Invalid chrome config input', { issues: parsed.error.issues }),
+      );
 
-    const authz = await this.deps.authz.authorize(ctx, 'app_chrome.configure', `project:${parsed.data.projectId}`);
+    const authz = await this.deps.authz.authorize(
+      ctx,
+      'app_chrome.configure',
+      `project:${parsed.data.projectId}`,
+    );
     if (authz.isErr()) return err(authz.error);
 
     const existing = await this.deps.configs.getByProjectId(parsed.data.projectId, ctx.workspaceId);
@@ -68,15 +91,18 @@ export class AppChromeService {
 
     await this.deps.audit.write(ctx, APP_CHROME_AUDIT_EVENTS.CONFIG_UPDATED, {
       projectId: parsed.data.projectId,
-      changes: Object.keys(parsed.data).filter(k => k !== 'projectId'),
+      changes: Object.keys(parsed.data).filter((k) => k !== 'projectId'),
     });
 
     return ok(config);
   }
 
-  @observable()
   async resetConfig(ctx: RequestContext, projectId: string): Promise<Result<void, AppError>> {
-    const authz = await this.deps.authz.authorize(ctx, 'app_chrome.configure', `project:${projectId}`);
+    const authz = await this.deps.authz.authorize(
+      ctx,
+      'app_chrome.configure',
+      `project:${projectId}`,
+    );
     if (authz.isErr()) return err(authz.error);
 
     const existing = await this.deps.configs.getByProjectId(projectId, ctx.workspaceId);
@@ -88,23 +114,29 @@ export class AppChromeService {
     return ok(undefined);
   }
 
-  @observable()
-  async proposeChrome(ctx: RequestContext, input: ProposeChromeInput): Promise<Result<ChromeProposal, AppError>> {
+  async proposeChrome(
+    ctx: RequestContext,
+    input: ProposeChromeInput,
+  ): Promise<Result<ChromeProposal, AppError>> {
     const parsed = ProposeChromInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid propose chrome input', { issues: parsed.error.issues }));
+    if (!parsed.success)
+      return err(
+        new ValidationError('Invalid propose chrome input', { issues: parsed.error.issues }),
+      );
 
-    const authz = await this.deps.authz.authorize(ctx, 'app_chrome.propose', `project:${parsed.data.projectId}`);
+    const authz = await this.deps.authz.authorize(
+      ctx,
+      'app_chrome.propose',
+      `project:${parsed.data.projectId}`,
+    );
     if (authz.isErr()) return err(authz.error);
 
-    const proposal = await this.deps.generation.run<ChromeProposal>(
-      'app-chrome/chrome-proposal',
-      {
-        prdContent: parsed.data.prdContent,
-        brandPrimary: parsed.data.brandPrimary,
-        brandName: parsed.data.brandName,
-        availableBlocks: STARTER_CHROME_BLOCKS,
-      },
-    );
+    const proposal = await this.deps.generation.run<ChromeProposal>('app-chrome/chrome-proposal', {
+      prdContent: parsed.data.prdContent,
+      brandPrimary: parsed.data.brandPrimary,
+      brandName: parsed.data.brandName,
+      availableBlocks: STARTER_CHROME_BLOCKS,
+    });
 
     await this.deps.audit.write(ctx, APP_CHROME_AUDIT_EVENTS.PROPOSAL_GENERATED, {
       projectId: parsed.data.projectId,
@@ -114,12 +146,21 @@ export class AppChromeService {
     return ok(proposal);
   }
 
-  @observable()
-  async applyProposal(ctx: RequestContext, input: ApplyChromeProposalInput): Promise<Result<AppChromeConfig, AppError>> {
+  async applyProposal(
+    ctx: RequestContext,
+    input: ApplyChromeProposalInput,
+  ): Promise<Result<AppChromeConfig, AppError>> {
     const parsed = ApplyChromeProposalInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid apply proposal input', { issues: parsed.error.issues }));
+    if (!parsed.success)
+      return err(
+        new ValidationError('Invalid apply proposal input', { issues: parsed.error.issues }),
+      );
 
-    const authz = await this.deps.authz.authorize(ctx, 'app_chrome.configure', `project:${parsed.data.projectId}`);
+    const authz = await this.deps.authz.authorize(
+      ctx,
+      'app_chrome.configure',
+      `project:${parsed.data.projectId}`,
+    );
     if (authz.isErr()) return err(authz.error);
 
     const { proposal } = parsed.data;
@@ -127,10 +168,16 @@ export class AppChromeService {
     const updateResult = await this.updateConfig(ctx, {
       projectId: parsed.data.projectId,
       layout: proposal.suggestedLayout,
-      header: proposal.header ? { blockId: proposal.header.blockId, params: proposal.header.params } : undefined,
-      sidenav: proposal.sidenav ? { blockId: proposal.sidenav.blockId, params: proposal.sidenav.params } : undefined,
-      breadcrumb: proposal.breadcrumb ? { blockId: proposal.breadcrumb.blockId, params: proposal.breadcrumb.params } : undefined,
-      footer: proposal.footer ? { blockId: proposal.footer.blockId, params: proposal.footer.params } : undefined,
+      header: { blockId: proposal.header.blockId, params: proposal.header.params },
+      sidenav: proposal.sidenav
+        ? { blockId: proposal.sidenav.blockId, params: proposal.sidenav.params }
+        : undefined,
+      breadcrumb: proposal.breadcrumb
+        ? { blockId: proposal.breadcrumb.blockId, params: proposal.breadcrumb.params }
+        : undefined,
+      footer: proposal.footer
+        ? { blockId: proposal.footer.blockId, params: proposal.footer.params }
+        : undefined,
       pageOverrides: proposal.pageOverrides,
     });
 
@@ -143,8 +190,7 @@ export class AppChromeService {
     return ok(updateResult.value);
   }
 
-  @observable()
-  async listChromeBlocks(_ctx: RequestContext): Promise<Result<typeof STARTER_CHROME_BLOCKS, AppError>> {
+  listChromeBlocks(_ctx: RequestContext): Result<typeof STARTER_CHROME_BLOCKS, AppError> {
     return ok(STARTER_CHROME_BLOCKS);
   }
 }

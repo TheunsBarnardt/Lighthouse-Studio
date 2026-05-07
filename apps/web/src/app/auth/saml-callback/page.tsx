@@ -1,14 +1,14 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/auth-context';
 
-export default function SamlCallbackPage() {
+function SamlCallbackPageInner() {
   const t = useTranslations('auth.samlCallback');
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -26,7 +26,7 @@ export default function SamlCallbackPage() {
     void (async () => {
       try {
         await refresh();
-        void router.replace('/');
+        router.replace('/');
       } catch {
         setError(t('error', { message: 'Failed to sign in.' }));
       }
@@ -35,13 +35,28 @@ export default function SamlCallbackPage() {
 
   return (
     <Card>
-      <CardHeader><CardTitle>{t('title')}</CardTitle></CardHeader>
+      <CardHeader>
+        <CardTitle>{t('title')}</CardTitle>
+      </CardHeader>
       <CardContent>
-        {error
-          ? <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>
-          : <p className="text-sm text-muted-foreground" aria-live="polite">{t('title')}</p>
-        }
+        {error ? (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : (
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            {t('title')}
+          </p>
+        )}
       </CardContent>
     </Card>
+  );
+}
+
+export default function SamlCallbackPage() {
+  return (
+    <Suspense>
+      <SamlCallbackPageInner />
+    </Suspense>
   );
 }

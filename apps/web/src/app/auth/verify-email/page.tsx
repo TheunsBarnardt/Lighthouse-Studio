@@ -1,16 +1,16 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { authApi } from '@/lib/auth-client';
 
-export default function VerifyEmailPage() {
+function VerifyEmailPageInner() {
   const t = useTranslations('auth.verifyEmail');
   const searchParams = useSearchParams();
   const token = searchParams.get('token') ?? '';
@@ -21,12 +21,15 @@ export default function VerifyEmailPage() {
       setStatus('error');
       return;
     }
-    void authApi.verifyEmail(token)
+    void authApi
+      .verifyEmail(token)
       .then(() => {
         setStatus('success');
         return undefined;
       })
-      .catch(() => { setStatus('error'); });
+      .catch(() => {
+        setStatus('error');
+      });
   }, [token]);
 
   return (
@@ -40,10 +43,14 @@ export default function VerifyEmailPage() {
       </CardHeader>
       <CardContent>
         {status === 'verifying' && (
-          <p className="text-sm text-muted-foreground" aria-live="polite">Verifying…</p>
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            Verifying…
+          </p>
         )}
         {status === 'success' && (
-          <p className="text-sm text-muted-foreground" aria-live="polite">{t('successMessage')}</p>
+          <p className="text-sm text-muted-foreground" aria-live="polite">
+            {t('successMessage')}
+          </p>
         )}
         {status === 'error' && (
           <Alert variant="destructive" aria-live="polite">
@@ -53,9 +60,19 @@ export default function VerifyEmailPage() {
       </CardContent>
       {status === 'success' && (
         <CardFooter className="justify-center">
-          <Link href="/auth/sign-in"><Button>{t('signIn')}</Button></Link>
+          <Link href="/auth/sign-in">
+            <Button>{t('signIn')}</Button>
+          </Link>
         </CardFooter>
       )}
     </Card>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense>
+      <VerifyEmailPageInner />
+    </Suspense>
   );
 }

@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -39,7 +39,7 @@ const SignInSchema = z.object({
 
 type SignInValues = z.infer<typeof SignInSchema>;
 
-export default function SignInPage() {
+function SignInPageInner() {
   const t = useTranslations('auth.signIn');
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -178,5 +178,13 @@ export default function SignInPage() {
         </Link>
       </CardFooter>
     </Card>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInPageInner />
+    </Suspense>
   );
 }

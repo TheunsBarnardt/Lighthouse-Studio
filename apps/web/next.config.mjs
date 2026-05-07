@@ -16,6 +16,14 @@ const nextConfig = {
       'mongodb',
       'pg',
       'pg-native',
+      '@sentry/node',
+      '@sentry/core',
+      '@opentelemetry/sdk-node',
+      '@opentelemetry/api',
+      'pino',
+      '@platform/adapter-observability-errors',
+      '@platform/adapter-observability-metrics',
+      '@platform/adapter-observability-traces',
     ],
   },
   webpack: (config, { isServer, webpack }) => {
@@ -26,12 +34,20 @@ const nextConfig = {
     };
 
     if (isServer) {
-      // Allow node: protocol imports on server side
+      // Allow node: protocol imports on server side, and keep Sentry/OTel as externals
       config.externals = config.externals ?? [];
       if (Array.isArray(config.externals)) {
         config.externals.push(({ request }, callback) => {
           if (request?.startsWith('node:')) {
             return callback(null, `commonjs ${request.slice(5)}`);
+          }
+          // Keep Sentry and OpenTelemetry out of the webpack bundle to avoid native module issues
+          if (
+            request?.startsWith('@sentry/') ||
+            request?.startsWith('@opentelemetry/') ||
+            request?.startsWith('@platform/adapter-observability')
+          ) {
+            return callback(null, `commonjs ${request}`);
           }
           callback();
         });

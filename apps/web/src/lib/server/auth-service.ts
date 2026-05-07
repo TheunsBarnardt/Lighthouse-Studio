@@ -7,7 +7,7 @@ import type { AuthService } from '@platform/core';
 import type { AuditPort } from '@platform/ports-audit';
 import type { SessionPort, UserDirectoryPort } from '@platform/ports-identity';
 
-import { composeAuthMemory, type AuthMemoryBundle } from '@platform/composition';
+import { composeAuthMemory, type AuthMemoryBundle } from '@platform/composition/auth-memory';
 import {
   createInMemoryAudit,
   createInMemoryAuthz,
@@ -59,6 +59,7 @@ function getServer(): ServerBundle {
           if (result.isOk()) {
             server.installationAdmins.add(result.value.id);
           }
+          return undefined;
         });
     }
   }
