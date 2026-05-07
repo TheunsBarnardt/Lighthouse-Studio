@@ -1,0 +1,27 @@
+{
+  "sustained_load": {
+    "postgres": { "p50": 55, "p95": 390, "p99": 1050 },
+    "mssql": { "p50": 48, "p95": 345, "p99": 940 },
+    "mongodb": { "p50": 60, "p95": 410, "p99": 1080 }
+  },
+  "burst_load": {
+    "postgres": { "p50": 82, "p95": 740, "p99": 1480 },
+    "mssql": { "p50": 75, "p95": 680, "p99": 1390 },
+    "mongodb": { "p50": 78, "p95": 710, "p99": 1420 }
+  },
+  "audit_query": {
+    "postgres": { "p50": 18, "p95": 185, "p99": 390 },
+    "mssql": { "p50": 15, "p95": 170, "p99": 360 },
+    "mongodb": { "p50": 20, "p95": 195, "p99": 410 }
+  },
+  "_meta": {
+    "established": "2026-05-07",
+    "platform": "windows-2022",
+    "note": "Windows targets are ~25% higher than Linux to account for NTFS and I/O differences",
+    "target_p95_sustained_ms": 600,
+    "target_p95_burst_ms": 1200,
+    "target_p95_audit_ms": 250,
+    "regression_threshold_pct": 20,
+    "status": "initial-placeholder — replace with measured values after first Windows staging run"
+  }
+}

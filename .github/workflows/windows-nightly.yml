@@ -66,6 +66,21 @@ jobs:
       - name: Audit catalog check
         run: pnpm audit:catalog
 
+      - name: Performance baseline check (Windows)
+        # Compares pnpm bench:windows output against bench/baselines/windows-p95-ms.json.
+        # Fails if any p95 exceeds the baseline target by more than regression_threshold_pct (20%).
+        # Skipped when LOAD_TEST_BASE_URL is not set (no staging environment).
+        env:
+          LOAD_TEST_BASE_URL: ${{ secrets.LOAD_TEST_BASE_URL }}
+          BASELINE_FILE: bench/baselines/windows-p95-ms.json
+        run: |
+          if (-not $env:LOAD_TEST_BASE_URL) {
+            Write-Host "LOAD_TEST_BASE_URL not set — skipping Windows perf baseline check"
+            exit 0
+          }
+          pnpm bench:windows --baseline $env:BASELINE_FILE
+        shell: pwsh
+
   windows-2019-compat:
     name: Compatibility check on Windows Server 2019
     runs-on: windows-2019
