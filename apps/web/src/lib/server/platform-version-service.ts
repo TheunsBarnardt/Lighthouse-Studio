@@ -67,6 +67,21 @@ export function isUpgradeInProgress(): boolean {
   return getStore().upgradeInProgress;
 }
 
+/** Records the initial platform version on first-run (setup flow). No-op if already recorded. */
+export function recordInitialVersion(appliedBy: string): void {
+  const store = getStore();
+  for (const [id, history] of store.histories.entries()) {
+    if (history.length === 0) {
+      history.push({
+        releaseVersion: PLATFORM_VERSION,
+        appliedAt: new Date(),
+        appliedBy,
+      });
+      store.histories.set(id, history);
+    }
+  }
+}
+
 export async function triggerUpgrade(appliedBy: string): Promise<void> {
   const store = getStore();
   if (store.upgradeInProgress) {

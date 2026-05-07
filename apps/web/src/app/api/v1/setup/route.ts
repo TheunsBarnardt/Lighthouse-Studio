@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import { okResponse } from '@/lib/server/api-helpers';
 import { getAuthService, getUserDirectory } from '@/lib/server/auth-service';
+import { recordInitialVersion } from '@/lib/server/platform-version-service';
 import { setSessionCookie } from '@/lib/server/session';
 
 const SetupSchema = z.object({
@@ -87,6 +88,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       token = completeResult.value.token;
     }
   }
+
+  // Record initial platform version for the upgrade panel
+  recordInitialVersion(user.id);
 
   // TODO: create the first workspace via WorkspaceService
 
