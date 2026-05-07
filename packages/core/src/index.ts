@@ -369,3 +369,33 @@ export { PRD_SECTION_TYPES, SECTION_DEPENDENCIES } from './services/ai/prd-gener
 export { PRD_AUDIT_EVENTS } from './services/ai/prd-generation/index.js';
 export { PRD_GENERATION_PERMISSIONS, PRD_GENERATION_ROLE_GRANTS } from './services/ai/prd-generation/index.js';
 export { BUILT_IN_PRD_TEMPLATES, getBuiltInPrdTemplates, getBuiltInPrdTemplate } from './services/ai/prd-generation/index.js';
+
+// ── AI Build Pipeline — Objective 23 (Design Tokens) ──────────────────────────
+export { DesignTokensService } from './services/ai/design-tokens/index.js';
+export type { DesignTokenArtifact } from './services/ai/design-tokens/index.js';
+export { DESIGN_TOKENS_AUDIT_EVENTS } from './services/ai/design-tokens/index.js';
+export { DESIGN_TOKENS_PERMISSIONS, DESIGN_TOKENS_DEFAULT_GRANTS } from './services/ai/design-tokens/index.js';
+export { validateContrast, validateTokenSetAccessibility, contrastRatio, hexToOklch, oklchToHex, generateColorScale, oklchToCss } from './services/ai/design-tokens/index.js';
+export type { OklchColor } from './services/ai/design-tokens/index.js';
+export type {
+  BrandInputs,
+  BrandColor,
+  ColorScale,
+  ColorTokens,
+  TypographyTokens,
+  SpacingTokens,
+  SizingTokens,
+  BorderRadiusTokens,
+  ShadowTokens,
+  MotionTokens,
+  ZIndexTokens,
+  BreakpointTokens,
+  DesignTokenSet,
+  TokenCategory,
+  ExportFormat,
+  AccessibilityReport,
+  ContrastResult,
+  DesignConsistencyReport,
+  GenerateTokensInput,
+} from './services/ai/design-tokens/index.js';
+export { TOKEN_CATEGORIES, DesignTokenSetSchema } from './services/ai/design-tokens/index.js';
