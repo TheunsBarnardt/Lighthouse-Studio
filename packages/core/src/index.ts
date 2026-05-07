@@ -477,3 +477,46 @@ export type {
   TransformationContext,
   TransformationResult,
 } from './services/ai/data-migration/index.js';
+
+// ─── Objective 26: UI Generation ─────────────────────────────────────────────
+export { UiGenerationService, AccessibilityValidator, TypeChecker } from './services/ai/ui-generation/index.js';
+export type {
+  InformationArchitecture,
+  PageDefinition,
+  PageType,
+  NavigationDefinition,
+  NavigationItem,
+  AuthPageDefinition,
+  LayoutDefinition,
+  ComponentSpec,
+  ComponentType,
+  ProjectFile,
+  FileType,
+  AxeViolation,
+  AccessibilityReport,
+  TypeCheckReport,
+  ConsistencyReport,
+  ComponentQualitySignals,
+  UiComponent,
+  BuildConfig,
+  UiProject,
+  UiProjectStatus,
+  UiProjectArtifact,
+  UiGenerationQualitySignals,
+  GenerateProjectInput,
+  GenerateIaInput,
+  RegenerateComponentInput,
+  UiGenerationAuditEventType,
+  TraceabilityRef,
+  PermissionRequirement,
+  ComponentRef,
+  PropDefinition,
+} from './services/ai/ui-generation/index.js';
+export {
+  GenerateProjectInputSchema,
+  GenerateIaInputSchema,
+  RegenerateComponentInputSchema,
+  UI_GENERATION_AUDIT_EVENTS,
+  UI_GENERATION_PERMISSIONS,
+  UI_GENERATION_DEFAULT_GRANTS,
+} from './services/ai/ui-generation/index.js';

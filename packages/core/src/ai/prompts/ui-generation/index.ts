@@ -1,0 +1,16 @@
+export { informationArchitecturePrompt } from './information-architecture.prompt.js';
+export { appShellPrompt } from './app-shell.prompt.js';
+export { listComponentPrompt } from './list-component.prompt.js';
+export { detailComponentPrompt } from './detail-component.prompt.js';
+export { createFormPrompt } from './create-form.prompt.js';
+export { editFormPrompt } from './edit-form.prompt.js';
+export { workflowComponentPrompt } from './workflow-component.prompt.js';
+export { dashboardComponentPrompt } from './dashboard-component.prompt.js';
+export { authPagesPrompt } from './auth-pages.prompt.js';
+export { routingConfigPrompt } from './routing-config.prompt.js';
+export { buildConfigPrompt } from './build-config.prompt.js';
+export { storybookStoryPrompt } from './storybook-story.prompt.js';
+export { accessibilityFixPrompt } from './accessibility-fix.prompt.js';
+export { regenerationPrompt } from './regeneration.prompt.js';
+export { consistencyCheckPrompt } from './consistency-check.prompt.js';
+export { orchestratorPrompt } from './orchestrator.prompt.js';

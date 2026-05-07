@@ -1,0 +1,43 @@
+export { UiGenerationService } from './ui-generation.service.js';
+export { AccessibilityValidator } from './accessibility-validator.js';
+export { TypeChecker } from './type-checker.js';
+export type {
+  InformationArchitecture,
+  PageDefinition,
+  PageType,
+  NavigationDefinition,
+  NavigationItem,
+  AuthPageDefinition,
+  LayoutDefinition,
+  ComponentSpec,
+  ComponentType,
+  ProjectFile,
+  FileType,
+  AxeViolation,
+  AccessibilityReport,
+  TypeCheckReport,
+  ConsistencyReport,
+  ComponentQualitySignals,
+  UiComponent,
+  BuildConfig,
+  UiProject,
+  UiProjectStatus,
+  UiProjectArtifact,
+  UiGenerationQualitySignals,
+  GenerateProjectInput,
+  GenerateIaInput,
+  RegenerateComponentInput,
+  UiGenerationAuditEventType,
+  TraceabilityRef,
+  PermissionRequirement,
+  ComponentRef,
+  PropDefinition,
+} from './types.js';
+export {
+  GenerateProjectInputSchema,
+  GenerateIaInputSchema,
+  RegenerateComponentInputSchema,
+  UI_GENERATION_AUDIT_EVENTS,
+  UI_GENERATION_PERMISSIONS,
+  UI_GENERATION_DEFAULT_GRANTS,
+} from './types.js';
