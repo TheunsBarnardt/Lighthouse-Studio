@@ -1,6 +1,10 @@
 import type { ReactNode } from 'react';
 
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+
+import { isInstallationAdmin } from '@/lib/server/auth-service';
+import { verifySessionFromCookies } from '@/lib/server/session';
 
 const NAV = [
   { href: '/admin/users', label: 'Users' },
@@ -9,7 +13,11 @@ const NAV = [
   { href: '/admin/upgrade', label: 'Upgrade' },
 ];
 
-export default function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  const session = await verifySessionFromCookies();
+  if (!session || !isInstallationAdmin(session.userId)) {
+    redirect('/');
+  }
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="mb-6">

@@ -17,6 +17,8 @@ import {
 interface ServerBundle {
   authBundle: AuthMemoryBundle;
   audit: AuditPort;
+  /** User IDs granted installation-admin privileges in the current dev session. */
+  installationAdmins: Set<string>;
 }
 
 // Use globalThis so the singleton survives Next.js hot module replacement in dev mode
@@ -32,23 +34,32 @@ function getServer(): ServerBundle {
         logger: createInMemoryLogger(),
       }),
       audit,
+      installationAdmins: new Set<string>(),
     };
-    // Seed a dev user from env so the state survives hot-reloads transparently
+    // Seed a dev user from env so the state survives hot-reloads transparently.
+    // The seed user is also granted installation_admin so the admin panel is accessible.
     const seedEmail = process.env['SEED_ADMIN_EMAIL'];
     if (seedEmail) {
-      const dir = g._lighthouseServer.authBundle.userDirectory;
-      void dir.create({
-        email: seedEmail,
-        displayName: process.env['SEED_ADMIN_NAME'] ?? 'Admin',
-        identity: {
-          providerId: 'builtin',
-          subject: seedEmail,
+      const server = g._lighthouseServer;
+      const dir = server.authBundle.userDirectory;
+      void dir
+        .create({
           email: seedEmail,
-          emailVerified: true,
-          primary: true,
-        },
-        preferences: {},
-      });
+          displayName: process.env['SEED_ADMIN_NAME'] ?? 'Admin',
+          identity: {
+            providerId: 'builtin',
+            subject: seedEmail,
+            email: seedEmail,
+            emailVerified: true,
+            primary: true,
+          },
+          preferences: {},
+        })
+        .then((result) => {
+          if (result.isOk()) {
+            server.installationAdmins.add(result.value.id);
+          }
+        });
     }
   }
   return g._lighthouseServer;
@@ -72,4 +83,14 @@ export function getSessionAdapter(): SessionPort {
 
 export function getUserDirectory(): UserDirectoryPort {
   return getBundle().userDirectory;
+}
+
+/** Returns true if the user has been granted installation_admin or installation_owner. */
+export function isInstallationAdmin(userId: string): boolean {
+  return getServer().installationAdmins.has(userId);
+}
+
+/** Grant installation_admin to a user (used by setup flow after first-run). */
+export function grantInstallationAdmin(userId: string): void {
+  getServer().installationAdmins.add(userId);
 }

@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server';
 
 import { NextResponse } from 'next/server';
 
+import { isInstallationAdmin } from '@/lib/server/auth-service';
 import { isUpgradeInProgress, triggerUpgrade } from '@/lib/server/platform-version-service';
 import { verifySessionFromRequest } from '@/lib/server/session';
 
@@ -11,6 +12,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(
       { code: 'UNAUTHORIZED', message: 'Not authenticated.' },
       { status: 401 },
+    );
+  }
+
+  if (!isInstallationAdmin(session.userId)) {
+    return NextResponse.json(
+      { code: 'FORBIDDEN', message: 'Installation admin role required.' },
+      { status: 403 },
     );
   }
 
