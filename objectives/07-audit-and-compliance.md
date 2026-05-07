@@ -1,4 +1,4 @@
-# Objective 7: Audit and Compliance
+﻿# Objective 7: Audit and Compliance
 
 **Status:** Ready for development
 **Prerequisites:** Objectives 1, 1.5, 2, 3, 4 family, 5, 6 complete
@@ -703,6 +703,7 @@ New files in `docs/runbooks/`:
 - **ADR-0073: Retention Default of 7 Years** — rationale; configurability; legal-hold override
 - **ADR-0074: Cold Archive as Optional** — why opt-in; complexity vs. tamper-proof property
 - **ADR-0075: Compliance Documents as Living Artifacts** — auto-generated where possible; reviewed annually
+- **ADR-0256: Platform Self-Scan as a CI Gate** — the platform's own supply chain is scanned with the same `VulnerabilityScannerPort` it ships to customers; criticals fail CI; quarterly SBOM published
 
 ---
 
@@ -748,7 +749,11 @@ New files in `docs/runbooks/`:
 
 20. **Manual compliance documents reviewed** — SOC 2 / GDPR / HIPAA control matrices reviewed within the last 12 months; threat model current.
 
-If all 20 pass, the objective is met.
+21. **Platform self-scan in CI** — every PR runs Grype against `pnpm-lock.yaml` and the worker image; an injected critical CVE fails the run.
+
+22. **Quarterly SBOM publication** — current SBOM (CycloneDX JSON) present in `docs/security/sbom/` and dated within the last 90 days.
+
+If all 22 pass, the objective is met.
 
 ---
 
@@ -830,15 +835,24 @@ If all 20 pass, the objective is met.
 - [ ] Quarterly chain integrity drill executed at least once
 - [ ] Restore drill includes audit log integrity verification
 
+**Platform Self-Scan**
+
+- [ ] CI workflow runs `VulnerabilityScannerPort` (Grype adapter) against `pnpm-lock.yaml` on every PR
+- [ ] CI workflow scans the built worker container image
+- [ ] Critical findings fail CI; high findings post a PR comment
+- [ ] Quarterly job exports CycloneDX SBOM to `docs/security/sbom/` and commits it
+- [ ] Self-scan results audited via `platform.scan.*` events
+
 **Documentation**
 
 - [ ] ADRs 0068–0075 written and Accepted
+- [ ] ADR-0256 (platform self-scan) written and Accepted
 - [ ] Configuration guide for retention and cold archive
 - [ ] Customer-facing privacy notice template
 
 **Verification**
 
-- [ ] All 20 verification steps in Section 9 pass
+- [ ] All 22 verification steps in Section 9 pass
 
 ---
 

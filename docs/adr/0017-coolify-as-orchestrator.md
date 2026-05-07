@@ -1,8 +1,12 @@
-# ADR-0017: Self-Hosted Coolify as Deployment Orchestrator
+﻿# ADR-0017: Self-Hosted Coolify as Deployment Orchestrator
 
-**Status:** Accepted
+**Status:** Superseded by [ADR-0255](0255-first-party-deployment-orchestrator.md) (2026-05-07)
 **Date:** 2026-05-02
 **Deciders:** solo
+
+> **Superseded.** The platform now ships a first-party deployment orchestrator
+> rather than depending on Coolify at runtime. The rationale and decision
+> below are preserved for historical context. New work follows ADR-0255.
 
 ## Context
 

@@ -1,4 +1,4 @@
-# Objective 27: Stage 7 — Code Generation (Server-Side Logic)
+﻿# Objective 27: Stage 7 — Code Generation (Server-Side Logic)
 
 **Status:** Ready for development
 **Prerequisites:** Objectives 19 (Public SDK), 20 (AI Pipeline Foundation), 22 (Stage 2: PRD), 24 (Stage 4: Schema), 26 (Stage 6: UI Generation) complete
@@ -781,6 +781,7 @@ interface ServerCodeQualitySignals {
 - **ADR-0204: Versioning with Rollback** — every version preserved; rollback is a single action
 - **ADR-0205: Generated Code IP & License Posture** — what license generated repos ship under; per-workspace configurability; AI-assisted-authorship declaration in NOTICE; third-party content provenance from prompts/templates
 - **ADR-0206: Generated App Observability Defaults** — structured JSON logs, `/health`, `/metrics`, OTel spans enabled by default; disable-by-config; rationale for "monitorable when platform offline"
+- **ADR-0257: Generation-Time SCA Gate** — when generated `package.json` / lockfile changes, `VulnerabilityScannerPort` runs before the change is presented for review; `high`+ findings require explicit acknowledgment
 
 ---
 
@@ -838,7 +839,17 @@ interface ServerCodeQualitySignals {
 
 26. **Integration error handling**: function calling Stripe with bad credentials produces a clean error, not a crash.
 
-If all 26 pass, the objective is met.
+27. **Generation-time SCA gate (clean)**: a generated `package.json` with no known-vulnerable deps proceeds to review without a scan-block banner.
+
+28. **Generation-time SCA gate (vulnerable)**: a generated `package.json` containing a known-vulnerable dep surfaces the finding inline in the change preview; user must explicitly acknowledge `high`+ before the change can be merged.
+
+29. **SCA gate determinism**: the scan runs against the resolved lockfile, not raw `package.json` ranges; same input produces the same finding set.
+
+30. **Plan-rigor scaffolding**: a generated project contains `docs/PLAN.md` mirroring the approved PRD's 13 sections, `docs/adr/0000-template.md`, one ADR file per PRD Section-8 entry with `Status: Proposed`, and `docs/CONTRIBUTING.md` describing the ADR workflow.
+
+31. **ADR seeding accuracy**: each seeded ADR's title and rationale match the PRD entry verbatim; sequence numbers are unique and contiguous; the file passes the platform's ADR template lint.
+
+If all 31 pass, the objective is met.
 
 ---
 
@@ -916,9 +927,19 @@ If all 26 pass, the objective is met.
 
 - [ ] Functions work with all three database drivers via SDK
 
+**Generation-Time SCA Gate**
+
+- [ ] Orchestrator resolves the generated lockfile before user review
+- [ ] `VulnerabilityScannerPort` invoked against the resolved lockfile
+- [ ] Findings rendered inline in the change preview UI
+- [ ] `high`+ findings require explicit user acknowledgment to proceed
+- [ ] Scan results audited via `generation.scan.*` events
+
 **Documentation**
 
 - [ ] ADRs 0198–0204 written and Accepted
+- [ ] ADR-0257 (generation-time SCA gate) written and Accepted
+- [ ] ADR-0261 (per-app `docs/adr/` folder seeded from PRD) written and Accepted
 - [ ] All runbooks in Section 6.11 written
 - [ ] Customer-facing code generation guide
 - [ ] Integration usage examples
@@ -930,10 +951,16 @@ If all 26 pass, the objective is met.
 - [ ] **D5 — Local dev experience.** Generated project ships with hot-reload dev script, seed/fixture loader, and a `.devcontainer.json` so VS Code (or any container-aware IDE) opens with a consistent environment. Verified by the same standalone-bootstrap test plus a devcontainer lint.
 - [ ] **D7 — LICENSE & NOTICE emission.** Generated server code project ships with a `LICENSE` file (configurable per workspace; default MIT, alternatives Apache-2.0 or a proprietary template) and a `NOTICE` file declaring AI-assisted authorship and any third-party content provenance from prompts/templates. Verified by automated test asserting both files exist with the configured content in every generated project. ADR documents the IP position.
 - [ ] **D8 — Generated app observability primitives.** Generated server code emits structured JSON logs (level configurable via env var), exposes `/health` (liveness + readiness) and `/metrics` (Prometheus-format) endpoints by default, and emits OpenTelemetry-compatible spans on request paths. Disable-by-config available; enabled-by-default. Verified by a standalone-bootstrap test that exercises all three surfaces with the platform offline — the dev's ops team must be able to monitor the deployed app without depending on Lighthouse Studio.
+- [ ] **D9 — Plan-rigor scaffolding (per ADR-0261).** Every generated app repo ships with:
+  - `docs/adr/0000-template.md` (the same template the platform uses)
+  - One ADR file per entry in PRD Section 8 ("ADRs to Write"), pre-filled with the PRD's title and rationale stub, status `Proposed`
+  - `docs/PLAN.md` containing the approved PRD's 13 sections in markdown form (Architectural Overview, Hard Parts, Component Specs, Implementation Order, Verification Steps, DoD, Anti-Patterns)
+  - `docs/CONTRIBUTING.md` referencing the ADR workflow and the "create a new ADR before non-trivial architectural changes" discipline
+    Verified by a generated-project test that asserts all four artifacts exist with content matching the PRD, and that the ADR sequence numbers are unique and contiguous.
 
 **Verification**
 
-- [ ] All 26 verification steps in Section 9 pass
+- [ ] All 31 verification steps in Section 9 pass
 
 ---
 

@@ -1,4 +1,4 @@
-# Objective 29: Stage 9 — Deployment
+﻿# Objective 29: Stage 9 — Deployment
 
 **Status:** Ready for development
 **Prerequisites:** Objectives 2 (Environment Strategy), 6 (Multi-Tenancy / Approval Routing), 9 (Cross-Platform Runtime), 20 (AI Pipeline Foundation), 24 (Schema), 26 (UI Generation), 27 (Code Generation), 28 (Test Generation) complete
@@ -61,21 +61,30 @@ This stage is where the platform's infrastructure investments (Objective 2's env
 
 ## 3. Locked Decisions
 
-| Decision                       | Choice                                                                                     | Rationale                                           |
-| ------------------------------ | ------------------------------------------------------------------------------------------ | --------------------------------------------------- |
-| Environment progression        | Configurable per workspace; defaults to dev → staging → prod                               | Customer choice; platform mechanism                 |
-| Approval per environment       | Configurable; defaults: dev = automatic, staging = workspace_admin, prod = architect/owner | Sensible defaults; configurable                     |
-| Test gating                    | Tests from Stage 8 must pass for deploys to staging and prod; configurable for dev         | Quality gate                                        |
-| Schema migration timing        | Migrations run before code deploy; atomic per migration; rollback if code deploy fails     | Standard pattern                                    |
-| Rolling vs. blue/green         | Rolling default; blue/green opt-in per environment                                         | Resource efficiency; opt-in for zero-downtime needs |
-| Health check pattern           | Post-deploy, hit known endpoints; verify response shape; verify functions reachable        | Standard                                            |
-| Rollback window                | 7 days; older deployments require explicit recovery procedure                              | Bounded resource cost                               |
-| Notification channels          | In-app, email, Slack, Discord (via integration adapters from Stage 7)                      | Reuse                                               |
-| Deployment plan artifact       | Generated; reviewed; approved before execution                                             | Reuse pattern                                       |
-| Configuration format           | YAML for human review; per-environment overrides                                           | Standard                                            |
-| Cost target                    | Deployment generation: $0.50–$2.00 per plan; runtime cost varies with infrastructure       | Cost-aware                                          |
-| Approval routing               | Per workspace's `deployment` stage configuration                                           | Reuse                                               |
-| Production deployment requires | All Stage 8 tests passing AND approval per workspace config AND health check after deploy  | Discipline                                          |
+| Decision                       | Choice                                                                                                                                                               | Rationale                                                                        |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Environment progression        | Configurable per workspace; defaults to dev → staging → prod                                                                                                         | Customer choice; platform mechanism                                              |
+| Approval per environment       | Configurable; defaults: dev = automatic, staging = workspace_admin, prod = architect/owner                                                                           | Sensible defaults; configurable                                                  |
+| Test gating                    | Tests from Stage 8 must pass for deploys to staging and prod; configurable for dev                                                                                   | Quality gate                                                                     |
+| Schema migration timing        | Migrations run before code deploy; atomic per migration; rollback if code deploy fails                                                                               | Standard pattern                                                                 |
+| Rolling vs. blue/green         | Rolling default; blue/green opt-in per environment                                                                                                                   | Resource efficiency; opt-in for zero-downtime needs                              |
+| Health check pattern           | Post-deploy, hit known endpoints; verify response shape; verify functions reachable                                                                                  | Standard                                                                         |
+| Rollback window                | 7 days; older deployments require explicit recovery procedure                                                                                                        | Bounded resource cost                                                            |
+| Notification channels          | In-app, email, Slack, Discord (via integration adapters from Stage 7)                                                                                                | Reuse                                                                            |
+| Deployment plan artifact       | Generated; reviewed; approved before execution                                                                                                                       | Reuse pattern                                                                    |
+| Configuration format           | YAML for human review; per-environment overrides                                                                                                                     | Standard                                                                         |
+| Cost target                    | Deployment generation: $0.50–$2.00 per plan; runtime cost varies with infrastructure                                                                                 | Cost-aware                                                                       |
+| Approval routing               | Per workspace's `deployment` stage configuration                                                                                                                     | Reuse                                                                            |
+| Production deployment requires | All Stage 8 tests passing AND approval per workspace config AND health check after deploy                                                                            | Discipline                                                                       |
+| Deployment orchestrator        | First-party (`apps/deploy-orchestrator/`); no third-party PaaS (supersedes ADR-0017)                                                                                 | Single security/audit boundary; no external runtime dep                          |
+| Build                          | BuildKit (`docker buildx`) for container deploys; `pnpm build` + tarball for native deploys; SBOM (CycloneDX) emitted in both modes                                  | SBOM is the scan-gate input regardless of mode                                   |
+| Artifact registry              | Local OCI registry (`registry:2`) for container artifacts; signed tarball store on the platform host for native artifacts; remote artifact stores pluggable          | Self-contained; no external pull dependency                                      |
+| Deploy mode                    | **Per app, per environment**: `container` (Docker Compose v2) **or** `native` (systemd on Linux, `node-windows` + IIS on Windows). Customer chooses per environment. | Customers without Docker (regulated, bare-metal, legacy Windows) are first-class |
+| Target host topology           | Single host **or** multiple hosts via SSH (Linux) / WinRM (Windows). Hosts registered per workspace environment.                                                     | Physical machines and VMs supported, not just the platform's own VPS             |
+| Edge proxy / TLS               | Embedded **Caddy** on Linux hosts; **IIS + ARR** on Windows hosts; config generated from deploy plan; on-demand Let's Encrypt where the host can reach ACME          | OSS where possible; native Windows path uses what Windows fleets already run     |
+| Multi-host clustering          | Multi-host deploys to fleets of registered hosts (rolling across hosts); full clustering / scheduler / HA out of scope v1                                            | Real customers have multiple boxes; orchestrator must speak to them              |
+| CVE scan gate                  | `VulnerabilityScannerPort` scans SBOM + image before promotion; `critical` blocks prod                                                                               | Closes pre-deploy security gap                                                   |
+| Scanner adapter                | `adapter-scanner-grype` with cached OSV DB (offline)                                                                                                                 | No third-party SaaS call                                                         |
 
 ---
 
@@ -722,6 +731,8 @@ interface DeploymentQualitySignals {
 - **ADR-0216: Rollback as First-Class Action** — single-click; bounded retention
 - **ADR-0217: Health Checks Mandatory Post-Deploy** — verifies deployment actually worked
 - **ADR-0218: Configuration via SecretStorePort, Per-Environment Overrides** — hot-reloadable where possible
+- **ADR-0254: Pre-Deploy Vulnerability Scan Gate (Grype + Cached OSV DB)** — offline image + SBOM scan; severity policy gates promotion
+- **ADR-0255: First-Party Deployment Orchestrator (supersedes ADR-0017)** — platform owns container build, registry, Compose runtime, edge proxy, rollout/rollback; no external PaaS dependency
 
 ---
 
@@ -779,7 +790,29 @@ interface DeploymentQualitySignals {
 
 26. **End-to-end timing**: full pipeline (plan → prod) within target time for typical app (< 30 minutes).
 
-If all 26 pass, the objective is met.
+27. **CVE scan gate (clean)**: deploying a clean SBOM passes scan; promotion proceeds.
+
+28. **CVE scan gate (vulnerable)**: injecting a known-vulnerable dependency yields a `critical` finding; prod promotion blocked; finding visible in deploy UI.
+
+29. **Air-gapped scan**: with the platform offline from the public internet, scan still runs against the cached OSV DB.
+
+30. **Container mode end-to-end**: a sample app builds via BuildKit, pushes to the local OCI registry, runs under Compose, is reachable via Caddy on HTTPS (LE staging cert), and rolls back to prior digest within 60s.
+
+31. **Caddy upstream flip**: blue/green flip is atomic; no requests dropped during the swap (verified by a load-generator running through the cutover).
+
+32. **Native deploy to Linux host (no Docker)**: a sample app deploys to a fresh Ubuntu VM with **only Node.js installed** — no Docker, no Coolify. Resulting service is managed by systemd, fronted by Caddy, and reachable on HTTPS.
+
+33. **Native deploy to Windows host (no Docker)**: a sample app deploys to a fresh Windows Server with **only Node.js + IIS** — no Docker. Resulting service runs under `node-windows`, fronted by IIS+ARR, and reachable on HTTPS.
+
+34. **Bare-metal physical machine deploy**: a sample app deploys to a registered physical-host target (no virtualization, no container runtime), reachable on HTTPS, rollback works.
+
+35. **Multi-host rolling deploy**: a sample app deploys across a fleet of 3 Linux hosts (or 3 Windows hosts); rolling strategy drains and updates one host at a time; load-generator confirms zero downtime.
+
+36. **Air-gapped native deploy**: target host has no internet egress; deploy succeeds using customer-supplied TLS cert and a pre-staged tarball.
+
+37. **Rollback in native mode**: a deployed native service is rolled back; prior tarball + unit/IIS config reinstalled; service back on prior version within 60s.
+
+If all 37 pass, the objective is met.
 
 ---
 
@@ -863,13 +896,55 @@ If all 26 pass, the objective is met.
 
 **Cross-Platform**
 
-- [ ] Linux deployments work
-- [ ] Windows deployments work
+- [ ] Linux deployments work (platform host and customer-app host)
+- [ ] Windows deployments work (platform host and customer-app host)
 - [ ] All three database drivers supported
+
+**First-Party Orchestrator — Common**
+
+- [ ] `apps/deploy-orchestrator/` package implements `DeploymentPort`
+- [ ] CycloneDX SBOM emitted per artifact in both container and native modes
+- [ ] Per-app, per-env deploy-mode selection: `container` | `native`
+- [ ] Target host registry per workspace environment (single-host or multi-host fleets)
+- [ ] SSH transport for Linux hosts; WinRM transport for Windows hosts
+- [ ] Rollback restores prior artifact + config within 60s in both modes
+- [ ] Secrets injected from `SecretStorePort` at render time; redacted in streamed logs
+- [ ] Audit events: `deploy.build.*`, `deploy.scan.*`, `deploy.rollout.*`, `deploy.rollback.*`, `deploy.host.*`
+- [ ] ADR-0017 marked `Superseded by ADR-0255`
+
+**First-Party Orchestrator — Container Mode**
+
+- [ ] BuildKit container build via `docker buildx`
+- [ ] Local OCI registry (`registry:2`) packaged with platform install; remote registry pluggable
+- [ ] Docker Compose v2 renderer; one project per app+env
+- [ ] Embedded Caddy edge proxy with on-demand Let's Encrypt TLS, tested against LE staging
+- [ ] Rolling deploy: new container up → health check → upstream swap in Caddy → drain → remove
+- [ ] Blue/green: two Compose projects, atomic upstream flip
+
+**First-Party Orchestrator — Native Mode (no Docker required on target)**
+
+- [ ] Build emits a signed tarball (Node.js bundle + manifest + SBOM); reproducible
+- [ ] Linux native: systemd unit rendered and installed on target host; Caddy reverse proxy config rendered and reloaded
+- [ ] Windows native: `node-windows` service rendered and installed; IIS site + ARR reverse proxy config rendered and reloaded
+- [ ] Health check post-install hits `/health` from the orchestrator side
+- [ ] Rolling deploy across host fleet: drain one host's traffic at the proxy, install new artifact, health-check, restore traffic, move on
+- [ ] Blue/green native: two service unit names per env, atomic proxy flip
+- [ ] Rollback re-installs prior tarball + prior unit/IIS config
+- [ ] Native deploys work on hosts with **no internet egress** (no Let's Encrypt, no public registry); customer-supplied TLS cert path supported
+
+**Vulnerability Scan Gate**
+
+- [ ] `VulnerabilityScannerPort` defined in `packages/ports/vulnerability-scanner/`
+- [ ] `adapter-scanner-grype` reference adapter; vendored binary; offline OSV DB cache
+- [ ] SBOM scan + image scan run before every promotion
+- [ ] Severity policy: `critical` blocks prod by default, `high` requires approval, configurable per workspace
+- [ ] Scan results attached to deployment record; surfaced in deploy UI
 
 **Documentation**
 
 - [ ] ADRs 0212–0218 written and Accepted
+- [ ] ADR-0254 (pre-deploy scan gate) written and Accepted
+- [ ] ADR-0255 (first-party orchestrator; supersedes ADR-0017) written and Accepted
 - [ ] All runbooks in Section 6.10 written
 - [ ] Customer-facing deployment guide
 
@@ -881,7 +956,7 @@ If all 26 pass, the objective is met.
 
 **Verification**
 
-- [ ] All 26 verification steps in Section 9 pass
+- [ ] All 37 verification steps in Section 9 pass
 
 ---
 
@@ -896,7 +971,11 @@ If all 26 pass, the objective is met.
 - **Deployments that bypass the platform's auth/audit/observability infrastructure.** Everything goes through standard paths.
 - **Auto-rollback on metric breaches without human confirmation.** Risky; humans decide rollback in production.
 - **Cross-region or multi-region deploys.** Out of scope; single region per environment.
-- **Customer-managed deployment infrastructure.** Out of scope; the platform's infrastructure is the deploy target.
+- **Third-party PaaS as the orchestrator.** Coolify/Dokploy/CapRover/etc. are not used at runtime; the platform owns the orchestrator (see ADR-0255 superseding ADR-0017).
+- **Bypassing the CVE scan gate.** No "skip-scan" flag; severity policy is configurable but the gate itself is mandatory.
+- **Calling external CVE/SBOM SaaS during deploy.** All scanning is offline against a cached OSV DB; air-gapped installs must remain functional.
+- **Container-only thinking.** Native deploys to physical machines and VMs without Docker are first-class; "just put it in a container" is not an answer for customers without a container runtime.
+- **Coupling the deploy plan to a single host topology.** Customers run fleets, single boxes, mixed Linux/Windows estates; the orchestrator handles all of these.
 - **Letting deployments run for hours.** Bounded; long deployments indicate problems.
 - **Surface-only health checks (just `/health` endpoint).** Multiple endpoints; functional verification, not just liveness.
 
