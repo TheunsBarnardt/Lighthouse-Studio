@@ -1,4 +1,4 @@
-import type { AiGenerationPort } from '@platform/ports-ai';
+import type { AIProviderPort } from '@platform/ports-ai';
 import type { AuditPort } from '@platform/ports-audit';
 import type { EmailPort } from '@platform/ports-communication';
 import type { SecretStorePort, FeatureFlagPort } from '@platform/ports-config';
@@ -53,7 +53,7 @@ export interface PlatformContainer {
   fullTextSearch: FullTextSearchPort;
   vectorStore: VectorStorePort | null;
   embeddings: EmbeddingPort | null;
-  ai: AiGenerationPort;
+  ai: AIProviderPort;
   jobs: JobQueuePort;
   scheduler: SchedulerPort | null;
   audit: AuditPort;

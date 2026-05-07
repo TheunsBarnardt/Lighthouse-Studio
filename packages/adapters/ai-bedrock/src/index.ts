@@ -1,7 +1,6 @@
 import type {
   AIProviderCapabilities,
   AIProviderPort,
-  AiError,
   GenerationEvent,
   GenerationRequest,
   GenerationResponse,
