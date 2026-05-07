@@ -1,0 +1,53 @@
+export { DataMigrationService } from './data-migration.service.js';
+export { TransformationEngine } from './transformation-engine.js';
+export { MigrationExecutor } from './migration-executor.js';
+export type { ExecutorDeps } from './migration-executor.js';
+export type { TransformationContext, TransformationResult } from './transformation-engine.js';
+export type {
+  SourceType,
+  SourceForeignKey,
+  SourceColumn,
+  SourceTable,
+  SourceDescription,
+  SourceConnection,
+  TransformationStep,
+  TransformationLibraryEntry,
+  ValidationRule,
+  ColumnMapping,
+  TableSplitDef,
+  FilterExpression,
+  TableMapping,
+  ToleranceMode,
+  PreExecutionCheck,
+  PostExecutionCheck,
+  IrreversibleOperation,
+  MigrationPlan,
+  MigrationPlanStatus,
+  MigrationPlanArtifact,
+  BatchResult,
+  RowError,
+  MigrationExecutionStatus,
+  MigrationExecution,
+  PreviewRow,
+  MigrationPreview,
+  ValidationFailure,
+  MigrationValidationReport,
+  MigrationRollbackResult,
+  DataMigrationQualitySignals,
+  ConnectSourceInput,
+  UploadSourceFileInput,
+  GenerateMappingInput,
+  MappingPlanChanges,
+  ExecuteOptions,
+  DataMigrationAuditEventType,
+} from './types.js';
+export {
+  ConnectSourceInputSchema,
+  UploadSourceFileInputSchema,
+  GenerateMappingInputSchema,
+  MappingPlanChangesSchema,
+  ExecuteOptionsSchema,
+  DATA_MIGRATION_AUDIT_EVENTS,
+  DATA_MIGRATION_PERMISSIONS,
+  DATA_MIGRATION_DEFAULT_GRANTS,
+} from './types.js';
