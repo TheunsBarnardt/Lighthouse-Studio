@@ -16,15 +16,19 @@ const g = globalThis as typeof globalThis & { _sdkQueryPool?: mssql.ConnectionPo
 
 async function getPool(): Promise<mssql.ConnectionPool> {
   if (g._sdkQueryPool?.connected) return g._sdkQueryPool;
+  const trustedConnection = process.env['MSSQL_TRUSTED_CONNECTION'] === 'true';
   const pool = await mssql.connect({
     server: process.env['MSSQL_SERVER'] ?? 'localhost',
     port: parseInt(process.env['MSSQL_PORT'] ?? '1433', 10),
     database: process.env['MSSQL_DATABASE'] ?? 'platform_dev',
-    user: process.env['MSSQL_USER'],
-    password: process.env['MSSQL_PASSWORD'],
+    ...(trustedConnection ? {} : {
+      user: process.env['MSSQL_USER'],
+      password: process.env['MSSQL_PASSWORD'],
+    }),
     options: {
       encrypt: process.env['MSSQL_ENCRYPT'] === 'true',
       trustServerCertificate: process.env['MSSQL_TRUST_SERVER_CERTIFICATE'] !== 'false',
+      trustedConnection,
     },
   });
   g._sdkQueryPool = pool;
