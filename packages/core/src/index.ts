@@ -399,3 +399,27 @@ export type {
   GenerateTokensInput,
 } from './services/ai/design-tokens/index.js';
 export { TOKEN_CATEGORIES, DesignTokenSetSchema } from './services/ai/design-tokens/index.js';
+
+// ── AI Build Pipeline — Objective 24 (Schema Synthesis) ───────────────────────
+export { SchemaSynthesisService } from './services/ai/schema-synthesis/index.js';
+export type { SchemaSynthesisArtifact } from './services/ai/schema-synthesis/index.js';
+export { SCHEMA_SYNTHESIS_AUDIT_EVENTS, SCHEMA_SYNTHESIS_PERMISSIONS, SCHEMA_SYNTHESIS_DEFAULT_GRANTS, DEFAULT_CAPABILITY_CONTEXTS } from './services/ai/schema-synthesis/index.js';
+export { SynthesizeSchemaInputSchema } from './services/ai/schema-synthesis/index.js';
+export type {
+  CapabilityContext,
+  ExtractedEntity,
+  ExtractedRelationship,
+  EntityExtractionRecord,
+  SynthesizedColumn,
+  SynthesizedTable,
+  SynthesizedIndex,
+  CoverageReport,
+  PiiDetection,
+  PiiConfirmation,
+  PiiDetectionRecord,
+  IndexRecommendation,
+  SchemaDiff,
+  SynthesizeSchemaInput,
+  SynthesizedSchema,
+  SchemaSynthesisQualitySignals,
+} from './services/ai/schema-synthesis/index.js';
