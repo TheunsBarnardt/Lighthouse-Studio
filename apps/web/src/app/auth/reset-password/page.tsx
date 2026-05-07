@@ -1,9 +1,9 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -11,7 +11,14 @@ import { z } from 'zod';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { AuthApiError, authApi } from '@/lib/auth-client';
 
@@ -33,7 +40,8 @@ export default function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm({
-    resolver: zodResolver(ResetPasswordSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(ResetPasswordSchema as any),
     defaultValues: { password: '', confirm: '' },
   });
 
@@ -43,7 +51,11 @@ export default function ResetPasswordPage() {
       await authApi.resetPassword(token, values.password);
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof AuthApiError && err.statusCode === 404 ? t('invalidToken') : 'Failed to reset password.');
+      setError(
+        err instanceof AuthApiError && err.statusCode === 404
+          ? t('invalidToken')
+          : 'Failed to reset password.',
+      );
     }
   }
 
@@ -62,34 +74,76 @@ export default function ResetPasswordPage() {
   if (success) {
     return (
       <Card>
-        <CardHeader><CardTitle>{t('successTitle')}</CardTitle></CardHeader>
-        <CardContent><p className="text-sm text-muted-foreground">{t('successMessage')}</p></CardContent>
-        <CardFooter className="justify-center"><Link href="/auth/sign-in" className="text-primary hover:underline">Sign in</Link></CardFooter>
+        <CardHeader>
+          <CardTitle>{t('successTitle')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground">{t('successMessage')}</p>
+        </CardContent>
+        <CardFooter className="justify-center">
+          <Link href="/auth/sign-in" className="text-primary hover:underline">
+            Sign in
+          </Link>
+        </CardFooter>
       </Card>
     );
   }
 
   return (
     <Card>
-      <CardHeader><CardTitle>{t('title')}</CardTitle></CardHeader>
+      <CardHeader>
+        <CardTitle>{t('title')}</CardTitle>
+      </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={(e) => { void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
-            <FormField control={form.control} name="password" render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('passwordLabel')}</FormLabel>
-                <FormControl><Input type="password" autoComplete="new-password" placeholder={t('passwordPlaceholder')} {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <FormField control={form.control} name="confirm" render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('confirmLabel')}</FormLabel>
-                <FormControl><Input type="password" autoComplete="new-password" placeholder={t('confirmPlaceholder')} {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            {error && <Alert variant="destructive" aria-live="polite"><AlertDescription>{error}</AlertDescription></Alert>}
+          <form
+            onSubmit={(e) => {
+              void form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-4"
+            noValidate
+          >
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('passwordLabel')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      autoComplete="new-password"
+                      placeholder={t('passwordPlaceholder')}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirm"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('confirmLabel')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      autoComplete="new-password"
+                      placeholder={t('confirmPlaceholder')}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {error && (
+              <Alert variant="destructive" aria-live="polite">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? t('submitting') : t('submit')}
             </Button>

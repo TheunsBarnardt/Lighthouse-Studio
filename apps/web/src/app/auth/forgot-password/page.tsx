@@ -1,15 +1,29 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { authApi } from '@/lib/auth-client';
 
@@ -24,7 +38,8 @@ export default function ForgotPasswordPage() {
   const [captchaToken, setCaptchaToken] = useState<string>('');
 
   const form = useForm({
-    resolver: zodResolver(ForgotPasswordSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(ForgotPasswordSchema as any),
     defaultValues: { email: '' },
   });
 
@@ -42,10 +57,14 @@ export default function ForgotPasswordPage() {
           <CardTitle>{t('successTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">{t('successMessage', { email: sentEmail })}</p>
+          <p className="text-sm text-muted-foreground">
+            {t('successMessage', { email: sentEmail })}
+          </p>
         </CardContent>
         <CardFooter className="justify-center text-sm">
-          <Link href="/auth/sign-in" className="text-primary hover:underline">{t('backToSignIn')}</Link>
+          <Link href="/auth/sign-in" className="text-primary hover:underline">
+            {t('backToSignIn')}
+          </Link>
         </CardFooter>
       </Card>
     );
@@ -59,7 +78,13 @@ export default function ForgotPasswordPage() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={(e) => { void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
+          <form
+            onSubmit={(e) => {
+              void form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-4"
+            noValidate
+          >
             <FormField
               control={form.control}
               name="email"
@@ -67,7 +92,13 @@ export default function ForgotPasswordPage() {
                 <FormItem>
                   <FormLabel>{t('emailLabel')}</FormLabel>
                   <FormControl>
-                    <Input type="email" autoComplete="email" placeholder={t('emailPlaceholder')} aria-required {...field} />
+                    <Input
+                      type="email"
+                      autoComplete="email"
+                      placeholder={t('emailPlaceholder')}
+                      aria-required
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -80,7 +111,9 @@ export default function ForgotPasswordPage() {
         </Form>
       </CardContent>
       <CardFooter className="justify-center text-sm">
-        <Link href="/auth/sign-in" className="text-muted-foreground hover:text-primary">{t('backToSignIn')}</Link>
+        <Link href="/auth/sign-in" className="text-muted-foreground hover:text-primary">
+          {t('backToSignIn')}
+        </Link>
       </CardFooter>
     </Card>
   );

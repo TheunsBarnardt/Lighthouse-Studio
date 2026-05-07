@@ -149,7 +149,9 @@ export function RowDetailPanel({
                       value={value as string | null}
                     />
                   )}
-                  {col.type === 'json' && <JsonCell {...cellProps} value={value} />}
+                  {col.type === 'json' && (
+                    <JsonCell {...(cellProps as Parameters<typeof JsonCell>[0])} value={value} />
+                  )}
                   {col.type === 'array' && (
                     <ArrayCell
                       {...(cellProps as Parameters<typeof ArrayCell>[0])}

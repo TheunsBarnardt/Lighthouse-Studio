@@ -10,7 +10,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/auth-context';
 
@@ -26,7 +33,8 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm({
-    resolver: zodResolver(ProfileSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(ProfileSchema as any),
     defaultValues: { displayName: user?.displayName ?? '' },
   });
 
@@ -60,12 +68,16 @@ export default function ProfilePage() {
 
   return (
     <Card>
-      <CardHeader><CardTitle>{t('title')}</CardTitle></CardHeader>
+      <CardHeader>
+        <CardTitle>{t('title')}</CardTitle>
+      </CardHeader>
       <CardContent>
         <div className="mb-6 flex items-center gap-4">
           <Avatar className="h-16 w-16">
             <AvatarImage src={user?.avatarUrl ?? undefined} alt={user?.displayName ?? 'Avatar'} />
-            <AvatarFallback>{initials(user?.displayName ?? null, user?.email ?? '')}</AvatarFallback>
+            <AvatarFallback>
+              {initials(user?.displayName ?? null, user?.email ?? '')}
+            </AvatarFallback>
           </Avatar>
           <div className="space-y-1">
             <input
@@ -86,7 +98,9 @@ export default function ProfilePage() {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => { fileInputRef.current?.click(); }}
+              onClick={() => {
+                fileInputRef.current?.click();
+              }}
             >
               {t('uploadAvatar')}
             </Button>
@@ -94,20 +108,41 @@ export default function ProfilePage() {
         </div>
 
         <Form {...form}>
-          <form onSubmit={(e) => { e.preventDefault(); void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
-            <FormField control={form.control} name="displayName" render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('displayNameLabel')}</FormLabel>
-                <FormControl><Input placeholder={t('displayNamePlaceholder')} aria-required {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-4"
+            noValidate
+          >
+            <FormField
+              control={form.control}
+              name="displayName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('displayNameLabel')}</FormLabel>
+                  <FormControl>
+                    <Input placeholder={t('displayNamePlaceholder')} aria-required {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <div>
               <p className="mb-1 text-sm font-medium">{t('emailLabel')}</p>
               <p className="text-sm text-muted-foreground">{user?.email ?? '—'}</p>
             </div>
-            {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
-            {saved && <Alert><AlertDescription>{t('saved')}</AlertDescription></Alert>}
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            {saved && (
+              <Alert>
+                <AlertDescription>{t('saved')}</AlertDescription>
+              </Alert>
+            )}
             <Button type="submit" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? t('saving') : t('save')}
             </Button>

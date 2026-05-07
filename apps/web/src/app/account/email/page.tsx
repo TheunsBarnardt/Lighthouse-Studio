@@ -9,7 +9,14 @@ import { z } from 'zod';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/auth-context';
 
@@ -23,7 +30,11 @@ export default function EmailPage() {
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm({ resolver: zodResolver(EmailSchema), defaultValues: { newEmail: '' } });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const form = useForm({
+    resolver: zodResolver(EmailSchema as any),
+    defaultValues: { newEmail: '' },
+  });
 
   async function onSubmit(values: { newEmail: string }) {
     setError(null);
@@ -48,24 +59,50 @@ export default function EmailPage() {
 
   return (
     <Card>
-      <CardHeader><CardTitle>{t('title')}</CardTitle></CardHeader>
+      <CardHeader>
+        <CardTitle>{t('title')}</CardTitle>
+      </CardHeader>
       <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">{t('currentEmail', { email: user?.email ?? '—' })}</p>
+        <p className="text-sm text-muted-foreground">
+          {t('currentEmail', { email: user?.email ?? '—' })}
+        </p>
         {pending && (
           <Alert>
             <AlertDescription>{t('pending', { email: pending })}</AlertDescription>
           </Alert>
         )}
         <Form {...form}>
-          <form onSubmit={(e) => { e.preventDefault(); void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
-            <FormField control={form.control} name="newEmail" render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('newEmailLabel')}</FormLabel>
-                <FormControl><Input type="email" placeholder={t('newEmailPlaceholder')} aria-required {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-4"
+            noValidate
+          >
+            <FormField
+              control={form.control}
+              name="newEmail"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('newEmailLabel')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder={t('newEmailPlaceholder')}
+                      aria-required
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <Button type="submit" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting ? t('submitting') : t('submit')}
             </Button>

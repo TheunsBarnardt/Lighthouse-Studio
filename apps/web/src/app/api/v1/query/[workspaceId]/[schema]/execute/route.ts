@@ -4,6 +4,7 @@
  * Returns: { rows: unknown[] }
  */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access, no-restricted-syntax */
+// @ts-expect-error -- mssql ships its own types but they are not picked up correctly in strict mode
 import mssql from 'mssql';
 import { NextResponse } from 'next/server';
 

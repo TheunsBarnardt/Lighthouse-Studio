@@ -8,7 +8,14 @@ import { z } from 'zod';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
 const InviteSchema = z.object({
@@ -26,7 +33,11 @@ export function InviteMemberDialog({ slug, open, onClose }: Props) {
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm({ resolver: zodResolver(InviteSchema), defaultValues: { email: '' } });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const form = useForm({
+    resolver: zodResolver(InviteSchema as any),
+    defaultValues: { email: '' },
+  });
 
   async function onSubmit(values: { email: string }) {
     setError(null);
@@ -62,20 +73,45 @@ export function InviteMemberDialog({ slug, open, onClose }: Props) {
       <div className="w-full max-w-md rounded-lg bg-background p-6 shadow-xl">
         <h2 className="mb-4 text-lg font-semibold">{t('title')}</h2>
         <Form {...form}>
-          <form onSubmit={(e) => { void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
-            <FormField control={form.control} name="email" render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('emailLabel')}</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder={t('emailPlaceholder')} aria-required {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            {success && <Alert><AlertDescription>{success}</AlertDescription></Alert>}
-            {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
+          <form
+            onSubmit={(e) => {
+              void form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-4"
+            noValidate
+          >
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('emailLabel')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder={t('emailPlaceholder')}
+                      aria-required
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {success && (
+              <Alert>
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
+            )}
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
               <Button type="submit" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? t('submitting') : t('submit')}
               </Button>

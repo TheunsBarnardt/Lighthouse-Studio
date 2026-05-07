@@ -11,7 +11,14 @@ import { z } from 'zod';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 
@@ -35,7 +42,8 @@ export default function SetupPage() {
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm<SetupValues>({
-    resolver: zodResolver(SetupSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(SetupSchema as any),
     defaultValues: {
       displayName: '',
       email: '',
@@ -49,11 +57,17 @@ export default function SetupPage() {
     void fetch('/api/v1/setup/status', { credentials: 'include' })
       .then((r) => r.json() as Promise<{ initialized: boolean }>)
       .then((d) => {
-        if (d.initialized) { notFound(); }
+        if (d.initialized) {
+          notFound();
+        }
         return;
       })
-      .catch(() => { /* allow setup to proceed if status check fails */ })
-      .finally(() => { setChecking(false); });
+      .catch(() => {
+        /* allow setup to proceed if status check fails */
+      })
+      .finally(() => {
+        setChecking(false);
+      });
   }, []);
 
   function slugify(value: string): string {
@@ -77,7 +91,7 @@ export default function SetupPage() {
       return;
     }
     const data = (await res.json()) as { workspaceSlug?: string };
-    void router.replace(data.workspaceSlug ? `/workspaces/${data.workspaceSlug}` : '/');
+    router.replace(data.workspaceSlug ? `/workspaces/${data.workspaceSlug}` : '/');
   }
 
   if (checking) {
@@ -97,79 +111,120 @@ export default function SetupPage() {
         </div>
 
         <Card>
-          <CardHeader><CardTitle>{t('ownerSectionTitle')}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>{t('ownerSectionTitle')}</CardTitle>
+          </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={(e) => { void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
-                <FormField control={form.control} name="displayName" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('ownerNameLabel')}</FormLabel>
-                    <FormControl>
-                      <Input placeholder={t('ownerNamePlaceholder')} autoComplete="name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                <FormField control={form.control} name="email" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('emailLabel')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder={t('emailPlaceholder')}
-                        autoComplete="email"
-                        aria-required
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                <FormField control={form.control} name="password" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('passwordLabel')}</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder={t('passwordPlaceholder')} autoComplete="new-password" aria-required {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-
-                <div className="border-t pt-4">
-                  <p className="mb-3 text-sm font-medium">{t('workspaceSectionTitle')}</p>
-
-                  <FormField control={form.control} name="workspaceName" render={({ field }) => (
+              <form
+                onSubmit={(e) => {
+                  void form.handleSubmit(onSubmit)(e);
+                }}
+                className="space-y-4"
+                noValidate
+              >
+                <FormField
+                  control={form.control}
+                  name="displayName"
+                  render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('workspaceNameLabel')}</FormLabel>
+                      <FormLabel>{t('ownerNameLabel')}</FormLabel>
                       <FormControl>
                         <Input
-                          placeholder={t('workspaceNamePlaceholder')}
+                          placeholder={t('ownerNamePlaceholder')}
+                          autoComplete="name"
                           {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            const current = form.getValues('workspaceSlug');
-                            if (!current || current === slugify(form.getValues('workspaceName'))) {
-                              form.setValue('workspaceSlug', slugify(e.target.value));
-                            }
-                          }}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )} />
+                  )}
+                />
 
-                  <FormField control={form.control} name="workspaceSlug" render={({ field }) => (
-                    <FormItem className="mt-3">
-                      <FormLabel>{t('workspaceSlugLabel')}</FormLabel>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('emailLabel')}</FormLabel>
                       <FormControl>
-                        <Input placeholder={t('workspaceSlugPlaceholder')} {...field} />
+                        <Input
+                          type="email"
+                          placeholder={t('emailPlaceholder')}
+                          autoComplete="email"
+                          aria-required
+                          {...field}
+                        />
                       </FormControl>
-                      <p className="text-xs text-muted-foreground">{t('workspaceSlugHint')}</p>
                       <FormMessage />
                     </FormItem>
-                  )} />
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('passwordLabel')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder={t('passwordPlaceholder')}
+                          autoComplete="new-password"
+                          aria-required
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="border-t pt-4">
+                  <p className="mb-3 text-sm font-medium">{t('workspaceSectionTitle')}</p>
+
+                  <FormField
+                    control={form.control}
+                    name="workspaceName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('workspaceNameLabel')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={t('workspaceNamePlaceholder')}
+                            {...field}
+                            onChange={(e) => {
+                              field.onChange(e);
+                              const current = form.getValues('workspaceSlug');
+                              if (
+                                !current ||
+                                current === slugify(form.getValues('workspaceName'))
+                              ) {
+                                form.setValue('workspaceSlug', slugify(e.target.value));
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="workspaceSlug"
+                    render={({ field }) => (
+                      <FormItem className="mt-3">
+                        <FormLabel>{t('workspaceSlugLabel')}</FormLabel>
+                        <FormControl>
+                          <Input placeholder={t('workspaceSlugPlaceholder')} {...field} />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">{t('workspaceSlugHint')}</p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 {error && (
