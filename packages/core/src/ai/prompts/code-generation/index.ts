@@ -1,0 +1,10 @@
+import './inventory-extraction.prompt.js';
+import './http-function.prompt.js';
+import './scheduled-function.prompt.js';
+import './event-function.prompt.js';
+import './integration-function.prompt.js';
+import './permission-derivation.prompt.js';
+import './regeneration.prompt.js';
+import './static-fix.prompt.js';
+import './manifest-generation.prompt.js';
+import './orchestrator.prompt.js';
