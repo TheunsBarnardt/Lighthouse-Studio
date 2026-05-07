@@ -11,3 +11,4 @@
 - [Think lifecycle-wide when discussing platform scope](feedback_lifecycle_wide_scope.md) — auto-evolution, integrations, and scope discussions must span ideation→deploy→maintain, not a single stage
 - [Proactively surface gaps in the user's current plans](feedback_proactive_plan_gaps.md) — hunt for missing goals and implicit-but-unverified properties in objectives/roadmap; propose concrete DoD amendments, not vague observations
 - [Product positioning — dev-grade alternative to vibe-coding tools](project_positioning_thesis.md) — fill the gap between FlutterFlow/Lovable/Bolt/Puck/Budibase and real dev workflows; CMS-style schema builders are not the answer either
+- [Auto-commit after every task](feedback_auto_commit.md) — commit immediately on task completion, never ask for confirmation
