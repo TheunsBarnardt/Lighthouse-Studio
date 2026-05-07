@@ -49,6 +49,11 @@
     "test:sdk-e2e": "vitest run --config tests/sdk-e2e/vitest.config.ts",
     "prepare": "husky"
   },
+  "pnpm": {
+    "overrides": {
+      "zod": "^3.22.4"
+    }
+  },
   "devDependencies": {
     "@commitlint/cli": "19.8.1",
     "dotenv": "16.5.0",
