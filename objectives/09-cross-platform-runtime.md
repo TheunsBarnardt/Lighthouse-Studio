@@ -48,6 +48,17 @@ This objective produces no user-visible features. It produces **a verified Windo
 - macOS as a deployment target (developer machines yes; production no)
 - Mobile platforms (out of scope generally)
 
+### Customer-app deploy targets
+
+Both Linux and Windows are first-class **customer-app deploy targets**, not just platform-host targets. The deploy orchestrator (Objective 29) emits artifacts for either OS, in either container or native form:
+
+| Host OS | Container deploy                                               | Native deploy                                    |
+| ------- | -------------------------------------------------------------- | ------------------------------------------------ |
+| Linux   | Docker Compose v2                                              | systemd unit + Caddy reverse proxy               |
+| Windows | Docker Compose v2 (where Docker Desktop / Server is available) | `node-windows` service + IIS reverse proxy (ARR) |
+
+The platform-on-Windows topology in this objective (IIS + `node-windows`) is the same machinery the orchestrator uses to deploy customer apps natively on Windows. Customers without Docker on their target hosts (regulated environments, legacy Windows fleets, bare-metal physical machines) are first-class — they get native deploys, not "container or nothing."
+
 ---
 
 ## 3. Locked Decisions

@@ -725,6 +725,7 @@ interface MaintenanceQualitySignals {
 - **ADR-0223: Outcome Tracking Closes the Loop** — did the fix actually fix it?
 - **ADR-0224: Dependency Advisories Surface but Don't Auto-Apply** — humans decide upgrades
 - **ADR-0225: In-App Widget for User Reports** — opt-in; privacy-respecting; structured intake
+- **ADR-0241: Advisory Ingestion Uses OSV as Primary Source** — OSV.dev primary; GitHub Security Advisories secondary; replaceable per workspace via `advisoryFeeds[]` for air-gapped installs
 
 ---
 
@@ -854,6 +855,11 @@ If all 26 pass, the objective is met.
 - [ ] Subscription to platform-relevant advisories
 - [ ] Per-app affected detection
 - [ ] Surface in UI; auto-create change requests for critical
+- [ ] `AdvisoryIngestionPort` defined; cron-driven pull (default hourly) produces `DependencyAdvisory` records
+- [ ] `adapter-advisory-osv` reference adapter polls `https://api.osv.dev/v1/query`
+- [ ] `adapter-advisory-github` secondary adapter for GHSA-only entries
+- [ ] Workspace setting `advisoryFeeds[]` allows mirror substitution (air-gapped support)
+- [ ] Per-feed audit events (`advisory.feed.poll`, `advisory.received`)
 
 **UI**
 
@@ -882,6 +888,7 @@ If all 26 pass, the objective is met.
 **Documentation**
 
 - [ ] ADRs 0219–0225 written and Accepted
+- [ ] ADR-0241 (advisory ingestion / OSV primary) written and Accepted
 - [ ] All runbooks in Section 6.11 written
 - [ ] Customer-facing maintenance guide
 

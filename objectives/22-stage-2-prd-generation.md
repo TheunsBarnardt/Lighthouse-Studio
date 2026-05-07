@@ -56,22 +56,26 @@ This objective produces **the second AI artifact type** and the second user-faci
 
 ## 3. Locked Decisions
 
-| Decision                           | Choice                                                                                                                                                                                                                        | Rationale                                                            |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| PRD structure                      | Locked sections: Overview, Goals & Success Metrics, Target Users & Personas, User Stories, Functional Requirements, Non-Functional Requirements, Constraints & Assumptions, Out of Scope, Open Questions, Risks & Mitigations | Industry-standard sections; locked for downstream stage consumption  |
-| Section count                      | 10 sections (locked)                                                                                                                                                                                                          | Predictability; downstream prompts know what to expect               |
-| Generation pattern                 | Per-section, not whole-document — each section has its own prompt                                                                                                                                                             | Focused prompts produce better output; testable; refinement-friendly |
-| Approval routing                   | Per-section per workspace's `prd_section` stage configuration                                                                                                                                                                 | Section-level granularity                                            |
-| Cross-section consistency          | Validated by a separate prompt after all sections drafted                                                                                                                                                                     | Catches contradictions                                               |
-| User Stories format                | "As a [persona], I want [capability], so that [benefit]" + acceptance criteria                                                                                                                                                | Standard agile format                                                |
-| Functional Requirements format     | Numbered (FR-1, FR-2, ...) with title, description, acceptance criteria, priority, traces-to                                                                                                                                  | Trackable; testable                                                  |
-| Non-Functional Requirements format | Categorized (performance, security, scalability, usability, accessibility) with measurable targets where possible                                                                                                             | Standard categories                                                  |
-| Acceptance criteria                | Required for every functional requirement; format: "Given [context], When [action], Then [outcome]"                                                                                                                           | Gherkin-influenced; testable                                         |
-| Traceability                       | Every requirement references intent brief sections; every later artifact (schema, code) references requirements                                                                                                               | Audit trail                                                          |
-| Editing pattern                    | Inline editing per section; section regeneration optional                                                                                                                                                                     | User stays in control                                                |
-| Locked vs. open sections           | Sections become "locked" once approved; editing requires re-approval                                                                                                                                                          | Approved sections are stable                                         |
-| Export formats                     | Markdown (primary), PDF (via the PDF generation service from later objectives)                                                                                                                                                | Practical sharing                                                    |
-| Cost estimate per PRD generation   | Target $1.00–$5.00 USD across all sections                                                                                                                                                                                    | Cost-aware                                                           |
+| Decision                           | Choice                                                                                                                                                                                                                                                                                                                                                                                                                                       | Rationale                                                                                                                                                             |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PRD structure                      | **13-section objective-mirror** — same skeleton the platform uses for its own objective documents (see ADR-0248). Locked sections: 1. Purpose · 2. Scope (in/out) · 3. Locked Decisions · 4. Architectural Overview · 5. The Hard Parts · 6. Component Specifications · 7. Implementation Order · 8. ADRs to Write · 9. Verification Steps · 10. Definition of Done · 11. Anti-Patterns to Refuse · 12. Open Questions · 13. What Comes Next | The customer's app gets a buildable specification, not just requirements. Mirrors the rigor the platform uses on itself. Downstream stages consume a richer artifact. |
+| Section count                      | 13 sections (locked)                                                                                                                                                                                                                                                                                                                                                                                                                         | Predictability; downstream prompts know what to expect                                                                                                                |
+| Per-app ADR seeding                | Section 8 ("ADRs to Write") emits initial ADR titles + rationale stubs that Stage 7 scaffolds into the generated app's `docs/adr/` folder (see ADR-0249)                                                                                                                                                                                                                                                                                     | Customer's app inherits the same architectural-decision discipline                                                                                                    |
+| Verification format                | Section 9 emits numbered, end-to-end testable steps in the platform's own style; Stage 8 (Test Generation) consumes them as test seeds                                                                                                                                                                                                                                                                                                       | One artifact drives both human review and automated test generation                                                                                                   |
+| Definition of Done format          | Section 10 emits categorized checkbox list (Schema, Service Layer, UI, Permissions, etc.); Stages 4–9 each consume the slice that applies to them                                                                                                                                                                                                                                                                                            | DoD becomes the cross-stage tracking surface, not just a closing list                                                                                                 |
+| Anti-Patterns                      | Section 11 emits "we don't do X" rules specific to this app; downstream prompts read them as negative constraints                                                                                                                                                                                                                                                                                                                            | Prevents downstream stages from hallucinating features the PRD explicitly refused                                                                                     |
+| Generation pattern                 | Per-section, not whole-document — each section has its own prompt                                                                                                                                                                                                                                                                                                                                                                            | Focused prompts produce better output; testable; refinement-friendly                                                                                                  |
+| Approval routing                   | Per-section per workspace's `prd_section` stage configuration                                                                                                                                                                                                                                                                                                                                                                                | Section-level granularity                                                                                                                                             |
+| Cross-section consistency          | Validated by a separate prompt after all sections drafted                                                                                                                                                                                                                                                                                                                                                                                    | Catches contradictions                                                                                                                                                |
+| User Stories format                | "As a [persona], I want [capability], so that [benefit]" + acceptance criteria                                                                                                                                                                                                                                                                                                                                                               | Standard agile format                                                                                                                                                 |
+| Functional Requirements format     | Numbered (FR-1, FR-2, ...) with title, description, acceptance criteria, priority, traces-to                                                                                                                                                                                                                                                                                                                                                 | Trackable; testable                                                                                                                                                   |
+| Non-Functional Requirements format | Categorized (performance, security, scalability, usability, accessibility) with measurable targets where possible                                                                                                                                                                                                                                                                                                                            | Standard categories                                                                                                                                                   |
+| Acceptance criteria                | Required for every functional requirement; format: "Given [context], When [action], Then [outcome]"                                                                                                                                                                                                                                                                                                                                          | Gherkin-influenced; testable                                                                                                                                          |
+| Traceability                       | Every requirement references intent brief sections; every later artifact (schema, code) references requirements                                                                                                                                                                                                                                                                                                                              | Audit trail                                                                                                                                                           |
+| Editing pattern                    | Inline editing per section; section regeneration optional                                                                                                                                                                                                                                                                                                                                                                                    | User stays in control                                                                                                                                                 |
+| Locked vs. open sections           | Sections become "locked" once approved; editing requires re-approval                                                                                                                                                                                                                                                                                                                                                                         | Approved sections are stable                                                                                                                                          |
+| Export formats                     | Markdown (primary), PDF (via the PDF generation service from later objectives)                                                                                                                                                                                                                                                                                                                                                               | Practical sharing                                                                                                                                                     |
+| Cost estimate per PRD generation   | Target $1.00–$5.00 USD across all sections                                                                                                                                                                                                                                                                                                                                                                                                   | Cost-aware                                                                                                                                                            |
 
 ---
 
@@ -660,12 +664,14 @@ Recorded as the PRD progresses through its lifecycle.
 - **ADR-0169: Traceability as Structural Field** — every requirement traces back; queryable downstream
 - **ADR-0170: Consistency Check as Separate Prompt** — catches contradictions; non-blocking warnings rather than generation failures
 - **ADR-0171: Staleness Detection on Intent Changes** — incremental updates; preserves approved work where unaffected
+- **ADR-0248: PRD Adopts the 13-Section Objective-Mirror Structure** — customer apps inherit the same plan-rigor the platform uses on itself; Locked Decisions, Architectural Overview, Hard Parts, Component Specs, ADRs to Write, Verification Steps, DoD, Anti-Patterns are first-class
+- **ADR-0249: Per-App `docs/adr/` Folder Seeded From PRD Section 8** — every generated app ships with an ADR folder; Stage 7 scaffolds it; downstream stages append ADRs as they make implementation choices
 
 ---
 
 ## 9. Verification Steps
 
-1. **Generate a PRD** from an approved intent brief; all 10 sections produced; PRD artifact references them.
+1. **Generate a PRD** from an approved intent brief; all 13 sections produced; PRD artifact references them.
 
 2. **Section dependency order respected**: independent sections run in parallel; dependent sections wait.
 
@@ -687,7 +693,7 @@ Recorded as the PRD progresses through its lifecycle.
 
 11. **Section approval (enterprise with all_of mode)**: requires all configured approvers.
 
-12. **PRD considered complete**: when all 10 sections approved.
+12. **PRD considered complete**: when all 13 sections approved.
 
 13. **Section rejection**: section returns to draft with feedback visible.
 
@@ -717,7 +723,27 @@ Recorded as the PRD progresses through its lifecycle.
 
 26. **Concurrent revisions**: two reviewers editing different sections simultaneously don't collide; same section conflicts via optimistic locking.
 
-If all 26 pass, the objective is met.
+27. **Locked Decisions section** emits a table with Decision · Choice · Rationale columns; downstream stage prompts read this table as binding constraints.
+
+28. **Architectural Overview section** emits a data-flow diagram (mermaid or ASCII box-and-arrow) plus a narrative; the diagram references components named in Section 6.
+
+29. **The Hard Parts section** identifies at least one non-trivial design decision per substantial PRD; flagged decisions become inputs to Stage 4 (Schema) and Stage 7 (Code) prompts.
+
+30. **Component Specifications section** emits typed contracts (interface stubs / data models) for each major component named in Section 4; Stage 7 consumes these as scaffolding.
+
+31. **ADRs to Write section** emits 3–10 ADR titles with rationale stubs for the customer's app; Stage 7 scaffolds them into the generated app's `docs/adr/` folder per ADR-0249.
+
+32. **Verification Steps section** emits numbered, testable end-to-end checks in the platform's own style; Stage 8 (Test Generation) consumes each step as a test seed.
+
+33. **Definition of Done section** emits categorized checkboxes; each downstream stage (4, 6, 7, 8, 9) reads its slice as a completion gate.
+
+34. **Anti-Patterns section** emits explicit "we don't do X" rules; downstream prompts treat them as negative constraints (refuse to generate features the PRD has refused).
+
+35. **Implementation Order section** emits a numbered build sequence; Stage 7 (Code Generation) and Stage 9 (Deployment) respect dependency order.
+
+36. **Cross-section trace from rigor sections back to Intent Brief**: every Locked Decision, every ADR-to-Write, every Hard Part traces back to a goal/constraint in the Intent Brief — same traceability discipline as Functional Requirements.
+
+If all 36 pass, the objective is met.
 
 ---
 
@@ -732,9 +758,9 @@ If all 26 pass, the objective is met.
 
 **Prompts**
 
-- [ ] All 10 section prompts authored
+- [ ] All 13 section prompts authored (Purpose, Scope, Locked Decisions, Architectural Overview, Hard Parts, Component Specs, Implementation Order, ADRs to Write, Verification Steps, DoD, Anti-Patterns, Open Questions, What Comes Next)
 - [ ] Consistency-check prompt
-- [ ] Traceability-check prompt
+- [ ] Traceability-check prompt (covers all 13 sections, not only FRs)
 - [ ] Regeneration prompt with feedback handling
 - [ ] Staleness-detection prompt
 - [ ] Orchestrator prompt
@@ -786,16 +812,40 @@ If all 26 pass, the objective is met.
 
 - [ ] Conformance tests pass on all three databases
 
+**Rigor-Section Outputs (new)**
+
+- [ ] Locked Decisions emitted as Decision/Choice/Rationale table
+- [ ] Architectural Overview emitted with data-flow diagram (mermaid + narrative)
+- [ ] Hard Parts emitted with at least one entry for non-trivial PRDs
+- [ ] Component Specifications emitted with typed contracts
+- [ ] Implementation Order emitted as numbered sequence with dependencies
+- [ ] ADRs to Write emitted as titled stubs with rationale
+- [ ] Verification Steps emitted as numbered end-to-end checks
+- [ ] Definition of Done emitted as categorized checkboxes
+- [ ] Anti-Patterns emitted as explicit "we don't do X" rules
+- [ ] Cross-section traceability extended to cover all 13 sections
+
+**Downstream Stage Consumption (new)**
+
+- [ ] Stage 4 (Schema) prompt reads Locked Decisions + Component Specs
+- [ ] Stage 6 (UI) prompt reads Architectural Overview + Anti-Patterns
+- [ ] Stage 7 (Code) prompt reads Component Specs + ADRs to Write + Implementation Order
+- [ ] Stage 7 scaffolds `docs/adr/` per ADR-0249 in every generated app
+- [ ] Stage 8 (Tests) prompt reads Verification Steps + DoD as test seeds
+- [ ] Stage 9 (Deploy) prompt reads Implementation Order
+
 **Documentation**
 
 - [ ] ADRs 0165–0171 written and Accepted
+- [ ] ADR-0248 (PRD = 13-section objective mirror) written and Accepted
+- [ ] ADR-0249 (per-app docs/adr/ folder) written and Accepted
 - [ ] All runbooks in Section 6.11 written
 - [ ] Customer-facing PRD generation guide
-- [ ] Section-by-section reference
+- [ ] Section-by-section reference (all 13)
 
 **Verification**
 
-- [ ] All 26 verification steps in Section 9 pass
+- [ ] All 36 verification steps in Section 9 pass
 
 ---
 
@@ -808,6 +858,8 @@ If all 26 pass, the objective is met.
 - **Whole-PRD approval.** Section-level granularity matches real review workflows.
 - **Regenerating everything when one section needs revision.** Wastes work; user resists the friction.
 - **Hardcoding the section list.** Locked but enumerable; downstream stages reference the enum.
+- **Treating the rigor sections (Locked Decisions, Architectural Overview, Hard Parts, Component Specs, ADRs, Verification, DoD, Anti-Patterns) as optional.** They are the bridge between "requirements" and "buildable specification"; an app that ships without them inherits less rigor than the platform demands of itself.
+- **Letting downstream stages bypass the PRD's Anti-Patterns.** A feature the PRD explicitly refused must not appear in the generated app. Stage 6/7/8 prompts treat Anti-Patterns as hard constraints.
 - **Auto-progressing to Stage 3.** User explicitly transitions; respect the pace.
 - **Ignoring staleness on intent changes.** Cascading rot; users discover problems later when they've moved on.
 - **Templates as constraints.** Hint, not requirement; AI deviates when intent demands.
@@ -817,7 +869,7 @@ If all 26 pass, the objective is met.
 
 ## 12. Open Questions for Confirmation Before Starting
 
-1. **10-section count** — locked; or should some sections be optional? Recommendation: 10 locked; optionality complicates downstream consumption.
+1. **13-section count** — locked per ADR-0248; mirrors the platform's own objective document structure. Optionality complicates downstream consumption.
 
 2. **PDF export** — proposing markdown primary, PDF deferred until a PDF generation service is built. Acceptable, or include PDF in v1?
 
