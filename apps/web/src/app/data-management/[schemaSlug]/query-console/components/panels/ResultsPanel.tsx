@@ -14,6 +14,7 @@ interface ResultsPanelProps {
   rowCount: number;
   truncated: boolean;
   durationMs: number;
+  statementsAffected?: { statement: number; rowsAffected: number }[];
 }
 
 function CellValue({ value }: { value: unknown }) {
@@ -44,6 +45,7 @@ export function ResultsPanel({
   rowCount,
   truncated,
   durationMs,
+  statementsAffected,
 }: ResultsPanelProps) {
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -68,6 +70,17 @@ export function ResultsPanel({
         )}
         <span className="ml-auto">{durationMs}ms</span>
       </div>
+
+      {statementsAffected && statementsAffected.length > 0 && (
+        <div className="border-b px-3 py-1.5 text-xs text-muted-foreground">
+          <span className="font-medium">Per-statement:</span>{' '}
+          {statementsAffected.map((s) => (
+            <span key={s.statement} className="mr-3">
+              #{s.statement}: {s.rowsAffected} row{s.rowsAffected !== 1 ? 's' : ''} affected
+            </span>
+          ))}
+        </div>
+      )}
 
       {rows.length === 0 ? (
         <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">

@@ -640,12 +640,14 @@ New files in `docs/runbooks/`:
 
 ## 8. ADRs to Write
 
-- **ADR-0132: Read-Only by Default with Explicit Write Permission** — the safety discipline; recovery paths if it bites
-- **ADR-0133: Database Role Per Mode** — defense-in-depth; parser-only isn't sufficient
-- **ADR-0134: AST Parsing for Classification** — alternatives (regex, keyword-only); why a real parser
-- **ADR-0135: DDL via Console Forbidden** — DDL has its own audit and approval; keeping it that way
-- **ADR-0136: Multi-Statement Wrapped in Single Transaction** — atomicity; single confirm dialog
-- **ADR-0137: Parameter Binding Only, No String Interpolation** — safety; client-side dynamic content responsibility on the user
+> **Note:** ADR numbers 0132–0137 were already assigned to other decisions before this objective was implemented. The query console ADRs use the next available sequence.
+
+- **ADR-0229: Read-Only by Default with Explicit Write Permission** — the safety discipline; recovery paths if it bites
+- **ADR-0230: Database Role Per Mode** — defense-in-depth; parser-only isn't sufficient
+- **ADR-0231: AST Parsing for Classification** — alternatives (regex, keyword-only); why a real parser
+- **ADR-0232: DDL via Console Forbidden** — DDL has its own audit and approval; keeping it that way
+- **ADR-0233: Multi-Statement Wrapped in Single Transaction** — atomicity; single confirm dialog
+- **ADR-0234: Parameter Binding Only, No String Interpolation** — safety; client-side dynamic content responsibility on the user
 
 ---
 
@@ -791,7 +793,7 @@ If all 22 pass, the objective is met.
 
 **Documentation**
 
-- [ ] ADRs 0132–0137 written and Accepted
+- [ ] ADRs 0229–0234 written and Accepted (renumbered from 0132–0137; those numbers were already taken)
 - [ ] All runbooks in Section 6.12 written
 - [ ] Customer-facing query console guide
 

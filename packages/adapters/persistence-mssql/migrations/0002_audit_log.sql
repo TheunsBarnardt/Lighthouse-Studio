@@ -28,7 +28,7 @@ BEGIN
     '00000000-0000-0000-0000-000000000000',
     0,
     '0000000000000000000000000000000000000000000000000000000000000000',
-    LOWER(CONVERT(CHAR(64), HASHBYTES('SHA2_256', NEWID()), 2))
+    LOWER(CONVERT(CHAR(64), HASHBYTES('SHA2_256', CAST(NEWID() AS NVARCHAR(36))), 2))
   );
 END;
 GO
@@ -40,7 +40,7 @@ BEGIN
   CREATE TABLE [dbo].[audit_log] (
     [id]                      UNIQUEIDENTIFIER NOT NULL DEFAULT NEWSEQUENTIALID(),
     [sequence]                BIGINT           NOT NULL,
-    [workspace_id]            UNIQUEIDENTIFIER NULL,
+    [workspace_id]            UNIQUEIDENTIFIER NOT NULL,
     [event_type]              NVARCHAR(255)    NOT NULL,
     [occurred_at]             DATETIMEOFFSET   NOT NULL DEFAULT SYSDATETIMEOFFSET(),
     [actor_kind]              NVARCHAR(20)     NOT NULL

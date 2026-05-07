@@ -24,21 +24,24 @@ export class InMemoryIdentityProvider implements IdentityProviderPort {
     const identity: VerifiedIdentity = {
       subject: input.email ?? 'test-user',
       emailVerified: true,
-      providerId: 'memory',
+      providerId: 'builtin',
       claims: {},
       ...(input.email !== undefined ? { email: input.email } : {}),
     };
     return Promise.resolve(ok({ kind: 'complete', identity }));
   }
 
+  // Stateless: the sign-in route threads the email through input.code for the password flow
   completeSignIn(input: SignInCompletion): Promise<Result<VerifiedIdentity, IdentityError>> {
+    const email = input.code;
     const identity: VerifiedIdentity = {
-      subject: `user-${String(Date.now())}`,
+      subject: email ?? 'test-user',
       emailVerified: true,
-      providerId: 'memory',
+      providerId: 'builtin',
       claims: {},
+      ...(email !== undefined ? { email } : {}),
     };
-    const token = input.code ?? crypto.randomUUID();
+    const token = crypto.randomUUID();
     this.tokens.set(token, identity);
     return Promise.resolve(ok(identity));
   }

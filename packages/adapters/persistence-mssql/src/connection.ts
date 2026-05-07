@@ -1,22 +1,24 @@
 import type { LoggerPort, MetricsPort } from '@platform/ports-observability';
 
-import * as mssql from 'mssql';
+import mssql from 'mssql';
 
 export interface MssqlConnectionConfig {
   server: string;
-  port?: number;
+  port?: number | undefined;
   database: string;
-  user: string;
-  password: string;
-  encrypt?: boolean;
-  trustServerCertificate?: boolean;
+  user?: string | undefined;
+  password?: string | undefined;
+  encrypt?: boolean | undefined;
+  trustServerCertificate?: boolean | undefined;
+  /** Use Windows integrated authentication — no user/password needed */
+  trustedConnection?: boolean | undefined;
   /** Named instance (e.g. "SQLEXPRESS") */
-  instanceName?: string;
+  instanceName?: string | undefined;
   /** NTLM domain for Windows-authenticated connections */
-  domain?: string;
-  poolSize?: number;
-  requestTimeoutMs?: number;
-  connectionTimeoutMs?: number;
+  domain?: string | undefined;
+  poolSize?: number | undefined;
+  requestTimeoutMs?: number | undefined;
+  connectionTimeoutMs?: number | undefined;
 }
 
 export interface MssqlConnection {
@@ -64,14 +66,14 @@ export async function createMssqlConnection(
     server: config.server,
     port: config.port ?? 1433,
     database: config.database,
-    user: config.user,
-    password: config.password,
-    domain: config.domain,
+    ...(config.trustedConnection ? {} : { user: config.user, password: config.password }),
+    ...(config.domain !== undefined ? { domain: config.domain } : {}),
     options: {
-      encrypt: config.encrypt ?? true,
-      trustServerCertificate: config.trustServerCertificate ?? false,
+      encrypt: config.encrypt ?? false,
+      trustServerCertificate: config.trustServerCertificate ?? true,
       enableArithAbort: true,
-      instanceName: config.instanceName,
+      trustedConnection: config.trustedConnection ?? false,
+      ...(config.instanceName !== undefined ? { instanceName: config.instanceName } : {}),
     },
     pool: {
       min: 1,

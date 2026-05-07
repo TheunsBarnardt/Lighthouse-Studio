@@ -100,3 +100,24 @@ export const QUERY_AUDIT_EVENTS = {
 } as const;
 
 export type QueryAuditEventType = (typeof QUERY_AUDIT_EVENTS)[keyof typeof QUERY_AUDIT_EVENTS];
+
+export const BROWSER_AUDIT_EVENTS = {
+  // Saved view lifecycle
+  VIEW_CREATED: 'data_management.browser.view_created',
+  VIEW_UPDATED: 'data_management.browser.view_updated',
+  VIEW_DELETED: 'data_management.browser.view_deleted',
+  VIEW_SHARED: 'data_management.browser.view_shared',
+  // Import lifecycle
+  IMPORT_STARTED: 'data_management.browser.import_started',
+  IMPORT_COMPLETED: 'data_management.browser.import_completed',
+  IMPORT_FAILED: 'data_management.browser.import_failed',
+  IMPORT_CANCELLED: 'data_management.browser.import_cancelled',
+  // Export lifecycle
+  EXPORT_STARTED: 'data_management.browser.export_started',
+  EXPORT_COMPLETED: 'data_management.browser.export_completed',
+  // Bulk operations — one event per operation, not per row
+  BULK_ACTION_INITIATED: 'data_management.browser.bulk_action_initiated',
+} as const;
+
+export type BrowserAuditEventType =
+  (typeof BROWSER_AUDIT_EVENTS)[keyof typeof BROWSER_AUDIT_EVENTS];

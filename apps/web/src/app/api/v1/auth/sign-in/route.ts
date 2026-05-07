@@ -49,10 +49,11 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (challenge.kind === 'complete') {
     const completeResult = await authService.completeSignIn(ctx, {
       method: 'password',
+      code: parsed.data.email, // threads email to IDP so completeSignIn is stateless
     });
     if (completeResult.isErr()) return errorResponse(completeResult.error);
 
-    const { token, userId } = completeResult.value;
+    const { token, userId, expiresAt } = completeResult.value;
 
     // Look up user details
     const directory = getUserDirectory();
@@ -66,18 +67,21 @@ export async function POST(request: Request): Promise<NextResponse> {
     const user = userResult.value;
 
     const response = okResponse({
-      id: user.id,
-      email: user.primaryEmail,
-      displayName: user.displayName,
-      status: user.status,
-      mfaEnabled: user.mfaEnabled,
-      identities: user.identities.map((i) => ({
-        providerId: i.providerId,
-        email: i.email,
-        primary: i.primary,
-      })),
-      preferences: user.preferences,
-      avatarUrl: null,
+      session: {
+        accessToken: token,
+        refreshToken: token,
+        expiresAt: expiresAt.getTime(),
+        userId: user.id,
+        workspaceId: '',
+      },
+      user: {
+        id: user.id,
+        email: user.primaryEmail,
+        displayName: user.displayName,
+        emailVerified: user.emailVerified,
+        mfaEnabled: user.mfaEnabled,
+        createdAt: user.createdAt.toISOString(),
+      },
     });
 
     setSessionCookie(response, token);

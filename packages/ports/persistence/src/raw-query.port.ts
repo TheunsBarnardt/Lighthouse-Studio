@@ -55,6 +55,8 @@ export interface RawQueryResult {
   truncated: boolean;
   durationMs: number;
   columns: ColumnMeta[];
+  /** Per-statement row counts, populated for multi-statement write queries. */
+  statementsAffected?: { statement: number; rowsAffected: number }[];
 }
 
 // ── Port interface ────────────────────────────────────────────────────────────

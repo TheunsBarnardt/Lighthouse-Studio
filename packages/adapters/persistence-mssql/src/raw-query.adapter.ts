@@ -7,7 +7,7 @@ import type {
 } from '@platform/ports-persistence';
 
 import { PersistenceError } from '@platform/ports-persistence';
-import * as mssql from 'mssql';
+import mssql from 'mssql';
 import { err, ok, type Result } from 'neverthrow';
 
 // ── Named-parameter → @p1, @p2, ... conversion ───────────────────────────────
@@ -106,12 +106,21 @@ export class MssqlRawQueryAdapter implements RawQueryPort {
         }),
       );
 
+      // MSSQL returns rowsAffected as an array — one entry per statement
+      const statementsAffected =
+        opts.wrapInTransaction && result.rowsAffected.length > 1
+          ? result.rowsAffected
+              .filter((_, i) => i > 0 && i < result.rowsAffected.length - 1) // exclude BEGIN/COMMIT rows
+              .map((n, i) => ({ statement: i + 1, rowsAffected: n }))
+          : undefined;
+
       return ok({
         rows: limited,
         rowCount: result.rowsAffected[0] ?? limited.length,
         truncated,
         durationMs: Date.now() - start,
         columns,
+        ...(statementsAffected !== undefined && { statementsAffected }),
       });
     } catch (cause) {
       return err(mapMssqlError(cause));

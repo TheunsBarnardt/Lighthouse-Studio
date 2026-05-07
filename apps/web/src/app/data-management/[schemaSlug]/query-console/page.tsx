@@ -33,6 +33,7 @@ interface QueryResult {
   rowCount: number;
   truncated: boolean;
   durationMs: number;
+  statementsAffected?: { statement: number; rowsAffected: number }[];
 }
 
 interface ExplainResult {
@@ -168,6 +169,7 @@ export default function QueryConsolePage() {
         statementCount?: number;
         affectedTables?: string[];
         hasWriteStatements?: boolean;
+        statementsAffected?: { statement: number; rowsAffected: number }[];
         error?: string;
       };
 
@@ -187,6 +189,9 @@ export default function QueryConsolePage() {
           rowCount: data.rowCount ?? 0,
           truncated: data.truncated ?? false,
           durationMs: data.durationMs ?? 0,
+          ...(data.statementsAffected !== undefined && {
+            statementsAffected: data.statementsAffected,
+          }),
         });
         setBottomTab('results');
         void refreshHistory();
@@ -447,6 +452,9 @@ export default function QueryConsolePage() {
                   rowCount={result.rowCount}
                   truncated={result.truncated}
                   durationMs={result.durationMs}
+                  {...(result.statementsAffected !== undefined && {
+                    statementsAffected: result.statementsAffected,
+                  })}
                 />
               ) : bottomTab === 'results' ? (
                 <div className="flex h-full items-center justify-center text-sm text-muted-foreground">

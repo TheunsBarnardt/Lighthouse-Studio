@@ -32,6 +32,62 @@ function convertNamedParams(query: string, parameters: Record<string, unknown>):
   return { text, values };
 }
 
+// ── Statement splitter ────────────────────────────────────────────────────────
+// Splits multi-statement SQL on semicolons, ignoring those inside string literals.
+// The classifier already validated the statements so we trust the input is parseable.
+
+function splitStatements(sql: string): string[] {
+  const statements: string[] = [];
+  let current = '';
+  let inSingleQuote = false;
+  let inDollarQuote = false;
+  let dollarTag = '';
+  let i = 0;
+
+  while (i < sql.length) {
+    const ch = sql[i] as string;
+
+    if (!inSingleQuote && !inDollarQuote && ch === "'") {
+      inSingleQuote = true;
+      current += ch;
+    } else if (inSingleQuote && ch === "'") {
+      inSingleQuote = false;
+      current += ch;
+    } else if (!inSingleQuote && !inDollarQuote && ch === '$') {
+      // Detect dollar-quoting ($$...$$)
+      const rest = sql.slice(i);
+      const tagMatch = /^\$([^$]*)\$/.exec(rest);
+      if (tagMatch) {
+        if (dollarTag === tagMatch[0]) {
+          inDollarQuote = false;
+          dollarTag = '';
+          current += tagMatch[0];
+          i += tagMatch[0].length;
+          continue;
+        } else {
+          inDollarQuote = true;
+          dollarTag = tagMatch[0];
+          current += tagMatch[0];
+          i += tagMatch[0].length;
+          continue;
+        }
+      }
+      current += ch;
+    } else if (!inSingleQuote && !inDollarQuote && ch === ';') {
+      const trimmed = current.trim();
+      if (trimmed) statements.push(trimmed);
+      current = '';
+    } else {
+      current += ch;
+    }
+    i++;
+  }
+
+  const trimmed = current.trim();
+  if (trimmed) statements.push(trimmed);
+  return statements;
+}
+
 // ── LIMIT injection ───────────────────────────────────────────────────────────
 // Appends LIMIT if the outermost SELECT has none. Operates on SQL text only —
 // the adapter does NOT use a full AST here; the classifier already validated the query.
@@ -108,28 +164,44 @@ export class PostgresRawQueryAdapter implements RawQueryPort {
       // Statement-level timeout (database enforces this)
       await client.query(`SET statement_timeout = ${String(opts.timeoutMs)}`);
 
-      if (opts.wrapInTransaction) {
-        await client.query('BEGIN');
-      }
-
       // Convert :name params to $1, $2, ...
       const { text, values } = convertNamedParams(opts.query, opts.parameters);
 
-      // Inject row limit on the query text
-      const limitedQuery = injectRowLimit(text, opts.rowLimit);
-
-      let result;
-      try {
-        result = await client.query(limitedQuery, values);
-        if (opts.wrapInTransaction) {
+      if (opts.wrapInTransaction) {
+        // Multi-statement write: run each statement individually inside a transaction
+        // to collect per-statement row counts. Simple semicolon split is safe here
+        // because the classifier already validated the statements.
+        const statements = splitStatements(text);
+        await client.query('BEGIN');
+        const statementsAffected: { statement: number; rowsAffected: number }[] = [];
+        let lastResult;
+        try {
+          for (let i = 0; i < statements.length; i++) {
+            const stmt = statements[i];
+            if (!stmt) continue;
+            lastResult = await client.query(stmt, i === 0 ? values : []);
+            statementsAffected.push({ statement: i + 1, rowsAffected: lastResult.rowCount ?? 0 });
+          }
           await client.query('COMMIT');
-        }
-      } catch (innerCause) {
-        if (opts.wrapInTransaction) {
+        } catch (innerCause) {
           await client.query('ROLLBACK').catch(() => undefined);
+          throw innerCause;
         }
-        throw innerCause;
+        const rows = (lastResult?.rows ?? []) as Record<string, unknown>[];
+        const totalRows = statementsAffected.reduce((s, r) => s + r.rowsAffected, 0);
+        return ok({
+          rows,
+          rowCount: totalRows,
+          truncated: false,
+          durationMs: Date.now() - start,
+          columns: lastResult ? extractColumns(lastResult.fields) : [],
+          statementsAffected,
+        });
       }
+
+      // Single statement: inject row limit and execute normally
+      const limitedQuery = injectRowLimit(text, opts.rowLimit);
+      const result = await client.query(limitedQuery, values);
 
       const rows = result.rows as Record<string, unknown>[];
       const truncated = rows.length > opts.rowLimit;

@@ -18,7 +18,7 @@ import {
   type MigrationRecord,
   type SchemaMigrationPort,
 } from '@platform/ports-persistence';
-import * as mssql from 'mssql';
+import mssql from 'mssql';
 import { err, ok } from 'neverthrow';
 import * as crypto from 'node:crypto';
 import * as fs from 'node:fs/promises';
@@ -36,6 +36,17 @@ const printErr = (msg: string): void => {
 
 export function checksumSql(sql: string): string {
   return crypto.createHash('sha256').update(sql, 'utf8').digest('hex');
+}
+
+/** Split a SQL script on GO batch separators (SSMS convention) and run each batch. */
+async function executeBatches(pool: mssql.ConnectionPool, sql: string): Promise<void> {
+  const batches = sql
+    .split(/^\s*GO\s*$/im)
+    .map((b) => b.trim())
+    .filter((b) => b.length > 0);
+  for (const batch of batches) {
+    await pool.request().query(batch);
+  }
 }
 
 async function ensureTrackingTable(pool: mssql.ConnectionPool): Promise<void> {
@@ -96,26 +107,35 @@ export class MssqlMigrationRunner implements SchemaMigrationPort {
     down?: string;
   }): Promise<Result<void, PersistenceError>> {
     const checksum = checksumSql(migration.up);
-    const transaction = new mssql.Transaction(this.pool);
     try {
       await ensureTrackingTable(this.pool);
+      // Run each GO-separated batch outside a transaction (DDL batches can't mix with DML tx)
+      await executeBatches(this.pool, migration.up);
+      // Record the migration in its own transaction
+      const transaction = new mssql.Transaction(this.pool);
       await transaction.begin();
-      await transaction.request().query(migration.up);
-      const req = transaction.request();
-      req.input('id', migration.id);
-      req.input('name', migration.name);
-      req.input('checksum', checksum);
-      await req.query(
-        `INSERT INTO ${TRACKING_TABLE} ([id], [name], [checksum])
-         SELECT @id, @name, @checksum
-         WHERE NOT EXISTS (SELECT 1 FROM ${TRACKING_TABLE} WHERE [id] = @id)`,
-      );
-      await transaction.commit();
+      try {
+        const req = transaction.request();
+        req.input('id', migration.id);
+        req.input('name', migration.name);
+        req.input('checksum', checksum);
+        await req.query(
+          `INSERT INTO ${TRACKING_TABLE} ([id], [name], [checksum])
+           SELECT @id, @name, @checksum
+           WHERE NOT EXISTS (SELECT 1 FROM ${TRACKING_TABLE} WHERE [id] = @id)`,
+        );
+        await transaction.commit();
+      } catch (e) {
+        try {
+          await transaction.rollback();
+        } catch {
+          /* ignore */
+        }
+        throw e;
+      }
       return ok(undefined);
     } catch (e) {
-      try {
-        await transaction.rollback();
-      } catch {
+      {
         // ignore rollback error
       }
       return err(

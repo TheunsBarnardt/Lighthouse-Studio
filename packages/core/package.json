@@ -24,6 +24,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
+    "@platform/ports-ai-artifacts": "workspace:*",
+    "@platform/ports-ai-provider": "workspace:*",
     "@platform/ports-audit": "workspace:*",
     "@platform/ports-authorization": "workspace:*",
     "@platform/ports-eventing": "workspace:*",
@@ -32,6 +34,7 @@
     "@platform/ports-persistence": "workspace:*",
     "@platform/ports-platform-version": "workspace:*",
     "@platform/ports-rate-limiter": "workspace:*",
+    "@platform/ports-jobs": "workspace:*",
     "@platform/ports-storage": "workspace:*",
     "@platform/ports-workspace-assets": "workspace:*",
     "@pothos/core": "^4.12.0",
