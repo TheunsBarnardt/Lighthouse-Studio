@@ -51,6 +51,9 @@ ehthumbs.db
 # Private Claude memory (not for sharing)
 .claude/memory-private/
 
+# Claude Code worktree checkouts (session-local, never committed)
+.claude/worktrees/
+
 # Compiled test artifacts (tests should never emit alongside sources)
 packages/*/tests/**/*.js
 packages/*/tests/**/*.js.map
