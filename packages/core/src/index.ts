@@ -662,3 +662,40 @@ export {
   DEPLOYMENT_PERMISSIONS,
   DEPLOYMENT_DEFAULT_GRANTS,
 } from './services/ai/deployment/index.js';
+
+// ── Objective 30: Maintenance & Evolution ─────────────────────────────────────
+export { MaintenanceService } from './services/ai/maintenance/index.js';
+export type {
+  SignalSource,
+  SignalSeverity,
+  SignalStatus,
+  ErrorSignalDetails,
+  PerfSignalDetails,
+  UserReportDetails,
+  DependencyAdvisoryDetails,
+  StageClassificationEntry,
+  SignalClassification,
+  Signal,
+  ChangeRequestStatus,
+  ChangeRequestPriority,
+  OutcomeMetrics,
+  ChangeRequest,
+  DependencyAdvisory,
+  CascadeStatus,
+  AffectedArtifact,
+  AffectedDownstreamReport,
+  OutcomeReport,
+  MaintenanceQualitySignals,
+  IngestSignalInput,
+  CreateChangeRequestInput,
+  ResolveChangeRequestInput,
+  MaintenanceAuditEventType,
+} from './services/ai/maintenance/index.js';
+export {
+  IngestSignalInputSchema,
+  CreateChangeRequestInputSchema,
+  ResolveChangeRequestInputSchema,
+  MAINTENANCE_AUDIT_EVENTS,
+  MAINTENANCE_PERMISSIONS,
+  MAINTENANCE_DEFAULT_GRANTS,
+} from './services/ai/maintenance/index.js';
