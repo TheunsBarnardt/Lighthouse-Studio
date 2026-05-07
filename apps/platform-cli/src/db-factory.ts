@@ -81,7 +81,7 @@ export async function buildDbTargets(env: CliEnv): Promise<DbConnections> {
     const mssqlBaseOptions = { encrypt: false, trustServerCertificate: true };
     const mssqlAuth = env.mssqlTrustedConnection
       ? { options: { ...mssqlBaseOptions, trustedConnection: true as const } }
-      : { user: env.mssqlUser!, password: env.mssqlPassword!, options: mssqlBaseOptions };
+      : { user: env.mssqlUser ?? '', password: env.mssqlPassword ?? '', options: mssqlBaseOptions };
 
     // App pool: read/write only.
     const pool = await mssql.connect({
@@ -103,8 +103,8 @@ export async function buildDbTargets(env: CliEnv): Promise<DbConnections> {
       ? await mssql.connect({
           server: env.mssqlServer,
           database: env.mssqlDatabase,
-          user: migrateUser!,
-          password: migratePassword!,
+          user: migrateUser ?? '',
+          password: migratePassword ?? '',
           options: mssqlBaseOptions,
         })
       : pool;

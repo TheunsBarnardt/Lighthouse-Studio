@@ -54,7 +54,7 @@ export async function POST(
   try {
     const pool = await getPool();
     const result = await pool.request().query(sql);
-    return NextResponse.json({ rows: result.recordset ?? [] });
+    return NextResponse.json({ rows: result.recordset });
   } catch (err) {
     return NextResponse.json(
       {
