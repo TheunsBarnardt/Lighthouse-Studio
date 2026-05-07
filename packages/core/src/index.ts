@@ -329,3 +329,43 @@ export {
   BUILT_IN_TEMPLATES,
   getBuiltInTemplates,
 } from './services/ai/intent-capture/templates/index.js';
+
+// ── AI Build Pipeline — Objective 22 (PRD Generation) ─────────────────────────
+export { PrdGenerationService } from './services/ai/prd-generation/index.js';
+export type {
+  ListPrdsOptions,
+  ListPrdTemplatesOptions,
+} from './services/ai/prd-generation/index.js';
+export type {
+  Prd,
+  PrdSection,
+  PrdSectionType,
+  PrdTemplate,
+  SectionEdit,
+  GeneratePrdOptions,
+  GeneratePrdInput,
+  ConsistencyReport,
+  ConsistencyIssue,
+  TraceabilityReport,
+  TraceabilityGap,
+  StalenessReport,
+  StalenessIndicator,
+  SectionStatus,
+  FunctionalRequirement,
+  NonFunctionalRequirement,
+  AcceptanceCriterion,
+  TraceabilityRef,
+  LockedDecision,
+  HardPart,
+  ComponentSpec,
+  ImplementationStep,
+  AdrStub,
+  VerificationStep,
+  DodItem,
+  AntiPattern,
+  OpenQuestion,
+} from './services/ai/prd-generation/index.js';
+export { PRD_SECTION_TYPES, SECTION_DEPENDENCIES } from './services/ai/prd-generation/index.js';
+export { PRD_AUDIT_EVENTS } from './services/ai/prd-generation/index.js';
+export { PRD_GENERATION_PERMISSIONS, PRD_GENERATION_ROLE_GRANTS } from './services/ai/prd-generation/index.js';
+export { BUILT_IN_PRD_TEMPLATES, getBuiltInPrdTemplates, getBuiltInPrdTemplate } from './services/ai/prd-generation/index.js';

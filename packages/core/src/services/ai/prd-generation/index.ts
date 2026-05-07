@@ -1,0 +1,48 @@
+export { PrdGenerationService } from './prd-generation.service.js';
+export type { ListPrdsOptions, ListPrdTemplatesOptions } from './prd-generation.service.js';
+export type {
+  Prd,
+  PrdSection,
+  PrdSectionType,
+  PrdTemplate,
+  SectionEdit,
+  GeneratePrdOptions,
+  GeneratePrdInput,
+  ConsistencyReport,
+  ConsistencyIssue,
+  TraceabilityReport,
+  TraceabilityGap,
+  StalenessReport,
+  StalenessIndicator,
+  SectionStatus,
+  FunctionalRequirement,
+  NonFunctionalRequirement,
+  AcceptanceCriterion,
+  TraceabilityRef,
+  LockedDecision,
+  HardPart,
+  ComponentSpec,
+  ImplementationStep,
+  AdrStub,
+  VerificationStep,
+  DodItem,
+  AntiPattern,
+  OpenQuestion,
+  PurposeContent,
+  ScopeContent,
+  LockedDecisionsContent,
+  ArchitecturalOverviewContent,
+  HardPartsContent,
+  ComponentSpecificationsContent,
+  ImplementationOrderContent,
+  AdrsToWriteContent,
+  VerificationStepsContent,
+  DefinitionOfDoneContent,
+  AntiPatternsContent,
+  OpenQuestionsContent,
+  WhatComesNextContent,
+} from './types.js';
+export { PRD_SECTION_TYPES, SECTION_DEPENDENCIES } from './types.js';
+export { PRD_AUDIT_EVENTS } from './audit-events.js';
+export { PRD_GENERATION_PERMISSIONS, PRD_GENERATION_ROLE_GRANTS } from './permissions.js';
+export { BUILT_IN_PRD_TEMPLATES, getBuiltInPrdTemplates, getBuiltInPrdTemplate } from './templates/index.js';
