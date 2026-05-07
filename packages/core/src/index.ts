@@ -520,3 +520,29 @@ export {
   UI_GENERATION_PERMISSIONS,
   UI_GENERATION_DEFAULT_GRANTS,
 } from './services/ai/ui-generation/index.js';
+
+// ─── Objective 26.5: App Chrome ───────────────────────────────────────────────
+export { AppChromeService, STARTER_CHROME_BLOCKS, getChromeBlocksForRegion, getChromeBlockById } from './services/ai/app-chrome/index.js';
+export type {
+  ChromeRegion,
+  ChromeLayout,
+  ChromeBlockParam,
+  ChromeBlock,
+  ChromeRegionConfig,
+  PageChromeOverride,
+  AppChromeConfig,
+  ChromeProposalRegion,
+  ChromeProposal,
+  UpdateChromeConfigInput,
+  ProposeChromeInput,
+  ApplyChromeProposalInput,
+  AppChromeAuditEventType,
+} from './services/ai/app-chrome/index.js';
+export {
+  UpdateChromeConfigInputSchema,
+  ProposeChromInputSchema,
+  ApplyChromeProposalInputSchema,
+  APP_CHROME_AUDIT_EVENTS,
+  APP_CHROME_PERMISSIONS,
+  APP_CHROME_DEFAULT_GRANTS,
+} from './services/ai/app-chrome/index.js';
