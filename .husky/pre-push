@@ -1,7 +1,2 @@
-# Build first so Turbo has warm cache for downstream typecheck tasks.
-# On Windows, composite tsconfig causes tsc to race against VS Code's tsserver
-# for dist files when build and typecheck run in the same Turbo invocation.
-# Serialising them via separate pnpm calls avoids the EBUSY race.
-pnpm build
 pnpm typecheck
 pnpm verify-clean-tree
