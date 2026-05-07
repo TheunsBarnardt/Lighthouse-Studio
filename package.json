@@ -29,6 +29,7 @@
     "telemetry:coverage": "tsx scripts/telemetry-coverage.mts",
     "pii:check": "tsx scripts/check-pii-registry.mts",
     "audit:catalog": "tsx scripts/check-audit-catalog.mts",
+    "ai:check-reasoning": "tsx scripts/check-ai-reasoning.mts",
     "setup": "tsx scripts/setup-local.mts",
     "setup:local-db": "docker compose -f infra/docker/local.yml up -d",
     "teardown:local-db": "docker compose -f infra/docker/local.yml down -v",
