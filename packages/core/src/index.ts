@@ -593,3 +593,37 @@ export {
   CODE_GENERATION_PERMISSIONS,
   CODE_GENERATION_DEFAULT_GRANTS,
 } from './services/ai/code-generation/index.js';
+
+// ── Objective 28: Test Generation ─────────────────────────────────────────────
+export { TestGenerationService } from './services/ai/test-generation/index.js';
+export type {
+  TestType,
+  TestCase,
+  TestPlan,
+  TestSuite,
+  TestFile,
+  TestFileStatus,
+  TestSuiteStatus,
+  TestRunStatus,
+  TestRun,
+  TestRunResults,
+  TestFailure,
+  CoverageReport,
+  FileCoverage,
+  AcCoverageReport,
+  TestBuildConfig,
+  TestGenerationQualitySignals,
+  GenerateTestPlanInput,
+  GenerateTestSuiteInput,
+  RunTestsInput,
+  RegenerateTestInput,
+} from './services/ai/test-generation/index.js';
+export {
+  GenerateTestPlanInputSchema,
+  GenerateTestSuiteInputSchema,
+  RunTestsInputSchema,
+  RegenerateTestInputSchema,
+  TEST_GENERATION_AUDIT_EVENTS,
+  TEST_GENERATION_PERMISSIONS,
+  TEST_GENERATION_DEFAULT_GRANTS,
+} from './services/ai/test-generation/index.js';

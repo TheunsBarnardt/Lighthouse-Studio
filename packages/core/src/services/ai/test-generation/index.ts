@@ -1,0 +1,33 @@
+export { TestGenerationService } from './test-generation.service.js';
+export type {
+  TestType,
+  TestCase,
+  TestPlan,
+  TestSuite,
+  TestFile,
+  TestFileStatus,
+  TestSuiteStatus,
+  TestRunStatus,
+  TestRun,
+  TestRunResults,
+  TestFailure,
+  CoverageReport,
+  FileCoverage,
+  AcCoverageReport,
+  TestBuildConfig,
+  ReasoningRecord,
+  TestGenerationQualitySignals,
+  GenerateTestPlanInput,
+  GenerateTestSuiteInput,
+  RunTestsInput,
+  RegenerateTestInput,
+} from './types.js';
+export {
+  GenerateTestPlanInputSchema,
+  GenerateTestSuiteInputSchema,
+  RunTestsInputSchema,
+  RegenerateTestInputSchema,
+  TEST_GENERATION_AUDIT_EVENTS,
+  TEST_GENERATION_PERMISSIONS,
+  TEST_GENERATION_DEFAULT_GRANTS,
+} from './types.js';
