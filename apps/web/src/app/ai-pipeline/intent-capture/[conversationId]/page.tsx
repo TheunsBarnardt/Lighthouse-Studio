@@ -1,6 +1,6 @@
 'use client';
 
-import type { BriefDraft } from '@platform/core';
+import type { BriefDraft, IntentBrief } from '@platform/core';
 
 import { useParams, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
@@ -24,6 +24,7 @@ export default function IntentCaptureConversationPage() {
   const [dialog, setDialog] = useState<DialogState>(null);
   const [briefDraft, setBriefDraft] = useState<BriefDraft | null>(null);
   const [generatedBriefId, setGeneratedBriefId] = useState<string | null>(null);
+  const [generatedBrief, setGeneratedBrief] = useState<IntentBrief | null>(null);
 
   function handleReadyToGenerate() {
     setDialog('generate');
@@ -37,8 +38,9 @@ export default function IntentCaptureConversationPage() {
         { method: 'POST' },
       );
       if (res.ok) {
-        const data = (await res.json()) as { id: string };
+        const data = (await res.json()) as { id: string; content?: IntentBrief };
         setGeneratedBriefId(data.id);
+        if (data.content) setGeneratedBrief(data.content);
       }
     } catch {
       // error handled by UI
@@ -89,10 +91,16 @@ export default function IntentCaptureConversationPage() {
         <BriefPreviewPanel
           briefDraft={briefDraft}
           briefId={generatedBriefId}
+          brief={generatedBrief}
           workspaceId={WORKSPACE_ID}
           onGenerateBrief={handleReadyToGenerate}
           onSubmitForApproval={() => {
             setDialog('submit');
+          }}
+          onBriefUpdate={(updates) => {
+            if (generatedBrief) {
+              setGeneratedBrief({ ...generatedBrief, ...updates });
+            }
           }}
         />
       </div>

@@ -325,3 +325,7 @@ export {
   INTENT_CAPTURE_PERMISSIONS,
   INTENT_CAPTURE_ROLE_GRANTS,
 } from './services/ai/intent-capture/permissions.js';
+export {
+  BUILT_IN_TEMPLATES,
+  getBuiltInTemplates,
+} from './services/ai/intent-capture/templates/index.js';
