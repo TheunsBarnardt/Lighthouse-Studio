@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://platform.example.co.za/schemas/release-manifest.json",
+  "title": "Release Manifest",
+  "description": "Metadata shipped with every platform release to drive the upgrade orchestrator.",
+  "type": "object",
+  "required": [
+    "version",
+    "minPreviousVersion",
+    "breakingMigrations",
+    "expectedDowntimeSeconds",
+    "rollbackSupported"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Semver of this release (e.g. '1.2.0').",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+      "minLength": 1
+    },
+    "minPreviousVersion": {
+      "type": "string",
+      "description": "Oldest platform version that can upgrade directly to this release (N-2 minor window).",
+      "minLength": 1
+    },
+    "breakingMigrations": {
+      "type": "array",
+      "description": "Migration names that require a maintenance window (empty = online upgrade safe).",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "expectedDowntimeSeconds": {
+      "type": "integer",
+      "description": "Estimated downtime in seconds for breaking migrations (0 = online upgrade).",
+      "minimum": 0
+    },
+    "rollbackSupported": {
+      "type": "boolean",
+      "description": "Whether version-row rollback is safe for this release."
+    }
+  }
+}

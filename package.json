@@ -25,6 +25,7 @@
     "verify-clean-tree": "tsx scripts/verify-clean-tree.mts",
     "env:check": "tsx packages/config/src/env/validate.mts",
     "env:completeness": "tsx scripts/check-env-completeness.mts",
+    "manifest:validate": "tsx scripts/validate-release-manifest.mts",
     "telemetry:coverage": "tsx scripts/telemetry-coverage.mts",
     "pii:check": "tsx scripts/check-pii-registry.mts",
     "audit:catalog": "tsx scripts/check-audit-catalog.mts",
