@@ -730,3 +730,30 @@ export {
   DOCS_PERMISSIONS,
   DOCS_DEFAULT_GRANTS,
 } from './services/ai/docs/index.js';
+
+// ── Objective 32: Automated Penetration Testing ───────────────────────────────
+export { PentestService } from './services/ai/pentest/index.js';
+export type {
+  ScanType,
+  FindingSeverity,
+  FindingStatus,
+  RunStatus,
+  SecurityFinding,
+  PentestRun,
+  PentestSchedule,
+  TestingAgreement,
+  PentestAuditEventType,
+  StartScanInput,
+  AcknowledgeFindingInput,
+  SuppressFindingInput,
+  CreateScheduleInput,
+} from './services/ai/pentest/index.js';
+export {
+  StartScanInputSchema,
+  AcknowledgeFindingInputSchema,
+  SuppressFindingInputSchema,
+  CreateScheduleInputSchema,
+  PENTEST_AUDIT_EVENTS,
+  PENTEST_PERMISSIONS,
+  PENTEST_DEFAULT_GRANTS,
+} from './services/ai/pentest/index.js';
