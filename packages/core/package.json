@@ -24,6 +24,7 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
+    "@platform/ports-ai": "workspace:*",
     "@platform/ports-audit": "workspace:*",
     "@platform/ports-authorization": "workspace:*",
     "@platform/ports-eventing": "workspace:*",

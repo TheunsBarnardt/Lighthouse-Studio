@@ -1,0 +1,21 @@
+/**
+ * PRD Generation audit event type strings — Objective 22, Section 6.7
+ */
+
+export const PRD_AUDIT_EVENTS = {
+  PRD_GENERATED: 'ai.prd.prd_generated',
+  SECTION_GENERATED: 'ai.prd.section_generated',
+  SECTION_REGENERATED: 'ai.prd.section_regenerated',
+  SECTION_EDITED: 'ai.prd.section_edited',
+  SECTION_SUBMITTED: 'ai.prd.section_submitted',
+  SECTION_APPROVED: 'ai.prd.section_approved',
+  SECTION_REJECTED: 'ai.prd.section_rejected',
+  CONSISTENCY_CHECK_RUN: 'ai.prd.consistency_check_run',
+  CONSISTENCY_ISSUE_DETECTED: 'ai.prd.consistency_issue_detected',
+  TRACEABILITY_CHECK_RUN: 'ai.prd.traceability_check_run',
+  STALENESS_DETECTED: 'ai.prd.staleness_detected',
+  AFFECTED_SECTIONS_REGENERATED: 'ai.prd.affected_sections_regenerated',
+  EXPORTED: 'ai.prd.exported',
+} as const;
+
+export type PrdAuditEventType = (typeof PRD_AUDIT_EVENTS)[keyof typeof PRD_AUDIT_EVENTS];

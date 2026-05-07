@@ -1,0 +1,36 @@
+{
+  "name": "@platform/ports-prd-persistence",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./conformance": {
+      "import": "./dist/conformance/index.js",
+      "types": "./dist/conformance/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "lint": "eslint src",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@platform/core": "workspace:*",
+    "neverthrow": "8.2.0",
+    "uuidv7": "1.0.2"
+  },
+  "devDependencies": {
+    "@platform/config": "workspace:*",
+    "rimraf": "6.0.1",
+    "vitest": "3.2.3"
+  }
+}

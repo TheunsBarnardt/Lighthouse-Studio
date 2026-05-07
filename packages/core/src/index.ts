@@ -263,3 +263,113 @@ export type {
   TemplateOverride,
   WorkspaceEmailTemplateRecord,
 } from './services/email-template.service.js';
+
+// ── AI Pipeline Foundation (Objective 20) ─────────────────────────────────────
+export type {
+  ArtifactStatus,
+  ReasoningRecord,
+  QualitySignals,
+  Artifact,
+  PromptResult,
+  GenerationOptions,
+  PromptDefinition,
+} from './services/ai/types.js';
+export { ArtifactStatusSchema, ReasoningRecordSchema } from './services/ai/types.js';
+
+// ── Intent Capture (Objective 21) ─────────────────────────────────────────────
+export type {
+  IntentGoal,
+  IntentPersona,
+  IntentConstraint,
+  IntentBrief,
+  IntentBriefInput,
+} from './services/ai/intent-capture/types.js';
+export {
+  IntentGoalSchema,
+  IntentPersonaSchema,
+  IntentConstraintSchema,
+  IntentBriefSchema,
+} from './services/ai/intent-capture/types.js';
+
+// ── PRD Generation (Objective 22) ─────────────────────────────────────────────
+export type {
+  PrdSectionType,
+  TraceabilityRef,
+  AcceptanceCriterion,
+  MetricAcceptanceCriterion,
+  OverviewContent,
+  GoalEntry,
+  GoalsAndSuccessMetricsContent,
+  PersonaEntry,
+  TargetUsersContent,
+  UserStory,
+  UserStoriesContent,
+  FunctionalRequirement,
+  FunctionalRequirementsContent,
+  NfrCategory,
+  NonFunctionalRequirement,
+  NonFunctionalRequirementsContent,
+  ConstraintEntry,
+  AssumptionEntry,
+  ConstraintsAndAssumptionsContent,
+  OutOfScopeItem,
+  OutOfScopeContent,
+  OpenQuestion,
+  OpenQuestionsContent,
+  RiskEntry,
+  RisksAndMitigationsContent,
+  PrdSectionContent,
+  PrdSection,
+  PrdGenerationMetadata,
+  PrdQualitySignals,
+  Prd,
+  ConsistencyIssue,
+  ConsistencyReport,
+  TraceabilityGap,
+  TraceabilityReport,
+  StalenessIndicator,
+  PrdTemplate,
+  GeneratePrdOptions,
+  SectionEdit,
+  StalenessReport,
+  GeneratePrdInput,
+  RegenerateSectionInput,
+  EditSectionInput,
+  ExportPrdInput,
+  PrdArtifact,
+} from './services/ai/prd-generation/types.js';
+export {
+  PRD_SECTION_TYPES,
+  PrdSectionTypeSchema,
+  GeneratePrdInputSchema,
+  RegenerateSectionInputSchema,
+  EditSectionInputSchema,
+  ExportPrdInputSchema,
+} from './services/ai/prd-generation/types.js';
+export { PRD_AUDIT_EVENTS } from './services/ai/prd-generation/audit-events.js';
+export type { PrdAuditEventType } from './services/ai/prd-generation/audit-events.js';
+export {
+  PRD_PERMISSIONS,
+  PRD_DEFAULT_ROLE_GRANTS,
+} from './services/ai/prd-generation/permissions.js';
+export type { PrdPermission } from './services/ai/prd-generation/permissions.js';
+export {
+  SECTION_DEPENDENCIES,
+  getGenerationWaves,
+  getTopologicalOrder,
+  getDependents,
+} from './services/ai/prd-generation/section-dependencies.js';
+export { PrdGenerationService } from './services/ai/prd-generation/prd-generation.service.js';
+export type {
+  PrdArtifactRepository,
+  PrdSectionRepository,
+  IntentBriefRepository,
+  PrdTemplateRepository,
+} from './services/ai/prd-generation/prd-generation.service.js';
+export {
+  BUILTIN_TEMPLATES,
+  getBuiltinTemplate,
+} from './services/ai/prd-generation/templates/index.js';
+export { definePrompt } from './services/ai/define-prompt.js';
+export type { PromptConfig } from './services/ai/define-prompt.js';
+export { GenerationService } from './services/ai/generation.service.js';
