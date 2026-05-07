@@ -8,7 +8,10 @@ import { WindowsIntegratedIdentityProvider } from '../src/index.js';
 // all interface methods directly against the adapter's semantics.
 
 function makeProvider() {
-  return new WindowsIntegratedIdentityProvider({ principalHeader: 'X-Windows-Principal' });
+  return new WindowsIntegratedIdentityProvider({
+    principalHeader: 'X-Windows-Principal',
+    trustedProxyIps: ['127.0.0.1'],
+  });
 }
 
 describe('WindowsIntegratedIdentityProvider — IdentityProviderPort', () => {
@@ -46,8 +49,8 @@ describe('WindowsIntegratedIdentityProvider — IdentityProviderPort', () => {
     const result = await makeProvider().verifyToken('CORP\\carol');
     expect(result.isOk()).toBe(true);
     const claims = result._unsafeUnwrap().claims;
-    expect(claims.windowsPrincipal).toBe('CORP\\carol');
-    expect(claims.principalHeader).toBe('X-Windows-Principal');
+    expect(claims['windowsPrincipal']).toBe('CORP\\carol');
+    expect(claims['principalHeader']).toBe('X-Windows-Principal');
   });
 
   it('verifyToken produces an email for DOMAIN\\user format', async () => {
@@ -68,7 +71,7 @@ describe('WindowsIntegratedIdentityProvider — IdentityProviderPort', () => {
   });
 
   it('completeSignIn returns NOT_SUPPORTED', async () => {
-    const result = await makeProvider().completeSignIn({ challengeToken: 'token', proof: '' });
+    const result = await makeProvider().completeSignIn({ method: 'password' });
     expect(result.isErr()).toBe(true);
     expect(result._unsafeUnwrapErr().code).toBe('NOT_SUPPORTED');
   });
@@ -82,7 +85,7 @@ describe('WindowsIntegratedIdentityProvider — IdentityProviderPort', () => {
     const provider = makeProvider();
     expect(provider.supports('sso')).toBe(true);
     expect(provider.supports('password')).toBe(false);
-    expect(provider.supports('mfa')).toBe(false);
+    expect(provider.supports('mfa_totp')).toBe(false);
     expect(provider.supports('magic_link')).toBe(false);
   });
 
