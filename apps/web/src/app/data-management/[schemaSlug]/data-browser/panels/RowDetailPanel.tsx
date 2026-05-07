@@ -103,6 +103,7 @@ export function RowDetailPanel({
               },
               onCommit: () => {
                 setEditingField(null);
+                return Promise.resolve();
               },
               onCancel: () => {
                 setEdits((prev) => {
