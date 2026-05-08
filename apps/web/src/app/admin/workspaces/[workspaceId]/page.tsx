@@ -3,8 +3,6 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-
 interface QuerySettings {
   defaultRowLimit: number;
   defaultTimeoutMs: number;
@@ -12,6 +10,17 @@ interface QuerySettings {
 
 const MAX_ROW_LIMIT = 100_000;
 const MAX_TIMEOUT_S = 300;
+
+const inputStyle: React.CSSProperties = {
+  width: 144,
+  height: 32,
+  padding: '0 12px',
+  borderRadius: 4,
+  border: '1px solid var(--border-default)',
+  background: 'var(--bg-canvas)',
+  color: 'var(--fg-primary)',
+  fontSize: 13,
+};
 
 export default function WorkspaceAdminPage() {
   const params = useParams<{ workspaceId: string }>();
@@ -93,112 +102,163 @@ export default function WorkspaceAdminPage() {
 
   if (loading) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground" aria-live="polite">
+      <div
+        style={{
+          padding: '48px 24px',
+          textAlign: 'center',
+          fontSize: 13,
+          color: 'var(--fg-tertiary)',
+        }}
+        aria-live="polite"
+      >
         Loading…
-      </p>
+      </div>
     );
   }
 
   return (
-    <div className="max-w-xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Workspace settings</h1>
-        <p className="mt-1 text-sm text-muted-foreground font-mono">{workspaceId}</p>
-      </div>
+    <div style={{ padding: '16px 24px', maxWidth: 560 }}>
+      <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 4 }}>
+        Workspace settings
+      </h1>
+      <p
+        className="pg-mono"
+        style={{ fontSize: 11, color: 'var(--fg-secondary)', marginBottom: 24 }}
+      >
+        {workspaceId}
+      </p>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <h2 className="text-base font-semibold">Query console defaults</h2>
-          <p className="text-sm text-muted-foreground">
-            These defaults apply to all users in this workspace unless they have the{' '}
-            <code className="rounded bg-muted px-1">query.large_result</code> or{' '}
-            <code className="rounded bg-muted px-1">query.long_running</code> permissions.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <form
-            onSubmit={(e) => {
-              void handleSave(e);
+      <div className="pg-card">
+        <div className="pg-card-header">
+          <span className="pg-card-title">Query console defaults</span>
+        </div>
+        <p style={{ fontSize: 12, color: 'var(--fg-secondary)', marginBottom: 16 }}>
+          These defaults apply to all users in this workspace unless they have the{' '}
+          <code
+            style={{
+              borderRadius: 3,
+              background: 'var(--bg-surface)',
+              padding: '1px 4px',
+              fontFamily: 'monospace',
+              fontSize: 11,
             }}
-            className="space-y-4"
           >
-            <div className="space-y-1">
-              <label htmlFor="rowLimit" className="text-sm font-medium">
-                Default row limit
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  id="rowLimit"
-                  type="number"
-                  min={1}
-                  max={MAX_ROW_LIMIT}
-                  step={100}
-                  value={rowLimit}
-                  onChange={(e) => {
-                    setRowLimit(e.target.value);
-                    setSaved(false);
-                  }}
-                  className="w-36 rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  aria-describedby="rowLimit-hint"
-                />
-                <span id="rowLimit-hint" className="text-xs text-muted-foreground">
-                  rows (max {MAX_ROW_LIMIT.toLocaleString()})
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Current platform default: {settings.defaultRowLimit.toLocaleString()} rows
-              </p>
-            </div>
+            query.large_result
+          </code>{' '}
+          or{' '}
+          <code
+            style={{
+              borderRadius: 3,
+              background: 'var(--bg-surface)',
+              padding: '1px 4px',
+              fontFamily: 'monospace',
+              fontSize: 11,
+            }}
+          >
+            query.long_running
+          </code>{' '}
+          permissions.
+        </p>
 
-            <div className="space-y-1">
-              <label htmlFor="timeoutS" className="text-sm font-medium">
-                Default query timeout
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  id="timeoutS"
-                  type="number"
-                  min={1}
-                  max={MAX_TIMEOUT_S}
-                  step={5}
-                  value={timeoutS}
-                  onChange={(e) => {
-                    setTimeoutS(e.target.value);
-                    setSaved(false);
-                  }}
-                  className="w-36 rounded-md border border-input bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-                  aria-describedby="timeout-hint"
-                />
-                <span id="timeout-hint" className="text-xs text-muted-foreground">
-                  seconds (max {MAX_TIMEOUT_S}s / 5 min)
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Current platform default: {Math.round(settings.defaultTimeoutMs / 1000)}s
-              </p>
-            </div>
-
-            {error && (
-              <p role="alert" className="text-sm text-destructive">
-                {error}
-              </p>
-            )}
-            {saved && (
-              <p role="status" className="text-sm text-green-600 dark:text-green-400">
-                Settings saved.
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+        <form
+          onSubmit={(e) => {
+            void handleSave(e);
+          }}
+          style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+          noValidate
+        >
+          <div>
+            <label
+              htmlFor="rowLimit"
+              style={{
+                display: 'block',
+                fontSize: 12,
+                fontWeight: 500,
+                color: 'var(--fg-secondary)',
+                marginBottom: 6,
+              }}
             >
+              Default row limit
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                id="rowLimit"
+                type="number"
+                min={1}
+                max={MAX_ROW_LIMIT}
+                step={100}
+                value={rowLimit}
+                onChange={(e) => {
+                  setRowLimit(e.target.value);
+                  setSaved(false);
+                }}
+                style={inputStyle}
+                aria-describedby="rowLimit-hint"
+              />
+              <span id="rowLimit-hint" style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
+                rows (max {MAX_ROW_LIMIT.toLocaleString()})
+              </span>
+            </div>
+            <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-tertiary)' }}>
+              Current platform default: {settings.defaultRowLimit.toLocaleString()} rows
+            </p>
+          </div>
+
+          <div>
+            <label
+              htmlFor="timeoutS"
+              style={{
+                display: 'block',
+                fontSize: 12,
+                fontWeight: 500,
+                color: 'var(--fg-secondary)',
+                marginBottom: 6,
+              }}
+            >
+              Default query timeout
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                id="timeoutS"
+                type="number"
+                min={1}
+                max={MAX_TIMEOUT_S}
+                step={5}
+                value={timeoutS}
+                onChange={(e) => {
+                  setTimeoutS(e.target.value);
+                  setSaved(false);
+                }}
+                style={inputStyle}
+                aria-describedby="timeout-hint"
+              />
+              <span id="timeout-hint" style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
+                seconds (max {MAX_TIMEOUT_S}s / 5 min)
+              </span>
+            </div>
+            <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-tertiary)' }}>
+              Current platform default: {Math.round(settings.defaultTimeoutMs / 1000)}s
+            </p>
+          </div>
+
+          {error && (
+            <p role="alert" style={{ fontSize: 13, color: 'var(--fg-danger)' }}>
+              {error}
+            </p>
+          )}
+          {saved && (
+            <p role="status" style={{ fontSize: 13, color: 'var(--fg-success)' }}>
+              Settings saved.
+            </p>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button type="submit" className="pg-btn pg-btn-primary pg-btn-sm" disabled={saving}>
               {saving ? 'Saving…' : 'Save'}
             </button>
-          </form>
-        </CardContent>
-      </Card>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

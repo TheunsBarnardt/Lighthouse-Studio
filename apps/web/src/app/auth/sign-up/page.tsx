@@ -8,29 +8,38 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
 import { CaptchaWidget } from '@/components/ui/captcha-widget';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { PasswordRules } from '@/components/ui/password-rules';
 import { SsoButtons } from '@/components/ui/sso-buttons';
 import { AuthApiError, authApi } from '@/lib/auth-client';
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  height: 36,
+  padding: '0 12px',
+  borderRadius: 4,
+  border: '1px solid var(--border-default)',
+  background: 'var(--bg-canvas)',
+  color: 'var(--fg-primary)',
+  fontSize: 13,
+  boxSizing: 'border-box',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 13,
+  fontWeight: 500,
+  color: 'var(--fg-primary)',
+  marginBottom: 4,
+};
+
+const fieldStyle: React.CSSProperties = { marginBottom: 14 };
+
+const errorStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: 'var(--fg-danger, #dc2626)',
+  marginTop: 3,
+};
 
 const SignUpSchema = z
   .object({
@@ -66,6 +75,9 @@ export default function SignUpPage() {
     mode: 'onChange',
   });
 
+  const { formState, watch } = form;
+  const passwordValue = watch('password');
+
   async function onSubmit(values: SignUpValues) {
     setError(null);
     setVerifyNotice(null);
@@ -87,140 +99,167 @@ export default function SignUpPage() {
 
   if (verifyNotice) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Check your email</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">{verifyNotice}</p>
-        </CardContent>
-        <CardFooter className="justify-center text-sm">
-          <Link href="/auth/sign-in" className="text-primary hover:underline">
+      <div
+        style={{
+          padding: 32,
+          borderRadius: 8,
+          border: '1px solid var(--border-default)',
+          background: 'var(--bg-surface)',
+        }}
+      >
+        <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 12 }}>
+          Check your email
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 20 }}>
+          {verifyNotice}
+        </p>
+        <p style={{ textAlign: 'center', fontSize: 13 }}>
+          <Link
+            href="/auth/sign-in"
+            style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}
+          >
             {t('signIn')}
           </Link>
-        </CardFooter>
-      </Card>
+        </p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('title')}</CardTitle>
-        <CardDescription />
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form
-            onSubmit={(e) => {
-              void form.handleSubmit(onSubmit)(e);
+    <div
+      style={{
+        padding: 32,
+        borderRadius: 8,
+        border: '1px solid var(--border-default)',
+        background: 'var(--bg-surface)',
+      }}
+    >
+      <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 20 }}>
+        {t('title')}
+      </h1>
+
+      <form
+        onSubmit={(e) => {
+          void form.handleSubmit(onSubmit)(e);
+        }}
+        noValidate
+      >
+        <div style={fieldStyle}>
+          <label htmlFor="displayName" style={labelStyle}>
+            {t('displayNameLabel')}
+          </label>
+          <input
+            id="displayName"
+            autoComplete="name"
+            placeholder={t('displayNamePlaceholder')}
+            aria-required
+            style={inputStyle}
+            {...form.register('displayName')}
+          />
+          {formState.errors.displayName && (
+            <p style={errorStyle}>{formState.errors.displayName.message}</p>
+          )}
+        </div>
+
+        <div style={fieldStyle}>
+          <label htmlFor="email" style={labelStyle}>
+            {t('emailLabel')}
+          </label>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder={t('emailPlaceholder')}
+            aria-required
+            style={inputStyle}
+            {...form.register('email')}
+          />
+          {formState.errors.email && <p style={errorStyle}>{formState.errors.email.message}</p>}
+        </div>
+
+        <div style={fieldStyle}>
+          <label htmlFor="password" style={labelStyle}>
+            {t('passwordLabel')}
+          </label>
+          <input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            placeholder={t('passwordPlaceholder')}
+            aria-required
+            style={inputStyle}
+            {...form.register('password')}
+          />
+          <div style={{ marginTop: 6 }}>
+            <PasswordRules value={passwordValue} />
+          </div>
+        </div>
+
+        <div style={fieldStyle}>
+          <label htmlFor="confirmPassword" style={labelStyle}>
+            Confirm password
+          </label>
+          <input
+            id="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Repeat your password"
+            aria-required
+            style={inputStyle}
+            {...form.register('confirmPassword')}
+          />
+          {formState.errors.confirmPassword && (
+            <p style={errorStyle}>{formState.errors.confirmPassword.message}</p>
+          )}
+        </div>
+
+        <div style={{ marginBottom: 14 }}>
+          <CaptchaWidget
+            onToken={setCaptchaToken}
+            onExpire={() => {
+              setCaptchaToken('');
             }}
-            className="space-y-4"
-            noValidate
+          />
+        </div>
+
+        {error && (
+          <div
+            style={{
+              marginBottom: 12,
+              padding: '8px 12px',
+              borderRadius: 4,
+              border: '1px solid var(--fg-danger, #dc2626)',
+              background: 'oklch(0.97 0.02 25)',
+              fontSize: 13,
+              color: 'var(--fg-danger, #dc2626)',
+            }}
+            aria-live="polite"
           >
-            <FormField
-              control={form.control}
-              name="displayName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('displayNameLabel')}</FormLabel>
-                  <FormControl>
-                    <Input
-                      autoComplete="name"
-                      placeholder={t('displayNamePlaceholder')}
-                      aria-required
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('emailLabel')}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      autoComplete="email"
-                      placeholder={t('emailPlaceholder')}
-                      aria-required
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('passwordLabel')}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      autoComplete="new-password"
-                      placeholder={t('passwordPlaceholder')}
-                      aria-required
-                      {...field}
-                    />
-                  </FormControl>
-                  <PasswordRules value={field.value} />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Confirm password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      autoComplete="new-password"
-                      placeholder="Repeat your password"
-                      aria-required
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {error}
+          </div>
+        )}
 
-            <CaptchaWidget
-              onToken={setCaptchaToken}
-              onExpire={() => {
-                setCaptchaToken('');
-              }}
-            />
+        <button
+          type="submit"
+          className="pg-btn pg-btn-primary"
+          style={{ width: '100%' }}
+          disabled={formState.isSubmitting}
+        >
+          {formState.isSubmitting ? t('submitting') : t('submit')}
+        </button>
+      </form>
 
-            {error && (
-              <Alert variant="destructive" aria-live="polite">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+      <SsoButtons returnTo="/" />
 
-            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? t('submitting') : t('submit')}
-            </Button>
-          </form>
-        </Form>
-
-        <SsoButtons returnTo="/" />
-      </CardContent>
-      <CardFooter className="flex justify-center text-sm text-muted-foreground">
+      <p style={{ marginTop: 20, textAlign: 'center', fontSize: 13, color: 'var(--fg-secondary)' }}>
         {t('alreadyHaveAccount')}&nbsp;
-        <Link href="/auth/sign-in" className="font-medium text-primary hover:underline">
+        <Link
+          href="/auth/sign-in"
+          style={{ fontWeight: 500, color: 'var(--accent-primary)', textDecoration: 'none' }}
+        >
           {t('signIn')}
         </Link>
-      </CardFooter>
-    </Card>
+      </p>
+    </div>
   );
 }

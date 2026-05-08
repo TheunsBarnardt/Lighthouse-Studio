@@ -5,13 +5,21 @@ import { useRef, useState } from 'react';
 
 import type { CustomerSchema, DatabaseDriver } from '@/lib/types';
 
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
 import { useImportSchema } from '@/hooks/useSchemaService';
 
 // eslint-disable-next-line no-restricted-syntax
 const DEFAULT_WORKSPACE_ID = process.env['NEXT_PUBLIC_DEFAULT_WORKSPACE_ID'] ?? 'default';
+
+const inputStyle = {
+  width: '100%',
+  height: 36,
+  padding: '0 12px',
+  borderRadius: 4,
+  border: '1px solid var(--border-default)',
+  background: 'var(--bg-canvas)',
+  color: 'var(--fg-primary)',
+  fontSize: 13,
+};
 
 export default function ImportSchemaPage() {
   const router = useRouter();
@@ -67,15 +75,32 @@ export default function ImportSchemaPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl py-8">
-      <h2 className="mb-6 text-xl font-semibold">Import Schema</h2>
+    <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 24px' }}>
+      <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 24 }}>
+        Import Schema
+      </h2>
 
-      <div className="space-y-6">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {/* File upload */}
         <div>
-          <Label className="mb-2 block text-sm font-medium">Upload JSON file</Label>
           <div
-            className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border py-8 text-muted-foreground transition-colors hover:border-primary/40"
+            style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-secondary)', marginBottom: 8 }}
+          >
+            Upload JSON file
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 6,
+              border: '2px dashed var(--border-default)',
+              padding: '32px 0',
+              color: 'var(--fg-tertiary)',
+              cursor: 'pointer',
+              transition: 'border-color 150ms',
+            }}
             onClick={() => {
               fileRef.current?.click();
             }}
@@ -86,12 +111,12 @@ export default function ImportSchemaPage() {
             role="button"
             aria-label="Upload schema JSON file"
           >
-            <span className="text-sm">Drop a JSON file here, or click to select</span>
+            <span style={{ fontSize: 13 }}>Drop a JSON file here, or click to select</span>
             <input
               ref={fileRef}
               type="file"
               accept=".json"
-              className="hidden"
+              style={{ display: 'none' }}
               aria-hidden="true"
               onChange={(e) => {
                 const f = e.target.files?.[0];
@@ -103,9 +128,18 @@ export default function ImportSchemaPage() {
 
         {/* Or paste */}
         <div>
-          <Label htmlFor="json-paste" className="mb-2 block text-sm font-medium">
+          <label
+            htmlFor="json-paste"
+            style={{
+              fontSize: 12,
+              fontWeight: 500,
+              color: 'var(--fg-secondary)',
+              display: 'block',
+              marginBottom: 8,
+            }}
+          >
             Or paste JSON
-          </Label>
+          </label>
           <textarea
             id="json-paste"
             value={jsonContent}
@@ -113,7 +147,17 @@ export default function ImportSchemaPage() {
               handlePaste(e.target.value);
             }}
             rows={8}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-primary"
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              borderRadius: 4,
+              border: '1px solid var(--border-default)',
+              background: 'var(--bg-canvas)',
+              color: 'var(--fg-primary)',
+              fontSize: 11,
+              fontFamily: 'monospace',
+              resize: 'vertical',
+            }}
             placeholder='{"name": "My Schema", "tables": [...]}'
             aria-label="Paste schema JSON"
           />
@@ -121,59 +165,90 @@ export default function ImportSchemaPage() {
 
         {/* Database driver */}
         <div>
-          <Label htmlFor="import-driver" className="mb-1 block text-sm font-medium">
+          <label
+            htmlFor="import-driver"
+            style={{
+              fontSize: 12,
+              fontWeight: 500,
+              color: 'var(--fg-secondary)',
+              display: 'block',
+              marginBottom: 8,
+            }}
+          >
             Target Database Driver
-          </Label>
-          <Select
+          </label>
+          <select
             id="import-driver"
             value={driver}
             onChange={(e) => {
               setDriver(e.target.value as DatabaseDriver);
             }}
+            style={{ ...inputStyle, height: 36 }}
           >
             <option value="postgres">PostgreSQL</option>
             <option value="mssql">SQL Server (MSSQL)</option>
             <option value="mongo">MongoDB</option>
-          </Select>
+          </select>
         </div>
 
         {/* Preview */}
         {preview && (
-          <div className="rounded-lg border bg-card px-4 py-3 text-sm">
-            <span className="font-medium">{preview.name}</span>
-            <span className="ml-2 text-muted-foreground">· {preview.tables} tables</span>
+          <div className="pg-card" style={{ padding: '10px 16px' }}>
+            <span style={{ fontWeight: 500, fontSize: 13 }}>{preview.name}</span>
+            <span style={{ marginLeft: 8, fontSize: 13, color: 'var(--fg-secondary)' }}>
+              · {preview.tables} tables
+            </span>
           </div>
         )}
 
         {/* Error */}
         {parseError && (
-          <p className="rounded bg-error/10 px-3 py-2 text-sm text-error" role="alert">
+          <p
+            style={{
+              borderRadius: 4,
+              background: 'var(--bg-danger-subtle)',
+              padding: '10px 12px',
+              fontSize: 13,
+              color: 'var(--fg-danger)',
+            }}
+            role="alert"
+          >
             {parseError}
           </p>
         )}
 
         {importSchema.isError && !parseError && (
-          <p className="rounded bg-error/10 px-3 py-2 text-sm text-error" role="alert">
+          <p
+            style={{
+              borderRadius: 4,
+              background: 'var(--bg-danger-subtle)',
+              padding: '10px 12px',
+              fontSize: 13,
+              color: 'var(--fg-danger)',
+            }}
+            role="alert"
+          >
             {importSchema.error instanceof Error ? importSchema.error.message : 'Import failed.'}
           </p>
         )}
 
         {/* Actions */}
-        <div className="flex justify-end gap-3">
-          <Button
-            variant="outline"
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+          <button
+            className="pg-btn pg-btn-secondary"
             onClick={() => {
               router.back();
             }}
           >
             Cancel
-          </Button>
-          <Button
+          </button>
+          <button
+            className="pg-btn pg-btn-primary"
             onClick={handleImport}
             disabled={!jsonContent || !!parseError || importSchema.isPending}
           >
             {importSchema.isPending ? 'Importing…' : 'Import Schema'}
-          </Button>
+          </button>
         </div>
       </div>
     </div>

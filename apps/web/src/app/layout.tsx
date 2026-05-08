@@ -6,9 +6,10 @@ import { GeistSans } from 'geist/font/sans';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 
-import { AuthProvider } from '@/context/auth-context';
+import { ShellWrapper } from '@/components/app-shell/shell-wrapper';
 import { QueryProvider } from '@/components/query-provider';
 import { ThemeProvider } from '@/components/theme-provider';
+import { AuthProvider } from '@/context/auth-context';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
@@ -35,7 +36,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <ThemeProvider>
             <QueryProvider>
               <AuthProvider>
-                <div id="root">{children}</div>
+                <ShellWrapper>{children}</ShellWrapper>
               </AuthProvider>
             </QueryProvider>
           </ThemeProvider>

@@ -1,167 +1,360 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { MessageSquarePlus, Clock, FileText } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-import { TemplatesDialog } from './[conversationId]/dialogs/TemplatesDialog';
+import { PipelineStepper } from '../page';
 
 // eslint-disable-next-line no-restricted-syntax -- client-side
 const WORKSPACE_ID = process.env['NEXT_PUBLIC_DEFAULT_WORKSPACE_ID'] ?? 'default';
 
-interface ConversationItem {
-  id: string;
-  type: string;
-  status: string;
-  _createdAt: string;
-  _updatedAt: string;
-  content: {
-    turnCount?: number;
-    totalCostUsd?: number;
-    briefArtifactId?: string;
+interface Message {
+  role: 'ai' | 'user';
+  text: string;
+  reasoning?: string;
+}
+
+type BriefStatus = 'confident' | 'tentative' | 'empty';
+
+interface BriefField {
+  key: string;
+  label: string;
+  status: BriefStatus;
+  content: string | null;
+}
+
+const INITIAL_MESSAGES: Message[] = [
+  {
+    role: 'ai',
+    text: "Welcome — let's capture what you want to build. To start, can you describe in your own words what this tool needs to do, and who it's for?",
+    reasoning: 'Why this question',
+  },
+  {
+    role: 'user',
+    text: 'I want to build a CRM for our sales team. About 8 reps. They need to track contacts, deals through stages, and notes from calls. Currently using spreadsheets.',
+  },
+  {
+    role: 'ai',
+    text: 'Helpful. A few clarifying questions:\n\n1. What "stages" do deals move through?\n2. Do reps need to see each other\'s deals, or only their own?\n3. Any integration requirements?',
+    reasoning: 'Identifying scope: workflow + permissions + integrations',
+  },
+  {
+    role: 'user',
+    text: 'Stages: lead, qualified, proposal sent, negotiation, won, lost. Reps see all deals. Need email and calendar — Microsoft 365.',
+  },
+  {
+    role: 'ai',
+    text: 'Got it. Two more:\n\n1. Does any sales data need to be visible to non-sales (e.g., finance)?\n2. What does "success" look like 3 months in?',
+    reasoning: 'Cross-functional access + success criteria',
+  },
+];
+
+const BRIEF_FIELDS: BriefField[] = [
+  {
+    key: 'goals',
+    label: 'Goals',
+    status: 'confident',
+    content:
+      'Build a CRM to replace spreadsheet tracking; consolidate contacts, deals, call notes for an 8-person sales team.',
+  },
+  {
+    key: 'target_users',
+    label: 'Target users',
+    status: 'confident',
+    content: '8 sales reps; collaborative (all see all). Possibly read access for finance.',
+  },
+  {
+    key: 'success_criteria',
+    label: 'Success criteria',
+    status: 'tentative',
+    content: 'Reps abandon spreadsheets within 3 months; pipeline visible at a glance.',
+  },
+  {
+    key: 'constraints',
+    label: 'Constraints',
+    status: 'confident',
+    content: 'Microsoft 365 ecosystem. Internal-only.',
+  },
+  {
+    key: 'in_scope',
+    label: 'In scope',
+    status: 'confident',
+    content: 'Contacts, deals (6 stages), call notes, basic reporting, Outlook integration.',
+  },
+  {
+    key: 'out_of_scope',
+    label: 'Out of scope',
+    status: 'tentative',
+    content: 'Marketing automation, public portal. (Tentative)',
+  },
+  {
+    key: 'assumptions',
+    label: 'Assumptions',
+    status: 'tentative',
+    content: 'Reps will adopt; Microsoft 365 SSO.',
+  },
+  { key: 'risks', label: 'Risks', status: 'empty', content: null },
+  { key: 'references', label: 'References', status: 'empty', content: null },
+  {
+    key: 'estimated_scope',
+    label: 'Estimated scope',
+    status: 'tentative',
+    content: 'Medium (10-15 tables; 4-6 weeks of pipeline).',
+  },
+];
+
+function statusDotStyle(status: BriefStatus): React.CSSProperties {
+  const colors: Record<BriefStatus, string> = {
+    confident: 'var(--fg-success)',
+    tentative: 'var(--fg-warning)',
+    empty: 'var(--border-emphasis)',
+  };
+  return { width: 8, height: 8, borderRadius: '50%', background: colors[status], flexShrink: 0 };
+}
+
+function briefSectionStyle(status: BriefStatus): React.CSSProperties {
+  const styles: Record<BriefStatus, React.CSSProperties> = {
+    confident: { borderColor: 'var(--fg-success)', background: 'var(--bg-success-subtle)' },
+    tentative: { borderColor: 'var(--fg-warning)', background: 'var(--bg-warning-subtle)' },
+    empty: { opacity: 0.5, background: 'var(--bg-surface)' },
+  };
+  return {
+    padding: '10px 12px',
+    border: '1px solid var(--border-default)',
+    borderRadius: 'var(--shell-radius-md)',
+    marginBottom: 8,
+    ...styles[status],
   };
 }
 
 export default function IntentCapturePage() {
   const router = useRouter();
-  const [showTemplates, setShowTemplates] = useState(false);
+  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
+  const [input, setInput] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
-  const { data, isLoading } = useQuery<{ items: ConversationItem[]; total: number }>({
-    queryKey: ['intent-capture-conversations', WORKSPACE_ID],
-    queryFn: async () => {
-      const res = await fetch(
-        `/api/v1/ai/intent-capture/conversations?workspaceId=${WORKSPACE_ID}`,
-      );
-      if (!res.ok) throw new Error('Failed to load conversations');
-      return res.json() as Promise<{ items: ConversationItem[]; total: number }>;
-    },
-  });
-
-  function handleStartBlank() {
-    void fetch('/api/v1/ai/intent-capture/conversations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ workspaceId: WORKSPACE_ID }),
-    })
-      .then((r) => r.json())
-      .then((conv: { id: string }) => {
-        router.push(`/ai-pipeline/intent-capture/${conv.id}`);
-        return undefined;
+  async function handleStartBlank() {
+    setIsCreating(true);
+    try {
+      const res = await fetch('/api/v1/ai/intent-capture/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workspaceId: WORKSPACE_ID }),
       });
+      const conv = (await res.json()) as { id: string };
+      router.push(`/ai-pipeline/intent-capture/${conv.id}`);
+    } catch {
+      // fall back to demo view
+      setIsCreating(false);
+    }
   }
 
-  function handleSelectTemplate(templateId: string) {
-    void fetch('/api/v1/ai/intent-capture/conversations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ workspaceId: WORKSPACE_ID, templateId }),
-    })
-      .then((r) => r.json())
-      .then((conv: { id: string }) => {
-        router.push(`/ai-pipeline/intent-capture/${conv.id}`);
-        return undefined;
-      });
-    setShowTemplates(false);
+  function handleSend() {
+    if (!input.trim()) return;
+    setMessages((prev) => [...prev, { role: 'user', text: input }]);
+    setInput('');
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Intent Capture</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Have a conversation to define your project&apos;s requirements brief
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              setShowTemplates(true);
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      <PipelineStepper active="intent" />
+
+      {/* Two-column layout: chat | brief */}
+      <div
+        style={{ display: 'grid', gridTemplateColumns: '1fr 360px', flex: 1, overflow: 'hidden' }}
+      >
+        {/* Chat panel */}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            borderRight: '1px solid var(--border-default)',
+            background: 'var(--bg-surface)',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Chat messages */}
+          <div
+            style={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: 24,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
             }}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            <FileText className="w-4 h-4" />
-            Use Template
-          </button>
-          <button
-            onClick={handleStartBlank}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                style={{
+                  maxWidth: 720,
+                  alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: 'var(--fg-tertiary)',
+                    marginBottom: 4,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  {msg.role === 'ai' ? 'AI' : 'You'}
+                </div>
+                <div
+                  style={{
+                    padding: '12px 16px',
+                    borderRadius: 'var(--shell-radius-md)',
+                    background:
+                      msg.role === 'user' ? 'var(--accent-primary-subtle)' : 'var(--bg-surface)',
+                    border: `1px solid ${msg.role === 'user' ? 'var(--accent-primary-subtle)' : 'var(--border-default)'}`,
+                    fontSize: 14,
+                    lineHeight: '22px',
+                    color: 'var(--fg-primary)',
+                    whiteSpace: 'pre-wrap',
+                  }}
+                >
+                  {msg.text}
+                </div>
+                {msg.reasoning && (
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--fg-tertiary)',
+                      marginTop: 4,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    ▸ {msg.reasoning}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Chat input bar */}
+          <div
+            style={{
+              padding: '12px 16px',
+              borderTop: '1px solid var(--border-default)',
+              display: 'flex',
+              gap: 8,
+              background: 'var(--bg-surface)',
+              flexShrink: 0,
+            }}
           >
-            <MessageSquarePlus className="w-4 h-4" />
-            New Conversation
-          </button>
+            <textarea
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+              }}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your response..."
+              rows={2}
+              style={{
+                flex: 1,
+                resize: 'none',
+                border: '1px solid var(--border-default)',
+                borderRadius: 'var(--shell-radius-sm)',
+                padding: '8px 10px',
+                fontSize: 13,
+                lineHeight: '20px',
+                background: 'var(--bg-input)',
+                color: 'var(--fg-primary)',
+                fontFamily: 'inherit',
+                outline: 'none',
+                minHeight: 36,
+              }}
+            />
+            <button onClick={handleSend} className="pg-btn pg-btn-primary">
+              Send
+            </button>
+          </div>
+        </div>
+
+        {/* Brief panel */}
+        <div
+          style={{ overflowY: 'auto', padding: 16, background: 'var(--bg-canvas)', flexShrink: 0 }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 8,
+            }}
+          >
+            <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
+              Intent Brief
+            </div>
+            <Link href="/ai-pipeline/prd-generation" className="pg-btn pg-btn-primary pg-btn-sm">
+              Generate brief →
+            </Link>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginBottom: 16 }}>
+            Updates as we talk.
+          </div>
+
+          {BRIEF_FIELDS.map((field) => (
+            <div key={field.key} style={briefSectionStyle(field.status)}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 4,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.04em',
+                    color: 'var(--fg-secondary)',
+                  }}
+                >
+                  {field.label}
+                </div>
+                <div style={statusDotStyle(field.status)} />
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--fg-primary)', lineHeight: '18px' }}>
+                {field.content ?? 'Not yet discussed.'}
+              </div>
+            </div>
+          ))}
+
+          <div style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginTop: 16 }}>
+            Cost so far: $0.34 of $50 monthly budget
+          </div>
+
+          <div
+            style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border-default)' }}
+          >
+            <button
+              onClick={() => {
+                void handleStartBlank();
+              }}
+              disabled={isCreating}
+              className="pg-btn pg-btn-secondary"
+              style={{ width: '100%', justifyContent: 'center', fontSize: 12 }}
+            >
+              {isCreating ? 'Starting…' : '+ New conversation'}
+            </button>
+          </div>
         </div>
       </div>
-
-      {isLoading ? (
-        <div className="text-center py-12 text-gray-500">Loading conversations…</div>
-      ) : data?.items.length === 0 ? (
-        <div className="text-center py-16 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
-          <MessageSquarePlus className="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
-          <p className="text-gray-500 dark:text-gray-400 font-medium">No conversations yet</p>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1 mb-4">
-            Start a conversation to capture your project requirements
-          </p>
-          <button
-            onClick={() => {
-              setShowTemplates(true);
-            }}
-            className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700"
-          >
-            Browse templates →
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {data?.items.map((conv) => (
-            <button
-              key={conv.id}
-              onClick={() => {
-                router.push(`/ai-pipeline/intent-capture/${conv.id}`);
-              }}
-              className="w-full text-left p-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    Conversation
-                  </span>
-                  <div className="flex items-center gap-4 mt-1">
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      {new Date(conv._updatedAt).toLocaleDateString()}
-                    </span>
-                    {conv.content.turnCount !== undefined && (
-                      <span className="text-xs text-gray-500">{conv.content.turnCount} turns</span>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {conv.content.briefArtifactId && (
-                    <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full">
-                      Brief generated
-                    </span>
-                  )}
-                  <span className="text-xs text-gray-400">
-                    ${(conv.content.totalCostUsd ?? 0).toFixed(3)}
-                  </span>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-
-      {showTemplates && (
-        <TemplatesDialog
-          onSelectTemplate={handleSelectTemplate}
-          onStartBlank={handleStartBlank}
-          onClose={() => {
-            setShowTemplates(false);
-          }}
-        />
-      )}
     </div>
   );
 }

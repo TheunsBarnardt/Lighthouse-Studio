@@ -1,13 +1,9 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/auth-context';
 import { AuthApiError, authApi } from '@/lib/auth-client';
 
@@ -17,8 +13,13 @@ interface InvitationInfo {
   expiresAt: string;
 }
 
+const cardStyle: React.CSSProperties = {
+  maxWidth: 480,
+  margin: '64px auto',
+  padding: '32px',
+};
+
 function AcceptInvitationPageInner() {
-  const t = useTranslations('auth.acceptInvitation');
   const searchParams = useSearchParams();
   const token = searchParams.get('token') ?? '';
   const { user } = useAuth();
@@ -45,7 +46,9 @@ function AcceptInvitationPageInner() {
       })
       .catch((err: unknown) => {
         if (err instanceof AuthApiError) {
-          setError(err.statusCode === 404 ? t('expired') : err.message);
+          setError(
+            err.statusCode === 404 ? 'This invitation has expired or is invalid.' : err.message,
+          );
         } else {
           setError('Failed to validate invitation.');
         }
@@ -53,7 +56,7 @@ function AcceptInvitationPageInner() {
       .finally(() => {
         setLoading(false);
       });
-  }, [token, t]);
+  }, [token]);
 
   async function handleAccept() {
     setAccepting(true);
@@ -72,78 +75,84 @@ function AcceptInvitationPageInner() {
 
   if (loading) {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-sm text-muted-foreground" aria-live="polite">
-            {t('loading')}
-          </p>
-        </CardContent>
-      </Card>
+      <div className="pg-card" style={cardStyle}>
+        <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }} aria-live="polite">
+          Validating invitation…
+        </p>
+      </div>
     );
   }
 
   if (success) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('success', { workspaceName: success.workspaceName })}</CardTitle>
-        </CardHeader>
-        <CardFooter className="justify-center">
-          <Link href={`/workspaces/${success.workspaceSlug}`}>
-            <Button>{t('goToWorkspace')}</Button>
+      <div className="pg-card" style={cardStyle}>
+        <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 16 }}>
+          You've joined {success.workspaceName}!
+        </h2>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <Link href={`/workspaces/${success.workspaceSlug}`} className="pg-btn pg-btn-primary">
+            Go to workspace
           </Link>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('title')}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        {invitation && !error && (
-          <>
-            <p className="text-sm">{t('invitedTo', { workspaceName: invitation.workspaceName })}</p>
-            {user && (
-              <p className="text-sm text-muted-foreground">
-                {t('signedInAs', { email: user.email })}
-              </p>
-            )}
-            {!user && (
-              <p className="text-sm text-muted-foreground">
-                Sign in first to accept this invitation.{' '}
-                <Link
-                  href={`/auth/sign-in?returnTo=/auth/accept-invitation?token=${token}`}
-                  className="text-primary hover:underline"
-                >
-                  Sign in
-                </Link>
-              </p>
-            )}
-          </>
-        )}
-      </CardContent>
-      {invitation && !error && user && (
-        <CardFooter>
-          <Button
-            className="w-full"
-            onClick={() => {
-              void handleAccept();
-            }}
-            disabled={accepting}
-          >
-            {accepting ? t('accepting') : t('accept')}
-          </Button>
-        </CardFooter>
+    <div className="pg-card" style={cardStyle}>
+      <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 16 }}>
+        Workspace invitation
+      </h2>
+
+      {error && (
+        <div
+          role="alert"
+          style={{
+            marginBottom: 16,
+            borderRadius: 4,
+            background: 'var(--bg-danger-subtle)',
+            padding: '10px 12px',
+            fontSize: 13,
+            color: 'var(--fg-danger)',
+          }}
+        >
+          {error}
+        </div>
       )}
-    </Card>
+
+      {invitation && !error && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <p style={{ fontSize: 13, color: 'var(--fg-primary)' }}>
+            You've been invited to join <strong>{invitation.workspaceName}</strong>.
+          </p>
+          {user ? (
+            <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>Signed in as {user.email}</p>
+          ) : (
+            <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>
+              Sign in first to accept this invitation.{' '}
+              <Link
+                href={`/auth/sign-in?returnTo=/auth/accept-invitation?token=${token}`}
+                style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}
+              >
+                Sign in
+              </Link>
+            </p>
+          )}
+          {user && (
+            <button
+              className="pg-btn pg-btn-primary"
+              style={{ width: '100%' }}
+              onClick={() => {
+                void handleAccept();
+              }}
+              disabled={accepting}
+            >
+              {accepting ? 'Accepting…' : 'Accept invitation'}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

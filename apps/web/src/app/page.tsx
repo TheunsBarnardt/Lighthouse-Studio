@@ -1,10 +1,27 @@
+'use client';
+
 import Link from 'next/link';
 
-const PROJECTS = [
+import { useAuth } from '@/context/auth-context';
+
+// ---------------------------------------------------------------------------
+// Types & static data
+// ---------------------------------------------------------------------------
+
+interface Project {
+  id: string;
+  name: string;
+  status: 'active' | 'live' | 'in_review' | 'pending' | 'failed';
+  created: string;
+  cost: number;
+  stage: string;
+}
+
+const PROJECTS: Project[] = [
   {
     id: 'crm-001',
     name: 'Internal Sales CRM',
-    status: 'active' as const,
+    status: 'active',
     created: '2026-04-15',
     cost: 23.4,
     stage: 'ui-generation',
@@ -12,34 +29,25 @@ const PROJECTS = [
   {
     id: 'blog-001',
     name: 'Marketing Blog',
-    status: 'live' as const,
+    status: 'live',
     created: '2026-02-08',
     cost: 41.2,
     stage: 'maintenance',
   },
 ];
 
-const STATUS_MAP: Record<string, { cls: string; label: string }> = {
-  active: { cls: 'pg-badge-info', label: 'In Progress' },
-  live: { cls: 'pg-badge-success', label: 'Live' },
-  pending: { cls: 'pg-badge-default', label: 'Pending' },
-  in_review: { cls: 'pg-badge-warning', label: 'In Review' },
-  failed: { cls: 'pg-badge-danger', label: 'Failed' },
+const STATUS_BADGE: Record<Project['status'], { cls: string; label: string }> = {
+  active: { cls: 'pg-badge pg-badge-info', label: 'In Progress' },
+  live: { cls: 'pg-badge pg-badge-success', label: 'Live' },
+  in_review: { cls: 'pg-badge pg-badge-warning', label: 'In Review' },
+  pending: { cls: 'pg-badge pg-badge-default', label: 'Pending' },
+  failed: { cls: 'pg-badge pg-badge-danger', label: 'Failed' },
 };
 
 const RECENT_ACTIVITY = [
-  {
-    title: 'UI generated for Internal Sales CRM',
-    detail: '14 components · $18.50 · 12 min ago',
-  },
-  {
-    title: 'Schema deployed to dev',
-    detail: 'Marketing Blog · 2 hours ago',
-  },
-  {
-    title: 'PRD section approved',
-    detail: 'Functional Requirements · Yesterday',
-  },
+  { title: 'UI generated for Internal Sales CRM', detail: '14 components · $18.50 · 12 min ago' },
+  { title: 'Schema deployed to dev', detail: 'Marketing Blog · 2 hours ago' },
+  { title: 'PRD section approved', detail: 'Functional Requirements · Yesterday' },
 ];
 
 const QUICK_START = [
@@ -63,26 +71,38 @@ const QUICK_START = [
   },
 ];
 
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+
 export default function HomePage() {
+  const { user } = useAuth();
+  const firstName = user?.displayName?.split(' ')[0] ?? null;
+
   return (
-    <div className="pg-page">
+    <div className="pg-page" style={{ maxWidth: 1280 }}>
+      {/* Page header */}
       <div className="pg-page-header">
         <div>
-          <h1>Welcome back</h1>
-          <div className="subtitle">Workspace: Acme Corporation · Database: PostgreSQL</div>
+          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
+            Welcome back{firstName ? `, ${firstName}` : ''}
+          </h1>
+          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+            Workspace: Acme Corporation · Database: PostgreSQL
+          </div>
         </div>
         <div className="pg-page-header-actions">
-          <Link href="/workspaces" className="pg-btn pg-btn-secondary pg-btn-sm">
-            Switch workspace
+          <Link href="/workspaces">
+            <button className="pg-btn pg-btn-secondary pg-btn-sm">Switch workspace</button>
           </Link>
-          <Link href="/ai-pipeline/intent-capture" className="pg-btn pg-btn-primary pg-btn-sm">
-            + New project
+          <Link href="/ai-pipeline/intent-capture">
+            <button className="pg-btn pg-btn-primary pg-btn-sm">+ New project</button>
           </Link>
         </div>
       </div>
 
       {/* Stats row */}
-      <div className="pg-grid pg-grid-4 pg-mb-6">
+      <div className="pg-grid pg-grid-4" style={{ marginBottom: 24 }}>
         <div className="pg-stat-card">
           <div className="pg-stat-label">Active projects</div>
           <div className="pg-stat-value">{PROJECTS.length}</div>
@@ -96,39 +116,41 @@ export default function HomePage() {
         <div className="pg-stat-card">
           <div className="pg-stat-label">API requests · 24h</div>
           <div className="pg-stat-value">142,503</div>
-          <div className="pg-stat-delta pg-text-tertiary">p95 87ms</div>
+          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
+            p95 87ms
+          </div>
         </div>
         <div className="pg-stat-card">
           <div className="pg-stat-label">AI spend · month</div>
           <div className="pg-stat-value">$23.40</div>
-          <div className="pg-stat-delta pg-text-tertiary">of $50 budget</div>
+          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
+            of $50 budget
+          </div>
         </div>
       </div>
 
       {/* Recent projects + Activity */}
-      <div
-        className="pg-mb-4"
-        style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}
-      >
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 16 }}>
+        {/* Recent projects */}
         <div className="pg-card">
           <div className="pg-card-header">
             <div className="pg-card-title">Recent projects</div>
-            <Link href="/ai-pipeline" className="pg-btn pg-btn-ghost pg-btn-sm">
-              View all
+            <Link href="/ai-pipeline">
+              <button className="pg-btn pg-btn-ghost pg-btn-sm">View all</button>
             </Link>
           </div>
-          <div className="pg-table-wrap" style={{ border: 'none', borderRadius: 0 }}>
+          <div className="pg-table-wrap">
             <table className="pg-data-table">
               <tbody>
                 {PROJECTS.map((p) => {
-                  const s = STATUS_MAP[p.status] ?? STATUS_MAP.pending;
+                  const s = STATUS_BADGE[p.status];
                   return (
-                    <tr key={p.id}>
+                    <tr key={p.id} style={{ cursor: 'pointer' }}>
                       <td>
                         <Link
                           href={`/ai-pipeline/${p.stage}`}
                           style={{
-                            fontWeight: 500,
+                            fontWeight: 600,
                             color: 'var(--fg-primary)',
                             textDecoration: 'none',
                           }}
@@ -137,12 +159,18 @@ export default function HomePage() {
                         </Link>
                       </td>
                       <td>
-                        <span className={`pg-badge ${s.cls}`}>{s.label}</span>
+                        <span className={s.cls}>{s.label}</span>
                       </td>
-                      <td className="pg-text-tertiary pg-text-xs pg-tabular">
-                        Created {p.created}
+                      <td
+                        className="pg-tabular"
+                        style={{ fontSize: 12, color: 'var(--fg-secondary)' }}
+                      >
+                        {p.created}
                       </td>
-                      <td className="pg-text-tertiary pg-text-xs pg-tabular">
+                      <td
+                        className="pg-tabular"
+                        style={{ fontSize: 12, color: 'var(--fg-secondary)' }}
+                      >
                         ${p.cost.toFixed(2)}
                       </td>
                     </tr>
@@ -153,24 +181,16 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* Recent activity */}
         <div className="pg-card">
           <div className="pg-card-header">
             <div className="pg-card-title">Recent activity</div>
           </div>
-          <div>
+          <div style={{ padding: '0 16px 16px', fontSize: 13 }}>
             {RECENT_ACTIVITY.map((a, i) => (
-              <div
-                key={i}
-                className="pg-mb-4"
-                style={{ marginBottom: i < RECENT_ACTIVITY.length - 1 ? '16px' : 0 }}
-              >
-                <div
-                  className="pg-font-medium"
-                  style={{ fontSize: '13px', color: 'var(--fg-primary)' }}
-                >
-                  {a.title}
-                </div>
-                <div className="pg-text-tertiary pg-text-xs" style={{ marginTop: '2px' }}>
+              <div key={i} style={{ marginBottom: 16 }}>
+                <div style={{ fontWeight: 500, color: 'var(--fg-primary)' }}>{a.title}</div>
+                <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 2 }}>
                   {a.detail}
                 </div>
               </div>
@@ -184,29 +204,21 @@ export default function HomePage() {
         <div className="pg-card-header">
           <div className="pg-card-title">Quick start</div>
         </div>
-        <div className="pg-grid pg-grid-3">
+        <div className="pg-grid pg-grid-3" style={{ padding: '0 16px 16px' }}>
           {QUICK_START.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="pg-card"
-              style={{
-                textDecoration: 'none',
-                color: 'inherit',
-                cursor: 'pointer',
-                transition: 'border-color var(--motion-fast) var(--ease-standard)',
-                display: 'block',
-              }}
+              style={{ textDecoration: 'none', color: 'inherit' }}
             >
-              <div style={{ fontSize: '20px', color: 'var(--accent-primary)' }}>{item.icon}</div>
-              <div
-                className="pg-font-semibold"
-                style={{ marginTop: '8px', fontSize: '13px', color: 'var(--fg-primary)' }}
-              >
-                {item.label}
-              </div>
-              <div className="pg-text-secondary pg-text-xs" style={{ marginTop: '4px' }}>
-                {item.description}
+              <div className="pg-card" style={{ cursor: 'pointer' }}>
+                <div style={{ fontSize: 18, color: 'var(--accent-primary)' }}>{item.icon}</div>
+                <div style={{ fontWeight: 600, marginTop: 8, color: 'var(--fg-primary)' }}>
+                  {item.label}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--fg-secondary)', marginTop: 2 }}>
+                  {item.description}
+                </div>
               </div>
             </Link>
           ))}

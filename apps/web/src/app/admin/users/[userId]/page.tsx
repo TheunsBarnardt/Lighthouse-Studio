@@ -1,13 +1,8 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface AdminUserDetail {
   id: string;
@@ -21,11 +16,21 @@ interface AdminUserDetail {
   lastSignIn: string | null;
 }
 
+const cardStyle: React.CSSProperties = { padding: '16px 20px' };
+const labelStyle: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 500,
+  color: 'var(--fg-secondary)',
+};
+const valueStyle: React.CSSProperties = { fontSize: 13, color: 'var(--fg-primary)' };
+
 export default function AdminUserDetailPage() {
   const { userId } = useParams<{ userId: string }>();
   const [user, setUser] = useState<AdminUserDetail | null>(null);
   const [loading, setLoading] = useState(true);
-  const [actionMsg, setActionMsg] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
+  const [actionMsg, setActionMsg] = useState<{ kind: 'success' | 'error'; text: string } | null>(
+    null,
+  );
 
   useEffect(() => {
     void (async () => {
@@ -54,111 +59,194 @@ export default function AdminUserDetailPage() {
       setActionMsg({ kind: 'error', text: body.message ?? 'Action failed.' });
       return;
     }
-    setUser((u) => u ? { ...u, ...updates } as AdminUserDetail : u);
+    setUser((u) => (u ? ({ ...u, ...updates } as AdminUserDetail) : u));
     setActionMsg({ kind: 'success', text: 'Updated.' });
   }
 
-  if (loading) return <p className="text-sm text-muted-foreground" aria-live="polite">Loading…</p>;
-  if (!user) return <p className="text-sm text-muted-foreground">User not found.</p>;
+  if (loading)
+    return (
+      <div
+        style={{ padding: '16px 24px', fontSize: 13, color: 'var(--fg-tertiary)' }}
+        aria-live="polite"
+      >
+        Loading…
+      </div>
+    );
+  if (!user)
+    return (
+      <div style={{ padding: '16px 24px', fontSize: 13, color: 'var(--fg-tertiary)' }}>
+        User not found.
+      </div>
+    );
 
   return (
-    <div>
-      <div className="mb-6 flex items-center gap-4">
-        <Link href="/admin/users" className="text-sm text-muted-foreground hover:text-primary">
+    <div style={{ padding: '16px 24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+        <Link
+          href="/admin/users"
+          style={{ fontSize: 13, color: 'var(--fg-secondary)', textDecoration: 'none' }}
+        >
           ← Users
         </Link>
-        <h1 className="text-2xl font-bold">{user.displayName ?? user.email}</h1>
-        <Badge variant="secondary">{user.status}</Badge>
+        <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
+          {user.displayName ?? user.email}
+        </h1>
+        <span
+          className={`pg-badge ${user.status === 'active' ? 'pg-badge-success' : 'pg-badge-default'}`}
+        >
+          {user.status}
+        </span>
       </div>
 
       {actionMsg && (
-        <Alert variant={actionMsg.kind === 'error' ? 'destructive' : 'default'} className="mb-4">
-          <AlertDescription>{actionMsg.text}</AlertDescription>
-        </Alert>
+        <div
+          role="alert"
+          style={{
+            marginBottom: 16,
+            borderRadius: 4,
+            padding: '10px 12px',
+            fontSize: 13,
+            background:
+              actionMsg.kind === 'error' ? 'var(--bg-danger-subtle)' : 'var(--bg-success-subtle)',
+            color: actionMsg.kind === 'error' ? 'var(--fg-danger)' : 'var(--fg-success)',
+          }}
+        >
+          {actionMsg.text}
+        </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader><CardTitle>Profile</CardTitle></CardHeader>
-          <CardContent className="space-y-2">
-            <p className="text-sm"><span className="font-medium">Email:</span> {user.email}</p>
-            <p className="text-sm"><span className="font-medium">Display name:</span> {user.displayName ?? '—'}</p>
-            <p className="text-sm"><span className="font-medium">MFA:</span> {user.mfaEnabled ? 'Enabled' : 'Disabled'}</p>
-            <p className="text-sm">
-              <span className="font-medium">Joined:</span> {new Date(user.createdAt).toLocaleDateString()}
-            </p>
-            <p className="text-sm">
-              <span className="font-medium">Last sign-in:</span>{' '}
-              {user.lastSignIn ? new Date(user.lastSignIn).toLocaleString() : 'Never'}
-            </p>
-          </CardContent>
-        </Card>
+      <div className="pg-grid pg-grid-2">
+        <div className="pg-card" style={cardStyle}>
+          <div className="pg-card-header">
+            <span className="pg-card-title">Profile</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+            <div>
+              <span style={labelStyle}>Email</span>
+              <div style={valueStyle}>{user.email}</div>
+            </div>
+            <div>
+              <span style={labelStyle}>Display name</span>
+              <div style={valueStyle}>{user.displayName ?? '—'}</div>
+            </div>
+            <div>
+              <span style={labelStyle}>MFA</span>
+              <div style={valueStyle}>{user.mfaEnabled ? 'Enabled' : 'Disabled'}</div>
+            </div>
+            <div>
+              <span style={labelStyle}>Joined</span>
+              <div style={valueStyle}>{new Date(user.createdAt).toLocaleDateString()}</div>
+            </div>
+            <div>
+              <span style={labelStyle}>Last sign-in</span>
+              <div style={valueStyle}>
+                {user.lastSignIn ? new Date(user.lastSignIn).toLocaleString() : 'Never'}
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader><CardTitle>Actions</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
+        <div className="pg-card" style={cardStyle}>
+          <div className="pg-card-header">
+            <span className="pg-card-title">Actions</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
             {user.status === 'active' ? (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => { void patch({ status: 'suspended' }); }}
+              <button
+                className="pg-btn pg-btn-secondary pg-btn-sm"
+                style={{ width: '100%' }}
+                onClick={() => {
+                  void patch({ status: 'suspended' });
+                }}
               >
                 Suspend account
-              </Button>
+              </button>
             ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => { void patch({ status: 'active' }); }}
+              <button
+                className="pg-btn pg-btn-secondary pg-btn-sm"
+                style={{ width: '100%' }}
+                onClick={() => {
+                  void patch({ status: 'active' });
+                }}
               >
                 Reactivate account
-              </Button>
+              </button>
             )}
-
             {user.mfaEnabled && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full"
-                onClick={() => { void patch({ mfaEnabled: false }); }}
+              <button
+                className="pg-btn pg-btn-secondary pg-btn-sm"
+                style={{ width: '100%' }}
+                onClick={() => {
+                  void patch({ mfaEnabled: false });
+                }}
               >
                 Reset MFA (admin recovery)
-              </Button>
+              </button>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader><CardTitle>Linked identities</CardTitle></CardHeader>
-          <CardContent>
-            {user.identities.length === 0
-              ? <p className="text-sm text-muted-foreground">No linked identities.</p>
-              : (
-                <ul className="space-y-1">
-                  {user.identities.map((i) => (
-                    <li key={i.providerId} className="text-sm">{i.providerId}: {i.email}</li>
-                  ))}
-                </ul>
-              )}
-          </CardContent>
-        </Card>
+        <div className="pg-card" style={cardStyle}>
+          <div className="pg-card-header">
+            <span className="pg-card-title">Linked identities</span>
+          </div>
+          <div style={{ marginTop: 12 }}>
+            {user.identities.length === 0 ? (
+              <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>No linked identities.</p>
+            ) : (
+              <ul
+                style={{
+                  listStyle: 'none',
+                  padding: 0,
+                  margin: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 4,
+                }}
+              >
+                {user.identities.map((i) => (
+                  <li key={i.providerId} style={{ fontSize: 13 }}>
+                    <span
+                      className="pg-mono"
+                      style={{ fontSize: 11, color: 'var(--fg-secondary)' }}
+                    >
+                      {i.providerId}:
+                    </span>{' '}
+                    {i.email}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader><CardTitle>Roles</CardTitle></CardHeader>
-          <CardContent>
-            {user.roles.length === 0
-              ? <p className="text-sm text-muted-foreground">No roles assigned.</p>
-              : (
-                <ul className="space-y-1">
-                  {user.roles.map((r) => (
-                    <li key={r} className="text-sm">{r}</li>
-                  ))}
-                </ul>
-              )}
-          </CardContent>
-        </Card>
+        <div className="pg-card" style={cardStyle}>
+          <div className="pg-card-header">
+            <span className="pg-card-title">Roles</span>
+          </div>
+          <div style={{ marginTop: 12 }}>
+            {user.roles.length === 0 ? (
+              <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>No roles assigned.</p>
+            ) : (
+              <ul
+                style={{
+                  listStyle: 'none',
+                  padding: 0,
+                  margin: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 4,
+                }}
+              >
+                {user.roles.map((r) => (
+                  <li key={r} style={{ fontSize: 13 }}>
+                    {r}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

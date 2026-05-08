@@ -1,243 +1,234 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
-// eslint-disable-next-line no-restricted-syntax
-const DEFAULT_WORKSPACE = process.env['NEXT_PUBLIC_DEFAULT_WORKSPACE_ID'] ?? 'default';
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
-const MEMBERS = [
-  {
-    name: 'Joana de Klerk',
-    email: 'joana@acme.com',
-    initials: 'JD',
-    role: 'Owner',
-    scope: 'all projects',
-    last: '12 min ago',
-    status: 'active',
-  },
-  {
-    name: 'Marcus Acker',
-    email: 'marcus@acme.com',
-    initials: 'MA',
-    role: 'Admin',
-    scope: 'all projects',
-    last: '47 min ago',
-    status: 'active',
-  },
-  {
-    name: 'Tom Müller',
-    email: 'tom@acme.com',
-    initials: 'TM',
-    role: 'Developer',
-    scope: 'CRM, Marketing',
-    last: '2h ago',
-    status: 'active',
-  },
-  {
-    name: 'Sara Patel',
-    email: 'sara@acme.com',
-    initials: 'SP',
-    role: 'Developer',
-    scope: 'Marketing',
-    last: 'Yesterday',
-    status: 'active',
-  },
-  {
-    name: 'Anand Kumar',
-    email: 'anand@acme.com',
-    initials: 'AK',
-    role: 'Designer',
-    scope: 'CRM',
-    last: '3 days ago',
-    status: 'active',
-  },
-  {
-    name: 'Elena Rojas',
-    email: 'elena@acme.com',
-    initials: 'ER',
-    role: 'Reviewer',
-    scope: 'CRM',
-    last: '1 week ago',
-    status: 'active',
-  },
-] as const;
+interface Workspace {
+  id: string;
+  slug: string;
+  name: string;
+  plan: string;
+  memberCount: number;
+  dbType: string;
+  createdAt: string;
+}
 
-const ROLE_BADGE: Record<string, string> = {
-  Owner: 'pg-badge-warning',
-  Admin: 'pg-badge-accent',
-  Developer: 'pg-badge-default',
-  Designer: 'pg-badge-default',
-  Reviewer: 'pg-badge-default',
-};
+// ---------------------------------------------------------------------------
+// Mock data (replaced by real API once available)
+// ---------------------------------------------------------------------------
+
+const MOCK_WORKSPACES: Workspace[] = [
+  {
+    id: 'ws_a1b2c3d4',
+    slug: 'acme-corp',
+    name: 'Acme Corporation',
+    plan: 'Enterprise',
+    memberCount: 6,
+    dbType: 'PostgreSQL',
+    createdAt: '2025-03-01T00:00:00Z',
+  },
+  {
+    id: 'ws_b2c3d4e5',
+    slug: 'acme-skunkworks',
+    name: 'Acme Skunkworks',
+    plan: 'Pro',
+    memberCount: 3,
+    dbType: 'MongoDB',
+    createdAt: '2025-07-15T00:00:00Z',
+  },
+];
+
+// ---------------------------------------------------------------------------
+// Skeleton
+// ---------------------------------------------------------------------------
+
+function WorkspacesSkeleton() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {[1, 2, 3].map((i) => (
+        <div
+          key={i}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 16,
+            borderRadius: 'var(--shell-radius-lg)',
+            border: '1px solid var(--border-default)',
+            padding: 16,
+            background: 'var(--bg-canvas)',
+          }}
+        >
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div
+              style={{ height: 14, width: 192, borderRadius: 4, background: 'var(--bg-surface-2)' }}
+            />
+            <div
+              style={{ height: 12, width: 128, borderRadius: 4, background: 'var(--bg-surface-2)' }}
+            />
+          </div>
+          <div
+            style={{ height: 22, width: 72, borderRadius: 99, background: 'var(--bg-surface-2)' }}
+          />
+          <div
+            style={{ height: 22, width: 88, borderRadius: 99, background: 'var(--bg-surface-2)' }}
+          />
+          <div
+            style={{ height: 30, width: 56, borderRadius: 6, background: 'var(--bg-surface-2)' }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
 
 export default function WorkspacesPage() {
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void fetch('/api/v1/workspaces', { credentials: 'include' })
+      .then((r) => {
+        if (!r.ok) throw new Error('not ok');
+        return r.json() as Promise<{ items: Workspace[] }>;
+      })
+      .then((d) => {
+        setWorkspaces(d.items);
+        return;
+      })
+      .catch(() => {
+        setWorkspaces(MOCK_WORKSPACES);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
   return (
-    <div className="pg-page" style={{ maxWidth: '1280px' }}>
+    <div className="pg-page" style={{ maxWidth: 1280 }}>
+      {/* Page header */}
       <div className="pg-page-header">
         <div>
-          <h1>Acme Corporation</h1>
-          <div className="subtitle">Workspace · 6 members · 2 projects · Plan: Enterprise</div>
+          <h1>Workspaces</h1>
+          <p className="subtitle">
+            {loading
+              ? 'Loading…'
+              : `${String(workspaces.length)} workspace${workspaces.length !== 1 ? 's' : ''}`}
+          </p>
         </div>
         <div className="pg-page-header-actions">
-          <Link
-            href={`/workspaces/${DEFAULT_WORKSPACE}/members`}
-            className="pg-btn pg-btn-secondary pg-btn-sm"
-          >
-            Settings
-          </Link>
-          <button className="pg-btn pg-btn-primary pg-btn-sm" type="button">
-            + Invite member
-          </button>
+          <button className="pg-btn pg-btn-primary pg-btn-sm">+ New workspace</button>
         </div>
       </div>
 
-      {/* Stats row */}
-      <div className="pg-grid pg-grid-4 pg-mb-4">
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Members</div>
-          <div className="pg-stat-value">6</div>
-          <div className="pg-stat-delta pg-text-tertiary">all active</div>
+      {/* List */}
+      {loading ? (
+        <WorkspacesSkeleton />
+      ) : workspaces.length === 0 ? (
+        <div className="pg-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+          <p style={{ fontWeight: 500, color: 'var(--fg-primary)', marginBottom: 8 }}>
+            No workspaces yet
+          </p>
+          <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 16 }}>
+            Create your first workspace to get started.
+          </p>
+          <button className="pg-btn pg-btn-primary pg-btn-sm">+ New workspace</button>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Projects</div>
-          <div className="pg-stat-value">2</div>
-          <div className="pg-stat-delta pg-text-tertiary">CRM, Marketing</div>
-        </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Pending invites</div>
-          <div className="pg-stat-value">1</div>
-          <div className="pg-stat-delta pg-text-tertiary">sent 2 days ago</div>
-        </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Plan</div>
-          <div className="pg-stat-value">Ent.</div>
-          <div className="pg-stat-delta pg-text-tertiary">unlimited seats</div>
-        </div>
-      </div>
-
-      {/* Members table */}
-      <div className="pg-card pg-mb-4">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Members</div>
-          <div className="pg-text-xs pg-text-tertiary">
-            Roles inherit from workspace · per-project overrides allowed
-          </div>
-        </div>
-        <div className="pg-table-wrap" style={{ border: 'none', borderRadius: 0 }}>
-          <table className="pg-data-table">
-            <thead>
-              <tr>
-                <th>Member</th>
-                <th>Role</th>
-                <th>Project access</th>
-                <th>Last active</th>
-                <th>Status</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {MEMBERS.map((m) => (
-                <tr key={m.email}>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <div className="pg-avatar">{m.initials}</div>
-                      <div>
-                        <div className="pg-font-medium" style={{ fontSize: '13px' }}>
-                          {m.name}
-                        </div>
-                        <div className="pg-text-xs pg-text-tertiary">{m.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`pg-badge ${ROLE_BADGE[m.role] ?? 'pg-badge-default'}`}>
-                      {m.role}
-                    </span>
-                  </td>
-                  <td className="pg-text-xs pg-text-secondary">{m.scope}</td>
-                  <td className="pg-text-tertiary pg-text-xs">{m.last}</td>
-                  <td>
-                    <span className="pg-badge pg-badge-success">Active</span>
-                  </td>
-                  <td>
-                    <Link
-                      href={`/workspaces/${DEFAULT_WORKSPACE}/members`}
-                      className="pg-btn pg-btn-ghost pg-btn-xs"
-                    >
-                      Manage
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Invites + Settings */}
-      <div className="pg-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Pending invites</div>
-          </div>
-          <div className="pg-table-wrap" style={{ border: 'none', borderRadius: 0 }}>
-            <table className="pg-data-table">
-              <thead>
-                <tr>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Sent</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{ fontSize: '13px' }}>priya@acme.com</td>
-                  <td>
-                    <span className="pg-badge pg-badge-default">Developer</span>
-                  </td>
-                  <td className="pg-text-tertiary pg-text-xs">2d ago</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      <button className="pg-btn pg-btn-ghost pg-btn-xs" type="button">
-                        Resend
-                      </button>
-                      <button className="pg-btn pg-btn-ghost pg-btn-xs" type="button">
-                        Revoke
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Workspace settings</div>
-          </div>
-          <div>
-            {[
-              { key: 'Workspace ID', val: 'ws_a1b2c3d4', mono: true },
-              { key: 'Domain', val: 'acme.platform.local' },
-              { key: 'SSO', val: 'Microsoft Entra ID', success: true },
-              { key: 'SCIM provisioning', val: 'Enabled', success: true },
-              { key: 'Default project role', val: 'Reviewer' },
-              { key: '2FA required', val: 'Yes', success: true },
-            ].map((row) => (
-              <div key={row.key} className="pg-inspector-row">
-                <span className="pg-inspector-key">{row.key}</span>
-                <span
-                  className={`pg-inspector-val${row.mono ? ' pg-mono pg-text-xs' : ''}${row.success ? ' pg-text-success' : ''}`}
-                >
-                  {row.val}
-                </span>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {workspaces.map((ws) => (
+            <div
+              key={ws.id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 16,
+                borderRadius: 'var(--shell-radius-lg)',
+                border: '1px solid var(--border-default)',
+                padding: 16,
+                background: 'var(--bg-canvas)',
+              }}
+            >
+              {/* Workspace avatar */}
+              <div
+                style={{
+                  display: 'flex',
+                  height: 40,
+                  width: 40,
+                  flexShrink: 0,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 'var(--shell-radius-md)',
+                  background: 'var(--accent-primary)',
+                  color: '#fff',
+                  fontSize: 13,
+                  fontWeight: 700,
+                }}
+                aria-hidden="true"
+              >
+                {ws.name.slice(0, 2).toUpperCase()}
               </div>
-            ))}
-          </div>
+
+              {/* Name + meta */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: 'var(--fg-primary)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    margin: 0,
+                  }}
+                >
+                  {ws.name}
+                </p>
+                <p
+                  style={{
+                    marginTop: 2,
+                    fontSize: 12,
+                    color: 'var(--fg-tertiary)',
+                    margin: '2px 0 0',
+                  }}
+                >
+                  {String(ws.memberCount)} member{ws.memberCount !== 1 ? 's' : ''} ·{' '}
+                  <span className="pg-mono">{ws.slug}</span>
+                </p>
+              </div>
+
+              {/* Plan badge */}
+              <span
+                className={
+                  ws.plan === 'Enterprise'
+                    ? 'pg-badge pg-badge-warning'
+                    : 'pg-badge pg-badge-default'
+                }
+              >
+                {ws.plan}
+              </span>
+
+              {/* DB type badge */}
+              <span className="pg-badge pg-badge-default">{ws.dbType}</span>
+
+              {/* Open button */}
+              <Link
+                href={`/workspaces/${ws.slug}/members`}
+                className="pg-btn pg-btn-secondary pg-btn-sm"
+              >
+                Open
+              </Link>
+            </div>
+          ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }

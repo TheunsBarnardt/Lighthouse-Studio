@@ -1,7 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { ShieldAlert } from 'lucide-react';
 
 interface Advisory {
@@ -16,16 +14,22 @@ interface Advisory {
 }
 
 const SEVERITY_BADGE: Record<string, string> = {
-  critical: 'bg-red-100 text-red-800',
-  high: 'bg-orange-100 text-orange-800',
-  medium: 'bg-amber-100 text-amber-800',
-  low: 'bg-gray-100 text-gray-700',
+  critical: 'pg-badge-danger',
+  high: 'pg-badge-danger',
+  medium: 'pg-badge-warning',
+  low: 'pg-badge-default',
 };
 
 const ACTION_LABEL: Record<string, string> = {
   upgrade_now: 'Upgrade now',
   upgrade_soon: 'Upgrade soon',
   monitor: 'Monitor',
+};
+
+const ACTION_BADGE: Record<string, string> = {
+  upgrade_now: 'pg-badge-danger',
+  upgrade_soon: 'pg-badge-warning',
+  monitor: 'pg-badge-default',
 };
 
 const DEMO_ADVISORIES: Advisory[] = [
@@ -44,41 +48,95 @@ const DEMO_ADVISORIES: Advisory[] = [
 export function DependencyAdvisoriesPanel() {
   if (DEMO_ADVISORIES.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-48 text-muted-foreground gap-2">
-        <ShieldAlert className="h-8 w-8" />
-        <p className="text-sm">No active advisories</p>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: 192,
+          color: 'var(--fg-tertiary)',
+          gap: 8,
+        }}
+      >
+        <ShieldAlert style={{ width: 32, height: 32 }} />
+        <p style={{ fontSize: 13 }}>No active advisories</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-4">
-      <h2 className="font-semibold">Dependency Advisories ({DEMO_ADVISORIES.length})</h2>
+    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
+        Dependency Advisories ({DEMO_ADVISORIES.length})
+      </h2>
 
-      <div className="space-y-3">
-        {DEMO_ADVISORIES.map(adv => (
-          <div key={adv.id} className="border rounded-lg p-4 space-y-3">
-            <div className="flex items-start gap-3">
-              <ShieldAlert className="h-5 w-5 text-orange-500 mt-0.5 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <span className="font-medium font-mono text-sm">{adv.packageName}</span>
-                  <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${SEVERITY_BADGE[adv.severity]}`}>{adv.severity}</span>
-                  {adv.cveId && <Badge variant="outline" className="text-xs font-mono">{adv.cveId}</Badge>}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {DEMO_ADVISORIES.map((adv) => (
+          <div
+            key={adv.id}
+            style={{
+              border: '1px solid var(--border-default)',
+              borderRadius: 6,
+              padding: 16,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+              <ShieldAlert
+                style={{
+                  width: 18,
+                  height: 18,
+                  color: 'var(--fg-warning)',
+                  marginTop: 2,
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    flexWrap: 'wrap',
+                    marginBottom: 4,
+                  }}
+                >
+                  <span
+                    className="pg-mono"
+                    style={{ fontWeight: 500, fontSize: 13, color: 'var(--fg-primary)' }}
+                  >
+                    {adv.packageName}
+                  </span>
+                  <span className={`pg-badge ${SEVERITY_BADGE[adv.severity]}`}>{adv.severity}</span>
+                  {adv.cveId && (
+                    <span className="pg-badge pg-badge-default pg-mono">{adv.cveId}</span>
+                  )}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Installed: <span className="font-mono text-foreground">{adv.installedVersion}</span> →
-                  Fix: <span className="font-mono text-green-700">{adv.fixedVersion}</span>
+                <p style={{ fontSize: 12, color: 'var(--fg-secondary)', marginBottom: 4 }}>
+                  Installed:{' '}
+                  <span className="pg-mono" style={{ color: 'var(--fg-primary)' }}>
+                    {adv.installedVersion}
+                  </span>
+                  {' → '}
+                  Fix:{' '}
+                  <span className="pg-mono" style={{ color: 'var(--fg-success)' }}>
+                    {adv.fixedVersion}
+                  </span>
                 </p>
-                <p className="text-sm mt-1">{adv.description}</p>
+                <p style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{adv.description}</p>
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2">
-              <Badge variant={adv.recommendedAction === 'upgrade_now' ? 'destructive' : 'secondary'} className="text-xs">
+            <div
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}
+            >
+              <span className={`pg-badge ${ACTION_BADGE[adv.recommendedAction]}`}>
                 {ACTION_LABEL[adv.recommendedAction]}
-              </Badge>
-              <Button size="sm">Create Change Request</Button>
+              </span>
+              <button className="pg-btn pg-btn-primary pg-btn-sm">Create Change Request</button>
             </div>
           </div>
         ))}

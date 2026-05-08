@@ -2,10 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
 interface DbStatus {
   id: string;
   kind: string;
@@ -36,13 +32,25 @@ interface LogLine {
   type: 'info' | 'success' | 'error';
 }
 
-function kindBadge(kind: string) {
-  const map: Record<string, string> = {
-    postgres: 'bg-blue-100 text-blue-800',
-    mssql: 'bg-orange-100 text-orange-800',
-    mongo: 'bg-green-100 text-green-800',
+function kindBadgeStyle(kind: string): React.CSSProperties {
+  const map: Record<string, React.CSSProperties> = {
+    postgres: {
+      background: 'var(--bg-surface)',
+      color: 'var(--accent-primary)',
+      border: '1px solid var(--accent-primary)',
+    },
+    mssql: {
+      background: 'var(--bg-surface)',
+      color: 'var(--fg-warning)',
+      border: '1px solid var(--fg-warning)',
+    },
+    mongo: {
+      background: 'var(--bg-surface)',
+      color: 'var(--fg-success)',
+      border: '1px solid var(--fg-success)',
+    },
   };
-  return map[kind] ?? 'bg-gray-100 text-gray-800';
+  return map[kind] ?? { background: 'var(--bg-surface)', color: 'var(--fg-secondary)' };
 }
 
 export default function AdminUpgradePage() {
@@ -79,14 +87,12 @@ export default function AdminUpgradePage() {
     void loadStatus();
   }, [loadStatus]);
 
-  // Auto-scroll log
   useEffect(() => {
     if (logRef.current) {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [log]);
 
-  // Poll while upgrade in progress
   useEffect(() => {
     if (phase !== 'running') return;
     const interval = setInterval(() => {
@@ -143,7 +149,6 @@ export default function AdminUpgradePage() {
         return;
       }
       addLog(data.message ?? 'Upgrade started. Waiting for completion…');
-      // Reload status to reflect in-progress state
       await loadStatus();
     } catch (e) {
       addLog(`Upgrade failed: ${String(e)}`, 'error');
@@ -155,193 +160,255 @@ export default function AdminUpgradePage() {
   const busy = phase === 'running' || phase === 'dry-run' || (status?.upgradeInProgress ?? false);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div style={{ padding: '16px 24px' }}>
+      <div className="pg-page-header">
         <div>
-          <h1 className="text-2xl font-bold">Platform upgrade</h1>
+          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
+            Platform upgrade
+          </h1>
           {status && (
-            <p className="mt-1 text-sm text-muted-foreground">
-              Code version: <span className="font-mono font-medium">{status.codeVersion}</span>
-            </p>
+            <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+              Code version:{' '}
+              <span className="pg-mono" style={{ fontWeight: 500 }}>
+                {status.codeVersion}
+              </span>
+            </div>
           )}
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
+        <div className="pg-page-header-actions">
+          <button
+            className="pg-btn pg-btn-secondary pg-btn-sm"
             disabled={busy || allUpToDate}
             onClick={() => {
               void runDryRun();
             }}
           >
             Dry run
-          </Button>
-          <Button
-            size="sm"
+          </button>
+          <button
+            className="pg-btn pg-btn-primary pg-btn-sm"
             disabled={busy || allUpToDate}
             onClick={() => {
               void runUpgrade();
             }}
           >
             {busy ? 'Upgrading…' : 'Run upgrade'}
-          </Button>
+          </button>
         </div>
       </div>
 
       {/* Database status */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Database versions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading && (
-            <p className="py-4 text-center text-sm text-muted-foreground" aria-live="polite">
-              Loading…
-            </p>
-          )}
-          {!loading && (!status || status.dbs.length === 0) && (
-            <p className="py-4 text-center text-sm text-muted-foreground">
-              No databases configured.
-            </p>
-          )}
-          {!loading && status && status.dbs.length > 0 && (
-            <table className="w-full text-sm" role="grid" aria-label="Database version status">
+      <div className="pg-card" style={{ marginBottom: 16 }}>
+        <div className="pg-card-header">
+          <span className="pg-card-title">Database versions</span>
+        </div>
+        {loading && (
+          <p
+            style={{
+              padding: '32px 0',
+              textAlign: 'center',
+              fontSize: 13,
+              color: 'var(--fg-tertiary)',
+            }}
+            aria-live="polite"
+          >
+            Loading…
+          </p>
+        )}
+        {!loading && (!status || status.dbs.length === 0) && (
+          <p
+            style={{
+              padding: '32px 0',
+              textAlign: 'center',
+              fontSize: 13,
+              color: 'var(--fg-tertiary)',
+            }}
+          >
+            No databases configured.
+          </p>
+        )}
+        {!loading && status && status.dbs.length > 0 && (
+          <div className="pg-table-wrap" style={{ marginTop: 0 }}>
+            <table className="pg-data-table" role="grid" aria-label="Database version status">
               <thead>
-                <tr className="border-b text-left text-xs text-muted-foreground">
-                  <th className="pb-2 pr-4 font-medium">Database</th>
-                  <th className="pb-2 pr-4 font-medium">Type</th>
-                  <th className="pb-2 pr-4 font-medium">Current version</th>
-                  <th className="pb-2 pr-4 font-medium">Applied at</th>
-                  <th className="pb-2 font-medium">Status</th>
+                <tr>
+                  <th>Database</th>
+                  <th>Type</th>
+                  <th>Current version</th>
+                  <th>Applied at</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {status.dbs.map((db) => (
-                  <tr key={db.id} className="border-b last:border-0">
-                    <td className="py-3 pr-4 font-mono text-xs">{db.id}</td>
-                    <td className="py-3 pr-4">
+                  <tr key={db.id}>
+                    <td className="pg-mono" style={{ fontSize: 11 }}>
+                      {db.id}
+                    </td>
+                    <td>
                       <span
-                        className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${kindBadge(db.kind)}`}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          borderRadius: 3,
+                          padding: '1px 6px',
+                          fontSize: 11,
+                          fontWeight: 500,
+                          ...kindBadgeStyle(db.kind),
+                        }}
                       >
                         {db.kind}
                       </span>
                     </td>
-                    <td className="py-3 pr-4 font-mono text-xs">
+                    <td className="pg-mono" style={{ fontSize: 11 }}>
                       {db.currentVersion ?? (
-                        <span className="italic text-muted-foreground">fresh install</span>
+                        <span style={{ fontStyle: 'italic', color: 'var(--fg-tertiary)' }}>
+                          fresh install
+                        </span>
                       )}
                     </td>
-                    <td className="py-3 pr-4 text-xs text-muted-foreground">
+                    <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
                       {db.appliedAt ? (
                         new Date(db.appliedAt).toLocaleString()
                       ) : (
-                        <span className="italic">—</span>
+                        <span style={{ fontStyle: 'italic' }}>—</span>
                       )}
                     </td>
-                    <td className="py-3">
+                    <td>
                       {db.needsUpgrade ? (
-                        <Badge variant="error">Needs upgrade</Badge>
+                        <span className="pg-badge pg-badge-danger">Needs upgrade</span>
                       ) : (
-                        <Badge variant="secondary">Up to date</Badge>
+                        <span className="pg-badge pg-badge-success">Up to date</span>
                       )}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          )}
-          {allUpToDate && !loading && (
-            <p className="mt-3 text-center text-sm text-green-600">All databases are up to date.</p>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+        {allUpToDate && !loading && (
+          <p
+            style={{ marginTop: 12, textAlign: 'center', fontSize: 13, color: 'var(--fg-success)' }}
+          >
+            All databases are up to date.
+          </p>
+        )}
+      </div>
 
       {/* Progress log */}
       {log.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">
+        <div className="pg-card" style={{ marginBottom: 16 }}>
+          <div className="pg-card-header">
+            <span className="pg-card-title">
               Upgrade log
               {busy && (
                 <span
-                  className="ml-2 inline-block h-2 w-2 animate-pulse rounded-full bg-amber-400"
+                  style={{
+                    marginLeft: 8,
+                    display: 'inline-block',
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: 'var(--fg-warning)',
+                  }}
                   aria-hidden="true"
                 />
               )}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div
-              ref={logRef}
-              className="h-40 overflow-y-auto rounded bg-muted p-3 font-mono text-xs"
-              role="log"
-              aria-label="Upgrade progress"
-              aria-live="polite"
-            >
-              {log.map((line, i) => (
-                <div
-                  key={i}
-                  className={
+            </span>
+          </div>
+          <div
+            ref={logRef}
+            style={{
+              height: 160,
+              overflowY: 'auto',
+              borderRadius: 4,
+              background: 'var(--bg-canvas)',
+              border: '1px solid var(--border-default)',
+              padding: '8px 12px',
+              fontFamily: 'monospace',
+              fontSize: 11,
+            }}
+            role="log"
+            aria-label="Upgrade progress"
+            aria-live="polite"
+          >
+            {log.map((line, i) => (
+              <div
+                key={i}
+                style={{
+                  color:
                     line.type === 'error'
-                      ? 'text-red-500'
+                      ? 'var(--fg-danger)'
                       : line.type === 'success'
-                        ? 'text-green-600'
-                        : ''
-                  }
-                >
-                  <span className="mr-2 text-muted-foreground">[{line.ts}]</span>
-                  {line.message}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                        ? 'var(--fg-success)'
+                        : 'var(--fg-primary)',
+                }}
+              >
+                <span style={{ marginRight: 8, color: 'var(--fg-tertiary)' }}>[{line.ts}]</span>
+                {line.message}
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Upgrade history */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Upgrade history</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {history.length === 0 ? (
-            <p className="py-4 text-center text-sm text-muted-foreground italic">
-              No upgrades recorded yet.
-            </p>
-          ) : (
-            <table className="w-full text-sm" role="grid" aria-label="Upgrade history">
+      <div className="pg-card">
+        <div className="pg-card-header">
+          <span className="pg-card-title">Upgrade history</span>
+        </div>
+        {history.length === 0 ? (
+          <p
+            style={{
+              padding: '32px 0',
+              textAlign: 'center',
+              fontSize: 13,
+              color: 'var(--fg-tertiary)',
+              fontStyle: 'italic',
+            }}
+          >
+            No upgrades recorded yet.
+          </p>
+        ) : (
+          <div className="pg-table-wrap" style={{ marginTop: 0 }}>
+            <table className="pg-data-table" role="grid" aria-label="Upgrade history">
               <thead>
-                <tr className="border-b text-left text-xs text-muted-foreground">
-                  <th className="pb-2 pr-4 font-medium">Version</th>
-                  <th className="pb-2 pr-4 font-medium">Applied at</th>
-                  <th className="pb-2 pr-4 font-medium">Applied by</th>
-                  <th className="pb-2 font-medium">Schema high-water</th>
+                <tr>
+                  <th>Version</th>
+                  <th>Applied at</th>
+                  <th>Applied by</th>
+                  <th>Schema high-water</th>
                 </tr>
               </thead>
               <tbody>
                 {history.map((entry, i) => (
-                  <tr key={i} className="border-b last:border-0">
-                    <td className="py-3 pr-4 font-mono text-xs font-semibold">
+                  <tr key={i}>
+                    <td className="pg-mono" style={{ fontSize: 11, fontWeight: 600 }}>
                       {entry.releaseVersion}
                     </td>
-                    <td className="py-3 pr-4 text-xs text-muted-foreground">
+                    <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
                       {new Date(entry.appliedAt).toLocaleString()}
                     </td>
-                    <td className="py-3 pr-4 text-xs">
+                    <td style={{ fontSize: 13 }}>
                       {entry.appliedBy ?? (
-                        <span className="italic text-muted-foreground">automated</span>
+                        <span style={{ fontStyle: 'italic', color: 'var(--fg-tertiary)' }}>
+                          automated
+                        </span>
                       )}
                     </td>
-                    <td className="py-3 font-mono text-xs text-muted-foreground">
-                      {entry.schemaMigrationHighWater ?? <span className="italic">—</span>}
+                    <td className="pg-mono" style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>
+                      {entry.schemaMigrationHighWater ?? (
+                        <span style={{ fontStyle: 'italic' }}>—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

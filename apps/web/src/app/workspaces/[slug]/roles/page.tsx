@@ -3,9 +3,6 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-
 interface Role {
   id: string;
   name: string;
@@ -22,52 +19,82 @@ export default function WorkspaceRolesPage() {
   useEffect(() => {
     void fetch(`/api/v1/workspaces/${slug}/roles`, { credentials: 'include' })
       .then((r) => r.json() as Promise<{ items: Role[] }>)
-      .then((d) => { setRoles(d.items); return; })
-      .catch(() => { /* ignore */ })
-      .finally(() => { setLoading(false); });
+      .then((d) => {
+        setRoles(d.items);
+        return;
+      })
+      .catch(() => {
+        /* ignore */
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [slug]);
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Roles</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage roles and permissions for this workspace.
-        </p>
+    <div style={{ padding: '16px 24px' }}>
+      <div className="pg-page-header">
+        <div>
+          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
+            Roles
+          </h1>
+          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+            Manage roles and permissions for this workspace.
+          </div>
+        </div>
+        <div className="pg-page-header-actions">
+          <button className="pg-btn pg-btn-primary pg-btn-sm">New role</button>
+        </div>
       </div>
 
       {loading && (
-        <p className="text-sm text-muted-foreground" aria-live="polite">Loading…</p>
+        <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }} aria-live="polite">
+          Loading…
+        </p>
       )}
 
-      {!loading && (
-        <div className="space-y-4">
-          {roles.length === 0 && (
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-center text-sm text-muted-foreground">No roles defined.</p>
-              </CardContent>
-            </Card>
-          )}
+      {!loading && roles.length === 0 && (
+        <div className="pg-card" style={{ padding: '32px', textAlign: 'center' }}>
+          <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>No roles defined.</p>
+        </div>
+      )}
+
+      {!loading && roles.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {roles.map((role) => (
-            <Card key={role.id}>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">{role.name}</CardTitle>
-                  <Badge variant="secondary">{role.memberCount} members</Badge>
+            <div key={role.id} className="pg-card">
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  marginBottom: 8,
+                }}
+              >
+                <div>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg-primary)' }}>
+                    {role.name}
+                  </span>
+                  {role.description && (
+                    <p style={{ marginTop: 2, fontSize: 13, color: 'var(--fg-secondary)' }}>
+                      {role.description}
+                    </p>
+                  )}
                 </div>
-                {role.description && (
-                  <p className="text-sm text-muted-foreground">{role.description}</p>
-                )}
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-1">
-                  {role.permissions.map((p) => (
-                    <Badge key={p} variant="outline" className="font-mono text-xs">{p}</Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                <span className="pg-badge pg-badge-default">{role.memberCount} members</span>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {role.permissions.map((p) => (
+                  <span
+                    key={p}
+                    className="pg-badge pg-badge-default pg-mono"
+                    style={{ fontSize: 10 }}
+                  >
+                    {p}
+                  </span>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       )}

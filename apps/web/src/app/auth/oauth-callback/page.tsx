@@ -4,8 +4,6 @@ import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/auth-context';
 import { AuthApiError, authApi } from '@/lib/auth-client';
 
@@ -44,22 +42,29 @@ function OAuthCallbackPageInner() {
   }, [searchParams, router, refresh]);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('title')}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {error ? (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        ) : (
-          <p className="text-sm text-muted-foreground" aria-live="polite">
-            {t('title')}…
-          </p>
-        )}
-      </CardContent>
-    </Card>
+    <div className="pg-card" style={{ maxWidth: 480, margin: '64px auto', padding: '32px' }}>
+      <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 16 }}>
+        {t('title')}
+      </h2>
+      {error ? (
+        <div
+          role="alert"
+          style={{
+            borderRadius: 4,
+            background: 'var(--bg-danger-subtle)',
+            padding: '10px 12px',
+            fontSize: 13,
+            color: 'var(--fg-danger)',
+          }}
+        >
+          {error}
+        </div>
+      ) : (
+        <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }} aria-live="polite">
+          {t('title')}…
+        </p>
+      )}
+    </div>
   );
 }
 

@@ -2,10 +2,22 @@ import type { ReactNode } from 'react';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 flex justify-center">
-          <span className="text-2xl font-bold text-primary">Lighthouse Studio</span>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--bg-canvas)',
+        padding: '48px 16px',
+      }}
+    >
+      <div style={{ width: '100%', maxWidth: 380 }}>
+        <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'center' }}>
+          <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--accent-primary)' }}>
+            Lighthouse Studio
+          </span>
         </div>
         {children}
       </div>

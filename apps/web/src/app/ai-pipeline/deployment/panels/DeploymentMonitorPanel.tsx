@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { CheckCircle2, XCircle, Clock, AlertCircle } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from 'react';
+
 import { RollbackDialog } from '../dialogs/RollbackDialog';
 
 type StepStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
@@ -27,11 +26,11 @@ const STEP_LABELS: Record<string, string> = {
 };
 
 const STATUS_ICON: Record<StepStatus, React.ReactNode> = {
-  pending: <Clock className="h-4 w-4 text-muted-foreground" />,
-  running: <Clock className="h-4 w-4 text-amber-500 animate-spin" />,
-  completed: <CheckCircle2 className="h-4 w-4 text-green-500" />,
-  failed: <XCircle className="h-4 w-4 text-red-500" />,
-  skipped: <AlertCircle className="h-4 w-4 text-muted-foreground" />,
+  pending: <Clock style={{ width: 16, height: 16, color: 'var(--fg-tertiary)' }} />,
+  running: <Clock style={{ width: 16, height: 16, color: 'var(--fg-warning)' }} />,
+  completed: <CheckCircle2 style={{ width: 16, height: 16, color: 'var(--fg-success)' }} />,
+  failed: <XCircle style={{ width: 16, height: 16, color: 'var(--fg-danger)' }} />,
+  skipped: <AlertCircle style={{ width: 16, height: 16, color: 'var(--fg-tertiary)' }} />,
 };
 
 interface Props {
@@ -48,82 +47,144 @@ const INITIAL_STEPS: Step[] = [
 ];
 
 export function DeploymentMonitorPanel({ deploymentId }: Props) {
-  const [steps, setSteps] = useState<Step[]>(INITIAL_STEPS.map(s => ({ ...s })));
-  const [currentStep, setCurrentStep] = useState(0);
+  const [steps, setSteps] = useState<Step[]>(INITIAL_STEPS.map((s) => ({ ...s })));
   const [isDone, setIsDone] = useState(false);
   const [showRollback, setShowRollback] = useState(false);
 
   useEffect(() => {
     let idx = 0;
     const advance = () => {
-      if (idx >= steps.length) { setIsDone(true); return; }
-      setSteps(prev => prev.map((s, i) => i === idx ? { ...s, status: 'running' } : s));
-      setTimeout(() => {
-        setSteps(prev => prev.map((s, i) => i === idx ? { ...s, status: 'completed', durationMs: 800 + Math.random() * 2000 } : s));
-        idx++;
-        setCurrentStep(idx);
-        if (idx < INITIAL_STEPS.length) setTimeout(advance, 300);
-        else setIsDone(true);
-      }, 1000 + Math.random() * 1500);
+      if (idx >= INITIAL_STEPS.length) {
+        setIsDone(true);
+        return;
+      }
+      setSteps((prev) => prev.map((s, i) => (i === idx ? { ...s, status: 'running' } : s)));
+      setTimeout(
+        () => {
+          setSteps((prev) =>
+            prev.map((s, i) =>
+              i === idx ? { ...s, status: 'completed', durationMs: 800 + Math.random() * 2000 } : s,
+            ),
+          );
+          idx++;
+          if (idx < INITIAL_STEPS.length) setTimeout(advance, 300);
+          else setIsDone(true);
+        },
+        1000 + Math.random() * 1500,
+      );
     };
     const t = setTimeout(advance, 500);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+    };
   }, []);
 
-  const completedCount = steps.filter(s => s.status === 'completed').length;
-  const overallStatus = isDone ? 'deployed' : 'running';
+  const completedCount = steps.filter((s) => s.status === 'completed').length;
 
   return (
-    <div className="flex flex-col h-full p-6 gap-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h2 className="font-semibold">Deployment Monitor</h2>
-          <Badge variant={isDone ? 'default' : 'secondary'}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 24, gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
+            Deployment Monitor
+          </h2>
+          <span className={`pg-badge ${isDone ? 'pg-badge-success' : 'pg-badge-default'}`}>
             {isDone ? 'Deployed' : 'Running…'}
-          </Badge>
+          </span>
         </div>
         {isDone && (
-          <Button variant="outline" size="sm" onClick={() => setShowRollback(true)}>
+          <button
+            className="pg-btn pg-btn-secondary pg-btn-sm"
+            onClick={() => {
+              setShowRollback(true);
+            }}
+          >
             Rollback
-          </Button>
+          </button>
         )}
       </div>
 
       {!isDone && (
-        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+        <div
+          style={{
+            height: 6,
+            background: 'var(--border-default)',
+            borderRadius: 4,
+            overflow: 'hidden',
+          }}
+        >
           <div
-            className="h-full bg-primary transition-all duration-700"
-            style={{ width: `${(completedCount / steps.length) * 100}%` }}
+            style={{
+              height: '100%',
+              background: 'var(--accent-primary)',
+              transition: 'width 0.7s',
+              width: `${String((completedCount / steps.length) * 100)}%`,
+            }}
           />
         </div>
       )}
 
-      <div className="space-y-2">
-        {steps.map((step, i) => (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {steps.map((step) => (
           <div
             key={step.stepType}
-            className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-              step.status === 'running' ? 'border-amber-200 bg-amber-50' :
-              step.status === 'completed' ? 'border-green-100 bg-green-50/30' :
-              step.status === 'failed' ? 'border-red-200 bg-red-50' : ''
-            }`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              padding: 12,
+              borderRadius: 6,
+              border:
+                step.status === 'running'
+                  ? '1px solid var(--fg-warning)'
+                  : step.status === 'completed'
+                    ? '1px solid var(--fg-success)'
+                    : step.status === 'failed'
+                      ? '1px solid var(--fg-danger)'
+                      : '1px solid var(--border-default)',
+              background:
+                step.status === 'running'
+                  ? 'color-mix(in srgb, var(--fg-warning) 6%, transparent)'
+                  : step.status === 'completed'
+                    ? 'color-mix(in srgb, var(--fg-success) 4%, transparent)'
+                    : step.status === 'failed'
+                      ? 'color-mix(in srgb, var(--fg-danger) 6%, transparent)'
+                      : 'transparent',
+            }}
           >
             {STATUS_ICON[step.status]}
-            <div className="flex-1">
-              <span className="text-sm font-medium">{STEP_LABELS[step.stepType] ?? step.stepType}</span>
-              {step.errorMessage && <p className="text-xs text-red-700 mt-0.5">{step.errorMessage}</p>}
+            <div style={{ flex: 1 }}>
+              <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)' }}>
+                {STEP_LABELS[step.stepType] ?? step.stepType}
+              </span>
+              {step.errorMessage && (
+                <p style={{ fontSize: 11, color: 'var(--fg-danger)', marginTop: 2 }}>
+                  {step.errorMessage}
+                </p>
+              )}
             </div>
             {step.durationMs && (
-              <span className="text-xs text-muted-foreground">{(step.durationMs / 1000).toFixed(1)}s</span>
+              <span style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+                {(step.durationMs / 1000).toFixed(1)}s
+              </span>
             )}
           </div>
         ))}
       </div>
 
       {isDone && (
-        <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-          <p className="font-medium text-green-800 mb-1">Deployment complete</p>
-          <p className="text-sm text-green-700">
+        <div
+          style={{
+            borderRadius: 6,
+            border: '1px solid var(--fg-success)',
+            background: 'color-mix(in srgb, var(--fg-success) 6%, transparent)',
+            padding: 16,
+          }}
+        >
+          <p style={{ fontWeight: 500, color: 'var(--fg-success)', marginBottom: 4, fontSize: 13 }}>
+            Deployment complete
+          </p>
+          <p style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
             Application is live. Health checks passed. Ready to promote to staging.
           </p>
         </div>
@@ -132,7 +193,9 @@ export function DeploymentMonitorPanel({ deploymentId }: Props) {
       {showRollback && (
         <RollbackDialog
           deploymentId={deploymentId}
-          onClose={() => setShowRollback(false)}
+          onClose={() => {
+            setShowRollback(false);
+          }}
         />
       )}
     </div>

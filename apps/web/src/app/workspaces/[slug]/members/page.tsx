@@ -2,14 +2,8 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { InviteMemberDialog } from '@/components/workspace/invite-member-dialog';
 import { MemberEventListener } from '@/components/workspace/member-event-listener';
 
@@ -24,20 +18,37 @@ interface Member {
   lastSignIn: string | null;
 }
 
+const STATUS_CLASS: Record<string, string> = {
+  active: 'pg-badge pg-badge-success',
+  pending: 'pg-badge pg-badge-warning',
+  suspended: 'pg-badge pg-badge-danger',
+};
+
+function statusBadgeClass(status: string): string {
+  return STATUS_CLASS[status] ?? 'pg-badge pg-badge-default';
+}
+
 export default function WorkspaceMembersPage() {
   const { slug } = useParams<{ slug: string }>();
-  const t = useTranslations('workspace.members');
   const [members, setMembers] = useState<Member[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [showInvite, setShowInvite] = useState(false);
+  const [activeTab, setActiveTab] = useState<'members' | 'pending'>('members');
 
   const loadMembers = useCallback(() => {
     void fetch(`/api/v1/workspaces/${slug}/members`, { credentials: 'include' })
       .then((r) => r.json() as Promise<{ items: Member[] }>)
-      .then((d) => { setMembers(d.items); return; })
-      .catch(() => { /* error handled by empty state */ })
-      .finally(() => { setLoading(false); });
+      .then((d) => {
+        setMembers(d.items);
+        return;
+      })
+      .catch(() => {
+        /* error handled by empty state */
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [slug]);
 
   useEffect(loadMembers, [loadMembers]);
@@ -50,90 +61,174 @@ export default function WorkspaceMembersPage() {
   );
 
   return (
-    <div>
-      {/* Listens for member mutations via SSE and refreshes the list live */}
-      <MemberEventListener workspaceId={slug} onEvent={() => { loadMembers(); }} />
+    <div className="pg-page" style={{ maxWidth: 1280 }}>
+      <MemberEventListener
+        workspaceId={slug}
+        onEvent={() => {
+          loadMembers();
+        }}
+      />
 
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
-        <Button onClick={() => { setShowInvite(true); }}>{t('invite')}</Button>
+      <div className="pg-page-header">
+        <div>
+          <h1>Members</h1>
+          <p className="subtitle">
+            {String(members.length)} member{members.length !== 1 ? 's' : ''}
+          </p>
+        </div>
+        <div className="pg-page-header-actions">
+          <button
+            className="pg-btn pg-btn-primary pg-btn-sm"
+            onClick={() => {
+              setShowInvite(true);
+            }}
+          >
+            + Invite member
+          </button>
+        </div>
       </div>
 
-      <Tabs defaultValue="members">
-        <TabsList className="mb-4">
-          <TabsTrigger value="members">{t('membersTab')}</TabsTrigger>
-          <TabsTrigger value="pending">{t('pendingTab')}</TabsTrigger>
-        </TabsList>
+      {/* Tabs */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 2,
+          marginBottom: 16,
+          borderBottom: '1px solid var(--border-default)',
+        }}
+      >
+        {(['members', 'pending'] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => {
+              setActiveTab(tab);
+            }}
+            style={{
+              padding: '6px 14px',
+              fontSize: 13,
+              fontWeight: activeTab === tab ? 600 : 400,
+              color: activeTab === tab ? 'var(--fg-primary)' : 'var(--fg-secondary)',
+              background: 'none',
+              border: 'none',
+              borderBottom:
+                activeTab === tab ? '2px solid var(--accent-primary)' : '2px solid transparent',
+              cursor: 'pointer',
+            }}
+          >
+            {tab === 'members' ? 'Members' : 'Pending invites'}
+          </button>
+        ))}
+      </div>
 
-        <TabsContent value="members">
-          <Card>
-            <CardHeader className="pb-3">
-              <Input
-                type="search"
-                placeholder={t('searchPlaceholder')}
-                value={search}
-                onChange={(e) => { setSearch(e.target.value); }}
-                aria-label={t('searchPlaceholder')}
-              />
-            </CardHeader>
-            <CardContent>
-              {loading && (
-                <p className="py-8 text-center text-sm text-muted-foreground" aria-live="polite">
-                  Loading…
-                </p>
-              )}
-              {!loading && filtered.length === 0 && (
-                <p className="py-8 text-center text-sm text-muted-foreground">{t('noMembers')}</p>
-              )}
-              {!loading && filtered.length > 0 && (
-                <table className="w-full text-sm" role="grid" aria-label={t('title')}>
-                  <thead>
-                    <tr className="border-b text-left text-xs text-muted-foreground">
-                      <th className="pb-2 pr-4 font-medium">{t('columns.name')}</th>
-                      <th className="pb-2 pr-4 font-medium">{t('columns.email')}</th>
-                      <th className="pb-2 pr-4 font-medium">{t('columns.status')}</th>
-                      <th className="pb-2 font-medium">{t('columns.joined')}</th>
+      {activeTab === 'members' && (
+        <div className="pg-card">
+          {/* Search */}
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-default)' }}>
+            <input
+              type="search"
+              className="input input-h32"
+              placeholder="Search members…"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
+              aria-label="Search members"
+              style={{ width: 280 }}
+            />
+          </div>
+
+          {loading && (
+            <p
+              style={{
+                padding: '32px 16px',
+                textAlign: 'center',
+                fontSize: 13,
+                color: 'var(--fg-secondary)',
+              }}
+              aria-live="polite"
+            >
+              Loading…
+            </p>
+          )}
+
+          {!loading && filtered.length === 0 && (
+            <p
+              style={{
+                padding: '32px 16px',
+                textAlign: 'center',
+                fontSize: 13,
+                color: 'var(--fg-secondary)',
+              }}
+            >
+              No members found.
+            </p>
+          )}
+
+          {!loading && filtered.length > 0 && (
+            <div className="pg-table-wrap">
+              <table className="pg-data-table" role="grid" aria-label="Members">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((member) => (
+                    <tr key={member.id}>
+                      <td>
+                        <Link
+                          href={`/workspaces/${slug}/members/${member.userId}`}
+                          style={{
+                            fontWeight: 500,
+                            color: 'var(--fg-primary)',
+                            textDecoration: 'none',
+                          }}
+                        >
+                          {member.displayName ?? member.email}
+                        </Link>
+                      </td>
+                      <td style={{ color: 'var(--fg-secondary)' }}>{member.email}</td>
+                      <td>
+                        <span className={statusBadgeClass(member.status)}>
+                          {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
+                        </span>
+                      </td>
+                      <td style={{ color: 'var(--fg-secondary)' }}>
+                        {new Date(member.joinedAt).toLocaleDateString()}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map((member) => (
-                      <tr key={member.id} className="border-b last:border-0">
-                        <td className="py-3 pr-4">
-                          <Link href={`/workspaces/${slug}/members/${member.userId}`} className="font-medium hover:text-primary">
-                            {member.displayName ?? member.email}
-                          </Link>
-                        </td>
-                        <td className="py-3 pr-4 text-muted-foreground">{member.email}</td>
-                        <td className="py-3 pr-4">
-                          <Badge variant="secondary" className="text-xs">
-                            {t(`status.${member.status}` as Parameters<typeof t>[0])}
-                          </Badge>
-                        </td>
-                        <td className="py-3 text-muted-foreground">
-                          {new Date(member.joinedAt).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
-        <TabsContent value="pending">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-center text-sm text-muted-foreground">{t('noPending')}</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {activeTab === 'pending' && (
+        <div className="pg-card">
+          <p
+            style={{
+              padding: '32px 16px',
+              textAlign: 'center',
+              fontSize: 13,
+              color: 'var(--fg-secondary)',
+            }}
+          >
+            No pending invitations.
+          </p>
+        </div>
+      )}
 
       <InviteMemberDialog
         slug={slug}
         open={showInvite}
-        onClose={() => { setShowInvite(false); }}
+        onClose={() => {
+          setShowInvite(false);
+        }}
       />
     </div>
   );

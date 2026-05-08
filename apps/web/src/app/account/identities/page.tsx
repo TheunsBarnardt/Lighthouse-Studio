@@ -2,10 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/auth-context';
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -24,61 +20,109 @@ export default function IdentitiesPage() {
   const identities = user?.identities ?? [];
 
   return (
-    <Card>
-      <CardHeader><CardTitle>{t('title')}</CardTitle></CardHeader>
-      <CardContent>
+    <div className="pg-card">
+      <div className="pg-card-header">
+        <h2 className="pg-card-title">{t('title')}</h2>
+      </div>
+      <div style={{ padding: '1.25rem' }}>
         {identities.length === 0 && (
-          <p className="text-sm text-muted-foreground">{t('noIdentities')}</p>
+          <p style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)' }}>{t('noIdentities')}</p>
         )}
-        <ul className="space-y-3">
+
+        <ul
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+            listStyle: 'none',
+            margin: 0,
+            padding: 0,
+          }}
+        >
           {identities.map((identity) => (
-            <li key={identity.providerId} className="flex items-center justify-between rounded-lg border p-3">
-              <div className="space-y-0.5">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">
+            <li
+              key={identity.providerId}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '0.75rem',
+                borderRadius: '6px',
+                border: '1px solid var(--border-default)',
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span
+                    style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--fg-primary)' }}
+                  >
                     {PROVIDER_LABELS[identity.providerId] ?? identity.providerId}
                   </span>
                   {identity.primary && (
-                    <Badge variant="secondary" className="text-xs">{t('primary')}</Badge>
+                    <span className="pg-badge pg-badge-default" style={{ fontSize: '0.75rem' }}>
+                      {t('primary')}
+                    </span>
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground">{identity.email}</p>
+                <p style={{ fontSize: '0.75rem', color: 'var(--fg-tertiary)' }}>{identity.email}</p>
               </div>
-              <div className="flex gap-2">
+
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
                 {!identity.primary && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => { /* TODO: make primary */ }}
+                  <button
+                    type="button"
+                    className="pg-btn pg-btn-ghost pg-btn-sm"
+                    onClick={() => {
+                      /* TODO: make primary */
+                    }}
                   >
                     {t('makePrimary')}
-                  </Button>
+                  </button>
                 )}
                 {identities.length > 1 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => { /* TODO: unlink */ }}
+                  <button
+                    type="button"
+                    className="pg-btn pg-btn-ghost pg-btn-sm"
+                    onClick={() => {
+                      /* TODO: unlink */
+                    }}
                     aria-label={`${t('unlink')} ${PROVIDER_LABELS[identity.providerId] ?? identity.providerId}`}
                   >
                     {t('unlink')}
-                  </Button>
+                  </button>
                 )}
               </div>
             </li>
           ))}
         </ul>
-        <div className="mt-4">
-          <Button variant="outline" onClick={() => { /* TODO: link new provider */ }}>
+
+        <div style={{ marginTop: '1rem' }}>
+          <button
+            type="button"
+            className="pg-btn pg-btn-secondary"
+            onClick={() => {
+              /* TODO: link new provider */
+            }}
+          >
             {t('link')}
-          </Button>
+          </button>
         </div>
+
         {identities.length <= 1 && (
-          <Alert className="mt-4">
-            <AlertDescription>{t('cannotUnlinkLast')}</AlertDescription>
-          </Alert>
+          <div
+            style={{
+              marginTop: '1rem',
+              padding: '0.75rem 1rem',
+              borderRadius: '6px',
+              border: '1px solid var(--border-default)',
+              fontSize: '0.875rem',
+              color: 'var(--fg-secondary)',
+            }}
+          >
+            {t('cannotUnlinkLast')}
+          </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

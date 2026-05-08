@@ -1,9 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface TestCase {
   id: string;
@@ -17,19 +14,44 @@ interface UncoveredAc {
   reason: string;
 }
 
-const TEST_TYPE_COLORS: Record<string, string> = {
-  unit: 'bg-blue-100 text-blue-800',
-  component: 'bg-purple-100 text-purple-800',
-  integration: 'bg-amber-100 text-amber-800',
-  e2e: 'bg-green-100 text-green-800',
+const TEST_TYPE_BADGE: Record<string, string> = {
+  unit: 'pg-badge pg-badge-default',
+  component: 'pg-badge pg-badge-warning',
+  integration: 'pg-badge pg-badge-warning',
+  e2e: 'pg-badge pg-badge-success',
 };
 
 const DEMO_TEST_CASES: TestCase[] = [
-  { id: 'tc-ac001-unit-1', acId: 'AC-001', testType: 'unit', description: 'should register user with hashed password' },
-  { id: 'tc-ac001-integration-1', acId: 'AC-001', testType: 'integration', description: 'POST /auth/register returns 201 with user object' },
-  { id: 'tc-ac002-unit-1', acId: 'AC-002', testType: 'unit', description: 'should return JWT on valid credentials' },
-  { id: 'tc-ac002-e2e-1', acId: 'AC-002', testType: 'e2e', description: 'user can log in and see dashboard' },
-  { id: 'tc-ac003-component-1', acId: 'AC-003', testType: 'component', description: 'LoginForm shows error on invalid email' },
+  {
+    id: 'tc-ac001-unit-1',
+    acId: 'AC-001',
+    testType: 'unit',
+    description: 'should register user with hashed password',
+  },
+  {
+    id: 'tc-ac001-integration-1',
+    acId: 'AC-001',
+    testType: 'integration',
+    description: 'POST /auth/register returns 201 with user object',
+  },
+  {
+    id: 'tc-ac002-unit-1',
+    acId: 'AC-002',
+    testType: 'unit',
+    description: 'should return JWT on valid credentials',
+  },
+  {
+    id: 'tc-ac002-e2e-1',
+    acId: 'AC-002',
+    testType: 'e2e',
+    description: 'user can log in and see dashboard',
+  },
+  {
+    id: 'tc-ac003-component-1',
+    acId: 'AC-003',
+    testType: 'component',
+    description: 'LoginForm shows error on invalid email',
+  },
 ];
 
 const DEMO_UNCOVERED: UncoveredAc[] = [
@@ -37,91 +59,196 @@ const DEMO_UNCOVERED: UncoveredAc[] = [
 ];
 
 interface Props {
-  onPlanReady(): void;
+  onPlanReady: () => void;
 }
 
-export function TestPlanPanel({ onPlanReady }: Props) {
+export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
+  const onPlanReady = () => {
+    onPlanReadyProp();
+  };
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGenerated, setIsGenerated] = useState(false);
   const [filter, setFilter] = useState<string>('all');
 
   const handleGenerate = async () => {
     setIsGenerating(true);
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsGenerating(false);
     setIsGenerated(true);
   };
 
-  const filtered = filter === 'all'
-    ? DEMO_TEST_CASES
-    : DEMO_TEST_CASES.filter(tc => tc.testType === filter);
+  const filtered =
+    filter === 'all' ? DEMO_TEST_CASES : DEMO_TEST_CASES.filter((tc) => tc.testType === filter);
 
   const counts = {
-    unit: DEMO_TEST_CASES.filter(tc => tc.testType === 'unit').length,
-    component: DEMO_TEST_CASES.filter(tc => tc.testType === 'component').length,
-    integration: DEMO_TEST_CASES.filter(tc => tc.testType === 'integration').length,
-    e2e: DEMO_TEST_CASES.filter(tc => tc.testType === 'e2e').length,
+    unit: DEMO_TEST_CASES.filter((tc) => tc.testType === 'unit').length,
+    component: DEMO_TEST_CASES.filter((tc) => tc.testType === 'component').length,
+    integration: DEMO_TEST_CASES.filter((tc) => tc.testType === 'integration').length,
+    e2e: DEMO_TEST_CASES.filter((tc) => tc.testType === 'e2e').length,
   };
 
   if (!isGenerated) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-4 p-8">
-        <div className="text-center max-w-md">
-          <h2 className="text-xl font-semibold mb-2">Generate Test Plan</h2>
-          <p className="text-muted-foreground text-sm mb-6">
-            The test plan analyses your PRD acceptance criteria and maps each AC to specific test cases,
-            selecting the right test type for each scenario.
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          gap: 16,
+          padding: 32,
+        }}
+      >
+        <div style={{ textAlign: 'center', maxWidth: 440 }}>
+          <h2
+            style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: 'var(--fg-primary)' }}
+          >
+            Generate Test Plan
+          </h2>
+          <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 24 }}>
+            The test plan analyses your PRD acceptance criteria and maps each AC to specific test
+            cases, selecting the right test type for each scenario.
           </p>
-          <Button onClick={handleGenerate} disabled={isGenerating} size="lg">
+          <button
+            className="pg-btn pg-btn-primary"
+            onClick={() => {
+              void handleGenerate();
+            }}
+            disabled={isGenerating}
+          >
             {isGenerating ? 'Generating…' : 'Generate Test Plan'}
-          </Button>
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium">{DEMO_TEST_CASES.length} test cases</span>
-          <div className="flex gap-1">
-            {(['all', 'unit', 'component', 'integration', 'e2e'] as const).map(f => (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div
+        style={{
+          padding: '8px 16px',
+          borderBottom: '1px solid var(--border-default)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)' }}>
+            {DEMO_TEST_CASES.length} test cases
+          </span>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {(['all', 'unit', 'component', 'integration', 'e2e'] as const).map((f) => (
               <button
                 key={f}
-                onClick={() => setFilter(f)}
-                className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
-                  filter === f ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted'
-                }`}
+                onClick={() => {
+                  setFilter(f);
+                }}
+                style={{
+                  fontSize: 11,
+                  padding: '2px 8px',
+                  borderRadius: 12,
+                  border: '1px solid var(--border-default)',
+                  background: filter === f ? 'var(--accent-primary)' : 'transparent',
+                  color: filter === f ? '#fff' : 'var(--fg-secondary)',
+                  cursor: 'pointer',
+                }}
               >
-                {f === 'all' ? `All (${DEMO_TEST_CASES.length})` : `${f} (${counts[f as keyof typeof counts]})`}
+                {f === 'all'
+                  ? `All (${String(DEMO_TEST_CASES.length)})`
+                  : `${f} (${String(counts[f])})`}
               </button>
             ))}
           </div>
         </div>
-        <Button size="sm" onClick={onPlanReady}>Approve & Generate Suite →</Button>
+        <button
+          className="pg-btn pg-btn-primary pg-btn-sm"
+          onClick={() => {
+            onPlanReady();
+          }}
+        >
+          Approve &amp; Generate Suite →
+        </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {filtered.map(tc => (
-          <div key={tc.id} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/30">
-            <span className="text-xs text-muted-foreground font-mono mt-0.5 w-20 shrink-0">{tc.acId}</span>
-            <span className={`text-xs px-1.5 py-0.5 rounded font-medium mt-0.5 ${TEST_TYPE_COLORS[tc.testType]}`}>
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: 16,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 8,
+        }}
+      >
+        {filtered.map((tc) => (
+          <div
+            key={tc.id}
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 12,
+              padding: 12,
+              borderRadius: 6,
+              border: '1px solid var(--border-default)',
+            }}
+          >
+            <span
+              className="pg-mono"
+              style={{
+                fontSize: 11,
+                color: 'var(--fg-tertiary)',
+                marginTop: 2,
+                width: 64,
+                flexShrink: 0,
+              }}
+            >
+              {tc.acId}
+            </span>
+            <span className={TEST_TYPE_BADGE[tc.testType]} style={{ marginTop: 2 }}>
               {tc.testType}
             </span>
-            <span className="text-sm">{tc.description}</span>
+            <span style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{tc.description}</span>
           </div>
         ))}
 
         {DEMO_UNCOVERED.length > 0 && (
-          <div className="mt-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+          <div style={{ marginTop: 16 }}>
+            <p
+              style={{
+                fontSize: 11,
+                fontWeight: 500,
+                color: 'var(--fg-tertiary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                marginBottom: 8,
+              }}
+            >
               Uncovered ACs ({DEMO_UNCOVERED.length})
             </p>
-            {DEMO_UNCOVERED.map(uc => (
-              <div key={uc.acId} className="flex items-start gap-3 p-3 rounded-lg border border-amber-200 bg-amber-50">
-                <span className="text-xs font-mono text-amber-700 w-20 shrink-0">{uc.acId}</span>
-                <span className="text-sm text-amber-800">{uc.reason}</span>
+            {DEMO_UNCOVERED.map((uc) => (
+              <div
+                key={uc.acId}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 12,
+                  padding: 12,
+                  borderRadius: 6,
+                  border: '1px solid var(--fg-warning)',
+                  background: 'color-mix(in srgb, var(--fg-warning) 8%, transparent)',
+                }}
+              >
+                <span
+                  className="pg-mono"
+                  style={{ fontSize: 11, color: 'var(--fg-warning)', width: 64, flexShrink: 0 }}
+                >
+                  {uc.acId}
+                </span>
+                <span style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{uc.reason}</span>
               </div>
             ))}
           </div>

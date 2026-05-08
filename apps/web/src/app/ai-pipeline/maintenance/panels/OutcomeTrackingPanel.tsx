@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, CheckCircle2, XCircle } from 'lucide-react';
 
 interface MetricDelta {
@@ -28,7 +27,8 @@ const DEMO_OUTCOMES: OutcomeRecord[] = [
     changeRequestDescription: 'Fixed null error in ContactsList component',
     resolvedAt: '3 days ago',
     regressionDetected: false,
-    summary: 'Fix resolved 47 error occurrences. No regressions detected. Error rate returned to baseline.',
+    summary:
+      'Fix resolved 47 error occurrences. No regressions detected. Error rate returned to baseline.',
     metrics: [
       { name: 'Error rate', before: 12.4, after: 0.1, unit: '/hr', trend: 'improved' },
       { name: 'p99 latency', before: 210, after: 198, unit: 'ms', trend: 'improved' },
@@ -38,60 +38,142 @@ const DEMO_OUTCOMES: OutcomeRecord[] = [
 ];
 
 const TREND_ICON = {
-  improved: <TrendingUp className="h-4 w-4 text-green-500" />,
-  degraded: <TrendingDown className="h-4 w-4 text-red-500" />,
-  neutral: <Minus className="h-4 w-4 text-muted-foreground" />,
+  improved: <TrendingUp style={{ width: 16, height: 16, color: 'var(--fg-success)' }} />,
+  degraded: <TrendingDown style={{ width: 16, height: 16, color: 'var(--fg-danger)' }} />,
+  neutral: <Minus style={{ width: 16, height: 16, color: 'var(--fg-tertiary)' }} />,
 };
 
 export function OutcomeTrackingPanel() {
   if (DEMO_OUTCOMES.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-48 text-muted-foreground gap-2">
-        <CheckCircle2 className="h-8 w-8" />
-        <p className="text-sm">No resolved change requests yet</p>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: 192,
+          color: 'var(--fg-tertiary)',
+          gap: 8,
+        }}
+      >
+        <CheckCircle2 style={{ width: 32, height: 32 }} />
+        <p style={{ fontSize: 13 }}>No resolved change requests yet</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-4">
-      <h2 className="font-semibold">Outcome Tracking ({DEMO_OUTCOMES.length})</h2>
+    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
+        Outcome Tracking ({DEMO_OUTCOMES.length})
+      </h2>
 
-      <div className="space-y-4">
-        {DEMO_OUTCOMES.map(outcome => (
-          <div key={outcome.id} className="border rounded-lg p-4 space-y-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {DEMO_OUTCOMES.map((outcome) => (
+          <div
+            key={outcome.id}
+            style={{
+              border: '1px solid var(--border-default)',
+              borderRadius: 6,
+              padding: 16,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'space-between',
+                gap: 12,
+              }}
+            >
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                   {outcome.regressionDetected ? (
-                    <XCircle className="h-4 w-4 text-red-500 shrink-0" />
+                    <XCircle
+                      style={{ width: 16, height: 16, color: 'var(--fg-danger)', flexShrink: 0 }}
+                    />
                   ) : (
-                    <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                    <CheckCircle2
+                      style={{ width: 16, height: 16, color: 'var(--fg-success)', flexShrink: 0 }}
+                    />
                   )}
-                  <p className="text-sm font-medium truncate">{outcome.changeRequestDescription}</p>
+                  <p
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: 'var(--fg-primary)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {outcome.changeRequestDescription}
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground">Resolved {outcome.resolvedAt}</p>
+                <p style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+                  Resolved {outcome.resolvedAt}
+                </p>
               </div>
               {outcome.regressionDetected && (
-                <Badge variant="destructive" className="text-xs shrink-0">Regression</Badge>
+                <span className="pg-badge pg-badge-danger" style={{ flexShrink: 0 }}>
+                  Regression
+                </span>
               )}
             </div>
 
-            <p className="text-sm text-muted-foreground">{outcome.summary}</p>
+            <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>{outcome.summary}</p>
 
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Metrics</p>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                {outcome.metrics.map(metric => (
-                  <div key={metric.name} className="flex items-center gap-2 bg-muted/30 rounded p-2">
+            <div>
+              <p
+                style={{
+                  fontSize: 11,
+                  fontWeight: 500,
+                  color: 'var(--fg-tertiary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  marginBottom: 8,
+                }}
+              >
+                Metrics
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                {outcome.metrics.map((metric) => (
+                  <div
+                    key={metric.name}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      background: 'var(--bg-surface)',
+                      borderRadius: 4,
+                      padding: 8,
+                    }}
+                  >
                     {TREND_ICON[metric.trend]}
-                    <div className="min-w-0">
-                      <p className="text-xs text-muted-foreground">{metric.name}</p>
-                      <p className="text-xs font-mono">
-                        <span className="text-muted-foreground">{metric.before}{metric.unit}</span>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{metric.name}</p>
+                      <p className="pg-mono" style={{ fontSize: 11 }}>
+                        <span style={{ color: 'var(--fg-tertiary)' }}>
+                          {metric.before}
+                          {metric.unit}
+                        </span>
                         {' → '}
-                        <span className={metric.trend === 'improved' ? 'text-green-700' : metric.trend === 'degraded' ? 'text-red-700' : ''}>
-                          {metric.after}{metric.unit}
+                        <span
+                          style={{
+                            color:
+                              metric.trend === 'improved'
+                                ? 'var(--fg-success)'
+                                : metric.trend === 'degraded'
+                                  ? 'var(--fg-danger)'
+                                  : 'var(--fg-primary)',
+                          }}
+                        >
+                          {metric.after}
+                          {metric.unit}
                         </span>
                       </p>
                     </div>

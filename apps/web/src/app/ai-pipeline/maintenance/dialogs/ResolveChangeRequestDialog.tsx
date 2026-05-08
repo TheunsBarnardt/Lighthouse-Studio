@@ -1,15 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Loader2 } from 'lucide-react';
 
 interface Props {
   requestId: string;
@@ -19,13 +10,25 @@ interface Props {
 type Resolution = 'fixed' | 'wont_fix' | 'duplicate' | 'by_design';
 
 const RESOLUTIONS: { value: Resolution; label: string; description: string }[] = [
-  { value: 'fixed', label: 'Fixed', description: 'The issue has been resolved through a pipeline re-engagement.' },
-  { value: 'wont_fix', label: "Won't Fix", description: 'The issue has been acknowledged but will not be addressed.' },
-  { value: 'duplicate', label: 'Duplicate', description: 'This is a duplicate of another change request.' },
+  {
+    value: 'fixed',
+    label: 'Fixed',
+    description: 'The issue has been resolved through a pipeline re-engagement.',
+  },
+  {
+    value: 'wont_fix',
+    label: "Won't Fix",
+    description: 'The issue has been acknowledged but will not be addressed.',
+  },
+  {
+    value: 'duplicate',
+    label: 'Duplicate',
+    description: 'This is a duplicate of another change request.',
+  },
   { value: 'by_design', label: 'By Design', description: 'The reported behaviour is intentional.' },
 ];
 
-export function ResolveChangeRequestDialog({ requestId, onClose }: Props) {
+export function ResolveChangeRequestDialog({ requestId: _requestId, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [resolution, setResolution] = useState<Resolution>('fixed');
   const [notes, setNotes] = useState('');
@@ -39,54 +42,112 @@ export function ResolveChangeRequestDialog({ requestId, onClose }: Props) {
   };
 
   return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Resolve Change Request</DialogTitle>
-        </DialogHeader>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.4)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 50,
+      }}
+    >
+      <div className="pg-card" style={{ width: '100%', maxWidth: 440, padding: 24 }}>
+        <div className="pg-card-header" style={{ marginBottom: 16 }}>
+          <div className="pg-card-title">Resolve Change Request</div>
+        </div>
 
-        <div className="space-y-4 py-2">
-          <div className="space-y-1.5">
-            <p className="text-sm font-medium">Resolution</p>
-            <div className="space-y-2">
-              {RESOLUTIONS.map(res => (
-                <label key={res.value} className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${resolution === res.value ? 'border-primary bg-primary/5' : 'hover:bg-muted/30'}`}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}>Resolution</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {RESOLUTIONS.map((res) => (
+                <label
+                  key={res.value}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 12,
+                    padding: 12,
+                    borderRadius: 6,
+                    border:
+                      resolution === res.value
+                        ? '1px solid var(--accent-primary)'
+                        : '1px solid var(--border-default)',
+                    background:
+                      resolution === res.value
+                        ? 'color-mix(in srgb, var(--accent-primary) 5%, transparent)'
+                        : 'transparent',
+                    cursor: 'pointer',
+                  }}
+                >
                   <input
                     type="radio"
                     name="resolution"
                     value={res.value}
                     checked={resolution === res.value}
-                    onChange={() => setResolution(res.value)}
-                    className="mt-0.5"
+                    onChange={() => {
+                      setResolution(res.value);
+                    }}
+                    style={{ marginTop: 2, cursor: 'pointer' }}
                   />
                   <div>
-                    <p className="text-sm font-medium">{res.label}</p>
-                    <p className="text-xs text-muted-foreground">{res.description}</p>
+                    <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)' }}>
+                      {res.label}
+                    </p>
+                    <p style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 2 }}>
+                      {res.description}
+                    </p>
                   </div>
                 </label>
               ))}
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-sm font-medium">Notes (optional)</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}>
+              Notes (optional)
+            </label>
             <textarea
-              className="w-full rounded-md border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+              style={{
+                width: '100%',
+                padding: '6px 8px',
+                borderRadius: 4,
+                border: '1px solid var(--border-default)',
+                background: 'var(--bg-canvas)',
+                color: 'var(--fg-primary)',
+                fontSize: 12,
+                resize: 'none',
+                boxSizing: 'border-box',
+              }}
               rows={3}
               placeholder="Any additional context about this resolution…"
               value={notes}
-              onChange={e => setNotes(e.target.value)}
+              onChange={(e) => {
+                setNotes(e.target.value);
+              }}
             />
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading}>Cancel</Button>
-          <Button onClick={handleResolve} disabled={loading}>
-            {loading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Resolving…</> : 'Resolve'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
+          <button
+            className="pg-btn pg-btn-secondary pg-btn-sm"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </button>
+          <button
+            className="pg-btn pg-btn-primary pg-btn-sm"
+            onClick={handleResolve}
+            disabled={loading}
+          >
+            {loading ? 'Resolving…' : 'Resolve'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

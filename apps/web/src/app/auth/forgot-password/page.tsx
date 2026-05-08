@@ -1,17 +1,40 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { authApi } from '@/lib/auth-client';
+
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  height: 36,
+  padding: '0 12px',
+  borderRadius: 4,
+  border: '1px solid var(--border-default)',
+  background: 'var(--bg-canvas)',
+  color: 'var(--fg-primary)',
+  fontSize: 13,
+  boxSizing: 'border-box',
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 13,
+  fontWeight: 500,
+  color: 'var(--fg-primary)',
+  marginBottom: 4,
+};
+
+const cardStyle: React.CSSProperties = {
+  padding: 32,
+  borderRadius: 8,
+  border: '1px solid var(--border-default)',
+  background: 'var(--bg-surface)',
+};
 
 const ForgotPasswordSchema = z.object({
   email: z.string().email('Enter a valid email address'),
@@ -21,67 +44,92 @@ export default function ForgotPasswordPage() {
   const t = useTranslations('auth.forgotPassword');
   const [sent, setSent] = useState(false);
   const [sentEmail, setSentEmail] = useState('');
-  const [captchaToken, setCaptchaToken] = useState<string>('');
+  const [captchaToken] = useState<string>('');
 
   const form = useForm({
     resolver: zodResolver(ForgotPasswordSchema),
     defaultValues: { email: '' },
   });
 
+  const { formState } = form;
+
   async function onSubmit(values: { email: string }) {
     await authApi.forgotPassword(values.email, captchaToken || undefined);
     setSentEmail(values.email);
     setSent(true);
-    setCaptchaToken('');
   }
 
   if (sent) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('successTitle')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">{t('successMessage', { email: sentEmail })}</p>
-        </CardContent>
-        <CardFooter className="justify-center text-sm">
-          <Link href="/auth/sign-in" className="text-primary hover:underline">{t('backToSignIn')}</Link>
-        </CardFooter>
-      </Card>
+      <div style={cardStyle}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 12 }}>
+          {t('successTitle')}
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 20 }}>
+          {t('successMessage', { email: sentEmail })}
+        </p>
+        <p style={{ textAlign: 'center', fontSize: 13 }}>
+          <Link
+            href="/auth/sign-in"
+            style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}
+          >
+            {t('backToSignIn')}
+          </Link>
+        </p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('title')}</CardTitle>
-        <CardDescription>{t('subtitle')}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={(e) => { void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t('emailLabel')}</FormLabel>
-                  <FormControl>
-                    <Input type="email" autoComplete="email" placeholder={t('emailPlaceholder')} aria-required {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? t('submitting') : t('submit')}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-      <CardFooter className="justify-center text-sm">
-        <Link href="/auth/sign-in" className="text-muted-foreground hover:text-primary">{t('backToSignIn')}</Link>
-      </CardFooter>
-    </Card>
+    <div style={cardStyle}>
+      <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 4 }}>
+        {t('title')}
+      </h1>
+      <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 20 }}>
+        {t('subtitle')}
+      </p>
+
+      <form
+        onSubmit={(e) => {
+          void form.handleSubmit(onSubmit)(e);
+        }}
+        noValidate
+      >
+        <div style={{ marginBottom: 14 }}>
+          <label htmlFor="email" style={labelStyle}>
+            {t('emailLabel')}
+          </label>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            placeholder={t('emailPlaceholder')}
+            aria-required
+            style={inputStyle}
+            {...form.register('email')}
+          />
+          {formState.errors.email && (
+            <p style={{ fontSize: 12, color: 'var(--fg-danger, #dc2626)', marginTop: 3 }}>
+              {formState.errors.email.message}
+            </p>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          className="pg-btn pg-btn-primary"
+          style={{ width: '100%', marginBottom: 16 }}
+          disabled={formState.isSubmitting}
+        >
+          {formState.isSubmitting ? t('submitting') : t('submit')}
+        </button>
+      </form>
+
+      <p style={{ textAlign: 'center', fontSize: 13 }}>
+        <Link href="/auth/sign-in" style={{ color: 'var(--fg-secondary)', textDecoration: 'none' }}>
+          {t('backToSignIn')}
+        </Link>
+      </p>
+    </div>
   );
 }

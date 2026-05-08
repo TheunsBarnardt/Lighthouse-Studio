@@ -1,16 +1,7 @@
 'use client';
 
+import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, ArrowRight } from 'lucide-react';
 
 interface Props {
   requestId: string;
@@ -28,14 +19,15 @@ const STAGES = [
   { id: 'deployment', label: 'Deployment' },
 ];
 
-export function EngageStageDialog({ requestId, onClose }: Props) {
+export function EngageStageDialog({ requestId: _requestId, onClose }: Props) {
   const [loading, setLoading] = useState(false);
   const [selectedStages, setSelectedStages] = useState<Set<string>>(new Set(['ui_generation']));
 
   const toggleStage = (id: string) => {
-    setSelectedStages(prev => {
+    setSelectedStages((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       return next;
     });
   };
@@ -49,57 +41,108 @@ export function EngageStageDialog({ requestId, onClose }: Props) {
   };
 
   return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Engage Pipeline Stage</DialogTitle>
-        </DialogHeader>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.4)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 50,
+      }}
+    >
+      <div className="pg-card" style={{ width: '100%', maxWidth: 440, padding: 24 }}>
+        <div className="pg-card-header" style={{ marginBottom: 16 }}>
+          <div className="pg-card-title">Engage Pipeline Stage</div>
+        </div>
 
-        <div className="space-y-4 py-2">
-          <p className="text-sm text-muted-foreground">
-            Select which pipeline stages to re-engage for this change request.
-            Only the minimum required stages will be re-run.
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>
+            Select which pipeline stages to re-engage for this change request. Only the minimum
+            required stages will be re-run.
           </p>
 
-          <div className="space-y-1.5">
-            <p className="text-sm font-medium">Stages</p>
-            <div className="space-y-1.5">
-              {STAGES.map(stage => (
-                <label key={stage.id} className="flex items-center gap-3 p-2 rounded border cursor-pointer hover:bg-muted/30 transition-colors">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}>Stages</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {STAGES.map((stage) => (
+                <label
+                  key={stage.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: 8,
+                    borderRadius: 4,
+                    border: '1px solid var(--border-default)',
+                    cursor: 'pointer',
+                  }}
+                >
                   <input
                     type="checkbox"
                     checked={selectedStages.has(stage.id)}
-                    onChange={() => toggleStage(stage.id)}
-                    className="rounded"
+                    onChange={() => {
+                      toggleStage(stage.id);
+                    }}
+                    style={{ cursor: 'pointer' }}
                   />
-                  <span className="text-sm">{stage.label}</span>
+                  <span style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{stage.label}</span>
                 </label>
               ))}
             </div>
           </div>
 
           {selectedStages.size > 0 && (
-            <div className="rounded-md bg-muted/40 p-3 text-xs text-muted-foreground space-y-1">
-              <p className="font-medium text-foreground">Will re-engage:</p>
-              <div className="flex flex-wrap gap-1">
-                {STAGES.filter(s => selectedStages.has(s.id)).map(s => (
-                  <Badge key={s.id} variant="outline" className="text-xs">{s.label}</Badge>
+            <div
+              style={{
+                borderRadius: 4,
+                background: 'var(--bg-surface)',
+                padding: 12,
+                fontSize: 12,
+                color: 'var(--fg-secondary)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+              }}
+            >
+              <p style={{ fontWeight: 500, color: 'var(--fg-primary)' }}>Will re-engage:</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                {STAGES.filter((s) => selectedStages.has(s.id)).map((s) => (
+                  <span key={s.id} className="pg-badge pg-badge-default">
+                    {s.label}
+                  </span>
                 ))}
               </div>
             </div>
           )}
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading}>Cancel</Button>
-          <Button onClick={handleEngage} disabled={loading || selectedStages.size === 0}>
-            {loading
-              ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Engaging…</>
-              : <>Engage {selectedStages.size} stage{selectedStages.size !== 1 ? 's' : ''} <ArrowRight className="h-3 w-3 ml-1" /></>
-            }
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
+          <button
+            className="pg-btn pg-btn-secondary pg-btn-sm"
+            onClick={onClose}
+            disabled={loading}
+          >
+            Cancel
+          </button>
+          <button
+            className="pg-btn pg-btn-primary pg-btn-sm"
+            onClick={handleEngage}
+            disabled={loading || selectedStages.size === 0}
+            style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+          >
+            {loading ? (
+              'Engaging…'
+            ) : (
+              <>
+                Engage {selectedStages.size} stage{selectedStages.size !== 1 ? 's' : ''}{' '}
+                <ArrowRight style={{ width: 12, height: 12 }} />
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

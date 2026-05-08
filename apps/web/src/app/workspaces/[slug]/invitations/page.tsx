@@ -1,11 +1,8 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MemberEventListener } from '@/components/workspace/member-event-listener';
 
 interface Invitation {
@@ -18,7 +15,6 @@ interface Invitation {
 
 export default function WorkspaceInvitationsPage() {
   const { slug } = useParams<{ slug: string }>();
-  const t = useTranslations('workspace.invitations');
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [revoking, setRevoking] = useState<string | null>(null);
@@ -27,9 +23,16 @@ export default function WorkspaceInvitationsPage() {
     setLoading(true);
     void fetch(`/api/v1/workspaces/${slug}/invitations`, { credentials: 'include' })
       .then((r) => r.json() as Promise<{ items: Invitation[] }>)
-      .then((d) => { setInvitations(d.items); return; })
-      .catch(() => { /* ignore */ })
-      .finally(() => { setLoading(false); });
+      .then((d) => {
+        setInvitations(d.items);
+        return;
+      })
+      .catch(() => {
+        /* ignore */
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [slug]);
 
   useEffect(load, [load]);
@@ -50,60 +53,88 @@ export default function WorkspaceInvitationsPage() {
   }
 
   return (
-    <div>
-      {/* Listens for invitation accepted/revoked events and refreshes the list live */}
-      <MemberEventListener workspaceId={slug} onEvent={() => { load(); }} />
+    <div style={{ padding: '16px 24px' }}>
+      <MemberEventListener
+        workspaceId={slug}
+        onEvent={() => {
+          load();
+        }}
+      />
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
+      <div className="pg-page-header">
+        <div>
+          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
+            Pending invitations
+          </h1>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader><CardTitle>{t('title')}</CardTitle></CardHeader>
-        <CardContent>
-          {loading && (
-            <p className="py-8 text-center text-sm text-muted-foreground" aria-live="polite">
-              {t('loading')}
-            </p>
-          )}
-          {!loading && invitations.length === 0 && (
-            <p className="py-8 text-center text-sm text-muted-foreground">{t('empty')}</p>
-          )}
-          {!loading && invitations.length > 0 && (
-            <table className="w-full text-sm" role="grid" aria-label={t('title')}>
+      <div className="pg-card">
+        {loading && (
+          <p
+            style={{
+              padding: '48px 0',
+              textAlign: 'center',
+              fontSize: 13,
+              color: 'var(--fg-tertiary)',
+            }}
+            aria-live="polite"
+          >
+            Loading…
+          </p>
+        )}
+        {!loading && invitations.length === 0 && (
+          <p
+            style={{
+              padding: '48px 0',
+              textAlign: 'center',
+              fontSize: 13,
+              color: 'var(--fg-tertiary)',
+            }}
+          >
+            No pending invitations.
+          </p>
+        )}
+        {!loading && invitations.length > 0 && (
+          <div className="pg-table-wrap" style={{ marginTop: 0 }}>
+            <table className="pg-data-table" role="grid" aria-label="Pending invitations">
               <thead>
-                <tr className="border-b text-left text-xs text-muted-foreground">
-                  <th className="pb-2 pr-4 font-medium">{t('columns.email')}</th>
-                  <th className="pb-2 pr-4 font-medium">{t('columns.roles')}</th>
-                  <th className="pb-2 pr-4 font-medium">{t('columns.expires')}</th>
-                  <th className="pb-2 font-medium" />
+                <tr>
+                  <th>Email</th>
+                  <th>Roles</th>
+                  <th>Expires</th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
                 {invitations.map((inv) => (
-                  <tr key={inv.token} className="border-b last:border-0">
-                    <td className="py-3 pr-4 font-medium">{inv.email}</td>
-                    <td className="py-3 pr-4 text-muted-foreground">{inv.roleIds.join(', ')}</td>
-                    <td className="py-3 pr-4 text-muted-foreground">
+                  <tr key={inv.token}>
+                    <td style={{ fontWeight: 500 }}>{inv.email}</td>
+                    <td style={{ color: 'var(--fg-secondary)', fontSize: 13 }}>
+                      {inv.roleIds.join(', ')}
+                    </td>
+                    <td style={{ color: 'var(--fg-secondary)', fontSize: 12 }}>
                       {new Date(inv.expiresAt).toLocaleDateString()}
                     </td>
-                    <td className="py-3">
-                      <Button
-                        size="sm"
-                        variant="destructive"
+                    <td>
+                      <button
+                        className="pg-btn pg-btn-sm"
+                        style={{ background: 'var(--fg-danger)', color: '#fff', border: 'none' }}
                         disabled={revoking === inv.token}
-                        onClick={() => { void revoke(inv.token); }}
+                        onClick={() => {
+                          void revoke(inv.token);
+                        }}
                       >
-                        {revoking === inv.token ? t('revoking') : t('revoke')}
-                      </Button>
+                        {revoking === inv.token ? 'Revoking…' : 'Revoke'}
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

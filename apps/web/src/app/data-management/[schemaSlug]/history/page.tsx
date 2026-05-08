@@ -5,8 +5,6 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { SchemaVersion } from '@/lib/types';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { schemaApi } from '@/lib/api-client';
 
 const DEFAULT_WORKSPACE_ID = process.env['NEXT_PUBLIC_DEFAULT_WORKSPACE_ID'] ?? 'default';
@@ -50,47 +48,95 @@ export default function HistoryPage() {
   const latest = versions[0]?.version;
 
   return (
-    <div>
-      <h2 className="mb-6 text-xl font-semibold">Version History</h2>
+    <div style={{ padding: '16px 24px' }}>
+      <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 20 }}>
+        Version History
+      </h2>
 
       {isLoading && (
-        <div className="py-12 text-center text-sm text-muted-foreground" aria-live="polite">
+        <div
+          style={{
+            padding: '48px 0',
+            textAlign: 'center',
+            fontSize: 13,
+            color: 'var(--fg-tertiary)',
+          }}
+          aria-live="polite"
+        >
           Loading history…
         </div>
       )}
 
       {error && (
-        <div className="mb-4 rounded-lg bg-error/10 px-4 py-3 text-sm text-error" role="alert">
+        <div
+          style={{
+            marginBottom: 16,
+            borderRadius: 4,
+            background: 'var(--bg-danger-subtle)',
+            padding: '12px 16px',
+            fontSize: 13,
+            color: 'var(--fg-danger)',
+          }}
+          role="alert"
+        >
           {error}
         </div>
       )}
 
       {!isLoading && versions.length === 0 && (
-        <p className="text-muted-foreground">No versions recorded yet.</p>
+        <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>No versions recorded yet.</p>
       )}
 
       {!isLoading && versions.length > 0 && (
-        <ol className="relative border-l border-border pl-6" aria-label="Version history">
+        <ol
+          style={{
+            position: 'relative',
+            borderLeft: '1px solid var(--border-default)',
+            paddingLeft: 24,
+          }}
+          aria-label="Version history"
+        >
           {versions.map((v) => (
-            <li key={v.version} className="mb-6">
+            <li key={v.version} style={{ marginBottom: 24, position: 'relative' }}>
               <span
-                className="absolute -left-2.5 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-card"
+                style={{
+                  position: 'absolute',
+                  left: -33,
+                  top: 2,
+                  width: 18,
+                  height: 18,
+                  borderRadius: '50%',
+                  border: '1px solid var(--border-default)',
+                  background: 'var(--bg-surface)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
                 aria-hidden="true"
               />
-              <div className="flex items-start justify-between gap-4">
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  gap: 16,
+                }}
+              >
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold">v{v.version}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontWeight: 600, fontSize: 13 }}>v{v.version}</span>
                     {v.version === latest && (
-                      <Badge variant="secondary" className="text-xs">
+                      <span className="pg-badge pg-badge-default" style={{ fontSize: 10 }}>
                         latest
-                      </Badge>
+                      </span>
                     )}
                   </div>
                   {v.description && (
-                    <p className="mt-0.5 text-sm text-muted-foreground">{v.description}</p>
+                    <p style={{ marginTop: 2, fontSize: 13, color: 'var(--fg-secondary)' }}>
+                      {v.description}
+                    </p>
                   )}
-                  <div className="mt-1 text-xs text-muted-foreground">
+                  <div style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-tertiary)' }}>
                     {v.tables.length} {v.tables.length === 1 ? 'table' : 'tables'}
                     {' · '}
                     {v.createdBy}
@@ -99,9 +145,8 @@ export default function HistoryPage() {
                   </div>
                 </div>
                 {v.version !== latest && (
-                  <Button
-                    size="sm"
-                    variant="outline"
+                  <button
+                    className="pg-btn pg-btn-secondary pg-btn-sm"
                     onClick={() => {
                       void handleRollback(v.version);
                     }}
@@ -109,7 +154,7 @@ export default function HistoryPage() {
                     aria-label={`Rollback to version ${String(v.version)}`}
                   >
                     {rolling === v.version ? 'Rolling back…' : 'Rollback'}
-                  </Button>
+                  </button>
                 )}
               </div>
             </li>

@@ -1,41 +1,75 @@
 'use client';
 
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import { AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
 
 interface Props {
   deploymentId: string;
-  onClose(): void;
+  onClose: () => void;
 }
 
-export function RollbackDialog({ deploymentId, onClose }: Props) {
+export function RollbackDialog({ deploymentId: _deploymentId, onClose }: Props) {
   const [reason, setReason] = useState('');
   const [isRollingBack, setIsRollingBack] = useState(false);
 
   const handleRollback = async () => {
     setIsRollingBack(true);
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
     setIsRollingBack(false);
     onClose();
   };
 
   return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Rollback Deployment</DialogTitle>
-        </DialogHeader>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(0,0,0,0.4)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 50,
+      }}
+    >
+      <div className="pg-card" style={{ width: '100%', maxWidth: 440, padding: 24 }}>
+        <div className="pg-card-header" style={{ marginBottom: 16 }}>
+          <div className="pg-card-title">Rollback Deployment</div>
+        </div>
 
-        <div className="space-y-3 py-2">
-          <div className="flex items-start gap-2 p-3 rounded-lg border border-amber-200 bg-amber-50">
-            <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
-            <div className="text-sm text-amber-800">
-              <p className="font-medium mb-1">Rollback will revert</p>
-              <ul className="space-y-0.5 text-xs">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 8,
+              padding: 12,
+              borderRadius: 6,
+              border: '1px solid var(--fg-warning)',
+              background: 'color-mix(in srgb, var(--fg-warning) 8%, transparent)',
+            }}
+          >
+            <AlertTriangle
+              style={{
+                width: 16,
+                height: 16,
+                color: 'var(--fg-warning)',
+                marginTop: 2,
+                flexShrink: 0,
+              }}
+            />
+            <div style={{ fontSize: 13, color: 'var(--fg-primary)' }}>
+              <p style={{ fontWeight: 500, marginBottom: 4 }}>Rollback will revert</p>
+              <ul
+                style={{
+                  fontSize: 11,
+                  color: 'var(--fg-secondary)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                  listStyle: 'none',
+                  padding: 0,
+                }}
+              >
                 <li>• UI bundle to previous version</li>
                 <li>• Server functions to previous version</li>
                 <li>• Schema migrations (if reversible)</li>
@@ -43,25 +77,56 @@ export function RollbackDialog({ deploymentId, onClose }: Props) {
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="reason">Reason (optional)</Label>
-            <Textarea
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label
+              htmlFor="reason"
+              style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}
+            >
+              Reason (optional)
+            </label>
+            <textarea
               id="reason"
               placeholder="e.g. Health check failing after deploy. Users seeing 500 errors on checkout."
               value={reason}
-              onChange={e => setReason(e.target.value)}
+              onChange={(e) => {
+                setReason(e.target.value);
+              }}
               rows={3}
+              style={{
+                width: '100%',
+                padding: '6px 8px',
+                borderRadius: 4,
+                border: '1px solid var(--border-default)',
+                background: 'var(--bg-canvas)',
+                color: 'var(--fg-primary)',
+                fontSize: 12,
+                resize: 'none',
+                boxSizing: 'border-box',
+              }}
             />
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isRollingBack}>Cancel</Button>
-          <Button variant="destructive" onClick={handleRollback} disabled={isRollingBack}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
+          <button
+            className="pg-btn pg-btn-secondary pg-btn-sm"
+            onClick={onClose}
+            disabled={isRollingBack}
+          >
+            Cancel
+          </button>
+          <button
+            className="pg-btn pg-btn-primary pg-btn-sm"
+            onClick={() => {
+              void handleRollback();
+            }}
+            disabled={isRollingBack}
+            style={{ background: 'var(--fg-danger)', borderColor: 'var(--fg-danger)' }}
+          >
             {isRollingBack ? 'Rolling back…' : 'Initiate Rollback'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

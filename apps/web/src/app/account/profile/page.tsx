@@ -6,12 +6,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/auth-context';
 
 const ProfileSchema = z.object({
@@ -29,6 +23,10 @@ export default function ProfilePage() {
     resolver: zodResolver(ProfileSchema),
     defaultValues: { displayName: user?.displayName ?? '' },
   });
+
+  const {
+    formState: { errors, isSubmitting },
+  } = form;
 
   useEffect(() => {
     if (user) {
@@ -59,15 +57,39 @@ export default function ProfilePage() {
   }
 
   return (
-    <Card>
-      <CardHeader><CardTitle>{t('title')}</CardTitle></CardHeader>
-      <CardContent>
-        <div className="mb-6 flex items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={user?.avatarUrl ?? undefined} alt={user?.displayName ?? 'Avatar'} />
-            <AvatarFallback>{initials(user?.displayName ?? null, user?.email ?? '')}</AvatarFallback>
-          </Avatar>
-          <div className="space-y-1">
+    <div className="pg-card">
+      <div className="pg-card-header">
+        <h2 className="pg-card-title">{t('title')}</h2>
+      </div>
+      <div style={{ padding: '1.25rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+          <div
+            style={{
+              width: '4rem',
+              height: '4rem',
+              borderRadius: '50%',
+              background: 'var(--accent-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '1.25rem',
+              fontWeight: 600,
+              color: '#fff',
+              overflow: 'hidden',
+              flexShrink: 0,
+            }}
+          >
+            {user?.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={user.displayName ?? 'Avatar'}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            ) : (
+              initials(user?.displayName ?? null, user?.email ?? '')
+            )}
+          </div>
+          <div>
             <input
               ref={fileInputRef}
               type="file"
@@ -82,38 +104,109 @@ export default function ProfilePage() {
                 }
               }}
             />
-            <Button
+            <button
               type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => { fileInputRef.current?.click(); }}
+              className="pg-btn pg-btn-secondary pg-btn-sm"
+              onClick={() => {
+                fileInputRef.current?.click();
+              }}
             >
               {t('uploadAvatar')}
-            </Button>
+            </button>
           </div>
         </div>
 
-        <Form {...form}>
-          <form onSubmit={(e) => { e.preventDefault(); void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
-            <FormField control={form.control} name="displayName" render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('displayNameLabel')}</FormLabel>
-                <FormControl><Input placeholder={t('displayNamePlaceholder')} aria-required {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            <div>
-              <p className="mb-1 text-sm font-medium">{t('emailLabel')}</p>
-              <p className="text-sm text-muted-foreground">{user?.email ?? '—'}</p>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void form.handleSubmit(onSubmit)(e);
+          }}
+          style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+          noValidate
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+            <label
+              htmlFor="displayName"
+              style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--fg-primary)' }}
+            >
+              {t('displayNameLabel')}
+            </label>
+            <input
+              id="displayName"
+              type="text"
+              placeholder={t('displayNamePlaceholder')}
+              aria-required
+              aria-invalid={!!errors.displayName}
+              style={{
+                padding: '0.4375rem 0.75rem',
+                border: '1px solid var(--border-default)',
+                borderRadius: '6px',
+                background: 'var(--bg-canvas)',
+                color: 'var(--fg-primary)',
+                fontSize: '0.875rem',
+                outline: 'none',
+              }}
+              {...form.register('displayName')}
+            />
+            {errors.displayName && (
+              <span style={{ fontSize: '0.8125rem', color: 'var(--fg-danger)' }}>
+                {errors.displayName.message}
+              </span>
+            )}
+          </div>
+
+          <div>
+            <p
+              style={{
+                marginBottom: '0.25rem',
+                fontSize: '0.8125rem',
+                fontWeight: 500,
+                color: 'var(--fg-primary)',
+              }}
+            >
+              {t('emailLabel')}
+            </p>
+            <p style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)' }}>
+              {user?.email ?? '—'}
+            </p>
+          </div>
+
+          {error && (
+            <div
+              style={{
+                padding: '0.75rem 1rem',
+                borderRadius: '6px',
+                border: '1px solid var(--fg-danger)',
+                background: 'color-mix(in srgb, var(--fg-danger) 8%, transparent)',
+                fontSize: '0.875rem',
+                color: 'var(--fg-danger)',
+              }}
+            >
+              {error}
             </div>
-            {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
-            {saved && <Alert><AlertDescription>{t('saved')}</AlertDescription></Alert>}
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? t('saving') : t('save')}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+          )}
+          {saved && (
+            <div
+              style={{
+                padding: '0.75rem 1rem',
+                borderRadius: '6px',
+                border: '1px solid var(--fg-success)',
+                background: 'color-mix(in srgb, var(--fg-success) 8%, transparent)',
+                fontSize: '0.875rem',
+                color: 'var(--fg-success)',
+              }}
+            >
+              {t('saved')}
+            </div>
+          )}
+
+          <div>
+            <button type="submit" className="pg-btn pg-btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? t('saving') : t('save')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

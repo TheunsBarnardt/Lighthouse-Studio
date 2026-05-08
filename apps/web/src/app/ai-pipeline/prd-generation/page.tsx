@@ -1,111 +1,378 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { FileText, Plus, ChevronRight, CheckCircle, Clock, AlertCircle } from 'lucide-react';
 
-interface PrdListItem {
+import { PipelineStepper } from '../page';
+
+type SectionStatus = 'approved' | 'in_review' | 'pending';
+
+interface PrdSection {
+  name: string;
+  status: SectionStatus;
+}
+
+interface Requirement {
   id: string;
-  intentBriefId: string;
-  intentBriefTitle: string;
-  totalSections: number;
-  approvedSections: number;
-  isFullyApproved: boolean;
-  createdAt: string;
+  title: string;
+  description: string;
+  priority: 'must' | 'should' | 'could';
+  acceptanceCriteria?: string[];
+  traces: string[];
 }
 
-function statusBadge(item: PrdListItem) {
-  if (item.isFullyApproved) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
-        <CheckCircle className="h-3 w-3" />
-        Approved
-      </span>
-    );
-  }
-  if (item.approvedSections === 0) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-        <Clock className="h-3 w-3" />
-        In review
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-      <AlertCircle className="h-3 w-3" />
-      {item.approvedSections}/{item.totalSections} sections
-    </span>
-  );
+const SECTIONS: PrdSection[] = [
+  { name: '1. Overview', status: 'approved' },
+  { name: '2. Goals & Success Metrics', status: 'approved' },
+  { name: '3. Target Users & Personas', status: 'approved' },
+  { name: '4. User Stories', status: 'approved' },
+  { name: '5. Functional Requirements', status: 'in_review' },
+  { name: '6. Non-Functional Requirements', status: 'in_review' },
+  { name: '7. Constraints & Assumptions', status: 'approved' },
+  { name: '8. Out of Scope', status: 'approved' },
+  { name: '9. Open Questions', status: 'pending' },
+  { name: '10. Risks & Mitigations', status: 'pending' },
+];
+
+const REQUIREMENTS: Requirement[] = [
+  {
+    id: 'FR-1',
+    title: 'Contact management',
+    description: 'Reps create, edit, view, and search contacts.',
+    priority: 'must',
+    acceptanceCriteria: [
+      'As a sales rep, I want to add a new contact in under 30 seconds and have it sync to Outlook contacts.',
+    ],
+    traces: ['Goal-1', 'User Story US-3'],
+  },
+  {
+    id: 'FR-2',
+    title: 'Deal pipeline',
+    description: 'Reps move deals through 6 stages.',
+    priority: 'must',
+    acceptanceCriteria: [
+      'Given a deal in "qualified", when I drag to "proposal", then the deal updates and an audit entry is recorded.',
+    ],
+    traces: ['Goal-1', 'User Story US-5'],
+  },
+  {
+    id: 'FR-3',
+    title: 'Call notes attached to contacts',
+    description: 'Reps add timestamped notes; searchable.',
+    priority: 'must',
+    acceptanceCriteria: [],
+    traces: ['Goal-2'],
+  },
+  {
+    id: 'FR-4',
+    title: 'Outlook calendar integration',
+    description: 'Meetings sync into deal timeline.',
+    priority: 'should',
+    acceptanceCriteria: [],
+    traces: ['Constraint-1'],
+  },
+  {
+    id: 'FR-5',
+    title: 'Pipeline view (Kanban)',
+    description: 'Reps see deals as a Kanban board.',
+    priority: 'must',
+    acceptanceCriteria: [],
+    traces: ['Goal-1', 'User Story US-7'],
+  },
+];
+
+function sectionDotColor(status: SectionStatus): string {
+  if (status === 'approved') return 'var(--fg-success)';
+  if (status === 'in_review') return 'var(--fg-warning)';
+  return 'var(--border-emphasis)';
 }
 
-export default function PrdGenerationListPage() {
-  const [prds] = useState<PrdListItem[]>([]);
+function priorityBadge(priority: Requirement['priority']) {
+  if (priority === 'must') return <span className="pg-badge pg-badge-danger">MUST</span>;
+  if (priority === 'should') return <span className="pg-badge pg-badge-warning">SHOULD</span>;
+  return <span className="pg-badge pg-badge-default">COULD</span>;
+}
+
+export default function PrdGenerationPage() {
+  const [activeSection, setActiveSection] = useState(4); // FR section active
 
   return (
-    <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4 dark:border-neutral-800">
-        <div>
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-            PRD Generation
-          </h1>
-          <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">
-            Stage 2 · Generate product requirements documents from approved intent briefs
-          </p>
-        </div>
-        <Link
-          href="/ai-pipeline/intent-capture"
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      <PipelineStepper active="prd" />
+
+      {/* Three-pane layout */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '220px 1fr 280px',
+          flex: 1,
+          overflow: 'hidden',
+        }}
+      >
+        {/* Left: section list */}
+        <div
+          style={{
+            background: 'var(--bg-surface)',
+            borderRight: '1px solid var(--border-default)',
+            overflowY: 'auto',
+            padding: 12,
+          }}
         >
-          <Plus className="h-4 w-4" />
-          Generate PRD
-        </Link>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6">
-        {prds.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-neutral-200 py-20 text-center dark:border-neutral-700">
-            <FileText className="mb-4 h-10 w-10 text-neutral-400" />
-            <p className="text-base font-medium text-neutral-700 dark:text-neutral-300">No PRDs yet</p>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-              Approve an intent brief, then generate a PRD from it.
-            </p>
-            <Link
-              href="/ai-pipeline/intent-capture"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              Go to Intent Capture
-            </Link>
+          <div
+            style={{ fontWeight: 600, fontSize: 13, marginBottom: 12, color: 'var(--fg-primary)' }}
+          >
+            Sections
           </div>
-        ) : (
-          <div className="space-y-3">
-            {prds.map((prd) => (
-              <Link
-                key={prd.id}
-                href={`/ai-pipeline/prd-generation/${prd.id}`}
-                className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4 hover:border-blue-300 hover:bg-blue-50/50 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-blue-700"
+          {SECTIONS.map((section, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                setActiveSection(i);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                width: '100%',
+                textAlign: 'left',
+                padding: '6px 10px',
+                borderRadius: 'var(--shell-radius-sm)',
+                marginBottom: 2,
+                background: i === activeSection ? 'var(--bg-selected)' : 'transparent',
+                color: i === activeSection ? 'var(--accent-primary)' : 'var(--fg-secondary)',
+                border: 'none',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                fontSize: 13,
+                fontWeight: i === activeSection ? 500 : 400,
+              }}
+            >
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  background: sectionDotColor(section.status),
+                  flexShrink: 0,
+                }}
+              />
+              <span>{section.name}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Center: requirements */}
+        <div style={{ overflowY: 'auto', padding: 24, background: 'var(--bg-canvas)' }}>
+          <div className="pg-page-header" style={{ marginBottom: 16 }}>
+            <div>
+              <h1 style={{ fontSize: 18 }}>5. Functional Requirements</h1>
+              <div className="subtitle">12 requirements · 3 traced to intent · In Review</div>
+            </div>
+            <div className="pg-page-header-actions">
+              <button className="pg-btn pg-btn-secondary pg-btn-sm">Regenerate</button>
+              <button className="pg-btn pg-btn-primary pg-btn-sm">Approve section</button>
+            </div>
+          </div>
+
+          {REQUIREMENTS.map((req) => (
+            <div key={req.id} className="pg-card" style={{ marginBottom: 12 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: 8,
+                }}
               >
-                <div className="flex items-center gap-3">
-                  <FileText className="h-5 w-5 flex-shrink-0 text-neutral-400" />
-                  <div>
-                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                      {prd.intentBriefTitle}
-                    </p>
-                    <p className="text-xs text-neutral-500">
-                      {new Date(prd.createdAt).toLocaleDateString()}
-                    </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span
+                    className="pg-badge pg-badge-accent"
+                    style={{ fontFamily: 'monospace', fontSize: 11 }}
+                  >
+                    {req.id}
+                  </span>
+                  <strong style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{req.title}</strong>
+                  {priorityBadge(req.priority)}
+                </div>
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 10 }}>
+                {req.description}
+              </div>
+              {req.acceptanceCriteria && req.acceptanceCriteria.length > 0 && (
+                <>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: 'var(--fg-tertiary)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                      marginBottom: 6,
+                    }}
+                  >
+                    ACCEPTANCE CRITERIA
                   </div>
+                  {req.acceptanceCriteria.map((ac, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        background: 'var(--bg-surface-3)',
+                        borderRadius: 'var(--shell-radius-sm)',
+                        padding: '8px 12px',
+                        fontSize: 11,
+                        fontFamily: 'monospace',
+                        marginBottom: 6,
+                        lineHeight: '16px',
+                        color: 'var(--fg-primary)',
+                      }}
+                    >
+                      {ac}
+                    </div>
+                  ))}
+                </>
+              )}
+              <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 6 }}>
+                Traces to:{' '}
+                {req.traces.map((t, i) => (
+                  <span key={t}>
+                    <a href="#" style={{ color: 'var(--accent-primary)' }}>
+                      {t}
+                    </a>
+                    {i < req.traces.length - 1 ? ', ' : ''}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Right: inspector */}
+        <div
+          style={{
+            background: 'var(--bg-surface)',
+            borderLeft: '1px solid var(--border-default)',
+            overflowY: 'auto',
+            padding: 16,
+          }}
+        >
+          <div style={{ marginBottom: 16 }}>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                color: 'var(--fg-tertiary)',
+                marginBottom: 8,
+              }}
+            >
+              REASONING
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--fg-secondary)', lineHeight: '20px' }}>
+              Extracted from user stories. Each FR is the minimum surface needed to support the
+              workflow.
+            </div>
+          </div>
+
+          <div
+            style={{
+              marginBottom: 16,
+              paddingTop: 12,
+              borderTop: '1px solid var(--border-default)',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                color: 'var(--fg-tertiary)',
+                marginBottom: 8,
+              }}
+            >
+              APPROVAL ROUTING
+            </div>
+            <div className="pg-card" style={{ background: 'var(--bg-canvas)', padding: 10 }}>
+              {[
+                { initials: 'JD', name: 'Joana de Klerk', role: 'Owner', approved: true },
+                { initials: 'MA', name: 'Marcus Acker', role: 'Architect', approved: false },
+              ].map((approver) => (
+                <div
+                  key={approver.initials}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}
+                >
+                  <div className="pg-avatar">{approver.initials}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13 }}>{approver.name}</div>
+                    <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{approver.role}</div>
+                  </div>
+                  {approver.approved ? (
+                    <span className="pg-badge pg-badge-success">✓</span>
+                  ) : (
+                    <span className="pg-badge pg-badge-warning">Pending</span>
+                  )}
                 </div>
-                <div className="flex items-center gap-3">
-                  {statusBadge(prd)}
-                  <ChevronRight className="h-4 w-4 text-neutral-400" />
-                </div>
-              </Link>
+              ))}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 6 }}>
+              Mode: All approvers required
+            </div>
+          </div>
+
+          <div
+            style={{
+              marginBottom: 16,
+              paddingTop: 12,
+              borderTop: '1px solid var(--border-default)',
+            }}
+          >
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                color: 'var(--fg-tertiary)',
+                marginBottom: 8,
+              }}
+            >
+              COST
+            </div>
+            {[
+              ['This section', '$0.42'],
+              ['Total PRD', '$2.10'],
+            ].map(([key, val]) => (
+              <div key={key} className="pg-inspector-row">
+                <span className="pg-inspector-key">{key}</span>
+                <span className="pg-inspector-val">{val}</span>
+              </div>
             ))}
           </div>
-        )}
+
+          <div style={{ paddingTop: 12, borderTop: '1px solid var(--border-default)' }}>
+            <div
+              style={{
+                fontSize: 10,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                color: 'var(--fg-tertiary)',
+                marginBottom: 8,
+              }}
+            >
+              QUALITY SIGNALS
+            </div>
+            {[
+              ['Coverage of intent', '100%', 'var(--fg-success)'],
+              ['Cross-section consistency', 'No conflicts', 'var(--fg-success)'],
+            ].map(([key, val, color]) => (
+              <div key={key} className="pg-inspector-row">
+                <span className="pg-inspector-key">{key}</span>
+                <span style={{ color: color }}>{val}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -6,11 +6,6 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { useAuth } from '@/context/auth-context';
 
 const EmailSchema = z.object({
@@ -24,6 +19,9 @@ export default function EmailPage() {
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm({ resolver: zodResolver(EmailSchema), defaultValues: { newEmail: '' } });
+  const {
+    formState: { errors, isSubmitting },
+  } = form;
 
   async function onSubmit(values: { newEmail: string }) {
     setError(null);
@@ -47,31 +45,91 @@ export default function EmailPage() {
   }
 
   return (
-    <Card>
-      <CardHeader><CardTitle>{t('title')}</CardTitle></CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground">{t('currentEmail', { email: user?.email ?? '—' })}</p>
+    <div className="pg-card">
+      <div className="pg-card-header">
+        <h2 className="pg-card-title">{t('title')}</h2>
+      </div>
+      <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <p style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)' }}>
+          {t('currentEmail', { email: user?.email ?? '—' })}
+        </p>
+
         {pending && (
-          <Alert>
-            <AlertDescription>{t('pending', { email: pending })}</AlertDescription>
-          </Alert>
+          <div
+            style={{
+              padding: '0.75rem 1rem',
+              borderRadius: '6px',
+              border: '1px solid var(--fg-success)',
+              background: 'color-mix(in srgb, var(--fg-success) 8%, transparent)',
+              fontSize: '0.875rem',
+              color: 'var(--fg-success)',
+            }}
+          >
+            {t('pending', { email: pending })}
+          </div>
         )}
-        <Form {...form}>
-          <form onSubmit={(e) => { e.preventDefault(); void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
-            <FormField control={form.control} name="newEmail" render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t('newEmailLabel')}</FormLabel>
-                <FormControl><Input type="email" placeholder={t('newEmailPlaceholder')} aria-required {...field} /></FormControl>
-                <FormMessage />
-              </FormItem>
-            )} />
-            {error && <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>}
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? t('submitting') : t('submit')}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void form.handleSubmit(onSubmit)(e);
+          }}
+          style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
+          noValidate
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+            <label
+              htmlFor="newEmail"
+              style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--fg-primary)' }}
+            >
+              {t('newEmailLabel')}
+            </label>
+            <input
+              id="newEmail"
+              type="email"
+              placeholder={t('newEmailPlaceholder')}
+              aria-required
+              aria-invalid={!!errors.newEmail}
+              style={{
+                padding: '0.4375rem 0.75rem',
+                border: '1px solid var(--border-default)',
+                borderRadius: '6px',
+                background: 'var(--bg-canvas)',
+                color: 'var(--fg-primary)',
+                fontSize: '0.875rem',
+                outline: 'none',
+              }}
+              {...form.register('newEmail')}
+            />
+            {errors.newEmail && (
+              <span style={{ fontSize: '0.8125rem', color: 'var(--fg-danger)' }}>
+                {errors.newEmail.message}
+              </span>
+            )}
+          </div>
+
+          {error && (
+            <div
+              style={{
+                padding: '0.75rem 1rem',
+                borderRadius: '6px',
+                border: '1px solid var(--fg-danger)',
+                background: 'color-mix(in srgb, var(--fg-danger) 8%, transparent)',
+                fontSize: '0.875rem',
+                color: 'var(--fg-danger)',
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          <div>
+            <button type="submit" className="pg-btn pg-btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? t('submitting') : t('submit')}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 }

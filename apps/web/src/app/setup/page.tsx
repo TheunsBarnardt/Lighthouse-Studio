@@ -8,13 +8,6 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
-
 const SetupSchema = z.object({
   displayName: z.string().min(1, 'Name is required'),
   email: z.string().email('Enter a valid email address'),
@@ -28,13 +21,38 @@ const SetupSchema = z.object({
 
 type SetupValues = z.infer<typeof SetupSchema>;
 
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  height: 36,
+  padding: '0 12px',
+  borderRadius: 4,
+  border: '1px solid var(--border-default)',
+  background: 'var(--bg-canvas)',
+  color: 'var(--fg-primary)',
+  fontSize: 13,
+};
+
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontSize: 12,
+  fontWeight: 500,
+  color: 'var(--fg-secondary)',
+  marginBottom: 6,
+};
+
 export default function SetupPage() {
   const t = useTranslations('setup');
   const router = useRouter();
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<SetupValues>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<SetupValues>({
     resolver: zodResolver(SetupSchema),
     defaultValues: {
       displayName: '',
@@ -49,11 +67,17 @@ export default function SetupPage() {
     void fetch('/api/v1/setup/status', { credentials: 'include' })
       .then((r) => r.json() as Promise<{ initialized: boolean }>)
       .then((d) => {
-        if (d.initialized) { notFound(); }
+        if (d.initialized) {
+          notFound();
+        }
         return;
       })
-      .catch(() => { /* allow setup to proceed if status check fails */ })
-      .finally(() => { setChecking(false); });
+      .catch(() => {
+        /* allow setup to proceed if status check fails */
+      })
+      .finally(() => {
+        setChecking(false);
+      });
   }, []);
 
   function slugify(value: string): string {
@@ -62,6 +86,8 @@ export default function SetupPage() {
       .replace(/\s+/g, '-')
       .replace(/[^a-z0-9-]/g, '');
   }
+
+  const workspaceName = watch('workspaceName');
 
   async function onSubmit(values: SetupValues) {
     setError(null);
@@ -77,114 +103,216 @@ export default function SetupPage() {
       return;
     }
     const data = (await res.json()) as { workspaceSlug?: string };
-    void router.replace(data.workspaceSlug ? `/workspaces/${data.workspaceSlug}` : '/');
+    router.replace(data.workspaceSlug ? `/workspaces/${data.workspaceSlug}` : '/');
   }
 
   if (checking) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Progress value={undefined} className="w-48" />
+      <div
+        style={{
+          display: 'flex',
+          minHeight: '100vh',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div
+          style={{
+            width: 192,
+            height: 4,
+            borderRadius: 2,
+            background: 'var(--bg-surface)',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              width: '60%',
+              height: '100%',
+              background: 'var(--accent-primary)',
+              borderRadius: 2,
+            }}
+          />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{t('subtitle')}</p>
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--bg-canvas)',
+        padding: '0 16px',
+      }}
+    >
+      <div style={{ width: '100%', maxWidth: 480 }}>
+        <div style={{ marginBottom: 32, textAlign: 'center' }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--fg-primary)', margin: 0 }}>
+            {t('title')}
+          </h1>
+          <p style={{ marginTop: 8, fontSize: 13, color: 'var(--fg-secondary)' }}>
+            {t('subtitle')}
+          </p>
         </div>
 
-        <Card>
-          <CardHeader><CardTitle>{t('ownerSectionTitle')}</CardTitle></CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={(e) => { void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
-                <FormField control={form.control} name="displayName" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('ownerNameLabel')}</FormLabel>
-                    <FormControl>
-                      <Input placeholder={t('ownerNamePlaceholder')} autoComplete="name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+        <div className="pg-card" style={{ padding: 32 }}>
+          <form
+            onSubmit={(e) => {
+              void handleSubmit(onSubmit)(e);
+            }}
+            style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+            noValidate
+          >
+            <h2 style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
+              {t('ownerSectionTitle')}
+            </h2>
 
-                <FormField control={form.control} name="email" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('emailLabel')}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder={t('emailPlaceholder')}
-                        autoComplete="email"
-                        aria-required
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+            <div>
+              <label htmlFor="displayName" style={labelStyle}>
+                {t('ownerNameLabel')}
+              </label>
+              <input
+                id="displayName"
+                style={inputStyle}
+                placeholder={t('ownerNamePlaceholder')}
+                autoComplete="name"
+                {...register('displayName')}
+              />
+              {errors.displayName && (
+                <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-danger)' }}>
+                  {errors.displayName.message}
+                </p>
+              )}
+            </div>
 
-                <FormField control={form.control} name="password" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('passwordLabel')}</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder={t('passwordPlaceholder')} autoComplete="new-password" aria-required {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
+            <div>
+              <label htmlFor="email" style={labelStyle}>
+                {t('emailLabel')}
+              </label>
+              <input
+                id="email"
+                type="email"
+                style={inputStyle}
+                placeholder={t('emailPlaceholder')}
+                autoComplete="email"
+                aria-required
+                {...register('email')}
+              />
+              {errors.email && (
+                <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-danger)' }}>
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
 
-                <div className="border-t pt-4">
-                  <p className="mb-3 text-sm font-medium">{t('workspaceSectionTitle')}</p>
+            <div>
+              <label htmlFor="password" style={labelStyle}>
+                {t('passwordLabel')}
+              </label>
+              <input
+                id="password"
+                type="password"
+                style={inputStyle}
+                placeholder={t('passwordPlaceholder')}
+                autoComplete="new-password"
+                aria-required
+                {...register('password')}
+              />
+              {errors.password && (
+                <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-danger)' }}>
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
 
-                  <FormField control={form.control} name="workspaceName" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('workspaceNameLabel')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder={t('workspaceNamePlaceholder')}
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e);
-                            const current = form.getValues('workspaceSlug');
-                            if (!current || current === slugify(form.getValues('workspaceName'))) {
-                              form.setValue('workspaceSlug', slugify(e.target.value));
-                            }
-                          }}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
+            <div style={{ borderTop: '1px solid var(--border-default)', paddingTop: 16 }}>
+              <h2
+                style={{
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'var(--fg-primary)',
+                  margin: '0 0 16px',
+                }}
+              >
+                {t('workspaceSectionTitle')}
+              </h2>
 
-                  <FormField control={form.control} name="workspaceSlug" render={({ field }) => (
-                    <FormItem className="mt-3">
-                      <FormLabel>{t('workspaceSlugLabel')}</FormLabel>
-                      <FormControl>
-                        <Input placeholder={t('workspaceSlugPlaceholder')} {...field} />
-                      </FormControl>
-                      <p className="text-xs text-muted-foreground">{t('workspaceSlugHint')}</p>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                </div>
-
-                {error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
+              <div style={{ marginBottom: 12 }}>
+                <label htmlFor="workspaceName" style={labelStyle}>
+                  {t('workspaceNameLabel')}
+                </label>
+                <input
+                  id="workspaceName"
+                  style={inputStyle}
+                  placeholder={t('workspaceNamePlaceholder')}
+                  {...register('workspaceName', {
+                    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                      const currentSlug = slugify(workspaceName);
+                      const newSlug = slugify(e.target.value);
+                      // Auto-fill slug if it was derived from workspace name
+                      if (!workspaceName || currentSlug === slugify(workspaceName)) {
+                        setValue('workspaceSlug', newSlug);
+                      }
+                    },
+                  })}
+                />
+                {errors.workspaceName && (
+                  <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-danger)' }}>
+                    {errors.workspaceName.message}
+                  </p>
                 )}
+              </div>
 
-                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? t('submitting') : t('submit')}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+              <div>
+                <label htmlFor="workspaceSlug" style={labelStyle}>
+                  {t('workspaceSlugLabel')}
+                </label>
+                <input
+                  id="workspaceSlug"
+                  style={inputStyle}
+                  placeholder={t('workspaceSlugPlaceholder')}
+                  {...register('workspaceSlug')}
+                />
+                <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-tertiary)' }}>
+                  {t('workspaceSlugHint')}
+                </p>
+                {errors.workspaceSlug && (
+                  <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-danger)' }}>
+                    {errors.workspaceSlug.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {error && (
+              <div
+                role="alert"
+                style={{
+                  borderRadius: 4,
+                  background: 'var(--bg-danger-subtle)',
+                  padding: '10px 12px',
+                  fontSize: 13,
+                  color: 'var(--fg-danger)',
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="pg-btn pg-btn-primary"
+              style={{ width: '100%' }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? t('submitting') : t('submit')}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

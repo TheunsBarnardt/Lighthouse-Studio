@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes } from 'react';
 
+import { Slot } from '@radix-ui/react-slot';
 import { forwardRef } from 'react';
 
 import { cn } from '@/lib/utils';
@@ -24,27 +25,33 @@ const sizes = {
   icon: 'h-9 w-9 rounded-md',
 } as const;
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+const BASE =
+  'inline-flex items-center justify-center gap-2 font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap';
+
+export interface ButtonVariantsProps {
   variant?: keyof typeof variants;
   size?: keyof typeof sizes;
 }
 
+/** Generates button class string — use this when you need Link-as-button. */
+export function buttonVariants({ variant = 'primary', size = 'md' }: ButtonVariantsProps = {}) {
+  return cn(BASE, variants[variant], sizes[size]);
+}
+
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, ButtonVariantsProps {
+  /** Render the button's children as a child element (e.g. Link) via Radix Slot. */
+  asChild?: boolean;
+}
+
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', disabled, ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', disabled, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : 'button';
     return (
-      <button
+      <Comp
         ref={ref}
         disabled={disabled}
         aria-disabled={disabled}
-        className={cn(
-          'inline-flex items-center justify-center gap-2 font-medium transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-          'disabled:pointer-events-none disabled:opacity-50',
-          'select-none whitespace-nowrap',
-          variants[variant],
-          sizes[size],
-          className,
-        )}
+        className={cn(BASE, variants[variant], sizes[size], className)}
         {...props}
       />
     );

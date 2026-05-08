@@ -1,128 +1,177 @@
 'use client';
 
-import React, { useState } from 'react';
-import { SourceStep } from './steps/SourceStep.js';
-import { IntrospectionStep } from './steps/IntrospectionStep.js';
-import { MappingStep } from './steps/MappingStep.js';
-import { PreviewStep } from './steps/PreviewStep.js';
-import { ApprovalStep } from './steps/ApprovalStep.js';
-import { ExecutionStep } from './steps/ExecutionStep.js';
-import { ValidationStep } from './steps/ValidationStep.js';
+import Link from 'next/link';
+import { useState } from 'react';
 
-type Step = 'source' | 'introspection' | 'mapping' | 'preview' | 'approval' | 'execution' | 'validation';
+import { PipelineStepper } from '../page';
 
-const STEPS: { id: Step; label: string }[] = [
-  { id: 'source', label: 'Source' },
-  { id: 'introspection', label: 'Introspection' },
-  { id: 'mapping', label: 'Mapping' },
-  { id: 'preview', label: 'Preview' },
-  { id: 'approval', label: 'Approval' },
-  { id: 'execution', label: 'Execution' },
-  { id: 'validation', label: 'Validation' },
-];
+type MigrationMode = 'skip' | 'configure';
 
 export default function DataMigrationPage() {
-  const [currentStep, setCurrentStep] = useState<Step>('source');
-  const [sourceConnectionId, setSourceConnectionId] = useState<string | null>(null);
-  const [planId, setPlanId] = useState<string | null>(null);
-  const [executionId, setExecutionId] = useState<string | null>(null);
-
-  const currentIndex = STEPS.findIndex(s => s.id === currentStep);
-
-  function advance(to: Step) {
-    setCurrentStep(to);
-  }
+  const [mode, setMode] = useState<MigrationMode>('skip');
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="border-b border-border px-6 py-4 bg-background">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-sm font-semibold text-foreground">Stage 5 — Data Migration</span>
-        </div>
-        <p className="text-xs text-muted-foreground">
-          Map existing data to your new schema and run a validated migration.
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+      <PipelineStepper active="data-migration" />
 
-      {/* Step indicator */}
-      <div className="border-b border-border px-6 py-3">
-        <ol className="flex items-center gap-1">
-          {STEPS.map((step, idx) => {
-            const isCurrent = step.id === currentStep;
-            const isPast = idx < currentIndex;
-            return (
-              <React.Fragment key={step.id}>
-                <li className="flex items-center gap-1">
-                  <div
-                    className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-medium ${
-                      isCurrent
-                        ? 'bg-primary text-primary-foreground'
-                        : isPast
-                        ? 'bg-green-500 text-white'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
+      <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-canvas)' }}>
+        <div className="pg-page" style={{ maxWidth: 800 }}>
+          <div className="pg-page-header">
+            <div>
+              <h1>Data Migration</h1>
+              <div className="subtitle">Optional stage · Skipped for greenfield projects</div>
+            </div>
+          </div>
+
+          {mode === 'skip' && (
+            <>
+              <div className="pg-card" style={{ textAlign: 'center', padding: 48 }}>
+                <div style={{ fontSize: 32, marginBottom: 16, color: 'var(--fg-tertiary)' }}>⊘</div>
+                <div
+                  style={{
+                    fontWeight: 600,
+                    fontSize: 15,
+                    marginBottom: 8,
+                    color: 'var(--fg-primary)',
+                  }}
+                >
+                  No migration needed
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 24 }}>
+                  This is a new project with no existing data to migrate.
+                </div>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                  <button
+                    onClick={() => {
+                      setMode('configure');
+                    }}
+                    className="pg-btn pg-btn-secondary pg-btn-sm"
                   >
-                    {isPast ? '✓' : idx + 1}
-                  </div>
-                  <span className={`text-xs ${isCurrent ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
-                    {step.label}
-                  </span>
-                </li>
-                {idx < STEPS.length - 1 && <div className="w-6 h-px bg-border mx-1" />}
-              </React.Fragment>
-            );
-          })}
-        </ol>
-      </div>
+                    Configure migration anyway
+                  </button>
+                  <Link
+                    href="/ai-pipeline/ui-generation"
+                    className="pg-btn pg-btn-primary pg-btn-sm"
+                  >
+                    Skip to UI generation →
+                  </Link>
+                </div>
+              </div>
 
-      <div className="flex-1 overflow-auto">
-        {currentStep === 'source' && (
-          <SourceStep
-            onConnected={(id) => { setSourceConnectionId(id); advance('introspection'); }}
-          />
-        )}
-        {currentStep === 'introspection' && sourceConnectionId && (
-          <IntrospectionStep
-            sourceConnectionId={sourceConnectionId}
-            onContinue={() => advance('mapping')}
-            onBack={() => advance('source')}
-          />
-        )}
-        {currentStep === 'mapping' && sourceConnectionId && (
-          <MappingStep
-            sourceConnectionId={sourceConnectionId}
-            onPlanCreated={(id) => { setPlanId(id); advance('preview'); }}
-            onBack={() => advance('introspection')}
-          />
-        )}
-        {currentStep === 'preview' && planId && (
-          <PreviewStep
-            planId={planId}
-            onContinue={() => advance('approval')}
-            onBack={() => advance('mapping')}
-          />
-        )}
-        {currentStep === 'approval' && planId && (
-          <ApprovalStep
-            planId={planId}
-            onApproved={() => advance('execution')}
-            onBack={() => advance('preview')}
-          />
-        )}
-        {currentStep === 'execution' && planId && (
-          <ExecutionStep
-            planId={planId}
-            onStarted={(id) => setExecutionId(id)}
-            onCompleted={() => advance('validation')}
-            onBack={() => advance('approval')}
-          />
-        )}
-        {currentStep === 'validation' && executionId && (
-          <ValidationStep
-            executionId={executionId}
-            onBack={() => advance('execution')}
-          />
-        )}
+              <div className="pg-card pg-mt-4">
+                <div className="pg-card-header">
+                  <span className="pg-card-title">When to use this stage</span>
+                </div>
+                <p style={{ fontSize: 13, color: 'var(--fg-secondary)', lineHeight: '20px' }}>
+                  Use the data migration stage when bringing existing data into a new schema — for
+                  example, migrating from a CSV export, a legacy SQL Server database, or a
+                  spreadsheet. The platform generates schema-aware import scripts with column
+                  mapping, PII handling, and dry-run validation before applying.
+                </p>
+
+                <div style={{ marginTop: 20 }}>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: 'var(--fg-secondary)',
+                      marginBottom: 12,
+                    }}
+                  >
+                    Supported sources
+                  </div>
+                  <div className="pg-grid pg-grid-3">
+                    {[
+                      { icon: '📄', label: 'CSV / Excel', desc: 'Spreadsheet exports' },
+                      { icon: '🗄', label: 'SQL Server', desc: 'MSSQL direct connection' },
+                      { icon: '🐘', label: 'PostgreSQL', desc: 'Existing Postgres DB' },
+                      { icon: '🍃', label: 'MongoDB', desc: 'Document collections' },
+                      { icon: '☁', label: 'Airtable', desc: 'Base export via API' },
+                      { icon: '📊', label: 'Salesforce', desc: 'Object export via API' },
+                    ].map((source) => (
+                      <div
+                        key={source.label}
+                        style={{
+                          padding: 12,
+                          border: '1px solid var(--border-default)',
+                          borderRadius: 'var(--shell-radius-sm)',
+                          background: 'var(--bg-canvas)',
+                        }}
+                      >
+                        <div style={{ fontSize: 18, marginBottom: 4 }}>{source.icon}</div>
+                        <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}>
+                          {source.label}
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+                          {source.desc}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {mode === 'configure' && (
+            <div className="pg-card">
+              <div className="pg-card-header">
+                <span className="pg-card-title">Configure migration source</span>
+                <button
+                  onClick={() => {
+                    setMode('skip');
+                  }}
+                  className="pg-btn pg-btn-ghost pg-btn-sm"
+                >
+                  ← Back
+                </button>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 500,
+                    marginBottom: 8,
+                    color: 'var(--fg-primary)',
+                  }}
+                >
+                  Source type
+                </div>
+                <div className="pg-grid pg-grid-3" style={{ gap: 8 }}>
+                  {[
+                    { value: 'csv', label: 'CSV / Excel' },
+                    { value: 'postgres', label: 'PostgreSQL' },
+                    { value: 'mssql', label: 'SQL Server' },
+                    { value: 'mongodb', label: 'MongoDB' },
+                    { value: 'airtable', label: 'Airtable' },
+                    { value: 'salesforce', label: 'Salesforce' },
+                  ].map((source) => (
+                    <button
+                      key={source.value}
+                      className="pg-btn pg-btn-secondary"
+                      style={{ justifyContent: 'center', fontSize: 12 }}
+                    >
+                      {source.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div
+                style={{
+                  padding: 20,
+                  background: 'var(--bg-canvas)',
+                  borderRadius: 'var(--shell-radius-md)',
+                  border: '1px solid var(--border-default)',
+                  textAlign: 'center',
+                  color: 'var(--fg-tertiary)',
+                  fontSize: 13,
+                }}
+              >
+                Select a source type to begin configuration
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

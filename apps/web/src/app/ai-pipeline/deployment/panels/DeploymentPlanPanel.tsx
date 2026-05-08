@@ -1,9 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
+import { useState } from 'react';
 
 interface EnvironmentConfig {
   name: string;
@@ -20,8 +18,20 @@ interface IrreversibleOp {
 
 const DEMO_ENVIRONMENTS: EnvironmentConfig[] = [
   { name: 'dev', autoDeploy: true, testsRequired: false, deployMode: 'rolling', approvers: [] },
-  { name: 'staging', autoDeploy: false, testsRequired: true, deployMode: 'rolling', approvers: ['workspace_admin'] },
-  { name: 'prod', autoDeploy: false, testsRequired: true, deployMode: 'blue_green', approvers: ['architect', 'workspace_owner'] },
+  {
+    name: 'staging',
+    autoDeploy: false,
+    testsRequired: true,
+    deployMode: 'rolling',
+    approvers: ['workspace_admin'],
+  },
+  {
+    name: 'prod',
+    autoDeploy: false,
+    testsRequired: true,
+    deployMode: 'blue_green',
+    approvers: ['architect', 'workspace_owner'],
+  },
 ];
 
 const DEMO_MIGRATIONS = [
@@ -31,92 +41,194 @@ const DEMO_MIGRATIONS = [
 
 const DEMO_IRREVERSIBLE: IrreversibleOp[] = [];
 
-const DEPLOY_MODE_BADGE: Record<string, string> = {
-  rolling: 'bg-blue-100 text-blue-800',
-  blue_green: 'bg-purple-100 text-purple-800',
-};
-
 interface Props {
-  onApproved(): void;
+  onApproved: () => void;
 }
 
-export function DeploymentPlanPanel({ onApproved }: Props) {
+export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
+  const onApproved = () => {
+    onApprovedProp();
+  };
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGenerated, setIsGenerated] = useState(false);
   const [expandedSection, setExpandedSection] = useState<string | null>('environments');
 
-  const toggle = (s: string) => setExpandedSection(prev => prev === s ? null : s);
+  const toggle = (s: string) => {
+    setExpandedSection((prev) => (prev === s ? null : s));
+  };
 
   const handleGenerate = async () => {
     setIsGenerating(true);
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsGenerating(false);
     setIsGenerated(true);
   };
 
   if (!isGenerated) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-4 p-8">
-        <div className="text-center max-w-md">
-          <h2 className="text-xl font-semibold mb-2">Generate Deployment Plan</h2>
-          <p className="text-muted-foreground text-sm mb-6">
-            The deployment plan defines how your application will be deployed across dev, staging, and production environments, including schema migration sequencing and health checks.
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          gap: 16,
+          padding: 32,
+        }}
+      >
+        <div style={{ textAlign: 'center', maxWidth: 440 }}>
+          <h2
+            style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: 'var(--fg-primary)' }}
+          >
+            Generate Deployment Plan
+          </h2>
+          <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 24 }}>
+            The deployment plan defines how your application will be deployed across dev, staging,
+            and production environments, including schema migration sequencing and health checks.
           </p>
-          <Button onClick={handleGenerate} disabled={isGenerating} size="lg">
+          <button
+            className="pg-btn pg-btn-primary"
+            onClick={() => {
+              void handleGenerate();
+            }}
+            disabled={isGenerating}
+          >
             {isGenerating ? 'Generating…' : 'Generate Deployment Plan'}
-          </Button>
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto p-6 gap-4 max-w-3xl">
-      <div className="flex items-center justify-between">
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        overflowY: 'auto',
+        padding: 24,
+        gap: 16,
+        maxWidth: 720,
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h2 className="font-semibold">Deployment Plan v0.0.1</h2>
-          <p className="text-sm text-muted-foreground">3 environments · {DEMO_MIGRATIONS.length} migrations · {DEMO_IRREVERSIBLE.length} irreversible operations</p>
+          <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
+            Deployment Plan v0.0.1
+          </h2>
+          <p style={{ fontSize: 12, color: 'var(--fg-secondary)', marginTop: 2 }}>
+            3 environments · {DEMO_MIGRATIONS.length} migrations · {DEMO_IRREVERSIBLE.length}{' '}
+            irreversible operations
+          </p>
         </div>
-        <Button onClick={onApproved}>Approve Plan</Button>
+        <button
+          className="pg-btn pg-btn-primary pg-btn-sm"
+          onClick={() => {
+            onApproved();
+          }}
+        >
+          Approve Plan
+        </button>
       </div>
 
       {DEMO_IRREVERSIBLE.length > 0 && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-            <span className="font-medium text-red-800">{DEMO_IRREVERSIBLE.length} irreversible operations</span>
+        <div
+          style={{
+            borderRadius: 6,
+            border: '1px solid var(--fg-danger)',
+            background: 'color-mix(in srgb, var(--fg-danger) 6%, transparent)',
+            padding: 16,
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <AlertTriangle style={{ width: 16, height: 16, color: 'var(--fg-danger)' }} />
+            <span style={{ fontWeight: 500, color: 'var(--fg-danger)' }}>
+              {DEMO_IRREVERSIBLE.length} irreversible operations
+            </span>
           </div>
           {DEMO_IRREVERSIBLE.map((op, i) => (
-            <p key={i} className="text-sm text-red-700">{op.description}: {op.warning}</p>
+            <p key={i} style={{ fontSize: 13, color: 'var(--fg-danger)' }}>
+              {op.description}: {op.warning}
+            </p>
           ))}
         </div>
       )}
 
       {/* Environments */}
-      <div className="border rounded-lg overflow-hidden">
+      <div
+        style={{ border: '1px solid var(--border-default)', borderRadius: 6, overflow: 'hidden' }}
+      >
         <button
-          className="w-full flex items-center justify-between p-4 bg-muted/30 hover:bg-muted/50 transition-colors"
-          onClick={() => toggle('environments')}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 16,
+            background: 'var(--bg-surface)',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--fg-primary)',
+          }}
+          onClick={() => {
+            toggle('environments');
+          }}
         >
-          <span className="font-medium">Environments ({DEMO_ENVIRONMENTS.length})</span>
-          {expandedSection === 'environments' ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          <span style={{ fontWeight: 500, fontSize: 13 }}>
+            Environments ({DEMO_ENVIRONMENTS.length})
+          </span>
+          {expandedSection === 'environments' ? (
+            <ChevronDown style={{ width: 16, height: 16 }} />
+          ) : (
+            <ChevronRight style={{ width: 16, height: 16 }} />
+          )}
         </button>
         {expandedSection === 'environments' && (
-          <div className="divide-y">
-            {DEMO_ENVIRONMENTS.map(env => (
-              <div key={env.name} className="p-4 flex items-start gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium">{env.name}</span>
-                    {env.autoDeploy && <Badge variant="secondary" className="text-xs">auto-deploy</Badge>}
-                    <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${DEPLOY_MODE_BADGE[env.deployMode]}`}>{env.deployMode.replace('_', '/')}</span>
+          <div style={{ borderTop: '1px solid var(--border-default)' }}>
+            {DEMO_ENVIRONMENTS.map((env, idx) => (
+              <div
+                key={env.name}
+                style={{
+                  padding: 16,
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 16,
+                  borderTop: idx > 0 ? '1px solid var(--border-default)' : undefined,
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontWeight: 500, fontSize: 13, color: 'var(--fg-primary)' }}>
+                      {env.name}
+                    </span>
+                    {env.autoDeploy && (
+                      <span className="pg-badge pg-badge-default">auto-deploy</span>
+                    )}
+                    <span className="pg-badge pg-badge-default">
+                      {env.deployMode.replace('_', '/')}
+                    </span>
                   </div>
-                  <div className="text-xs text-muted-foreground space-y-0.5">
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: 'var(--fg-tertiary)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 2,
+                    }}
+                  >
                     <p>Tests required: {env.testsRequired ? 'yes' : 'no'}</p>
-                    <p>Approvers: {env.approvers.length > 0 ? env.approvers.join(', ') : 'none (auto)'}</p>
+                    <p>
+                      Approvers:{' '}
+                      {env.approvers.length > 0 ? env.approvers.join(', ') : 'none (auto)'}
+                    </p>
                   </div>
                 </div>
-                <CheckCircle2 className="h-4 w-4 text-muted-foreground mt-0.5" />
+                <CheckCircle2
+                  style={{ width: 16, height: 16, color: 'var(--fg-tertiary)', marginTop: 2 }}
+                />
               </div>
             ))}
           </div>
@@ -124,23 +236,66 @@ export function DeploymentPlanPanel({ onApproved }: Props) {
       </div>
 
       {/* Schema migrations */}
-      <div className="border rounded-lg overflow-hidden">
+      <div
+        style={{ border: '1px solid var(--border-default)', borderRadius: 6, overflow: 'hidden' }}
+      >
         <button
-          className="w-full flex items-center justify-between p-4 bg-muted/30 hover:bg-muted/50 transition-colors"
-          onClick={() => toggle('migrations')}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 16,
+            background: 'var(--bg-surface)',
+            border: 'none',
+            cursor: 'pointer',
+            color: 'var(--fg-primary)',
+          }}
+          onClick={() => {
+            toggle('migrations');
+          }}
         >
-          <span className="font-medium">Schema Migrations ({DEMO_MIGRATIONS.length})</span>
-          {expandedSection === 'migrations' ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          <span style={{ fontWeight: 500, fontSize: 13 }}>
+            Schema Migrations ({DEMO_MIGRATIONS.length})
+          </span>
+          {expandedSection === 'migrations' ? (
+            <ChevronDown style={{ width: 16, height: 16 }} />
+          ) : (
+            <ChevronRight style={{ width: 16, height: 16 }} />
+          )}
         </button>
         {expandedSection === 'migrations' && (
-          <div className="divide-y">
-            {DEMO_MIGRATIONS.map(m => (
-              <div key={m.sequence} className="p-4 flex items-center gap-3">
-                <span className="text-xs font-mono text-muted-foreground w-6 text-right">{m.sequence}</span>
-                <span className="text-sm flex-1">{m.description}</span>
-                <Badge variant={m.reversible ? 'default' : 'destructive'} className="text-xs">
+          <div style={{ borderTop: '1px solid var(--border-default)' }}>
+            {DEMO_MIGRATIONS.map((m, idx) => (
+              <div
+                key={m.sequence}
+                style={{
+                  padding: 16,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  borderTop: idx > 0 ? '1px solid var(--border-default)' : undefined,
+                }}
+              >
+                <span
+                  className="pg-mono"
+                  style={{
+                    fontSize: 11,
+                    color: 'var(--fg-tertiary)',
+                    width: 24,
+                    textAlign: 'right',
+                  }}
+                >
+                  {m.sequence}
+                </span>
+                <span style={{ fontSize: 13, flex: 1, color: 'var(--fg-primary)' }}>
+                  {m.description}
+                </span>
+                <span
+                  className={`pg-badge ${m.reversible ? 'pg-badge-success' : 'pg-badge-danger'}`}
+                >
                   {m.reversible ? 'reversible' : 'irreversible'}
-                </Badge>
+                </span>
               </div>
             ))}
           </div>
@@ -148,11 +303,28 @@ export function DeploymentPlanPanel({ onApproved }: Props) {
       </div>
 
       {/* Global config */}
-      <div className="border rounded-lg p-4 text-sm space-y-1.5">
-        <p className="font-medium mb-2">Global Config</p>
-        <p className="text-muted-foreground">Rollback retention: <span className="text-foreground">7 days</span></p>
-        <p className="text-muted-foreground">Health check timeout: <span className="text-foreground">60 seconds</span></p>
-        <p className="text-muted-foreground">Notification channels: <span className="text-foreground">in-app, email</span></p>
+      <div
+        style={{
+          border: '1px solid var(--border-default)',
+          borderRadius: 6,
+          padding: 16,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6,
+        }}
+      >
+        <p style={{ fontWeight: 500, fontSize: 13, color: 'var(--fg-primary)', marginBottom: 4 }}>
+          Global Config
+        </p>
+        <p style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
+          Rollback retention: <span style={{ color: 'var(--fg-primary)' }}>7 days</span>
+        </p>
+        <p style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
+          Health check timeout: <span style={{ color: 'var(--fg-primary)' }}>60 seconds</span>
+        </p>
+        <p style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
+          Notification channels: <span style={{ color: 'var(--fg-primary)' }}>in-app, email</span>
+        </p>
       </div>
     </div>
   );

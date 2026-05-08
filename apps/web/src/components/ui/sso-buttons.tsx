@@ -4,7 +4,6 @@ import type { JSX } from 'react';
 
 import { useEffect, useState } from 'react';
 
-import { Button } from '@/components/ui/button';
 import { authApi } from '@/lib/auth-client';
 
 // ─── Provider SVG icons ───────────────────────────────────────────────────────
@@ -111,38 +110,53 @@ export function SsoButtons({ returnTo = '/' }: SsoButtonsProps) {
   }
 
   return (
-    <div className="space-y-3">
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">or continue with</span>
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+        <div style={{ flex: 1, height: 1, background: 'var(--border-default)' }} />
+        <span
+          style={{
+            padding: '0 8px',
+            fontSize: 11,
+            textTransform: 'uppercase',
+            color: 'var(--fg-tertiary)',
+            background: 'var(--bg-surface)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          or continue with
+        </span>
+        <div style={{ flex: 1, height: 1, background: 'var(--border-default)' }} />
       </div>
 
       <div
-        className={`grid gap-2 ${active.length === 1 ? 'grid-cols-1' : active.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}
+        style={{
+          display: 'grid',
+          gap: 8,
+          gridTemplateColumns:
+            active.length === 1 ? '1fr' : active.length === 2 ? '1fr 1fr' : '1fr 1fr 1fr',
+        }}
       >
         {active.map(({ id, label, Icon }) => (
-          <Button
+          <button
             key={id}
             type="button"
-            variant="outline"
-            size="sm"
+            className="pg-btn pg-btn-secondary pg-btn-sm"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
             disabled={loading !== null}
             aria-label={`Continue with ${label}`}
             onClick={() => void handleSso(id)}
-            className="gap-2"
           >
             <Icon />
             {label}
-          </Button>
+          </button>
         ))}
       </div>
 
       {error && (
-        <p className="text-center text-xs text-destructive" aria-live="polite">
+        <p
+          style={{ textAlign: 'center', fontSize: 12, color: 'var(--fg-danger, #dc2626)' }}
+          aria-live="polite"
+        >
           {error}
         </p>
       )}

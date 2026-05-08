@@ -23,18 +23,33 @@ export function PasswordRules({ value }: PasswordRulesProps) {
   if (!value) return null;
 
   return (
-    <ul className="space-y-1 text-xs">
+    <ul
+      style={{
+        listStyle: 'none',
+        padding: 0,
+        margin: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 3,
+      }}
+    >
       {RULES.map((rule) => {
         const passing = rule.test(value);
         return (
           <li
             key={rule.label}
-            className={`flex items-center gap-1.5 ${passing ? 'text-green-600' : 'text-destructive'}`}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              fontSize: 11,
+              color: passing ? 'var(--fg-success, #16a34a)' : 'var(--fg-danger, #dc2626)',
+            }}
           >
             {passing ? (
-              <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+              <CheckCircle2 style={{ width: 13, height: 13, flexShrink: 0 }} />
             ) : (
-              <XCircle className="h-3.5 w-3.5 shrink-0" />
+              <XCircle style={{ width: 13, height: 13, flexShrink: 0 }} />
             )}
             {rule.label}
           </li>

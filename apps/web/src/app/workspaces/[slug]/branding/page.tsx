@@ -1,25 +1,43 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 
 const BrandingSchema = z.object({
   companyName: z.string().max(255).optional(),
-  primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Must be a hex color like #3b82f6').optional().or(z.literal('')),
+  primaryColor: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/, 'Must be a hex color like #3b82f6')
+    .optional()
+    .or(z.literal('')),
   emailFromName: z.string().max(255).optional(),
   customCss: z.string().optional(),
 });
 
 type BrandingValues = z.infer<typeof BrandingSchema>;
+
+const inputStyle: React.CSSProperties = {
+  height: 36,
+  padding: '0 12px',
+  borderRadius: 4,
+  border: '1px solid var(--border-default)',
+  background: 'var(--bg-canvas)',
+  color: 'var(--fg-primary)',
+  fontSize: 13,
+  width: '100%',
+  boxSizing: 'border-box',
+};
+
+const labelStyle: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 500,
+  color: 'var(--fg-primary)',
+  display: 'block',
+  marginBottom: 6,
+};
 
 export default function WorkspaceBrandingPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -44,8 +62,12 @@ export default function WorkspaceBrandingPage() {
         });
         return;
       })
-      .catch(() => { /* ignore */ })
-      .finally(() => { setLoading(false); });
+      .catch(() => {
+        /* ignore */
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [slug, form]);
 
   async function onSubmit(values: BrandingValues) {
@@ -65,85 +87,159 @@ export default function WorkspaceBrandingPage() {
     setSaved(true);
   }
 
-  if (loading) return <p className="text-sm text-muted-foreground" aria-live="polite">Loading…</p>;
+  if (loading)
+    return (
+      <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }} aria-live="polite">
+        Loading…
+      </p>
+    );
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Branding</h1>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--fg-primary)', margin: 0 }}>
+          Branding
+        </h1>
       </div>
 
-      <Card>
-        <CardHeader><CardTitle>Workspace branding</CardTitle></CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={(e) => { void form.handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
-              <FormField control={form.control} name="companyName" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Company name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Acme Corp" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-
-              <FormField control={form.control} name="primaryColor" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Primary colour</FormLabel>
-                  <FormControl>
-                    <div className="flex items-center gap-3">
-                      <Input type="color" className="h-10 w-16 cursor-pointer p-1" {...field} />
-                      <Input placeholder="#3b82f6" className="flex-1" {...field} />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-
-              <FormField control={form.control} name="emailFromName" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email from name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Acme Corp" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )} />
-
-              <FormField control={form.control} name="customCss" render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Custom CSS variables</FormLabel>
-                  <FormControl>
-                    <textarea
-                      className="min-h-[120px] w-full rounded-md border bg-background px-3 py-2 text-sm font-mono"
-                      placeholder="--color-primary: #3b82f6;"
-                      {...field}
-                    />
-                  </FormControl>
-                  <p className="text-xs text-muted-foreground">
-                    Only CSS variable declarations are applied. Unsupported rules are stripped.
-                  </p>
-                  <FormMessage />
-                </FormItem>
-              )} />
-
-              {saved && (
-                <Alert><AlertDescription>Branding saved successfully.</AlertDescription></Alert>
+      <div className="pg-card">
+        <div className="pg-card-header">
+          <span className="pg-card-title">Workspace branding</span>
+        </div>
+        <div style={{ padding: 16 }}>
+          <form
+            onSubmit={(e) => {
+              void form.handleSubmit(onSubmit)(e);
+            }}
+            style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+            noValidate
+          >
+            <div>
+              <label style={labelStyle}>Company name</label>
+              <input style={inputStyle} placeholder="Acme Corp" {...form.register('companyName')} />
+              {form.formState.errors.companyName && (
+                <p
+                  style={{ fontSize: 12, color: 'var(--fg-danger)', marginTop: 4, marginBottom: 0 }}
+                >
+                  {form.formState.errors.companyName.message}
+                </p>
               )}
-              {error && (
-                <Alert variant="destructive"><AlertDescription>{error}</AlertDescription></Alert>
-              )}
+            </div>
 
-              <div className="flex justify-end">
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? 'Saving…' : 'Save branding'}
-                </Button>
+            <div>
+              <label style={labelStyle}>Primary colour</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <input
+                  type="color"
+                  style={{
+                    height: 36,
+                    width: 56,
+                    padding: 2,
+                    borderRadius: 4,
+                    border: '1px solid var(--border-default)',
+                    background: 'var(--bg-canvas)',
+                    cursor: 'pointer',
+                  }}
+                  {...form.register('primaryColor')}
+                />
+                <input
+                  style={{ ...inputStyle, flex: 1 }}
+                  placeholder="#3b82f6"
+                  {...form.register('primaryColor')}
+                />
               </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+              {form.formState.errors.primaryColor && (
+                <p
+                  style={{ fontSize: 12, color: 'var(--fg-danger)', marginTop: 4, marginBottom: 0 }}
+                >
+                  {form.formState.errors.primaryColor.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label style={labelStyle}>Email from name</label>
+              <input
+                style={inputStyle}
+                placeholder="Acme Corp"
+                {...form.register('emailFromName')}
+              />
+              {form.formState.errors.emailFromName && (
+                <p
+                  style={{ fontSize: 12, color: 'var(--fg-danger)', marginTop: 4, marginBottom: 0 }}
+                >
+                  {form.formState.errors.emailFromName.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label style={labelStyle}>Custom CSS variables</label>
+              <textarea
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  borderRadius: 4,
+                  border: '1px solid var(--border-default)',
+                  background: 'var(--bg-canvas)',
+                  color: 'var(--fg-primary)',
+                  fontSize: 13,
+                  fontFamily: 'var(--font-mono, monospace)',
+                  minHeight: 120,
+                  boxSizing: 'border-box',
+                  resize: 'vertical',
+                }}
+                placeholder="--color-primary: #3b82f6;"
+                {...form.register('customCss')}
+              />
+              <p
+                style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginTop: 4, marginBottom: 0 }}
+              >
+                Only CSS variable declarations are applied. Unsupported rules are stripped.
+              </p>
+            </div>
+
+            {saved && (
+              <div
+                style={{
+                  borderRadius: 6,
+                  border: '1px solid var(--fg-success)',
+                  background: 'color-mix(in srgb, var(--fg-success) 8%, var(--bg-canvas))',
+                  padding: '10px 14px',
+                  fontSize: 13,
+                  color: 'var(--fg-success)',
+                }}
+              >
+                Branding saved successfully.
+              </div>
+            )}
+            {error && (
+              <div
+                style={{
+                  borderRadius: 6,
+                  border: '1px solid var(--fg-danger)',
+                  background: 'color-mix(in srgb, var(--fg-danger) 8%, var(--bg-canvas))',
+                  padding: '10px 14px',
+                  fontSize: 13,
+                  color: 'var(--fg-danger)',
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                type="submit"
+                className="pg-btn pg-btn-primary"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? 'Saving…' : 'Save branding'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

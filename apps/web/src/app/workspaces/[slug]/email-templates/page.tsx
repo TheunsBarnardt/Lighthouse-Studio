@@ -4,11 +4,6 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
 const TEMPLATE_KEYS = [
   { key: 'email_verification', label: 'Email verification' },
   { key: 'welcome', label: 'Welcome' },
@@ -23,13 +18,46 @@ const TEMPLATE_KEYS = [
   { key: 'account_deletion', label: 'Account deletion' },
 ] as const;
 
-type TemplateKey = typeof TEMPLATE_KEYS[number]['key'];
+type TemplateKey = (typeof TEMPLATE_KEYS)[number]['key'];
 
 interface TemplateOverride {
   subjectTemplate: string;
   htmlTemplate: string;
   textTemplate: string;
 }
+
+const inputStyle: React.CSSProperties = {
+  height: 36,
+  padding: '0 12px',
+  borderRadius: 4,
+  border: '1px solid var(--border-default)',
+  background: 'var(--bg-canvas)',
+  color: 'var(--fg-primary)',
+  fontSize: 13,
+  width: '100%',
+  boxSizing: 'border-box',
+};
+
+const textareaStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '8px 12px',
+  borderRadius: 4,
+  border: '1px solid var(--border-default)',
+  background: 'var(--bg-canvas)',
+  color: 'var(--fg-primary)',
+  fontSize: 13,
+  fontFamily: 'var(--font-mono, monospace)',
+  boxSizing: 'border-box',
+  resize: 'vertical',
+};
+
+const labelStyle: React.CSSProperties = {
+  fontSize: 12,
+  fontWeight: 500,
+  color: 'var(--fg-primary)',
+  display: 'block',
+  marginBottom: 6,
+};
 
 export default function WorkspaceEmailTemplatesPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -46,9 +74,16 @@ export default function WorkspaceEmailTemplatesPage() {
   useEffect(() => {
     void fetch(`/api/v1/workspaces/${slug}/email-templates`, { credentials: 'include' })
       .then((r) => r.json() as Promise<{ overrides: Record<string, TemplateOverride> }>)
-      .then((d) => { setOverrides(d.overrides as Partial<Record<TemplateKey, TemplateOverride>>); return; })
-      .catch(() => { /* ignore */ })
-      .finally(() => { setLoading(false); });
+      .then((d) => {
+        setOverrides(d.overrides as Partial<Record<TemplateKey, TemplateOverride>>);
+        return;
+      })
+      .catch(() => {
+        /* ignore */
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [slug]);
 
   useEffect(() => {
@@ -97,103 +132,176 @@ export default function WorkspaceEmailTemplatesPage() {
     }
   }
 
-  if (loading) return <p className="text-sm text-muted-foreground" aria-live="polite">Loading…</p>;
+  if (loading)
+    return (
+      <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }} aria-live="polite">
+        Loading…
+      </p>
+    );
+
+  const currentTemplate = TEMPLATE_KEYS.find((t) => t.key === selected);
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Email templates</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <div style={{ marginBottom: 24 }}>
+        <h1
+          style={{
+            fontSize: 20,
+            fontWeight: 700,
+            color: 'var(--fg-primary)',
+            margin: 0,
+            marginBottom: 4,
+          }}
+        >
+          Email templates
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--fg-secondary)', margin: 0 }}>
           Override default email templates with custom subject and body for this workspace.
         </p>
       </div>
 
-      <Tabs value={selected} onValueChange={(v) => { setSelected(v as TemplateKey); }}>
-        <TabsList className="mb-4 flex-wrap">
+      <div style={{ display: 'flex', gap: 16 }}>
+        {/* Template list sidebar */}
+        <div
+          style={{ width: 200, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 2 }}
+        >
           {TEMPLATE_KEYS.map((t) => (
-            <TabsTrigger key={t.key} value={t.key} className="relative">
+            <button
+              key={t.key}
+              onClick={() => {
+                setSelected(t.key);
+                setMsg(null);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '7px 12px',
+                borderRadius: 4,
+                fontSize: 13,
+                background:
+                  selected === t.key
+                    ? 'color-mix(in srgb, var(--accent-primary) 10%, var(--bg-canvas))'
+                    : 'transparent',
+                color: selected === t.key ? 'var(--accent-primary)' : 'var(--fg-primary)',
+                border: `1px solid ${selected === t.key ? 'var(--accent-primary)' : 'transparent'}`,
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
               {t.label}
               {overrides[t.key] && (
-                <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-primary" aria-label="customised" />
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    background: 'var(--accent-primary)',
+                    flexShrink: 0,
+                  }}
+                  aria-label="customised"
+                />
               )}
-            </TabsTrigger>
+            </button>
           ))}
-        </TabsList>
+        </div>
 
-        {TEMPLATE_KEYS.map((t) => (
-          <TabsContent key={t.key} value={t.key}>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t.label}</CardTitle>
-                {!overrides[t.key] && (
-                  <p className="text-xs text-muted-foreground">Using platform default. Fill in below to override.</p>
+        {/* Template editor */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="pg-card">
+            <div className="pg-card-header">
+              <span className="pg-card-title">{currentTemplate?.label}</span>
+              {!overrides[selected] && (
+                <p style={{ fontSize: 12, color: 'var(--fg-tertiary)', margin: 0, marginTop: 2 }}>
+                  Using platform default. Fill in below to override.
+                </p>
+              )}
+            </div>
+            <div style={{ padding: 16 }}>
+              <form
+                onSubmit={(e) => {
+                  void handleSubmit(onSubmit)(e);
+                }}
+                style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+                noValidate
+              >
+                <div>
+                  <label style={labelStyle} htmlFor={`subject-${selected}`}>
+                    Subject
+                  </label>
+                  <input
+                    id={`subject-${selected}`}
+                    style={inputStyle}
+                    placeholder="Default subject will be used if empty"
+                    {...register('subjectTemplate')}
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle} htmlFor={`html-${selected}`}>
+                    HTML body
+                  </label>
+                  <textarea
+                    id={`html-${selected}`}
+                    style={{ ...textareaStyle, minHeight: 200 }}
+                    placeholder="HTML template. Use {{variable}} for substitutions."
+                    {...register('htmlTemplate')}
+                  />
+                </div>
+
+                <div>
+                  <label style={labelStyle} htmlFor={`text-${selected}`}>
+                    Plain-text body (optional)
+                  </label>
+                  <textarea
+                    id={`text-${selected}`}
+                    style={{ ...textareaStyle, minHeight: 80 }}
+                    placeholder="Plain-text fallback (derived from HTML if empty)"
+                    {...register('textTemplate')}
+                  />
+                </div>
+
+                {msg && (
+                  <div
+                    style={{
+                      borderRadius: 6,
+                      border: `1px solid ${msg.kind === 'error' ? 'var(--fg-danger)' : 'var(--fg-success)'}`,
+                      background: `color-mix(in srgb, ${msg.kind === 'error' ? 'var(--fg-danger)' : 'var(--fg-success)'} 8%, var(--bg-canvas))`,
+                      padding: '10px 14px',
+                      fontSize: 13,
+                      color: msg.kind === 'error' ? 'var(--fg-danger)' : 'var(--fg-success)',
+                    }}
+                  >
+                    {msg.text}
+                  </div>
                 )}
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={(e) => { void handleSubmit(onSubmit)(e); }} className="space-y-4" noValidate>
-                  <div>
-                    <label className="mb-1 block text-sm font-medium" htmlFor={`subject-${t.key}`}>
-                      Subject
-                    </label>
-                    <input
-                      id={`subject-${t.key}`}
-                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                      placeholder="Default subject will be used if empty"
-                      {...register('subjectTemplate')}
-                    />
-                  </div>
 
-                  <div>
-                    <label className="mb-1 block text-sm font-medium" htmlFor={`html-${t.key}`}>
-                      HTML body
-                    </label>
-                    <textarea
-                      id={`html-${t.key}`}
-                      className="min-h-[200px] w-full rounded-md border bg-background px-3 py-2 font-mono text-sm"
-                      placeholder="HTML template. Use {{variable}} for substitutions."
-                      {...register('htmlTemplate')}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-1 block text-sm font-medium" htmlFor={`text-${t.key}`}>
-                      Plain-text body (optional)
-                    </label>
-                    <textarea
-                      id={`text-${t.key}`}
-                      className="min-h-[80px] w-full rounded-md border bg-background px-3 py-2 font-mono text-sm"
-                      placeholder="Plain-text fallback (derived from HTML if empty)"
-                      {...register('textTemplate')}
-                    />
-                  </div>
-
-                  {msg && (
-                    <Alert variant={msg.kind === 'error' ? 'destructive' : 'default'}>
-                      <AlertDescription>{msg.text}</AlertDescription>
-                    </Alert>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    type="submit"
+                    className="pg-btn pg-btn-primary"
+                    disabled={saving || formState.isSubmitting}
+                  >
+                    {saving ? 'Saving…' : 'Save override'}
+                  </button>
+                  {overrides[selected] && (
+                    <button
+                      type="button"
+                      className="pg-btn pg-btn-secondary"
+                      disabled={saving}
+                      onClick={() => {
+                        void resetTemplate();
+                      }}
+                    >
+                      Reset to default
+                    </button>
                   )}
-
-                  <div className="flex gap-2">
-                    <Button type="submit" disabled={saving || formState.isSubmitting}>
-                      {saving ? 'Saving…' : 'Save override'}
-                    </Button>
-                    {overrides[t.key] && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        disabled={saving}
-                        onClick={() => { void resetTemplate(); }}
-                      >
-                        Reset to default
-                      </Button>
-                    )}
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
-      </Tabs>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
