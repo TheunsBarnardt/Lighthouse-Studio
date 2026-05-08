@@ -77,7 +77,12 @@ export class CodeGenerationService {
   ): Promise<Result<FunctionInventory, AppError>> {
     const parsed = GenerateInventoryInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid inventory input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid inventory input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -124,7 +129,7 @@ export class CodeGenerationService {
       const fnResult = await this.generateFunction(ctx, {
         projectId,
         spec,
-      } as GenerateFunctionInput);
+      } as unknown as GenerateFunctionInput);
       if (fnResult.isOk()) {
         functionIds.push(fnResult.value.id);
       } else {
@@ -137,12 +142,12 @@ export class CodeGenerationService {
 
     const project = await this.deps.projects.create({
       id: `codeproj-${projectId}`,
-      workspaceId: ctx.workspaceId,
+      workspaceId: ctx.workspaceId ?? '',
       prdArtifactId: '',
       schemaArtifactId: '',
       functionIds,
       manifest: {
-        workspaceId: ctx.workspaceId,
+        workspaceId: ctx.workspaceId ?? '',
         projectId,
         functions: [],
         integrationsUsed: [],
@@ -175,7 +180,12 @@ export class CodeGenerationService {
   ): Promise<Result<ServerFunction, AppError>> {
     const parsed = GenerateFunctionInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid function input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid function input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -184,7 +194,7 @@ export class CodeGenerationService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const spec = parsed.data.spec as FunctionSpec;
+    const spec = parsed.data.spec as unknown as FunctionSpec;
     const promptId = this._selectPrompt(spec.triggerType);
 
     const generated = await this.deps.generation.run<{
@@ -279,7 +289,12 @@ export class CodeGenerationService {
   ): Promise<Result<ServerFunction, AppError>> {
     const parsed = RegenerateFunctionInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid regenerate input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid regenerate input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -288,8 +303,8 @@ export class CodeGenerationService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const existing = await this.deps.functions.get(parsed.data.functionId, ctx.workspaceId);
-    if (!existing) return err(new NotFoundError(`Function ${parsed.data.functionId} not found`));
+    const existing = await this.deps.functions.get(parsed.data.functionId, ctx.workspaceId ?? '');
+    if (!existing) return err(new NotFoundError('function', parsed.data.functionId));
 
     const promptId = parsed.data.feedback
       ? 'code-generation/regeneration'
@@ -369,8 +384,8 @@ export class CodeGenerationService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const fn = await this.deps.functions.get(functionId, ctx.workspaceId);
-    if (!fn) return err(new NotFoundError(`Function ${functionId} not found`));
+    const fn = await this.deps.functions.get(functionId, ctx.workspaceId ?? '');
+    if (!fn) return err(new NotFoundError('function', functionId));
 
     const updated = await this.deps.functions.upsert({
       ...fn,
@@ -392,7 +407,12 @@ export class CodeGenerationService {
   ): Promise<Result<ServerFunction, AppError>> {
     const parsed = RollbackFunctionInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid rollback input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid rollback input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -401,19 +421,20 @@ export class CodeGenerationService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const fn = await this.deps.functions.get(parsed.data.functionId, ctx.workspaceId);
-    if (!fn) return err(new NotFoundError(`Function ${parsed.data.functionId} not found`));
+    const fn = await this.deps.functions.get(parsed.data.functionId, ctx.workspaceId ?? '');
+    if (!fn) return err(new NotFoundError('function', parsed.data.functionId));
 
     const versions = await this.deps.functions.getVersions(
       fn.spec.name,
       fn.projectId,
-      ctx.workspaceId,
+      ctx.workspaceId ?? '',
     );
     const target = versions.find((v) => v.version === parsed.data.targetVersion);
     if (!target)
       return err(
         new NotFoundError(
-          `Version ${String(parsed.data.targetVersion)} of function ${fn.spec.name} not found`,
+          'function_version',
+          `${fn.spec.name}@${String(parsed.data.targetVersion)}`,
         ),
       );
 
@@ -445,8 +466,8 @@ export class CodeGenerationService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const fn = await this.deps.functions.get(functionId, ctx.workspaceId);
-    if (!fn) return err(new NotFoundError(`Function ${functionId} not found`));
+    const fn = await this.deps.functions.get(functionId, ctx.workspaceId ?? '');
+    if (!fn) return err(new NotFoundError('function', functionId));
     return ok(fn);
   }
 
@@ -461,10 +482,10 @@ export class CodeGenerationService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const project = await this.deps.projects.get(projectId, ctx.workspaceId);
-    if (!project) return err(new NotFoundError(`Project ${projectId} not found`));
+    const project = await this.deps.projects.get(projectId, ctx.workspaceId ?? '');
+    if (!project) return err(new NotFoundError('project', projectId));
 
-    const updated = await this.deps.projects.update(projectId, ctx.workspaceId, {
+    const updated = await this.deps.projects.update(projectId, ctx.workspaceId ?? '', {
       status: 'approved',
     });
 
@@ -484,8 +505,8 @@ export class CodeGenerationService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const project = await this.deps.projects.get(projectId, ctx.workspaceId);
-    if (!project) return err(new NotFoundError(`Project ${projectId} not found`));
+    const project = await this.deps.projects.get(projectId, ctx.workspaceId ?? '');
+    if (!project) return err(new NotFoundError('project', projectId));
 
     await this.deps.audit.write(ctx, CODE_GENERATION_AUDIT_EVENTS.EXPORTED, { projectId });
 

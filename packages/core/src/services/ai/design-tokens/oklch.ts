@@ -35,9 +35,9 @@ export function hexToOklch(hex: string): OklchColor {
   const m_ = Math.cbrt(lms_m);
   const s_ = Math.cbrt(lms_s);
 
-  const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
-  const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
-  const bv = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+  const L = 0.2104542553 * l_ + 0.793617785 * m_ - 0.0040720468 * s_;
+  const a = 1.9779984951 * l_ - 2.428592205 * m_ + 0.4505937099 * s_;
+  const bv = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.808675766 * s_;
 
   const C = Math.sqrt(a * a + bv * bv);
   const H = ((Math.atan2(bv, a) * 180) / Math.PI + 360) % 360;
@@ -55,7 +55,7 @@ export function oklchToHex(color: OklchColor): string {
   // OKLab → LMS
   const l_ = l + 0.3963377774 * a + 0.2158037573 * bv;
   const m_ = l - 0.1055613458 * a - 0.0638541728 * bv;
-  const s_ = l - 0.0894841775 * a - 1.2914855480 * bv;
+  const s_ = l - 0.0894841775 * a - 1.291485548 * bv;
 
   const lms_l = l_ * l_ * l_;
   const lms_m = m_ * m_ * m_;
@@ -64,7 +64,7 @@ export function oklchToHex(color: OklchColor): string {
   // LMS → linear sRGB
   let r = +4.0767416621 * lms_l - 3.3077115913 * lms_m + 0.2309699292 * lms_s;
   let g = -1.2684380046 * lms_l + 2.6097574011 * lms_m - 0.3413193965 * lms_s;
-  let bVal = -0.0041960863 * lms_l - 0.7034186147 * lms_m + 1.7076147010 * lms_s;
+  let bVal = -0.0041960863 * lms_l - 0.7034186147 * lms_m + 1.707614701 * lms_s;
 
   // Clamp
   r = Math.max(0, Math.min(1, r));
@@ -91,12 +91,12 @@ export function generateColorScale(baseHex: string): Record<string, string> {
     // Adjust chroma: very light and very dark shades get reduced chroma
     const chromaFactor = 1 - Math.abs(l - 0.55) * 0.5;
     const hex = oklchToHex({ l, c: base.c * chromaFactor, h: base.h });
-    scale[labels[i]] = hex;
+    scale[labels[i] ?? ''] = hex;
   });
   // 500 is the base color itself
   scale['500'] = baseHex;
 
-  return scale as Record<string, string>;
+  return scale;
 }
 
 /** Format an OKLCH color as a CSS oklch() string. */

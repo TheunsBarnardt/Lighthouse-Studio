@@ -18,6 +18,7 @@ import type {
   TestFailure,
 } from './types.js';
 
+import { toAuditActor, auditMeta } from '../../../context.js';
 import { ValidationError, NotFoundError } from '../../../errors.js';
 import {
   GenerateTestPlanInputSchema,
@@ -68,11 +69,55 @@ interface TestGenerationServiceDeps {
   };
   testRunner: TestRunnerPort;
   audit: {
-    write(ctx: RequestContext, event: string, payload: Record<string, unknown>): Promise<void>;
+    write(entry: {
+      eventType: string;
+      actor: { kind: string; id: string | null };
+      resource: { type: string; id: string };
+      action: string;
+      outcome: string;
+      correlationId: string;
+      metadata?: Record<string, unknown>;
+      workspaceId?: string;
+      ipAddress?: string;
+      userAgent?: string;
+    }): Promise<unknown>;
   };
   logger: {
     info(msg: string, meta?: Record<string, unknown>): void;
     warn(msg: string, meta?: Record<string, unknown>): void;
+  };
+}
+
+type TestAuditEntry = {
+  eventType: string;
+  actor: { kind: string; id: string | null };
+  resource: { type: string; id: string };
+  action: string;
+  outcome: string;
+  correlationId: string;
+  metadata?: Record<string, unknown>;
+  workspaceId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+};
+
+function makeAuditEntry(
+  eventType: string,
+  ctx: RequestContext,
+  resource: { type: string; id: string },
+  action: string,
+  metadata?: Record<string, unknown>,
+): TestAuditEntry {
+  return {
+    eventType,
+    actor: toAuditActor(ctx),
+    resource,
+    action,
+    outcome: 'success',
+    correlationId: ctx.correlationId,
+    ...(metadata ? { metadata } : {}),
+    ...auditMeta(ctx),
+    ...(ctx.workspaceId ? { workspaceId: ctx.workspaceId } : {}),
   };
 }
 
@@ -85,7 +130,12 @@ export class TestGenerationService {
   ): Promise<Result<TestPlan, AppError>> {
     const parsed = GenerateTestPlanInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid test plan input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid test plan input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -113,11 +163,19 @@ export class TestGenerationService {
       status: 'draft',
     });
 
-    await this.deps.audit.write(ctx, TEST_GENERATION_AUDIT_EVENTS.TEST_PLAN_GENERATED, {
-      projectId: parsed.data.projectId,
-      testCaseCount: plan.testCases.length,
-      uncoveredCount: plan.uncoveredAcs.length,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        TEST_GENERATION_AUDIT_EVENTS.TEST_PLAN_GENERATED,
+        ctx,
+        { type: 'test_plan', id: plan.id },
+        'test_plan_generated',
+        {
+          projectId: parsed.data.projectId,
+          testCaseCount: plan.testCases.length,
+          uncoveredCount: plan.uncoveredAcs.length,
+        },
+      ),
+    );
 
     return ok(plan);
   }
@@ -128,7 +186,12 @@ export class TestGenerationService {
   ): Promise<Result<TestSuite, AppError>> {
     const parsed = GenerateTestSuiteInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid suite input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid suite input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -137,8 +200,8 @@ export class TestGenerationService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const plan = await this.deps.plans.get(parsed.data.testPlanId, ctx.workspaceId);
-    if (!plan) return err(new NotFoundError(`Test plan ${parsed.data.testPlanId} not found`));
+    const plan = await this.deps.plans.get(parsed.data.testPlanId, ctx.workspaceId ?? '');
+    if (!plan) return err(new NotFoundError('test_plan', parsed.data.testPlanId));
 
     const testTypes = parsed.data.testTypes ?? ['unit', 'component', 'integration', 'e2e'];
     const testFileIds: string[] = [];
@@ -155,7 +218,7 @@ export class TestGenerationService {
 
     const suite = await this.deps.suites.create({
       id: `suite-${parsed.data.projectId}`,
-      workspaceId: ctx.workspaceId,
+      workspaceId: ctx.workspaceId ?? '',
       projectId: parsed.data.projectId,
       prdArtifactId: plan.prdArtifactId,
       testPlanId: plan.id,
@@ -181,12 +244,20 @@ export class TestGenerationService {
       status: 'review',
     });
 
-    await this.deps.audit.write(ctx, TEST_GENERATION_AUDIT_EVENTS.TEST_SUITE_GENERATED, {
-      projectId: parsed.data.projectId,
-      testFileCount: testFileIds.length,
-      acCoverageRate:
-        (acCoverageReport.acsWithTests / Math.max(1, acCoverageReport.totalAcs)) * 100,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        TEST_GENERATION_AUDIT_EVENTS.TEST_SUITE_GENERATED,
+        ctx,
+        { type: 'test_suite', id: suite.id },
+        'test_suite_generated',
+        {
+          projectId: parsed.data.projectId,
+          testFileCount: testFileIds.length,
+          acCoverageRate:
+            (acCoverageReport.acsWithTests / Math.max(1, acCoverageReport.totalAcs)) * 100,
+        },
+      ),
+    );
 
     return ok(suite);
   }
@@ -208,7 +279,9 @@ export class TestGenerationService {
       testSuiteId: `suite-${projectId}`,
       filePath: `src/__tests__/${testCase.testType}/${testCase.id}.test.ts`,
       testType: testCase.testType,
-      targetArtifactId: testCase.targetArtifactId,
+      ...(testCase.targetArtifactId !== undefined
+        ? { targetArtifactId: testCase.targetArtifactId }
+        : {}),
       testCaseIds: [testCase.id],
       source: generated.source,
       reasoning: generated.reasoning,
@@ -218,10 +291,18 @@ export class TestGenerationService {
 
     const saved = await this.deps.testFiles.upsert(file);
 
-    await this.deps.audit.write(ctx, TEST_GENERATION_AUDIT_EVENTS.TEST_FILE_GENERATED, {
-      testCaseId: testCase.id,
-      testType: testCase.testType,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        TEST_GENERATION_AUDIT_EVENTS.TEST_FILE_GENERATED,
+        ctx,
+        { type: 'test_file', id: file.id },
+        'test_file_generated',
+        {
+          testCaseId: testCase.id,
+          testType: testCase.testType,
+        },
+      ),
+    );
 
     return ok(saved);
   }
@@ -232,7 +313,12 @@ export class TestGenerationService {
   ): Promise<Result<TestFile, AppError>> {
     const parsed = RegenerateTestInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid regenerate input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid regenerate input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -241,8 +327,8 @@ export class TestGenerationService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const existing = await this.deps.testFiles.get(parsed.data.testFileId, ctx.workspaceId);
-    if (!existing) return err(new NotFoundError(`Test file ${parsed.data.testFileId} not found`));
+    const existing = await this.deps.testFiles.get(parsed.data.testFileId, ctx.workspaceId ?? '');
+    if (!existing) return err(new NotFoundError('test_file', parsed.data.testFileId));
 
     const generated = await this.deps.generation.run<{
       source: string;
@@ -259,10 +345,18 @@ export class TestGenerationService {
       status: 'draft',
     });
 
-    await this.deps.audit.write(ctx, TEST_GENERATION_AUDIT_EVENTS.TEST_REGENERATED, {
-      testFileId: parsed.data.testFileId,
-      hasFeedback: !!parsed.data.feedback,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        TEST_GENERATION_AUDIT_EVENTS.TEST_REGENERATED,
+        ctx,
+        { type: 'test_file', id: parsed.data.testFileId },
+        'test_regenerated',
+        {
+          testFileId: parsed.data.testFileId,
+          hasFeedback: !!parsed.data.feedback,
+        },
+      ),
+    );
 
     return ok(updated);
   }
@@ -270,7 +364,12 @@ export class TestGenerationService {
   async runTests(ctx: RequestContext, input: RunTestsInput): Promise<Result<TestRun, AppError>> {
     const parsed = RunTestsInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid run tests input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid run tests input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -279,21 +378,29 @@ export class TestGenerationService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const suite = await this.deps.suites.get(parsed.data.testSuiteId, ctx.workspaceId);
-    if (!suite) return err(new NotFoundError(`Test suite ${parsed.data.testSuiteId} not found`));
+    const suite = await this.deps.suites.get(parsed.data.testSuiteId, ctx.workspaceId ?? '');
+    if (!suite) return err(new NotFoundError('test_suite', parsed.data.testSuiteId));
 
     const run = await this.deps.testRuns.create({
       id: `run-${String(Date.now())}`,
       testSuiteId: parsed.data.testSuiteId,
-      workspaceId: ctx.workspaceId,
+      workspaceId: ctx.workspaceId ?? '',
       status: 'running',
       runTypes: parsed.data.testTypes,
     });
 
-    await this.deps.audit.write(ctx, TEST_GENERATION_AUDIT_EVENTS.TEST_RUN_STARTED, {
-      runId: run.id,
-      testTypes: parsed.data.testTypes,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        TEST_GENERATION_AUDIT_EVENTS.TEST_RUN_STARTED,
+        ctx,
+        { type: 'test_run', id: run.id },
+        'test_run_started',
+        {
+          runId: run.id,
+          testTypes: parsed.data.testTypes,
+        },
+      ),
+    );
 
     // Async execution — resolve immediately and update run when complete
     this._executeTestRun(ctx, run, suite, parsed.data).catch((e: unknown) => {
@@ -306,8 +413,8 @@ export class TestGenerationService {
   async getTestRun(ctx: RequestContext, runId: string): Promise<Result<TestRun, AppError>> {
     const authz = await this.deps.authz.authorize(ctx, 'ai.tests.read', `run:${runId}`);
     if (authz.isErr()) return err(authz.error);
-    const run = await this.deps.testRuns.get(runId, ctx.workspaceId);
-    if (!run) return err(new NotFoundError(`Test run ${runId} not found`));
+    const run = await this.deps.testRuns.get(runId, ctx.workspaceId ?? '');
+    if (!run) return err(new NotFoundError('test_run', runId));
     return ok(run);
   }
 
@@ -317,12 +424,20 @@ export class TestGenerationService {
   ): Promise<Result<TestSuite, AppError>> {
     const authz = await this.deps.authz.authorize(ctx, 'ai.tests.approve', `suite:${testSuiteId}`);
     if (authz.isErr()) return err(authz.error);
-    const suite = await this.deps.suites.get(testSuiteId, ctx.workspaceId);
-    if (!suite) return err(new NotFoundError(`Test suite ${testSuiteId} not found`));
-    const updated = await this.deps.suites.update(testSuiteId, ctx.workspaceId, {
+    const suite = await this.deps.suites.get(testSuiteId, ctx.workspaceId ?? '');
+    if (!suite) return err(new NotFoundError('test_suite', testSuiteId));
+    const updated = await this.deps.suites.update(testSuiteId, ctx.workspaceId ?? '', {
       status: 'approved',
     });
-    await this.deps.audit.write(ctx, TEST_GENERATION_AUDIT_EVENTS.APPROVED, { testSuiteId });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        TEST_GENERATION_AUDIT_EVENTS.APPROVED,
+        ctx,
+        { type: 'test_suite', id: testSuiteId },
+        'test_suite_approved',
+        { testSuiteId },
+      ),
+    );
     return ok(updated);
   }
 
@@ -332,8 +447,8 @@ export class TestGenerationService {
   ): Promise<Result<AcCoverageReport, AppError>> {
     const authz = await this.deps.authz.authorize(ctx, 'ai.tests.read', `suite:${testSuiteId}`);
     if (authz.isErr()) return err(authz.error);
-    const suite = await this.deps.suites.get(testSuiteId, ctx.workspaceId);
-    if (!suite) return err(new NotFoundError(`Test suite ${testSuiteId} not found`));
+    const suite = await this.deps.suites.get(testSuiteId, ctx.workspaceId ?? '');
+    if (!suite) return err(new NotFoundError('test_suite', testSuiteId));
     return ok(suite.acCoverageReport);
   }
 
@@ -369,36 +484,60 @@ export class TestGenerationService {
 
       const coverage = await this.deps.testRunner.collectCoverage(suite);
 
-      await this.deps.testRuns.update(run.id, ctx.workspaceId, {
+      await this.deps.testRuns.update(run.id, ctx.workspaceId ?? '', {
         status: allResults.failed === 0 ? 'completed' : 'failed',
         completedAt: new Date(),
         results: allResults,
         coverageReport: coverage,
       });
 
-      await this.deps.audit.write(ctx, TEST_GENERATION_AUDIT_EVENTS.TEST_RUN_COMPLETED, {
-        runId: run.id,
-        passed: allResults.passed,
-        failed: allResults.failed,
-        coverageLinePct: coverage.overall.line,
-      });
+      await this.deps.audit.write(
+        makeAuditEntry(
+          TEST_GENERATION_AUDIT_EVENTS.TEST_RUN_COMPLETED,
+          ctx,
+          { type: 'test_run', id: run.id },
+          'test_run_completed',
+          {
+            runId: run.id,
+            passed: allResults.passed,
+            failed: allResults.failed,
+            coverageLinePct: coverage.overall.line,
+          },
+        ),
+      );
 
       if (!coverage.thresholdsMet) {
-        await this.deps.audit.write(ctx, TEST_GENERATION_AUDIT_EVENTS.COVERAGE_BELOW_THRESHOLD, {
-          runId: run.id,
-          line: coverage.overall.line,
-          branch: coverage.overall.branch,
-        });
+        await this.deps.audit.write(
+          makeAuditEntry(
+            TEST_GENERATION_AUDIT_EVENTS.COVERAGE_BELOW_THRESHOLD,
+            ctx,
+            { type: 'test_run', id: run.id },
+            'coverage_below_threshold',
+            {
+              runId: run.id,
+              line: coverage.overall.line,
+              branch: coverage.overall.branch,
+            },
+          ),
+        );
       }
     } catch (e) {
-      await this.deps.testRuns.update(run.id, ctx.workspaceId, {
+      await this.deps.testRuns.update(run.id, ctx.workspaceId ?? '', {
         status: 'failed',
         completedAt: new Date(),
       });
-      await this.deps.audit.write(ctx, TEST_GENERATION_AUDIT_EVENTS.TEST_RUN_FAILED, {
-        runId: run.id,
-        error: String(e),
-      });
+      await this.deps.audit.write(
+        makeAuditEntry(
+          TEST_GENERATION_AUDIT_EVENTS.TEST_RUN_FAILED,
+          ctx,
+          { type: 'test_run', id: run.id },
+          'test_run_failed',
+          {
+            runId: run.id,
+            error: String(e),
+          },
+        ),
+      );
     }
   }
 

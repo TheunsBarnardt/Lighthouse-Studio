@@ -83,7 +83,12 @@ export class DeploymentService {
   ): Promise<Result<DeploymentPlan, AppError>> {
     const parsed = GeneratePlanInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid plan input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid plan input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -112,7 +117,7 @@ export class DeploymentService {
 
     const plan = await this.deps.plans.create({
       appVersion: parsed.data.appVersion,
-      workspaceId: ctx.workspaceId,
+      workspaceId: ctx.workspaceId ?? '',
       projectId: parsed.data.projectId,
       sourceArtifacts: {
         uiProjectId: parsed.data.uiProjectId,
@@ -144,8 +149,8 @@ export class DeploymentService {
   ): Promise<Result<DeploymentPlan, AppError>> {
     const authz = await this.deps.authz.authorize(ctx, 'ai.deployment.read', `plan:${planId}`);
     if (authz.isErr()) return err(authz.error);
-    const plan = await this.deps.plans.get(planId, ctx.workspaceId);
-    if (!plan) return err(new NotFoundError(`Deployment plan ${planId} not found`));
+    const plan = await this.deps.plans.get(planId, ctx.workspaceId ?? '');
+    if (!plan) return err(new NotFoundError('deployment_plan', planId));
     return ok(plan);
   }
 
@@ -155,7 +160,12 @@ export class DeploymentService {
   ): Promise<Result<DeploymentPlan, AppError>> {
     const parsed = UpdatePlanInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid plan update', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid plan update',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -164,13 +174,13 @@ export class DeploymentService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const plan = await this.deps.plans.get(parsed.data.planId, ctx.workspaceId);
-    if (!plan) return err(new NotFoundError(`Deployment plan ${parsed.data.planId} not found`));
+    const plan = await this.deps.plans.get(parsed.data.planId, ctx.workspaceId ?? '');
+    if (!plan) return err(new NotFoundError('deployment_plan', parsed.data.planId));
 
     const updated = await this.deps.plans.update(
       parsed.data.planId,
-      ctx.workspaceId,
-      parsed.data.changes,
+      ctx.workspaceId ?? '',
+      parsed.data.changes as Partial<DeploymentPlan>,
     );
 
     await this.deps.audit.write(ctx, DEPLOYMENT_AUDIT_EVENTS.PLAN_EDITED, {
@@ -186,10 +196,12 @@ export class DeploymentService {
     const authz = await this.deps.authz.authorize(ctx, 'ai.deployment.approve', `plan:${planId}`);
     if (authz.isErr()) return err(authz.error);
 
-    const plan = await this.deps.plans.get(planId, ctx.workspaceId);
-    if (!plan) return err(new NotFoundError(`Deployment plan ${planId} not found`));
+    const plan = await this.deps.plans.get(planId, ctx.workspaceId ?? '');
+    if (!plan) return err(new NotFoundError('deployment_plan', planId));
 
-    const updated = await this.deps.plans.update(planId, ctx.workspaceId, { status: 'approved' });
+    const updated = await this.deps.plans.update(planId, ctx.workspaceId ?? '', {
+      status: 'approved',
+    });
     await this.deps.audit.write(ctx, DEPLOYMENT_AUDIT_EVENTS.PLAN_APPROVED, { planId });
     return ok(updated);
   }
@@ -200,25 +212,30 @@ export class DeploymentService {
   ): Promise<Result<Deployment, AppError>> {
     const parsed = DeployToEnvironmentInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid deploy input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid deploy input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const envPermission = this._envPermission(parsed.data.environmentName);
     const authz = await this.deps.authz.authorize(ctx, envPermission, `plan:${parsed.data.planId}`);
     if (authz.isErr()) return err(authz.error);
 
-    const plan = await this.deps.plans.get(parsed.data.planId, ctx.workspaceId);
-    if (!plan) return err(new NotFoundError(`Deployment plan ${parsed.data.planId} not found`));
+    const plan = await this.deps.plans.get(parsed.data.planId, ctx.workspaceId ?? '');
+    if (!plan) return err(new NotFoundError('deployment_plan', parsed.data.planId));
     if (plan.status !== 'approved')
       return err(new ValidationError('Plan must be approved before deploying'));
 
     const envConfig = plan.environments.find((e) => e.name === parsed.data.environmentName);
     if (!envConfig)
-      return err(new NotFoundError(`Environment ${parsed.data.environmentName} not in plan`));
+      return err(new NotFoundError('deployment_environment', parsed.data.environmentName));
 
     const deployment = await this.deps.deployments.create({
       id: `dep-${String(Date.now())}`,
       planId: parsed.data.planId,
-      workspaceId: ctx.workspaceId,
+      workspaceId: ctx.workspaceId ?? '',
       environment: parsed.data.environmentName,
       status: 'pending',
       appVersion: plan.appVersion,
@@ -266,13 +283,13 @@ export class DeploymentService {
       `deployment:${deploymentId}`,
     );
     if (authz.isErr()) return err(authz.error);
-    const dep = await this.deps.deployments.get(deploymentId, ctx.workspaceId);
-    if (!dep) return err(new NotFoundError(`Deployment ${deploymentId} not found`));
+    const dep = await this.deps.deployments.get(deploymentId, ctx.workspaceId ?? '');
+    if (!dep) return err(new NotFoundError('deployment', deploymentId));
     return ok(dep);
   }
 
   streamDeploymentProgress(
-    ctx: RequestContext,
+    _ctx: RequestContext,
     deploymentId: string,
   ): AsyncIterable<DeploymentEvent> {
     return this.deps.executor.streamEvents(deploymentId);
@@ -290,8 +307,8 @@ export class DeploymentService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const dep = await this.deps.deployments.get(deploymentId, ctx.workspaceId);
-    if (!dep) return err(new NotFoundError(`Deployment ${deploymentId} not found`));
+    const dep = await this.deps.deployments.get(deploymentId, ctx.workspaceId ?? '');
+    if (!dep) return err(new NotFoundError('deployment', deploymentId));
     if (dep.status !== 'deployed')
       return err(new ValidationError('Can only promote completed deployments'));
 
@@ -310,7 +327,12 @@ export class DeploymentService {
   async rollback(ctx: RequestContext, input: RollbackInput): Promise<Result<Deployment, AppError>> {
     const parsed = RollbackInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid rollback input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid rollback input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -319,8 +341,8 @@ export class DeploymentService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const dep = await this.deps.deployments.get(parsed.data.deploymentId, ctx.workspaceId);
-    if (!dep) return err(new NotFoundError(`Deployment ${parsed.data.deploymentId} not found`));
+    const dep = await this.deps.deployments.get(parsed.data.deploymentId, ctx.workspaceId ?? '');
+    if (!dep) return err(new NotFoundError('deployment', parsed.data.deploymentId));
 
     await this.deps.audit.write(ctx, DEPLOYMENT_AUDIT_EVENTS.ROLLBACK_INITIATED, {
       deploymentId: parsed.data.deploymentId,
@@ -336,11 +358,11 @@ export class DeploymentService {
         });
       });
 
-    const updated = await this.deps.deployments.get(parsed.data.deploymentId, ctx.workspaceId);
-    if (!updated)
-      return err(
-        new NotFoundError(`Deployment ${parsed.data.deploymentId} not found after rollback`),
-      );
+    const updated = await this.deps.deployments.get(
+      parsed.data.deploymentId,
+      ctx.workspaceId ?? '',
+    );
+    if (!updated) return err(new NotFoundError('deployment', parsed.data.deploymentId));
     return ok(updated);
   }
 
@@ -355,13 +377,13 @@ export class DeploymentService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const dep = await this.deps.deployments.get(deploymentId, ctx.workspaceId);
-    if (!dep) return err(new NotFoundError(`Deployment ${deploymentId} not found`));
+    const dep = await this.deps.deployments.get(deploymentId, ctx.workspaceId ?? '');
+    if (!dep) return err(new NotFoundError('deployment', deploymentId));
     if (!['pending', 'running'].includes(dep.status)) {
       return err(new ValidationError(`Cannot cancel deployment in status ${dep.status}`));
     }
 
-    const updated = await this.deps.deployments.update(deploymentId, ctx.workspaceId, {
+    const updated = await this.deps.deployments.update(deploymentId, ctx.workspaceId ?? '', {
       status: 'cancelled',
       completedAt: new Date(),
     });
@@ -383,7 +405,7 @@ export class DeploymentService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const result = await this.deps.deployments.list(ctx.workspaceId, {
+    const result = await this.deps.deployments.list(ctx.workspaceId ?? '', {
       page: opts.page ?? 1,
       pageSize: opts.pageSize ?? 20,
     });

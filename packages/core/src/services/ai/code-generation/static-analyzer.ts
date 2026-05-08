@@ -1,19 +1,54 @@
 import type { StaticAnalysisReport, StaticViolation } from './types.js';
 
 const FORBIDDEN_IMPORTS = [
-  'child_process', 'cluster', 'worker_threads', 'vm', 'repl',
-  'fs', 'fs/promises', 'node:fs', 'node:fs/promises',
-  'net', 'dgram', 'tls', 'node:net', 'node:dgram',
+  'child_process',
+  'cluster',
+  'worker_threads',
+  'vm',
+  'repl',
+  'fs',
+  'fs/promises',
+  'node:fs',
+  'node:fs/promises',
+  'net',
+  'dgram',
+  'tls',
+  'node:net',
+  'node:dgram',
 ];
 
 const FORBIDDEN_PATTERNS = [
   { pattern: /\beval\s*\(/, type: 'forbidden_call', message: 'eval() is forbidden in sandbox' },
-  { pattern: /new\s+Function\s*\(/, type: 'forbidden_call', message: 'new Function() is forbidden in sandbox' },
-  { pattern: /process\.exit/, type: 'forbidden_call', message: 'process.exit() is forbidden; throw an error instead' },
-  { pattern: /process\.env\b/, type: 'unsafe_pattern', message: 'Use ctx.secrets for credentials; process.env is not available in sandbox' },
-  { pattern: /require\s*\(/, type: 'unsafe_pattern', message: 'CommonJS require() is not allowed; use ES module imports' },
-  { pattern: /globalThis\s*\[/, type: 'sandbox_escape_attempt', message: 'Dynamic globalThis access is a sandbox escape vector' },
-  { pattern: /__proto__/, type: 'sandbox_escape_attempt', message: '__proto__ manipulation is a sandbox escape vector' },
+  {
+    pattern: /new\s+Function\s*\(/,
+    type: 'forbidden_call',
+    message: 'new Function() is forbidden in sandbox',
+  },
+  {
+    pattern: /process\.exit/,
+    type: 'forbidden_call',
+    message: 'process.exit() is forbidden; throw an error instead',
+  },
+  {
+    pattern: /process\.env\b/,
+    type: 'unsafe_pattern',
+    message: 'Use ctx.secrets for credentials; process.env is not available in sandbox',
+  },
+  {
+    pattern: /require\s*\(/,
+    type: 'unsafe_pattern',
+    message: 'CommonJS require() is not allowed; use ES module imports',
+  },
+  {
+    pattern: /globalThis\s*\[/,
+    type: 'sandbox_escape_attempt',
+    message: 'Dynamic globalThis access is a sandbox escape vector',
+  },
+  {
+    pattern: /__proto__/,
+    type: 'sandbox_escape_attempt',
+    message: '__proto__ manipulation is a sandbox escape vector',
+  },
 ] as const;
 
 const ALLOWED_IMPORT_PREFIXES = [
@@ -40,9 +75,10 @@ export class StaticAnalyzer {
       // Forbidden imports
       const importMatch = line.match(/^\s*import\s+.*?\s+from\s+['"]([^'"]+)['"]/);
       if (importMatch) {
-        const mod = importMatch[1];
-        const isForbidden = FORBIDDEN_IMPORTS.some(f => mod === f || mod.startsWith(f + '/'));
-        const isAllowed = ALLOWED_IMPORT_PREFIXES.some(p => mod.startsWith(p));
+        const mod = importMatch[1] ?? '';
+        // eslint-disable-next-line platform/no-path-concatenation
+        const isForbidden = FORBIDDEN_IMPORTS.some((f) => mod === f || mod.startsWith(f + '/'));
+        const isAllowed = ALLOWED_IMPORT_PREFIXES.some((p) => mod.startsWith(p));
         if (isForbidden) {
           violations.push({
             type: 'forbidden_import',
@@ -52,7 +88,9 @@ export class StaticAnalyzer {
             severity: 'error',
           });
         } else if (!isAllowed && !mod.startsWith('./') && !mod.startsWith('../')) {
-          warnings.push(`Line ${lineNo}: Import '${mod}' is not in the approved list; ensure it is available in the runtime`);
+          warnings.push(
+            `Line ${String(lineNo)}: Import '${mod}' is not in the approved list; ensure it is available in the runtime`,
+          );
         }
       }
 
@@ -71,22 +109,30 @@ export class StaticAnalyzer {
     });
 
     return {
-      passed: violations.filter(v => v.severity === 'error').length === 0,
+      passed: violations.filter((v) => v.severity === 'error').length === 0,
       violations,
       warnings,
       analyzedAt: new Date(),
     };
   }
 
-  checkPermissionDeclarations(source: string, declaredPermissions: string[]): { accurate: boolean; missing: string[] } {
+  checkPermissionDeclarations(
+    source: string,
+    declaredPermissions: string[],
+  ): { accurate: boolean; missing: string[] } {
     const missing: string[] = [];
     const sdkWritePattern = /sdk\.data\([^)]+\)\.(update|create|delete|insert)/g;
     const sdkReadPattern = /sdk\.data\([^)]+\)\.(list|get|where|findOne|one)/g;
 
-    if (sdkWritePattern.test(source) && !declaredPermissions.some(p => p.includes('update') || p.includes('create') || p.includes('delete'))) {
+    if (
+      sdkWritePattern.test(source) &&
+      !declaredPermissions.some(
+        (p) => p.includes('update') || p.includes('create') || p.includes('delete'),
+      )
+    ) {
       missing.push('data_table.write');
     }
-    if (sdkReadPattern.test(source) && !declaredPermissions.some(p => p.includes('read'))) {
+    if (sdkReadPattern.test(source) && !declaredPermissions.some((p) => p.includes('read'))) {
       missing.push('data_table.read');
     }
 

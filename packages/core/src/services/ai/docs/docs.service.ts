@@ -1,6 +1,7 @@
-import { Result, ok, err } from 'neverthrow';
+import { ok, err, type Result } from 'neverthrow';
+
 import type { RequestContext } from '../../../context.js';
-import { NotFoundError, ValidationError } from '../../../errors.js';
+import type { AppError } from '../../../errors.js';
 import type {
   DocPage,
   DocSite,
@@ -12,6 +13,9 @@ import type {
   SyncFromSourceInput,
   IngestTelemetryInput,
 } from './types.js';
+
+import { toAuditActor, auditMeta } from '../../../context.js';
+import { NotFoundError, ValidationError } from '../../../errors.js';
 import {
   GenerateDocPageInputSchema,
   UpdateDocPageInputSchema,
@@ -21,13 +25,57 @@ import {
   DOCS_AUDIT_EVENTS,
   DOCS_PERMISSIONS,
 } from './types.js';
-import type { AppError } from '../../../errors.js';
+
+type AuditWriteEntry = {
+  eventType: string;
+  actor: { kind: string; id: string | null };
+  resource: { type: string; id: string };
+  action: string;
+  outcome: string;
+  correlationId: string;
+  metadata?: Record<string, unknown>;
+  workspaceId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+};
 
 interface DocsServiceDeps {
-  authz: { authorize(ctx: RequestContext, action: string, resource?: string): Promise<Result<void, AppError>> };
-  audit: { write(event: string, ctx: RequestContext, metadata: Record<string, unknown>): Promise<void> };
-  ai: { generate(promptId: string, inputs: unknown, ctx: RequestContext): Promise<Result<unknown, AppError>> };
+  authz: {
+    authorize(
+      ctx: RequestContext,
+      action: string,
+      resource?: string,
+    ): Promise<Result<void, AppError>>;
+  };
+  audit: { write(entry: AuditWriteEntry): Promise<unknown> };
+  ai: {
+    generate(
+      promptId: string,
+      inputs: unknown,
+      ctx: RequestContext,
+    ): Promise<Result<unknown, AppError>>;
+  };
   logger: { error(msg: string, meta?: unknown): void };
+}
+
+function makeAuditEntry(
+  eventType: string,
+  ctx: RequestContext,
+  resource: { type: string; id: string },
+  action: string,
+  metadata?: Record<string, unknown>,
+): AuditWriteEntry {
+  return {
+    eventType,
+    actor: toAuditActor(ctx),
+    resource,
+    action,
+    outcome: 'success',
+    correlationId: ctx.correlationId,
+    ...(metadata ? { metadata } : {}),
+    ...auditMeta(ctx),
+    ...(ctx.workspaceId ? { workspaceId: ctx.workspaceId } : {}),
+  };
 }
 
 export class DocsService {
@@ -38,28 +86,42 @@ export class DocsService {
     input: GenerateDocPageInput,
   ): Promise<Result<DocPage, AppError>> {
     const parsed = GenerateDocPageInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid input', parsed.error.flatten()));
+    if (!parsed.success)
+      return err(
+        new ValidationError(
+          'Invalid input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authzResult = await this.deps.authz.authorize(ctx, DOCS_PERMISSIONS.WRITE);
     if (authzResult.isErr()) return err(authzResult.error);
 
-    const genResult = await this.deps.ai.generate('docs.schema-page-generation', {
-      sourceType: parsed.data.sourceType,
-      sourceContent: parsed.data.sourceContent,
-    }, ctx);
+    const genResult = await this.deps.ai.generate(
+      'docs.schema-page-generation',
+      {
+        sourceType: parsed.data.sourceType,
+        sourceContent: parsed.data.sourceContent,
+      },
+      ctx,
+    );
     if (genResult.isErr()) return err(genResult.error);
 
-    const generated = genResult.value as { title: string; description: string; sections: Array<{ heading: string; content: string }> };
+    const generated = genResult.value as {
+      title: string;
+      description: string;
+      sections: Array<{ heading: string; content: string }>;
+    };
 
     const page: DocPage = {
-      id: `page-${Date.now()}`,
-      workspaceId: ctx.workspaceId,
+      id: `page-${String(Date.now())}`,
+      workspaceId: ctx.workspaceId ?? '',
       appId: parsed.data.appId,
       slug: parsed.data.existingSlug ?? `/${parsed.data.sourceType}/${parsed.data.sourceId}`,
       title: generated.title,
       description: generated.description,
       sections: generated.sections.map((s, i) => ({
-        id: `section-${i}`,
+        id: `section-${String(i)}`,
         heading: s.heading,
         content: s.content,
         sourceType: parsed.data.sourceType,
@@ -75,11 +137,19 @@ export class DocsService {
       updatedAt: new Date().toISOString(),
     };
 
-    await this.deps.audit.write(DOCS_AUDIT_EVENTS.DOC_PAGE_CREATED, ctx, {
-      pageId: page.id,
-      sourceType: parsed.data.sourceType,
-      sourceId: parsed.data.sourceId,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        DOCS_AUDIT_EVENTS.DOC_PAGE_CREATED,
+        ctx,
+        { type: 'doc_page', id: page.id },
+        'doc_page_created',
+        {
+          pageId: page.id,
+          sourceType: parsed.data.sourceType,
+          sourceId: parsed.data.sourceId,
+        },
+      ),
+    );
 
     return ok(page);
   }
@@ -89,10 +159,10 @@ export class DocsService {
     if (authzResult.isErr()) return err(authzResult.error);
 
     // Storage lookup would go here
-    return err(new NotFoundError(`Doc page ${pageId} not found`));
+    return err(new NotFoundError('doc_page', pageId));
   }
 
-  async listDocPages(ctx: RequestContext, appId: string): Promise<Result<DocPage[], AppError>> {
+  async listDocPages(ctx: RequestContext, _appId: string): Promise<Result<DocPage[], AppError>> {
     const authzResult = await this.deps.authz.authorize(ctx, DOCS_PERMISSIONS.READ);
     if (authzResult.isErr()) return err(authzResult.error);
 
@@ -104,17 +174,31 @@ export class DocsService {
     input: UpdateDocPageInput,
   ): Promise<Result<DocPage, AppError>> {
     const parsed = UpdateDocPageInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid input', parsed.error.flatten()));
+    if (!parsed.success)
+      return err(
+        new ValidationError(
+          'Invalid input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authzResult = await this.deps.authz.authorize(ctx, DOCS_PERMISSIONS.WRITE);
     if (authzResult.isErr()) return err(authzResult.error);
 
-    await this.deps.audit.write(DOCS_AUDIT_EVENTS.DOC_PAGE_UPDATED, ctx, {
-      pageId: parsed.data.pageId,
-      sectionId: parsed.data.sectionId,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        DOCS_AUDIT_EVENTS.DOC_PAGE_UPDATED,
+        ctx,
+        { type: 'doc_page', id: parsed.data.pageId },
+        'doc_page_updated',
+        {
+          pageId: parsed.data.pageId,
+          sectionId: parsed.data.sectionId,
+        },
+      ),
+    );
 
-    return err(new NotFoundError(`Doc page ${parsed.data.pageId} not found`));
+    return err(new NotFoundError('doc_page', parsed.data.pageId));
   }
 
   async syncFromSource(
@@ -122,25 +206,39 @@ export class DocsService {
     input: SyncFromSourceInput,
   ): Promise<Result<{ syncedPages: number }, AppError>> {
     const parsed = SyncFromSourceInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid input', parsed.error.flatten()));
+    if (!parsed.success)
+      return err(
+        new ValidationError(
+          'Invalid input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authzResult = await this.deps.authz.authorize(ctx, DOCS_PERMISSIONS.WRITE);
     if (authzResult.isErr()) return err(authzResult.error);
 
     // Async: find all pages with matching sourceType, regenerate each
-    this._syncPagesAsync(ctx, parsed.data).catch((e: unknown) =>
-      this.deps.logger.error('Async doc sync failed', e),
-    );
+    this._syncPagesAsync(ctx, parsed.data).catch((e: unknown) => {
+      this.deps.logger.error('Async doc sync failed', e);
+    });
 
     return ok({ syncedPages: 0 });
   }
 
   private async _syncPagesAsync(ctx: RequestContext, input: SyncFromSourceInput): Promise<void> {
-    await this.deps.audit.write(DOCS_AUDIT_EVENTS.DOC_PAGE_SYNCED, ctx, {
-      appId: input.appId,
-      sourceType: input.trigger.sourceType,
-      sourceId: input.trigger.sourceId,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        DOCS_AUDIT_EVENTS.DOC_PAGE_SYNCED,
+        ctx,
+        { type: 'doc_sync', id: input.appId },
+        'doc_page_synced',
+        {
+          appId: input.appId,
+          sourceType: input.trigger.sourceType,
+          sourceId: input.trigger.sourceId,
+        },
+      ),
+    );
   }
 
   async exportDocSite(
@@ -148,14 +246,20 @@ export class DocsService {
     input: ExportDocSiteInput,
   ): Promise<Result<DocExport, AppError>> {
     const parsed = ExportDocSiteInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid input', parsed.error.flatten()));
+    if (!parsed.success)
+      return err(
+        new ValidationError(
+          'Invalid input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authzResult = await this.deps.authz.authorize(ctx, DOCS_PERMISSIONS.EXPORT);
     if (authzResult.isErr()) return err(authzResult.error);
 
     const docExport: DocExport = {
-      id: `export-${Date.now()}`,
-      workspaceId: ctx.workspaceId,
+      id: `export-${String(Date.now())}`,
+      workspaceId: ctx.workspaceId ?? '',
       appId: parsed.data.appId,
       version: parsed.data.version,
       status: 'generating',
@@ -163,35 +267,54 @@ export class DocsService {
       createdAt: new Date().toISOString(),
     };
 
-    await this.deps.audit.write(DOCS_AUDIT_EVENTS.DOC_EXPORT_STARTED, ctx, {
-      exportId: docExport.id,
-      version: parsed.data.version,
-      telemetryEnabled: parsed.data.telemetryEnabled,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        DOCS_AUDIT_EVENTS.DOC_EXPORT_STARTED,
+        ctx,
+        { type: 'doc_export', id: docExport.id },
+        'doc_export_started',
+        {
+          exportId: docExport.id,
+          version: parsed.data.version,
+          telemetryEnabled: parsed.data.telemetryEnabled,
+        },
+      ),
+    );
 
     // Async: build Next.js + fumadocs project, zip, upload
-    this._buildExportAsync(ctx, docExport).catch((e: unknown) =>
-      this.deps.logger.error('Async doc export failed', e),
-    );
+    this._buildExportAsync(ctx, docExport).catch((e: unknown) => {
+      this.deps.logger.error('Async doc export failed', e);
+    });
 
     return ok(docExport);
   }
 
   private async _buildExportAsync(ctx: RequestContext, docExport: DocExport): Promise<void> {
-    await this.deps.audit.write(DOCS_AUDIT_EVENTS.DOC_EXPORT_COMPLETED, ctx, {
-      exportId: docExport.id,
-      version: docExport.version,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        DOCS_AUDIT_EVENTS.DOC_EXPORT_COMPLETED,
+        ctx,
+        { type: 'doc_export', id: docExport.id },
+        'doc_export_completed',
+        {
+          exportId: docExport.id,
+          version: docExport.version,
+        },
+      ),
+    );
   }
 
   async getDocExport(ctx: RequestContext, exportId: string): Promise<Result<DocExport, AppError>> {
     const authzResult = await this.deps.authz.authorize(ctx, DOCS_PERMISSIONS.READ);
     if (authzResult.isErr()) return err(authzResult.error);
 
-    return err(new NotFoundError(`Doc export ${exportId} not found`));
+    return err(new NotFoundError('doc_export', exportId));
   }
 
-  async listDocExports(ctx: RequestContext, appId: string): Promise<Result<DocExport[], AppError>> {
+  async listDocExports(
+    ctx: RequestContext,
+    _appId: string,
+  ): Promise<Result<DocExport[], AppError>> {
     const authzResult = await this.deps.authz.authorize(ctx, DOCS_PERMISSIONS.READ);
     if (authzResult.isErr()) return err(authzResult.error);
 
@@ -203,40 +326,58 @@ export class DocsService {
     input: IngestTelemetryInput,
   ): Promise<Result<DocTelemetryEvent, AppError>> {
     const parsed = IngestTelemetryInputSchema.safeParse(input);
-    if (!parsed.success) return err(new ValidationError('Invalid input', parsed.error.flatten()));
+    if (!parsed.success)
+      return err(
+        new ValidationError(
+          'Invalid input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authzResult = await this.deps.authz.authorize(ctx, DOCS_PERMISSIONS.TELEMETRY_RECEIVE);
     if (authzResult.isErr()) return err(authzResult.error);
 
     const event: DocTelemetryEvent = {
-      id: `tel-${Date.now()}`,
-      workspaceId: ctx.workspaceId,
+      id: `tel-${String(Date.now())}`,
+      workspaceId: ctx.workspaceId ?? '',
       appId: parsed.data.appId,
       exportVersion: parsed.data.exportVersion,
       event: parsed.data.event,
       page: parsed.data.page,
-      searchQuery: parsed.data.searchQuery,
-      durationMs: parsed.data.durationMs,
+      ...(parsed.data.searchQuery !== undefined ? { searchQuery: parsed.data.searchQuery } : {}),
+      ...(parsed.data.durationMs !== undefined ? { durationMs: parsed.data.durationMs } : {}),
       timestamp: parsed.data.timestamp,
       receivedAt: new Date().toISOString(),
     };
 
-    await this.deps.audit.write(DOCS_AUDIT_EVENTS.DOC_TELEMETRY_RECEIVED, ctx, {
-      exportVersion: event.exportVersion,
-      event: event.event,
-      page: event.page,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        DOCS_AUDIT_EVENTS.DOC_TELEMETRY_RECEIVED,
+        ctx,
+        { type: 'doc_telemetry', id: event.id },
+        'doc_telemetry_received',
+        {
+          exportVersion: event.exportVersion,
+          event: event.event,
+          page: event.page,
+        },
+      ),
+    );
 
     return ok(event);
   }
 
-  async configureSite(ctx: RequestContext, appId: string, config: DocSite['config']): Promise<Result<DocSite, AppError>> {
+  async configureSite(
+    ctx: RequestContext,
+    appId: string,
+    config: DocSite['config'],
+  ): Promise<Result<DocSite, AppError>> {
     const authzResult = await this.deps.authz.authorize(ctx, DOCS_PERMISSIONS.CONFIGURE);
     if (authzResult.isErr()) return err(authzResult.error);
 
     const site: DocSite = {
       id: `site-${appId}`,
-      workspaceId: ctx.workspaceId,
+      workspaceId: ctx.workspaceId ?? '',
       appId,
       config,
       pageCount: 0,
@@ -244,7 +385,15 @@ export class DocsService {
       updatedAt: new Date().toISOString(),
     };
 
-    await this.deps.audit.write(DOCS_AUDIT_EVENTS.DOC_SITE_CONFIGURED, ctx, { appId });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        DOCS_AUDIT_EVENTS.DOC_SITE_CONFIGURED,
+        ctx,
+        { type: 'doc_site', id: site.id },
+        'doc_site_configured',
+        { appId },
+      ),
+    );
 
     return ok(site);
   }

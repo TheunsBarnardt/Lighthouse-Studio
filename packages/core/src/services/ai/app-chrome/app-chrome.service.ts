@@ -54,7 +54,7 @@ export class AppChromeService {
     const authz = await this.deps.authz.authorize(ctx, 'app_chrome.view', `project:${projectId}`);
     if (authz.isErr()) return err(authz.error);
 
-    const config = await this.deps.configs.getByProjectId(projectId, ctx.workspaceId);
+    const config = await this.deps.configs.getByProjectId(projectId, ctx.workspaceId ?? '');
     return ok(config);
   }
 
@@ -65,7 +65,10 @@ export class AppChromeService {
     const parsed = UpdateChromeConfigInputSchema.safeParse(input);
     if (!parsed.success)
       return err(
-        new ValidationError('Invalid chrome config input', { issues: parsed.error.issues }),
+        new ValidationError(
+          'Invalid chrome config input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
       );
 
     const authz = await this.deps.authz.authorize(
@@ -75,18 +78,28 @@ export class AppChromeService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const existing = await this.deps.configs.getByProjectId(parsed.data.projectId, ctx.workspaceId);
+    const existing = await this.deps.configs.getByProjectId(
+      parsed.data.projectId,
+      ctx.workspaceId ?? '',
+    );
+
+    const resolvedHeader = parsed.data.header ?? existing?.header;
+    const resolvedSidenav = parsed.data.sidenav ?? existing?.sidenav;
+    const resolvedBreadcrumb = parsed.data.breadcrumb ?? existing?.breadcrumb;
+    const resolvedFooter = parsed.data.footer ?? existing?.footer;
 
     const config = await this.deps.configs.upsert({
       id: existing?.id ?? `chrome-${parsed.data.projectId}`,
       projectId: parsed.data.projectId,
-      workspaceId: ctx.workspaceId,
+      workspaceId: ctx.workspaceId ?? '',
       layout: parsed.data.layout ?? existing?.layout ?? 'sidenav-with-topbar',
-      header: parsed.data.header ?? existing?.header,
-      sidenav: parsed.data.sidenav ?? existing?.sidenav,
-      breadcrumb: parsed.data.breadcrumb ?? existing?.breadcrumb,
-      footer: parsed.data.footer ?? existing?.footer,
-      pageOverrides: parsed.data.pageOverrides ?? existing?.pageOverrides ?? [],
+      ...(resolvedHeader !== undefined ? { header: resolvedHeader } : {}),
+      ...(resolvedSidenav !== undefined ? { sidenav: resolvedSidenav } : {}),
+      ...(resolvedBreadcrumb !== undefined ? { breadcrumb: resolvedBreadcrumb } : {}),
+      ...(resolvedFooter !== undefined ? { footer: resolvedFooter } : {}),
+      pageOverrides: (parsed.data.pageOverrides ??
+        existing?.pageOverrides ??
+        []) as AppChromeConfig['pageOverrides'],
     });
 
     await this.deps.audit.write(ctx, APP_CHROME_AUDIT_EVENTS.CONFIG_UPDATED, {
@@ -105,10 +118,10 @@ export class AppChromeService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const existing = await this.deps.configs.getByProjectId(projectId, ctx.workspaceId);
-    if (!existing) return err(new NotFoundError(`No chrome config for project ${projectId}`));
+    const existing = await this.deps.configs.getByProjectId(projectId, ctx.workspaceId ?? '');
+    if (!existing) return err(new NotFoundError('app_chrome_config', projectId));
 
-    await this.deps.configs.delete(projectId, ctx.workspaceId);
+    await this.deps.configs.delete(projectId, ctx.workspaceId ?? '');
     await this.deps.audit.write(ctx, APP_CHROME_AUDIT_EVENTS.CONFIG_RESET, { projectId });
 
     return ok(undefined);
@@ -121,7 +134,10 @@ export class AppChromeService {
     const parsed = ProposeChromInputSchema.safeParse(input);
     if (!parsed.success)
       return err(
-        new ValidationError('Invalid propose chrome input', { issues: parsed.error.issues }),
+        new ValidationError(
+          'Invalid propose chrome input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
       );
 
     const authz = await this.deps.authz.authorize(
@@ -153,7 +169,10 @@ export class AppChromeService {
     const parsed = ApplyChromeProposalInputSchema.safeParse(input);
     if (!parsed.success)
       return err(
-        new ValidationError('Invalid apply proposal input', { issues: parsed.error.issues }),
+        new ValidationError(
+          'Invalid apply proposal input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
       );
 
     const authz = await this.deps.authz.authorize(
@@ -178,7 +197,7 @@ export class AppChromeService {
       footer: proposal.footer
         ? { blockId: proposal.footer.blockId, params: proposal.footer.params }
         : undefined,
-      pageOverrides: proposal.pageOverrides,
+      pageOverrides: proposal.pageOverrides as AppChromeConfig['pageOverrides'],
     });
 
     if (updateResult.isErr()) return err(updateResult.error);

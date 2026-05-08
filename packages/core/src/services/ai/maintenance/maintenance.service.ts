@@ -12,8 +12,13 @@ import type {
   CreateChangeRequestInput,
   ResolveChangeRequestInput,
   SignalClassification,
+  ErrorSignalDetails,
+  PerfSignalDetails,
+  UserReportDetails,
+  DependencyAdvisoryDetails,
 } from './types.js';
 
+import { toAuditActor, auditMeta } from '../../../context.js';
 import { ValidationError, NotFoundError } from '../../../errors.js';
 import {
   IngestSignalInputSchema,
@@ -66,11 +71,55 @@ interface MaintenanceServiceDeps {
     run<O>(promptId: string, inputs: Record<string, unknown>): Promise<O>;
   };
   audit: {
-    write(ctx: RequestContext, event: string, payload: Record<string, unknown>): Promise<void>;
+    write(entry: {
+      eventType: string;
+      actor: { kind: string; id: string | null };
+      resource: { type: string; id: string };
+      action: string;
+      outcome: string;
+      correlationId: string;
+      metadata?: Record<string, unknown>;
+      workspaceId?: string;
+      ipAddress?: string;
+      userAgent?: string;
+    }): Promise<unknown>;
   };
   logger: {
     info(msg: string, meta?: Record<string, unknown>): void;
     warn(msg: string, meta?: Record<string, unknown>): void;
+  };
+}
+
+type MaintenanceAuditEntry = {
+  eventType: string;
+  actor: { kind: string; id: string | null };
+  resource: { type: string; id: string };
+  action: string;
+  outcome: string;
+  correlationId: string;
+  metadata?: Record<string, unknown>;
+  workspaceId?: string;
+  ipAddress?: string;
+  userAgent?: string;
+};
+
+function makeAuditEntry(
+  eventType: string,
+  ctx: RequestContext,
+  resource: { type: string; id: string },
+  action: string,
+  metadata?: Record<string, unknown>,
+): MaintenanceAuditEntry {
+  return {
+    eventType,
+    actor: toAuditActor(ctx),
+    resource,
+    action,
+    outcome: 'success',
+    correlationId: ctx.correlationId,
+    ...(metadata ? { metadata } : {}),
+    ...auditMeta(ctx),
+    ...(ctx.workspaceId ? { workspaceId: ctx.workspaceId } : {}),
   };
 }
 
@@ -83,7 +132,12 @@ export class MaintenanceService {
   ): Promise<Result<Signal, AppError>> {
     const parsed = IngestSignalInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid signal input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid signal input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -99,29 +153,33 @@ export class MaintenanceService {
       severity: parsed.data.severity,
       status: 'new',
       observedAt: parsed.data.observedAt ?? new Date(),
-      errorDetails:
-        parsed.data.source === 'error'
-          ? (parsed.data.sourceData as Signal['errorDetails'])
-          : undefined,
-      perfDetails:
-        parsed.data.source === 'perf'
-          ? (parsed.data.sourceData as Signal['perfDetails'])
-          : undefined,
-      userReportDetails:
-        parsed.data.source === 'user_report'
-          ? (parsed.data.sourceData as Signal['userReportDetails'])
-          : undefined,
-      advisoryDetails:
-        parsed.data.source === 'dependency_advisory'
-          ? (parsed.data.sourceData as Signal['advisoryDetails'])
-          : undefined,
+      ...(parsed.data.source === 'error'
+        ? { errorDetails: parsed.data.sourceData as unknown as ErrorSignalDetails }
+        : {}),
+      ...(parsed.data.source === 'perf'
+        ? { perfDetails: parsed.data.sourceData as unknown as PerfSignalDetails }
+        : {}),
+      ...(parsed.data.source === 'user_report'
+        ? { userReportDetails: parsed.data.sourceData as unknown as UserReportDetails }
+        : {}),
+      ...(parsed.data.source === 'dependency_advisory'
+        ? { advisoryDetails: parsed.data.sourceData as unknown as DependencyAdvisoryDetails }
+        : {}),
     });
 
-    await this.deps.audit.write(ctx, MAINTENANCE_AUDIT_EVENTS.SIGNAL_INGESTED, {
-      signalId: signal.id,
-      source: signal.source,
-      severity: signal.severity,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        MAINTENANCE_AUDIT_EVENTS.SIGNAL_INGESTED,
+        ctx,
+        { type: 'signal', id: signal.id },
+        'signal_ingested',
+        {
+          signalId: signal.id,
+          source: signal.source,
+          severity: signal.severity,
+        },
+      ),
+    );
 
     // Async classification
     this._classifySignalAsync(ctx, signal).catch((e: unknown) => {
@@ -144,7 +202,7 @@ export class MaintenanceService {
       `workspace:${ctx.workspaceId ?? ''}`,
     );
     if (authz.isErr()) return err(authz.error);
-    const result = await this.deps.signals.list(ctx.workspaceId, {
+    const result = await this.deps.signals.list(ctx.workspaceId ?? '', {
       page: opts.page ?? 1,
       pageSize: opts.pageSize ?? 20,
     });
@@ -158,23 +216,31 @@ export class MaintenanceService {
     const authz = await this.deps.authz.authorize(ctx, 'ai.maintenance.read', `signal:${signalId}`);
     if (authz.isErr()) return err(authz.error);
 
-    const signal = await this.deps.signals.get(signalId, ctx.workspaceId);
-    if (!signal) return err(new NotFoundError(`Signal ${signalId} not found`));
+    const signal = await this.deps.signals.get(signalId, ctx.workspaceId ?? '');
+    if (!signal) return err(new NotFoundError('signal', signalId));
 
     const classification = await this.deps.generation.run<SignalClassification>(
       'maintenance/signal-classification',
-      { signal, workspaceId: ctx.workspaceId },
+      { signal, workspaceId: ctx.workspaceId ?? '' },
     );
 
-    await this.deps.signals.update(signalId, ctx.workspaceId, {
+    await this.deps.signals.update(signalId, ctx.workspaceId ?? '', {
       classification: { ...classification, classifiedAt: new Date(), classifiedBy: 'ai' },
       status: 'classified',
     });
 
-    await this.deps.audit.write(ctx, MAINTENANCE_AUDIT_EVENTS.SIGNAL_CLASSIFIED, {
-      signalId,
-      suggestedStages: classification.suggestedStages.map((s) => s.stageName),
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        MAINTENANCE_AUDIT_EVENTS.SIGNAL_CLASSIFIED,
+        ctx,
+        { type: 'signal', id: signalId },
+        'signal_classified',
+        {
+          signalId,
+          suggestedStages: classification.suggestedStages.map((s) => s.stageName),
+        },
+      ),
+    );
 
     return ok(classification);
   }
@@ -186,7 +252,10 @@ export class MaintenanceService {
     const parsed = CreateChangeRequestInputSchema.safeParse(input);
     if (!parsed.success)
       return err(
-        new ValidationError('Invalid change request input', { issues: parsed.error.issues }),
+        new ValidationError(
+          'Invalid change request input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
       );
 
     const authz = await this.deps.authz.authorize(
@@ -232,11 +301,19 @@ export class MaintenanceService {
       ),
     );
 
-    await this.deps.audit.write(ctx, MAINTENANCE_AUDIT_EVENTS.CHANGE_REQUEST_CREATED, {
-      requestId: request.id,
-      signalCount: parsed.data.signalIds.length,
-      severity: maxSeverity,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        MAINTENANCE_AUDIT_EVENTS.CHANGE_REQUEST_CREATED,
+        ctx,
+        { type: 'change_request', id: request.id },
+        'change_request_created',
+        {
+          requestId: request.id,
+          signalCount: parsed.data.signalIds.length,
+          severity: maxSeverity,
+        },
+      ),
+    );
 
     return ok(request);
   }
@@ -251,8 +328,8 @@ export class MaintenanceService {
       `change_request:${requestId}`,
     );
     if (authz.isErr()) return err(authz.error);
-    const req = await this.deps.changeRequests.get(requestId, ctx.workspaceId);
-    if (!req) return err(new NotFoundError(`Change request ${requestId} not found`));
+    const req = await this.deps.changeRequests.get(requestId, ctx.workspaceId ?? '');
+    if (!req) return err(new NotFoundError('change_request', requestId));
     return ok(req);
   }
 
@@ -266,7 +343,7 @@ export class MaintenanceService {
       `workspace:${ctx.workspaceId ?? ''}`,
     );
     if (authz.isErr()) return err(authz.error);
-    const result = await this.deps.changeRequests.list(ctx.workspaceId, {
+    const result = await this.deps.changeRequests.list(ctx.workspaceId ?? '', {
       page: opts.page ?? 1,
       pageSize: opts.pageSize ?? 20,
     });
@@ -284,17 +361,27 @@ export class MaintenanceService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const req = await this.deps.changeRequests.get(requestId, ctx.workspaceId);
-    if (!req) return err(new NotFoundError(`Change request ${requestId} not found`));
+    const req = await this.deps.changeRequests.get(requestId, ctx.workspaceId ?? '');
+    if (!req) return err(new NotFoundError('change_request', requestId));
 
     const engagedStages = req.classification.suggestedStages.map((s) => s.stageName);
 
-    await this.deps.changeRequests.update(requestId, ctx.workspaceId, { status: 'in_progress' });
-
-    await this.deps.audit.write(ctx, MAINTENANCE_AUDIT_EVENTS.CHANGE_REQUEST_ENGAGED_STAGE, {
-      requestId,
-      engagedStages,
+    await this.deps.changeRequests.update(requestId, ctx.workspaceId ?? '', {
+      status: 'in_progress',
     });
+
+    await this.deps.audit.write(
+      makeAuditEntry(
+        MAINTENANCE_AUDIT_EVENTS.CHANGE_REQUEST_ENGAGED_STAGE,
+        ctx,
+        { type: 'change_request', id: requestId },
+        'change_request_engaged_stage',
+        {
+          requestId,
+          engagedStages,
+        },
+      ),
+    );
 
     return ok({ engagedStages });
   }
@@ -312,7 +399,7 @@ export class MaintenanceService {
 
     const report = await this.deps.generation.run<AffectedDownstreamReport>(
       'maintenance/affected-downstream-detection',
-      { artifactId, workspaceId: ctx.workspaceId },
+      { artifactId, workspaceId: ctx.workspaceId ?? '' },
     );
 
     return ok(report);
@@ -324,7 +411,12 @@ export class MaintenanceService {
   ): Promise<Result<ChangeRequest, AppError>> {
     const parsed = ResolveChangeRequestInputSchema.safeParse(input);
     if (!parsed.success)
-      return err(new ValidationError('Invalid resolve input', { issues: parsed.error.issues }));
+      return err(
+        new ValidationError(
+          'Invalid resolve input',
+          parsed.error.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
+        ),
+      );
 
     const authz = await this.deps.authz.authorize(
       ctx,
@@ -333,26 +425,38 @@ export class MaintenanceService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const req = await this.deps.changeRequests.get(parsed.data.requestId, ctx.workspaceId);
-    if (!req) return err(new NotFoundError(`Change request ${parsed.data.requestId} not found`));
+    const req = await this.deps.changeRequests.get(parsed.data.requestId, ctx.workspaceId ?? '');
+    if (!req) return err(new NotFoundError('change_request', parsed.data.requestId));
 
     const newStatus = parsed.data.wontFix ? 'wont_fix' : 'resolved';
-    const updated = await this.deps.changeRequests.update(parsed.data.requestId, ctx.workspaceId, {
-      status: newStatus,
-      resolution: {
-        resolvedAt: new Date(),
-        resolvedByUserId: ctx.userId,
-        notes: parsed.data.notes,
+    const updated = await this.deps.changeRequests.update(
+      parsed.data.requestId,
+      ctx.workspaceId ?? '',
+      {
+        status: newStatus,
+        resolution: {
+          resolvedAt: new Date(),
+          resolvedByUserId: ctx.userId,
+          notes: parsed.data.notes,
+        },
       },
-    });
+    );
 
     const event = parsed.data.wontFix
       ? MAINTENANCE_AUDIT_EVENTS.CHANGE_REQUEST_WONT_FIX
       : MAINTENANCE_AUDIT_EVENTS.CHANGE_REQUEST_RESOLVED;
-    await this.deps.audit.write(ctx, event, {
-      requestId: parsed.data.requestId,
-      notes: parsed.data.notes,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        event,
+        ctx,
+        { type: 'change_request', id: parsed.data.requestId },
+        'change_request_resolved',
+        {
+          requestId: parsed.data.requestId,
+          notes: parsed.data.notes,
+        },
+      ),
+    );
 
     return ok(updated);
   }
@@ -366,7 +470,7 @@ export class MaintenanceService {
       `workspace:${ctx.workspaceId ?? ''}`,
     );
     if (authz.isErr()) return err(authz.error);
-    const advisories = await this.deps.advisories.list(ctx.workspaceId);
+    const advisories = await this.deps.advisories.list(ctx.workspaceId ?? '');
     return ok(advisories);
   }
 
@@ -381,24 +485,32 @@ export class MaintenanceService {
     );
     if (authz.isErr()) return err(authz.error);
 
-    const req = await this.deps.changeRequests.get(requestId, ctx.workspaceId);
-    if (!req) return err(new NotFoundError(`Change request ${requestId} not found`));
+    const req = await this.deps.changeRequests.get(requestId, ctx.workspaceId ?? '');
+    if (!req) return err(new NotFoundError('change_request', requestId));
 
     const report = await this.deps.generation.run<OutcomeReport>('maintenance/outcome-assessment', {
       changeRequest: req,
-      workspaceId: ctx.workspaceId,
+      workspaceId: ctx.workspaceId ?? '',
     });
 
-    await this.deps.audit.write(ctx, MAINTENANCE_AUDIT_EVENTS.OUTCOME_ASSESSED, {
-      requestId,
-      resolved: report.resolved,
-      confidence: report.confidence,
-    });
+    await this.deps.audit.write(
+      makeAuditEntry(
+        MAINTENANCE_AUDIT_EVENTS.OUTCOME_ASSESSED,
+        ctx,
+        { type: 'change_request', id: requestId },
+        'outcome_assessed',
+        {
+          requestId,
+          resolved: report.resolved,
+          confidence: report.confidence,
+        },
+      ),
+    );
 
     return ok(report);
   }
 
-  private async _classifySignalAsync(ctx: RequestContext, signal: Signal) {
+  private async _classifySignalAsync(_ctx: RequestContext, signal: Signal) {
     const classification = await this.deps.generation.run<SignalClassification>(
       'maintenance/signal-classification',
       { signal, workspaceId: signal.workspaceId },
