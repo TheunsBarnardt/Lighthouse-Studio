@@ -3,7 +3,7 @@
 import Link from 'next/link';
 
 // Pipeline stepper — shared visual component used across all stage pages
-export function PipelineStepper({ active }: { active: string }) {
+function PipelineStepper({ active }: { active: string }) {
   const steps = [
     { id: 'intent', label: 'Intent', href: '/ai-pipeline/intent-capture', status: 'complete' },
     { id: 'prd', label: 'Requirements', href: '/ai-pipeline/prd-generation', status: 'complete' },

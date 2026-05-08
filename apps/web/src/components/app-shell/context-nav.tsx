@@ -18,7 +18,8 @@ function ContextNavInner({ config }: ContextNavProps) {
     // Split href into path + query
     const [hrefPath, hrefQuery] = href.split('?');
     const pathMatch =
-      hrefPath === pathname || (hrefPath !== '/' && hrefPath && pathname.startsWith(hrefPath));
+      hrefPath === pathname ||
+      Boolean(hrefPath !== '/' && hrefPath && pathname.startsWith(hrefPath));
 
     if (!hrefQuery) return pathMatch;
 
