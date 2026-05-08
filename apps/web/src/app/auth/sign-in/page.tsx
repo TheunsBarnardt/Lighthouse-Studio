@@ -28,6 +28,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { SsoButtons } from '@/components/ui/sso-buttons';
 import { useAuth } from '@/context/auth-context';
 import { AuthApiError, authApi } from '@/lib/auth-client';
 
@@ -46,6 +47,8 @@ function SignInPageInner() {
   const { refresh } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
+  const returnTo = searchParams.get('returnTo') ?? '/';
+
   const form = useForm<SignInValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- zod 3.25 / hookform 3.10 type incompatibility
     resolver: zodResolver(SignInSchema as any),
@@ -55,20 +58,26 @@ function SignInPageInner() {
   async function onSubmit(values: SignInValues) {
     setError(null);
     try {
-      await authApi.signIn({
+      const result = await authApi.signIn({
         email: values.email,
         password: values.password,
         ...(values.remember !== undefined && { remember: values.remember }),
       });
+
+      // 2FA required — redirect to challenge page
+      if ('challengeId' in result) {
+        const params = new URLSearchParams({
+          challengeId: result.challengeId,
+          returnTo,
+        });
+        router.replace(`/auth/mfa-challenge?${params.toString()}`);
+        return;
+      }
+
       await refresh();
-      const returnTo = searchParams.get('returnTo') ?? '/';
       router.replace(returnTo);
     } catch (err) {
-      if (err instanceof AuthApiError) {
-        setError(err.statusCode === 202 ? 'mfa_required' : t('error'));
-      } else {
-        setError(t('error'));
-      }
+      setError(err instanceof AuthApiError ? err.message : t('error'));
     }
   }
 
@@ -78,7 +87,7 @@ function SignInPageInner() {
         <CardTitle>{t('title')}</CardTitle>
         <CardDescription>{t('subtitle')}</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         <Form {...form}>
           <form
             onSubmit={(e) => {
@@ -170,6 +179,8 @@ function SignInPageInner() {
             </Button>
           </form>
         </Form>
+
+        <SsoButtons returnTo={returnTo} />
       </CardContent>
       <CardFooter className="flex justify-center text-sm text-muted-foreground">
         {t('noAccount')}&nbsp;

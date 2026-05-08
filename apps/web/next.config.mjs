@@ -1,4 +1,13 @@
+// @ts-check
+import { config as loadEnv } from 'dotenv';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import createNextIntlPlugin from 'next-intl/plugin';
+
+// Load the root .env so all packages share one source of truth.
+// apps/web/.env.local still takes precedence (Next.js loads it after this).
+const rootDir = resolve(fileURLToPath(import.meta.url), '../../..');
+loadEnv({ path: resolve(rootDir, '.env'), override: false });
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
@@ -8,7 +17,6 @@ const nextConfig = {
   pageExtensions: ['ts', 'tsx'],
   experimental: {
     optimizePackageImports: [],
-    // Packages that use Node.js built-ins (node: protocol) must stay server-side only
     serverComponentsExternalPackages: [
       'mssql',
       'tedious',
@@ -26,22 +34,24 @@ const nextConfig = {
       '@platform/adapter-observability-traces',
     ],
   },
-  webpack: (config, { isServer, webpack }) => {
-    // Resolve .js imports to .ts/.tsx for ESM-style imports
+  /**
+   * @param {import('webpack').Configuration} config
+   * @param {{ isServer: boolean, webpack: typeof import('webpack'), nextRuntime?: 'edge' | 'nodejs' }} options
+   */
+  webpack(config, { isServer, webpack, nextRuntime }) {
+    config.resolve ??= {};
     config.resolve.extensionAlias = {
       '.js': ['.ts', '.tsx', '.js'],
       '.jsx': ['.tsx', '.jsx'],
     };
 
-    if (isServer) {
-      // Allow node: protocol imports on server side, and keep Sentry/OTel as externals
-      config.externals = config.externals ?? [];
+    if (isServer && nextRuntime !== 'edge') {
+      config.externals ??= [];
       if (Array.isArray(config.externals)) {
-        config.externals.push(({ request }, callback) => {
+        config.externals.push((/** @type {{ request?: string }} */ { request }, callback) => {
           if (request?.startsWith('node:')) {
             return callback(null, `commonjs ${request.slice(5)}`);
           }
-          // Keep Sentry and OpenTelemetry out of the webpack bundle to avoid native module issues
           if (
             request?.startsWith('@sentry/') ||
             request?.startsWith('@opentelemetry/') ||
@@ -52,10 +62,9 @@ const nextConfig = {
           callback();
         });
       }
-    } else {
-      // On the client side, strip node: prefix so webpack fallback can handle them
+    } else if (!isServer) {
+      config.plugins ??= [];
       config.plugins.push(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         new webpack.NormalModuleReplacementPlugin(/^node:/, (resource) => {
           resource.request = resource.request.replace(/^node:/, '');
         }),
@@ -82,6 +91,7 @@ const nextConfig = {
         vm: false,
       };
     }
+
     return config;
   },
 };

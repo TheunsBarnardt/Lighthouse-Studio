@@ -7,6 +7,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/context/auth-context';
+import { AuthApiError, authApi } from '@/lib/auth-client';
 
 function OAuthCallbackPageInner() {
   const t = useTranslations('auth.oauthCallback');
@@ -19,27 +20,28 @@ function OAuthCallbackPageInner() {
     const code = searchParams.get('code');
     const state = searchParams.get('state');
     const errorParam = searchParams.get('error');
+    const errorDescription = searchParams.get('error_description');
 
     if (errorParam) {
-      setError(t('error', { message: errorParam }));
+      setError(errorDescription ?? errorParam);
       return;
     }
 
-    if (!code) {
-      setError(t('error', { message: 'No code received from provider.' }));
+    if (!code || !state) {
+      setError('Missing code or state from provider. Please try signing in again.');
       return;
     }
 
-    // TODO: POST to /api/v1/auth/oauth/callback with code + state
     void (async () => {
       try {
+        const result = await authApi.ssoCallback(code, state);
         await refresh();
-        router.replace(state ?? '/');
-      } catch {
-        setError(t('error', { message: 'Failed to sign in.' }));
+        router.replace(result.returnTo || '/');
+      } catch (e) {
+        setError(e instanceof AuthApiError ? e.message : 'SSO sign-in failed. Please try again.');
       }
     })();
-  }, [searchParams, router, refresh, t]);
+  }, [searchParams, router, refresh]);
 
   return (
     <Card>
@@ -53,7 +55,7 @@ function OAuthCallbackPageInner() {
           </Alert>
         ) : (
           <p className="text-sm text-muted-foreground" aria-live="polite">
-            {t('title')}
+            {t('title')}…
           </p>
         )}
       </CardContent>

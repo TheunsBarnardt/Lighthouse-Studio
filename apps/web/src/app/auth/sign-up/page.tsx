@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -27,49 +28,71 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { PasswordRules } from '@/components/ui/password-rules';
+import { SsoButtons } from '@/components/ui/sso-buttons';
 import { AuthApiError, authApi } from '@/lib/auth-client';
 
-const SignUpSchema = z.object({
-  displayName: z.string().min(1, 'Display name is required').max(255),
-  email: z.string().email('Enter a valid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-});
+const SignUpSchema = z
+  .object({
+    displayName: z.string().min(1, 'Display name is required').max(255),
+    email: z.string().email('Enter a valid email address'),
+    password: z
+      .string()
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+      .regex(/[0-9]/, 'Password must contain at least one number')
+      .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
 
 type SignUpValues = z.infer<typeof SignUpSchema>;
 
 export default function SignUpPage() {
   const t = useTranslations('auth.signUp');
-  const [success, setSuccess] = useState<string | null>(null);
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [verifyNotice, setVerifyNotice] = useState<string | null>(null);
   const [captchaToken, setCaptchaToken] = useState<string>('');
 
   const form = useForm<SignUpValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- zod 3.25 / hookform 3.10 type incompatibility
     resolver: zodResolver(SignUpSchema as any),
-    defaultValues: { displayName: '', email: '', password: '' },
+    defaultValues: { displayName: '', email: '', password: '', confirmPassword: '' },
+    mode: 'onChange',
   });
 
   async function onSubmit(values: SignUpValues) {
     setError(null);
-    setSuccess(null);
+    setVerifyNotice(null);
     try {
-      await authApi.signUp({ ...values, ...(captchaToken ? { captchaToken } : {}) });
-      setSuccess(t('successMessage', { email: values.email }));
-      form.reset();
-      setCaptchaToken('');
+      const result = await authApi.signUp({
+        ...values,
+        ...(captchaToken ? { captchaToken } : {}),
+      });
+      if ('emailVerificationRequired' in result) {
+        setVerifyNotice(result.message);
+        form.reset();
+        return;
+      }
+      router.push('/');
     } catch (err) {
       setError(err instanceof AuthApiError ? err.message : t('error'));
     }
   }
 
-  if (success) {
+  if (verifyNotice) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{t('successTitle')}</CardTitle>
+          <CardTitle>Check your email</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground">{success}</p>
+          <p className="text-sm text-muted-foreground">{verifyNotice}</p>
         </CardContent>
         <CardFooter className="justify-center text-sm">
           <Link href="/auth/sign-in" className="text-primary hover:underline">
@@ -147,6 +170,25 @@ export default function SignUpPage() {
                       {...field}
                     />
                   </FormControl>
+                  <PasswordRules value={field.value} />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      autoComplete="new-password"
+                      placeholder="Repeat your password"
+                      aria-required
+                      {...field}
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -170,6 +212,8 @@ export default function SignUpPage() {
             </Button>
           </form>
         </Form>
+
+        <SsoButtons returnTo="/" />
       </CardContent>
       <CardFooter className="flex justify-center text-sm text-muted-foreground">
         {t('alreadyHaveAccount')}&nbsp;

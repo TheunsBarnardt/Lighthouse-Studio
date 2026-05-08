@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { errorResponse, okResponse } from '@/lib/server/api-helpers';
 import { getAuthService, getUserDirectory } from '@/lib/server/auth-service';
 import { setSessionCookie } from '@/lib/server/session';
+import { issueMfaChallenge, twoFactorRequired } from '@/lib/server/two-factor';
 
 const SignInSchema = z.object({
   email: z.string().email(),
@@ -35,7 +36,6 @@ export async function POST(request: Request): Promise<NextResponse> {
   const ctx = makeSystemContext('auth.sign-in', randomUUID());
   const authService = getAuthService();
 
-  // Begin sign-in (password method with in-memory provider)
   const beginResult = await authService.beginSignIn(ctx, {
     method: 'password',
     email: parsed.data.email,
@@ -45,17 +45,15 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   const challenge = beginResult.value.challenge;
 
-  // If the challenge is already complete (in-memory provider returns immediately), complete it
   if (challenge.kind === 'complete') {
     const completeResult = await authService.completeSignIn(ctx, {
       method: 'password',
-      code: parsed.data.email, // threads email to IDP so completeSignIn is stateless
+      code: parsed.data.email,
     });
     if (completeResult.isErr()) return errorResponse(completeResult.error);
 
     const { token, userId, expiresAt } = completeResult.value;
 
-    // Look up user details
     const directory = getUserDirectory();
     const userResult = await directory.findById(userId);
     if (userResult.isErr() || !userResult.value) {
@@ -65,6 +63,15 @@ export async function POST(request: Request): Promise<NextResponse> {
       );
     }
     const user = userResult.value;
+
+    // 2FA check — issue challenge instead of session when enabled
+    if (twoFactorRequired()) {
+      const challengeId = await issueMfaChallenge(user.id, user.primaryEmail);
+      return NextResponse.json(
+        { code: 'MFA_REQUIRED', challengeId, statusCode: 202 },
+        { status: 202 },
+      );
+    }
 
     const response = okResponse({
       session: {
@@ -88,7 +95,6 @@ export async function POST(request: Request): Promise<NextResponse> {
     return response;
   }
 
-  // MFA required — return challenge info
   if (challenge.kind === 'mfa_required') {
     return NextResponse.json(
       { code: 'MFA_REQUIRED', challengeId: challenge.challengeId, statusCode: 202 },

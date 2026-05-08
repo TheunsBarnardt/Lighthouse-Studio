@@ -158,6 +158,37 @@ const redisSchema = z.object({
   REDIS_URL: z.string().url().optional(),
 });
 
+// ========== SSO ==========
+
+const ssoSchema = z.object({
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+  MICROSOFT_CLIENT_ID: z.string().optional(),
+  MICROSOFT_CLIENT_SECRET: z.string().optional(),
+  MICROSOFT_TENANT_ID: z.string().default('common'),
+});
+
+// ========== EMAIL VERIFICATION + 2FA ==========
+
+const authFeaturesSchema = z.object({
+  EMAIL_VERIFICATION_REQUIRED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
+  EMAIL_PROVIDER: z.enum(['console', 'smtp']).default('console'),
+  TWO_FACTOR_REQUIRED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
+  TWO_FACTOR_METHOD: z.enum(['totp', 'sms', 'email']).default('totp'),
+  SMS_PROVIDER: z.enum(['console', 'twilio']).default('console'),
+  TWILIO_ACCOUNT_SID: z.string().optional(),
+  TWILIO_AUTH_TOKEN: z.string().optional(),
+  TWILIO_FROM_NUMBER: z.string().optional(),
+});
+
 // ========== COMPOSED SERVER SCHEMA ==========
 // All adapter-specific schemas are merged as .partial() — the superRefine below enforces
 // that the required vars for the chosen driver are actually present.
@@ -176,6 +207,8 @@ export const serverEnvSchema = foundationEnvSchema
   .merge(observabilitySchema)
   .merge(aiWorkerSchema.partial())
   .merge(redisSchema.partial())
+  .merge(ssoSchema.partial())
+  .merge(authFeaturesSchema)
   .superRefine((v, ctx) => {
     if (v.DATABASE_DRIVER === 'postgres' && !v.POSTGRES_URL) {
       ctx.addIssue({

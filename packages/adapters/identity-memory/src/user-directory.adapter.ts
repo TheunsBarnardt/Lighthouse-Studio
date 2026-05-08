@@ -91,12 +91,13 @@ export class InMemoryUserDirectory implements UserDirectoryPort {
     }
 
     const now = new Date();
+    const emailVerified = input.identity.emailVerified ?? false;
     const user: User = {
       id: crypto.randomUUID(),
       primaryEmail: input.email,
-      emailVerified: false,
+      emailVerified,
       displayName: input.displayName ?? null,
-      status: 'pending_verification',
+      status: emailVerified ? 'active' : 'pending_verification',
       archivedAt: null,
       createdAt: now,
       updatedAt: now,

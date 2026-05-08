@@ -18,10 +18,7 @@ export class AuthApiError extends Error {
   }
 }
 
-async function authRequest<T>(
-  path: string,
-  options: RequestInit = {},
-): Promise<T> {
+async function authRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,
     credentials: 'include',
@@ -38,10 +35,18 @@ async function authRequest<T>(
       if (typeof body === 'object' && body !== null && 'code' in body && 'message' in body) {
         err = body as ApiError;
       } else {
-        err = { code: 'UNKNOWN', message: `HTTP ${String(response.status)}`, statusCode: response.status };
+        err = {
+          code: 'UNKNOWN',
+          message: `HTTP ${String(response.status)}`,
+          statusCode: response.status,
+        };
       }
     } catch {
-      err = { code: 'UNKNOWN', message: `HTTP ${String(response.status)}`, statusCode: response.status };
+      err = {
+        code: 'UNKNOWN',
+        message: `HTTP ${String(response.status)}`,
+        statusCode: response.status,
+      };
     }
     throw new AuthApiError(err);
   }
@@ -61,6 +66,23 @@ export interface SignUpInput {
   password: string;
   displayName: string;
   captchaToken?: string;
+}
+
+export interface MfaRequiredResponse {
+  code: 'MFA_REQUIRED';
+  challengeId: string;
+  statusCode: 202;
+}
+
+export interface SsoCallbackResult {
+  returnTo: string;
+  user: {
+    id: string;
+    email: string;
+    displayName: string | null;
+    emailVerified: boolean;
+    mfaEnabled: boolean;
+  };
 }
 
 export interface MeResponse {
@@ -85,18 +107,20 @@ export interface SessionInfo {
 }
 
 export const authApi = {
-  signIn(input: SignInInput): Promise<MeResponse> {
-    return authRequest<MeResponse>('/api/v1/auth/sign-in', {
+  signIn(input: SignInInput): Promise<MeResponse | MfaRequiredResponse> {
+    return authRequest<MeResponse | MfaRequiredResponse>('/api/v1/auth/sign-in', {
       method: 'POST',
       body: JSON.stringify(input),
     });
   },
 
-  signUp(input: SignUpInput): Promise<{ message: string }> {
-    return authRequest<{ message: string }>('/api/v1/auth/sign-up', {
-      method: 'POST',
-      body: JSON.stringify(input),
-    });
+  signUp(
+    input: SignUpInput,
+  ): Promise<MeResponse | { emailVerificationRequired: true; message: string }> {
+    return authRequest<MeResponse | { emailVerificationRequired: true; message: string }>(
+      '/api/v1/auth/sign-up',
+      { method: 'POST', body: JSON.stringify(input) },
+    );
   },
 
   signOut(): Promise<undefined> {
@@ -160,7 +184,9 @@ export const authApi = {
     return authRequest<undefined>('/api/v1/me/sessions', { method: 'DELETE' });
   },
 
-  validateInvitation(token: string): Promise<{ email: string; workspaceName: string; expiresAt: string }> {
+  validateInvitation(
+    token: string,
+  ): Promise<{ email: string; workspaceName: string; expiresAt: string }> {
     return authRequest<{ email: string; workspaceName: string; expiresAt: string }>(
       `/api/v1/auth/invitations/${encodeURIComponent(token)}/validate`,
     );
@@ -177,10 +203,28 @@ export const authApi = {
     return authRequest<{ initialized: boolean }>('/api/v1/setup/status');
   },
 
-  runSetup(input: { email: string; password: string; displayName: string; workspaceName: string }): Promise<MeResponse> {
+  runSetup(input: {
+    email: string;
+    password: string;
+    displayName: string;
+    workspaceName: string;
+  }): Promise<MeResponse> {
     return authRequest<MeResponse>('/api/v1/setup', {
       method: 'POST',
       body: JSON.stringify(input),
+    });
+  },
+
+  beginSso(provider: string, returnTo: string): Promise<{ authUrl: string }> {
+    return authRequest<{ authUrl: string }>(
+      `/api/v1/auth/sso/${encodeURIComponent(provider)}/begin?returnTo=${encodeURIComponent(returnTo)}`,
+    );
+  },
+
+  ssoCallback(code: string, state: string): Promise<SsoCallbackResult> {
+    return authRequest<SsoCallbackResult>('/api/v1/auth/sso/callback', {
+      method: 'POST',
+      body: JSON.stringify({ code, state }),
     });
   },
 };
