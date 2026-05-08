@@ -1,0 +1,50 @@
+'use client';
+
+import Link from 'next/link';
+
+const STEPS = [
+  { id: 'intent', label: 'Intent', href: '/ai-pipeline/intent-capture', status: 'complete' },
+  { id: 'prd', label: 'Requirements', href: '/ai-pipeline/prd-generation', status: 'complete' },
+  {
+    id: 'design-tokens',
+    label: 'Design tokens',
+    href: '/ai-pipeline/design-tokens',
+    status: 'complete',
+  },
+  {
+    id: 'schema-synthesis',
+    label: 'Schema',
+    href: '/ai-pipeline/schema-synthesis',
+    status: 'complete',
+  },
+  {
+    id: 'data-migration',
+    label: 'Migration',
+    href: '/ai-pipeline/data-migration',
+    status: 'pending',
+  },
+  { id: 'ui-gen', label: 'UI gen', href: '/ai-pipeline/ui-generation', status: 'in_review' },
+  { id: 'code-gen', label: 'Code gen', href: '/ai-pipeline/code-generation', status: 'pending' },
+  { id: 'test-gen', label: 'Tests', href: '/ai-pipeline/test-generation', status: 'pending' },
+  { id: 'deployment', label: 'Deployment', href: '/ai-pipeline/deployment', status: 'pending' },
+  { id: 'maintenance', label: 'Maintenance', href: '/ai-pipeline/maintenance', status: 'pending' },
+];
+
+export function PipelineStepper({ active }: { active: string }) {
+  return (
+    <div className="pg-pipeline-stepper">
+      {STEPS.map((step, i) => (
+        <span key={step.id} style={{ display: 'contents' }}>
+          <Link
+            href={step.href}
+            className={`pg-pipeline-step${step.id === active ? ' active' : step.status === 'complete' ? ' complete' : ''}`}
+          >
+            <span className="step-dot" />
+            {step.label}
+          </Link>
+          {i < STEPS.length - 1 && <span className="pg-pipeline-arrow">›</span>}
+        </span>
+      ))}
+    </div>
+  );
+}

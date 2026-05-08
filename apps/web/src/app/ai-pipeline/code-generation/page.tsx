@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { PipelineStepper } from '../page';
+import { PipelineStepper } from '../stepper';
 
 type FnStatus = 'approved' | 'validated' | 'draft' | 'rejected';
 type TriggerType = 'http' | 'schedule' | 'event' | 'integration';

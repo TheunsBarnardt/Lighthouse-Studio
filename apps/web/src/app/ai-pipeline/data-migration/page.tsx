@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
-import { PipelineStepper } from '../page';
+import { PipelineStepper } from '../stepper';
 
 type MigrationMode = 'skip' | 'configure';
 

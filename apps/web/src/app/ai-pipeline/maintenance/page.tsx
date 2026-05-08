@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { PipelineStepper } from '../page';
+import { PipelineStepper } from '../stepper';
 
 type SignalSeverity = 'high' | 'medium' | 'low';
 type SignalStatus = 'open' | 'in-flight' | 'resolved';

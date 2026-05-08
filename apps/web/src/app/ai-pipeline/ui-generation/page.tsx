@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { PipelineStepper } from '../page';
+import { PipelineStepper } from '../stepper';
 
 type ComponentStatus = 'approved' | 'in_review' | 'pending';
 type ViewTab = 'preview' | 'code' | 'storybook' | 'a11y';

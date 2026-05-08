@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { PipelineStepper } from '../page';
+import { PipelineStepper } from '../stepper';
 
 type SectionStatus = 'approved' | 'in_review' | 'pending';
 
