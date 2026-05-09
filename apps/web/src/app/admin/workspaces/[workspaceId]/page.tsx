@@ -3,6 +3,8 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface QuerySettings {
   defaultRowLimit: number;
   defaultTimeoutMs: number;
@@ -17,8 +19,6 @@ const inputStyle: React.CSSProperties = {
   padding: '0 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
 };
 
@@ -107,7 +107,6 @@ export default function WorkspaceAdminPage() {
           padding: '48px 24px',
           textAlign: 'center',
           fontSize: 13,
-          color: 'var(--fg-tertiary)',
         }}
         aria-live="polite"
       >
@@ -118,26 +117,20 @@ export default function WorkspaceAdminPage() {
 
   return (
     <div style={{ padding: '16px 24px', maxWidth: 560 }}>
-      <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 4 }}>
-        Workspace settings
-      </h1>
-      <p
-        className="pg-mono"
-        style={{ fontSize: 11, color: 'var(--fg-secondary)', marginBottom: 24 }}
-      >
+      <h1 style={{ fontSize: 18, fontWeight: 600, marginBottom: 4 }}>Workspace settings</h1>
+      <p className="font-mono text-sm" style={{ fontSize: 11, marginBottom: 24 }}>
         {workspaceId}
       </p>
 
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <span className="pg-card-title">Query console defaults</span>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <span className="text-sm font-semibold">Query console defaults</span>
         </div>
-        <p style={{ fontSize: 12, color: 'var(--fg-secondary)', marginBottom: 16 }}>
+        <p style={{ fontSize: 12, marginBottom: 16 }}>
           These defaults apply to all users in this workspace unless they have the{' '}
           <code
             style={{
               borderRadius: 3,
-              background: 'var(--bg-surface)',
               padding: '1px 4px',
               fontFamily: 'monospace',
               fontSize: 11,
@@ -149,7 +142,6 @@ export default function WorkspaceAdminPage() {
           <code
             style={{
               borderRadius: 3,
-              background: 'var(--bg-surface)',
               padding: '1px 4px',
               fontFamily: 'monospace',
               fontSize: 11,
@@ -174,7 +166,6 @@ export default function WorkspaceAdminPage() {
                 display: 'block',
                 fontSize: 12,
                 fontWeight: 500,
-                color: 'var(--fg-secondary)',
                 marginBottom: 6,
               }}
             >
@@ -195,11 +186,11 @@ export default function WorkspaceAdminPage() {
                 style={inputStyle}
                 aria-describedby="rowLimit-hint"
               />
-              <span id="rowLimit-hint" style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
+              <span id="rowLimit-hint" style={{ fontSize: 12 }}>
                 rows (max {MAX_ROW_LIMIT.toLocaleString()})
               </span>
             </div>
-            <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-tertiary)' }}>
+            <p style={{ marginTop: 4, fontSize: 11 }}>
               Current platform default: {settings.defaultRowLimit.toLocaleString()} rows
             </p>
           </div>
@@ -211,7 +202,6 @@ export default function WorkspaceAdminPage() {
                 display: 'block',
                 fontSize: 12,
                 fontWeight: 500,
-                color: 'var(--fg-secondary)',
                 marginBottom: 6,
               }}
             >
@@ -232,30 +222,30 @@ export default function WorkspaceAdminPage() {
                 style={inputStyle}
                 aria-describedby="timeout-hint"
               />
-              <span id="timeout-hint" style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
+              <span id="timeout-hint" style={{ fontSize: 12 }}>
                 seconds (max {MAX_TIMEOUT_S}s / 5 min)
               </span>
             </div>
-            <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-tertiary)' }}>
+            <p style={{ marginTop: 4, fontSize: 11 }}>
               Current platform default: {Math.round(settings.defaultTimeoutMs / 1000)}s
             </p>
           </div>
 
           {error && (
-            <p role="alert" style={{ fontSize: 13, color: 'var(--fg-danger)' }}>
+            <p role="alert" style={{ fontSize: 13 }}>
               {error}
             </p>
           )}
           {saved && (
-            <p role="status" style={{ fontSize: 13, color: 'var(--fg-success)' }}>
+            <p role="status" style={{ fontSize: 13 }}>
               Settings saved.
             </p>
           )}
 
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button type="submit" className="pg-btn pg-btn-primary pg-btn-sm" disabled={saving}>
+            <Button size="sm" type="submit" disabled={saving}>
               {saving ? 'Saving…' : 'Save'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

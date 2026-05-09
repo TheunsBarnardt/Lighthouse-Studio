@@ -1,5 +1,7 @@
 import type React from 'react';
 
+import { Button } from '@/components/ui/button';
+
 function ScoreRing({ score }: { score: number }) {
   const C = 2 * Math.PI * 44;
   const offset = C - (C * score) / 100;
@@ -94,16 +96,17 @@ function AuditRow({
         alignItems: 'flex-start',
         gap: 12,
         padding: '12px 0',
-        borderBottom: '1px solid var(--border-default)',
       }}
     >
       <div style={iconStyle}>{status === 'pass' ? '✓' : status === 'fail' ? '✕' : '!'}</div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontWeight: 500, fontSize: 13, color: 'var(--fg-primary)' }}>{name}</div>
-        <div style={{ fontSize: 11, color: 'var(--fg-secondary)', marginTop: 4 }}>{desc}</div>
+        <div style={{ fontWeight: 500, fontSize: 13 }}>{name}</div>
+        <div style={{ fontSize: 11, marginTop: 4 }}>{desc}</div>
       </div>
       {action && status !== 'pass' && (
-        <button className="pg-btn pg-btn-secondary pg-btn-sm">{action}</button>
+        <Button variant="outline" size="sm" type="button">
+          {action}
+        </Button>
       )}
     </div>
   );
@@ -208,17 +211,15 @@ const PER_PAGE = [
 
 export default function SeoPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            SEO Advisor
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>SEO Advisor</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Search engine optimisation audit · Last scan 12 minutes ago · 47 pages crawled
           </div>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           <select
             style={{
               width: 180,
@@ -226,8 +227,6 @@ export default function SeoPage() {
               padding: '0 8px',
               borderRadius: 4,
               border: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
               fontSize: 12,
             }}
           >
@@ -235,14 +234,18 @@ export default function SeoPage() {
             <option>Public pages only</option>
             <option>Single page...</option>
           </select>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Settings</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Re-scan</button>
+          <Button variant="outline" size="sm" type="button">
+            Settings
+          </Button>
+          <Button size="sm" type="button">
+            Re-scan
+          </Button>
         </div>
       </div>
 
       {/* Score card */}
       <div
-        className="pg-card"
+        className="rounded-md border bg-card text-card-foreground p-4"
         style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 16 }}
       >
         <ScoreRing score={78} />
@@ -253,39 +256,40 @@ export default function SeoPage() {
               fontWeight: 700,
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
-              color: 'var(--fg-tertiary)',
             }}
           >
             Overall SEO score
           </div>
-          <div style={{ fontWeight: 600, fontSize: 16, color: 'var(--fg-primary)', marginTop: 4 }}>
+          <div style={{ fontWeight: 600, fontSize: 16, marginTop: 4 }}>
             Needs attention — fix the 4 failed audits to reach 90+
           </div>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Scoring weighted toward crawlability and meta tags. Structured data and breadcrumbs
             would lift this further.
           </div>
           <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
             <span style={{ fontSize: 13 }}>
-              <span style={{ color: 'var(--fg-success)', fontWeight: 600 }}>{passCount}</span>{' '}
-              passed
+              <span style={{ fontWeight: 600 }}>{passCount}</span> passed
             </span>
             <span style={{ fontSize: 13 }}>
-              <span style={{ color: 'var(--fg-warning)', fontWeight: 600 }}>{warnCount}</span>{' '}
-              warnings
+              <span style={{ fontWeight: 600 }}>{warnCount}</span> warnings
             </span>
             <span style={{ fontSize: 13 }}>
-              <span style={{ color: 'var(--fg-danger)', fontWeight: 600 }}>{failCount}</span> failed
+              <span style={{ fontWeight: 600 }}>{failCount}</span> failed
             </span>
           </div>
         </div>
       </div>
 
       {AUDITS.map((group) => (
-        <div className="pg-card" key={group.cat} style={{ marginBottom: 16 }}>
-          <div className="pg-card-header">
-            <div className="pg-card-title">{group.cat}</div>
-            <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+        <div
+          className="rounded-md border bg-card text-card-foreground p-4"
+          key={group.cat}
+          style={{ marginBottom: 16 }}
+        >
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">{group.cat}</div>
+            <div style={{ fontSize: 11 }}>
               {group.items.filter((i) => i.status === 'pass').length} of {group.items.length}{' '}
               passing
             </div>
@@ -297,16 +301,16 @@ export default function SeoPage() {
       ))}
 
       {/* Per-page scores */}
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Per-page scores</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Per-page scores</div>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>URL</th>
-                <th className="pg-tabular">Score</th>
+                <th className="tabular-nums">Score</th>
                 <th>Title</th>
                 <th>Meta description</th>
                 <th>Structured data</th>
@@ -323,17 +327,19 @@ export default function SeoPage() {
                       : 'var(--fg-danger)';
                 return (
                   <tr key={p.url}>
-                    <td className="pg-mono" style={{ fontSize: 11 }}>
+                    <td className="font-mono text-sm" style={{ fontSize: 11 }}>
                       {p.url}
                     </td>
-                    <td className="pg-tabular" style={{ fontWeight: 600, color: c }}>
+                    <td className="tabular-nums" style={{ fontWeight: 600, color: c }}>
                       {p.score}
                     </td>
                     <td style={{ fontSize: 11 }}>{p.title}</td>
                     <td style={{ fontSize: 11 }}>{p.meta}</td>
                     <td style={{ fontSize: 11 }}>{p.sd}</td>
                     <td>
-                      <button className="pg-btn pg-btn-ghost pg-btn-xs">Inspect</button>
+                      <Button className="" variant="ghost" type="button">
+                        Inspect
+                      </Button>
                     </td>
                   </tr>
                 );

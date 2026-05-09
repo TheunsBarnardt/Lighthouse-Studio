@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { SchemaVersion } from '@/lib/types';
 
+import { Button } from '@/components/ui/button';
 import { schemaApi } from '@/lib/api-client';
 
 const DEFAULT_WORKSPACE_ID = process.env['NEXT_PUBLIC_DEFAULT_WORKSPACE_ID'] ?? 'default';
@@ -49,9 +50,7 @@ export default function HistoryPage() {
 
   return (
     <div style={{ padding: '16px 24px' }}>
-      <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 20 }}>
-        Version History
-      </h2>
+      <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 20 }}>Version History</h2>
 
       {isLoading && (
         <div
@@ -59,7 +58,6 @@ export default function HistoryPage() {
             padding: '48px 0',
             textAlign: 'center',
             fontSize: 13,
-            color: 'var(--fg-tertiary)',
           }}
           aria-live="polite"
         >
@@ -75,7 +73,6 @@ export default function HistoryPage() {
             background: 'var(--bg-danger-subtle)',
             padding: '12px 16px',
             fontSize: 13,
-            color: 'var(--fg-danger)',
           }}
           role="alert"
         >
@@ -84,7 +81,7 @@ export default function HistoryPage() {
       )}
 
       {!isLoading && versions.length === 0 && (
-        <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>No versions recorded yet.</p>
+        <p style={{ fontSize: 13 }}>No versions recorded yet.</p>
       )}
 
       {!isLoading && versions.length > 0 && (
@@ -107,7 +104,6 @@ export default function HistoryPage() {
                   height: 18,
                   borderRadius: '50%',
                   border: '1px solid var(--border-default)',
-                  background: 'var(--bg-surface)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -126,17 +122,16 @@ export default function HistoryPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontWeight: 600, fontSize: 13 }}>v{v.version}</span>
                     {v.version === latest && (
-                      <span className="pg-badge pg-badge-default" style={{ fontSize: 10 }}>
+                      <span
+                        className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                        style={{ fontSize: 10 }}
+                      >
                         latest
                       </span>
                     )}
                   </div>
-                  {v.description && (
-                    <p style={{ marginTop: 2, fontSize: 13, color: 'var(--fg-secondary)' }}>
-                      {v.description}
-                    </p>
-                  )}
-                  <div style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-tertiary)' }}>
+                  {v.description && <p style={{ marginTop: 2, fontSize: 13 }}>{v.description}</p>}
+                  <div style={{ marginTop: 4, fontSize: 11 }}>
                     {v.tables.length} {v.tables.length === 1 ? 'table' : 'tables'}
                     {' · '}
                     {v.createdBy}
@@ -145,8 +140,10 @@ export default function HistoryPage() {
                   </div>
                 </div>
                 {v.version !== latest && (
-                  <button
-                    className="pg-btn pg-btn-secondary pg-btn-sm"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
                     onClick={() => {
                       void handleRollback(v.version);
                     }}
@@ -154,7 +151,7 @@ export default function HistoryPage() {
                     aria-label={`Rollback to version ${String(v.version)}`}
                   >
                     {rolling === v.version ? 'Rolling back…' : 'Rollback'}
-                  </button>
+                  </Button>
                 )}
               </div>
             </li>

@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { MemberEventListener } from '@/components/workspace/member-event-listener';
 
 interface Invitation {
@@ -61,22 +62,19 @@ export default function WorkspaceInvitationsPage() {
         }}
       />
 
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Pending invitations
-          </h1>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Pending invitations</h1>
         </div>
       </div>
 
-      <div className="pg-card">
+      <div className="rounded-md border bg-card text-card-foreground p-4">
         {loading && (
           <p
             style={{
               padding: '48px 0',
               textAlign: 'center',
               fontSize: 13,
-              color: 'var(--fg-tertiary)',
             }}
             aria-live="polite"
           >
@@ -89,15 +87,18 @@ export default function WorkspaceInvitationsPage() {
               padding: '48px 0',
               textAlign: 'center',
               fontSize: 13,
-              color: 'var(--fg-tertiary)',
             }}
           >
             No pending invitations.
           </p>
         )}
         {!loading && invitations.length > 0 && (
-          <div className="pg-table-wrap" style={{ marginTop: 0 }}>
-            <table className="pg-data-table" role="grid" aria-label="Pending invitations">
+          <div className="overflow-hidden rounded-md border" style={{ marginTop: 0 }}>
+            <table
+              className="w-full border-collapse text-sm"
+              role="grid"
+              aria-label="Pending invitations"
+            >
               <thead>
                 <tr>
                   <th>Email</th>
@@ -110,15 +111,12 @@ export default function WorkspaceInvitationsPage() {
                 {invitations.map((inv) => (
                   <tr key={inv.token}>
                     <td style={{ fontWeight: 500 }}>{inv.email}</td>
-                    <td style={{ color: 'var(--fg-secondary)', fontSize: 13 }}>
-                      {inv.roleIds.join(', ')}
-                    </td>
-                    <td style={{ color: 'var(--fg-secondary)', fontSize: 12 }}>
-                      {new Date(inv.expiresAt).toLocaleDateString()}
-                    </td>
+                    <td style={{ fontSize: 13 }}>{inv.roleIds.join(', ')}</td>
+                    <td style={{ fontSize: 12 }}>{new Date(inv.expiresAt).toLocaleDateString()}</td>
                     <td>
-                      <button
-                        className="pg-btn pg-btn-sm"
+                      <Button
+                        className=""
+                        type="button"
                         style={{ background: 'var(--fg-danger)', color: '#fff', border: 'none' }}
                         disabled={revoking === inv.token}
                         onClick={() => {
@@ -126,7 +124,7 @@ export default function WorkspaceInvitationsPage() {
                         }}
                       >
                         {revoking === inv.token ? 'Revoking…' : 'Revoke'}
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}

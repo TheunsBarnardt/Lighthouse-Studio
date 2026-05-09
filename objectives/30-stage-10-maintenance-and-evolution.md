@@ -980,4 +980,49 @@ This is enough specification to build a real product. The 30 documents are the c
 
 ---
 
-_This document is the contract. Every checkbox in Section 10 must be true to declare the AI Build Pipeline complete._
+## Post-v1 Extension: AutoFix Loop (Signal → Generation → Review)
+
+**Status:** Tracked addition from the Objectives 33–36 addon plan; implement after the original §10 Definition of Done is met and after Objectives 32 (continuous post-deploy scanning extension) and 34 (AI PR Review Surface) ship.
+
+**Gap addressed:** The maintenance signal pipeline (this objective) classifies, deduplicates, and routes signals. Today the route is "to a human stage owner who decides what to do." For a meaningful subset of signals — newly-disclosed CVE matches, dependency upgrades, simple drift, certain deterministic regression patterns — a draft fix can be produced automatically and submitted as a PR for human review (Obj 34). RoboShadow's "Cyber Heal AutoFix" is the inspiration; the platform's disciplined version is the AutoFix loop, with human review at the only point that needs it.
+
+**Scope of the extension:**
+
+- **Signal-to-fix routing rules.** A workspace declares per-signal-class rules: "for `cve_dependency_match` of severity ≤ medium and patch-version-bump only, attempt AutoFix; otherwise route to a human." Rules are explicit, versioned, and audited.
+- **Generation orchestrator for fixes.** A new orchestrator that takes a signal + the affected artifact(s) + the current code and runs the appropriate Stage 26/27 regeneration prompt to produce a candidate fix.
+- **Patch as a PR via Obj 34.** The generated fix is committed to a new branch and a PR is opened; Obj 34's review pipeline runs over the PR; humans approve and merge.
+- **Loop closure.** When the fix PR merges, the originating signal's lifecycle transitions to `resolved_via_autofix` and the trajectory is linked to the signal record.
+- **Hard limits.** AutoFix never auto-merges; never bypasses approval routing; never runs for signals classified `production_incident_critical`. Always opt-in per workspace.
+
+**Locked decisions (extension):**
+
+| Decision                           | Choice                                                                                                             | Rationale                                          |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| AutoFix opt-in                     | Per-workspace opt-in; default off; admin can enable per-signal-class                                               | Conservative; no surprise PRs                      |
+| Eligible signal classes (defaults) | `cve_dependency_match` (patch-version only), `dependency_upgrade_advisory`, `config_drift` (workspace-allowlisted) | Narrow + safe at v1; expand based on real data     |
+| Excluded signal classes            | `production_incident_critical`, `security_critical`, anything requiring schema migration                           | Human judgment required; AutoFix would be reckless |
+| Fix authoring                      | Reuses Stage 26 (UI) / Stage 27 (Code) regeneration orchestrators with signal context                              | One generation discipline                          |
+| PR submission                      | Always via Obj 34 review pipeline; bot user authors commits (per Obj 34 §5.9)                                      | Audit clarity + review parity                      |
+| Failure handling                   | If generation fails or review's structural-stability check fails: signal routes back to human stage owner          | No silent dead-ends                                |
+| Loop telemetry                     | Per-workspace AutoFix success rate (PR opened → merged); surfaced in Obj 30 dashboards                             | Tunes the signal class allowlist over time         |
+
+**Anti-patterns refused:**
+
+- Auto-merging AutoFix PRs. Obj 34 review + human approval is mandatory.
+- Running AutoFix for production-critical signals. Always human-routed.
+- Authorless or silent commits. Obj 34's bot-user discipline applies; co-authored-by trailers credit the originating signal recorder.
+- Cross-app AutoFix ("fix this dependency in 50 apps at once"). Per-app, per-signal-instance only at v1.
+- Looping AutoFix on its own failures. A failed AutoFix produces one human-routed signal; no retry storm.
+
+**Integration points (this objective):**
+
+- New signal lifecycle state: `autofix_attempted`; sub-states `pr_opened`, `pr_merged`, `pr_rejected`, `generation_failed`.
+- New audit events: `signal.autofix_attempted`, `signal.autofix_pr_opened`, `signal.autofix_resolved`, `signal.autofix_failed`.
+- New metrics: `platform_autofix_attempts_total{signal_class, outcome}`, `platform_autofix_pr_merge_rate`, `platform_autofix_to_resolution_duration_seconds`.
+- New runbook: `autofix-failure-pattern.md` — when a workspace's AutoFix success rate drops, how to investigate (signal-class drift, prompt regression, or genuinely bad fixes).
+
+**ADRs to write at extension time:** AutoFix opt-in model; eligible signal classes locking; production-critical exclusion rationale; AutoFix-via-Obj-34 (no separate PR pipeline).
+
+---
+
+_This document is the contract. Every checkbox in Section 10 must be true to declare the AI Build Pipeline complete. The post-v1 AutoFix extension above is tracked for implementation after Objectives 32-extension (continuous scanning) and 34 (review) ship._

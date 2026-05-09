@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 // ---------------------------------------------------------------------------
 // Static data
 // ---------------------------------------------------------------------------
@@ -119,12 +121,8 @@ export default function CostDashboardPage() {
         }}
       >
         <div>
-          <h1
-            style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 4 }}
-          >
-            Cost &amp; Usage
-          </h1>
-          <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>
+          <h1 style={{ fontSize: 18, fontWeight: 600, marginBottom: 4 }}>Cost &amp; Usage</h1>
+          <p style={{ fontSize: 13 }}>
             Spend across all sources · This month: $49.30 / $50 budget · Forecast: $54.20
           </p>
         </div>
@@ -133,8 +131,6 @@ export default function CostDashboardPage() {
             style={{
               borderRadius: 4,
               border: '1px solid var(--border-default)',
-              background: 'var(--bg-surface)',
-              color: 'var(--fg-primary)',
               fontSize: 13,
               padding: '4px 8px',
             }}
@@ -144,14 +140,20 @@ export default function CostDashboardPage() {
             <option>Last quarter</option>
             <option>YTD</option>
           </select>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Export CSV</button>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Set budget</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Optimisation →</button>
+          <Button variant="outline" size="sm" type="button">
+            Export CSV
+          </Button>
+          <Button variant="outline" size="sm" type="button">
+            Set budget
+          </Button>
+          <Button size="sm" type="button">
+            Optimisation →
+          </Button>
         </div>
       </div>
 
       {/* Stat cards */}
-      <div className="pg-grid pg-grid-4" style={{ marginBottom: 24 }}>
+      <div className="grid grid-cols-4 gap-4" style={{ marginBottom: 24 }}>
         {[
           { label: 'Current month', value: '$49.30', delta: '99% of budget', warn: false },
           {
@@ -163,16 +165,18 @@ export default function CostDashboardPage() {
           { label: 'vs prior month', value: '+12%', delta: '$5.40 increase', warn: false },
           { label: 'Top driver', value: 'AI', delta: '$23.40 · 47.5%', warn: false },
         ].map((s) => (
-          <div key={s.label} className="pg-stat-card">
-            <div className="pg-stat-label">{s.label}</div>
+          <div key={s.label} className="rounded-md border bg-card p-4">
+            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+              {s.label}
+            </div>
             <div
-              className="pg-stat-value pg-tabular"
+              className="text-[22px] font-semibold tabular-nums tabular-nums"
               style={{ color: s.warn ? 'var(--fg-warning, #d97706)' : undefined }}
             >
               {s.value}
             </div>
             <div
-              className="pg-stat-delta"
+              className="mt-1 text-[11px] text-muted-foreground"
               style={{ color: s.warn ? 'var(--fg-warning, #d97706)' : undefined }}
             >
               {s.delta}
@@ -182,12 +186,15 @@ export default function CostDashboardPage() {
       </div>
 
       {/* Spend trend chart */}
-      <div className="pg-card" style={{ marginBottom: 16 }}>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
         <div
-          className="pg-card-header"
+          className="mb-3 flex items-center justify-between border-b pb-3"
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
-          <span className="pg-card-title" style={{ fontSize: 13 }}>
+          <span className="text-sm font-semibold" style={{ fontSize: 13 }}>
             Spend trend · 90 days
           </span>
           <div
@@ -196,7 +203,6 @@ export default function CostDashboardPage() {
               alignItems: 'center',
               gap: 12,
               fontSize: 11,
-              color: 'var(--fg-tertiary)',
             }}
           >
             <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -223,7 +229,7 @@ export default function CostDashboardPage() {
             </span>
           </div>
         </div>
-        <div style={{ padding: 12, background: 'var(--bg-canvas)' }}>
+        <div style={{ padding: 12 }}>
           <SpendSparkline />
           <div
             style={{
@@ -231,7 +237,6 @@ export default function CostDashboardPage() {
               display: 'flex',
               justifyContent: 'space-between',
               fontSize: 10,
-              color: 'var(--fg-tertiary)',
             }}
           >
             <span>Feb</span>
@@ -244,12 +249,12 @@ export default function CostDashboardPage() {
 
       {/* Source breakdown + Project breakdown side by side */}
       <div
-        className="pg-grid"
+        className="grid gap-4"
         style={{ gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}
       >
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <span className="pg-card-title" style={{ fontSize: 13 }}>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold" style={{ fontSize: 13 }}>
               By source
             </span>
           </div>
@@ -270,7 +275,6 @@ export default function CostDashboardPage() {
                     style={{
                       fontSize: 13,
                       fontWeight: 500,
-                      color: 'var(--fg-primary)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
@@ -278,7 +282,7 @@ export default function CostDashboardPage() {
                   >
                     {s.source}
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>Trend: {s.trend}</div>
+                  <div style={{ fontSize: 11 }}>Trend: {s.trend}</div>
                 </div>
                 <MiniBar pct={s.pct} warn={s.pct > 40} />
                 <div
@@ -287,9 +291,8 @@ export default function CostDashboardPage() {
                     textAlign: 'right',
                     fontSize: 13,
                     fontWeight: 500,
-                    color: 'var(--fg-primary)',
                   }}
-                  className="pg-tabular"
+                  className="tabular-nums"
                 >
                   ${s.cost.toFixed(2)}
                 </div>
@@ -298,9 +301,9 @@ export default function CostDashboardPage() {
           </div>
         </div>
 
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <span className="pg-card-title" style={{ fontSize: 13 }}>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold" style={{ fontSize: 13 }}>
               By project
             </span>
           </div>
@@ -317,10 +320,8 @@ export default function CostDashboardPage() {
                 }}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)' }}>
-                    {p.name}
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>{p.name}</div>
+                  <div style={{ fontSize: 11 }}>
                     {p.calls} AI calls · {p.pct}% of total
                   </div>
                 </div>
@@ -331,9 +332,8 @@ export default function CostDashboardPage() {
                     textAlign: 'right',
                     fontSize: 13,
                     fontWeight: 500,
-                    color: 'var(--fg-primary)',
                   }}
-                  className="pg-tabular"
+                  className="tabular-nums"
                 >
                   ${p.cost.toFixed(2)}
                 </div>
@@ -344,14 +344,17 @@ export default function CostDashboardPage() {
       </div>
 
       {/* By pipeline stage */}
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <span className="pg-card-title" style={{ fontSize: 13 }}>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <span className="text-sm font-semibold" style={{ fontSize: 13 }}>
             By pipeline stage
           </span>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>Stage</th>
@@ -366,17 +369,14 @@ export default function CostDashboardPage() {
                 const pct = Math.round((s.cost / totalAI) * 100);
                 return (
                   <tr key={s.stage}>
-                    <td style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{s.stage}</td>
-                    <td style={{ textAlign: 'right', fontSize: 13 }} className="pg-tabular">
+                    <td style={{ fontSize: 13 }}>{s.stage}</td>
+                    <td style={{ textAlign: 'right', fontSize: 13 }} className="tabular-nums">
                       ${s.cost.toFixed(2)}
                     </td>
-                    <td
-                      style={{ textAlign: 'right', fontSize: 13, color: 'var(--fg-secondary)' }}
-                      className="pg-tabular"
-                    >
+                    <td style={{ textAlign: 'right', fontSize: 13 }} className="tabular-nums">
                       {s.calls}
                     </td>
-                    <td style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{s.avg}</td>
+                    <td style={{ fontSize: 11 }}>{s.avg}</td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <div
@@ -388,10 +388,7 @@ export default function CostDashboardPage() {
                             maxWidth: 80,
                           }}
                         />
-                        <span
-                          style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}
-                          className="pg-tabular"
-                        >
+                        <span style={{ fontSize: 11 }} className="tabular-nums">
                           {pct}%
                         </span>
                       </div>
@@ -416,14 +413,18 @@ export default function CostDashboardPage() {
         <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-warning, #b45309)' }}>
           ⚠ Budget alert: forecast exceeds monthly budget by $4.20
         </p>
-        <p style={{ marginTop: 4, fontSize: 12, color: 'var(--fg-secondary)' }}>
+        <p style={{ marginTop: 4, fontSize: 12 }}>
           UI generation (Stage 6) is the top driver. Consider switching to a less expensive model
           for UI generation iterations, or reviewing prompt efficiency. Go to Optimisation Advisor
           for specific recommendations.
         </p>
         <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">View optimisations</button>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Increase budget</button>
+          <Button variant="outline" size="sm" type="button">
+            View optimisations
+          </Button>
+          <Button variant="outline" size="sm" type="button">
+            Increase budget
+          </Button>
         </div>
       </div>
     </div>

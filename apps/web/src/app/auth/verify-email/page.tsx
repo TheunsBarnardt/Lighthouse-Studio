@@ -5,13 +5,13 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { authApi } from '@/lib/auth-client';
 
 const cardStyle: React.CSSProperties = {
   padding: 32,
   borderRadius: 8,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-surface)',
 };
 
 function VerifyEmailPageInner() {
@@ -45,27 +45,22 @@ function VerifyEmailPageInner() {
 
   return (
     <div style={cardStyle}>
-      <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 12 }}>
-        {title}
-      </h1>
+      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{title}</h1>
 
       {status === 'verifying' && (
-        <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }} aria-live="polite">
+        <p style={{ fontSize: 13 }} aria-live="polite">
           Verifying…
         </p>
       )}
 
       {status === 'success' && (
         <>
-          <p
-            style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 20 }}
-            aria-live="polite"
-          >
+          <p style={{ fontSize: 13, marginBottom: 20 }} aria-live="polite">
             {t('successMessage')}
           </p>
           <p style={{ textAlign: 'center' }}>
             <Link href="/auth/sign-in">
-              <button className="pg-btn pg-btn-primary">{t('signIn')}</button>
+              <Button type="button">{t('signIn')}</Button>
             </Link>
           </p>
         </>

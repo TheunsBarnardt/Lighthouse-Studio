@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 const MIGRATIONS = [
   { version: '20260415_001', name: 'create_contacts_table', applied: '2026-04-15 09:14' },
   { version: '20260415_002', name: 'create_deals_table', applied: '2026-04-15 09:14' },
@@ -11,26 +13,24 @@ const MIGRATIONS = [
 export default function MigrationsPage() {
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Migrations
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Migrations</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             {MIGRATIONS.length} migrations applied · 0 pending
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm" type="button">
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
             View pending
-          </button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm" type="button">
+          </Button>
+          <Button size="sm" type="button">
             + New migration
-          </button>
+          </Button>
         </div>
       </div>
-      <div className="pg-table-wrap">
-        <table className="pg-data-table">
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr>
               <th>Version</th>
@@ -43,15 +43,17 @@ export default function MigrationsPage() {
             {MIGRATIONS.map((m) => (
               <tr key={m.version}>
                 <td>
-                  <span className="pg-mono" style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>
+                  <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                     {m.version}
                   </span>
                 </td>
                 <td style={{ fontSize: 13 }}>{m.name}</td>
                 <td>
-                  <span className="pg-badge pg-badge-success">applied</span>
+                  <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                    applied
+                  </span>
                 </td>
-                <td className="pg-tabular" style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+                <td className="tabular-nums" style={{ fontSize: 11 }}>
                   {m.applied}
                 </td>
               </tr>

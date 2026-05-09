@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { PipelineStepper } from '../stepper';
 
 type SectionStatus = 'approved' | 'in_review' | 'pending';
@@ -87,9 +89,23 @@ function sectionDotColor(status: SectionStatus): string {
 }
 
 function priorityBadge(priority: Requirement['priority']) {
-  if (priority === 'must') return <span className="pg-badge pg-badge-danger">MUST</span>;
-  if (priority === 'should') return <span className="pg-badge pg-badge-warning">SHOULD</span>;
-  return <span className="pg-badge pg-badge-default">COULD</span>;
+  if (priority === 'must')
+    return (
+      <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">
+        MUST
+      </span>
+    );
+  if (priority === 'should')
+    return (
+      <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+        SHOULD
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+      COULD
+    </span>
+  );
 }
 
 export default function PrdGenerationPage() {
@@ -111,19 +127,14 @@ export default function PrdGenerationPage() {
         {/* Left: section list */}
         <div
           style={{
-            background: 'var(--bg-surface)',
             borderRight: '1px solid var(--border-default)',
             overflowY: 'auto',
             padding: 12,
           }}
         >
-          <div
-            style={{ fontWeight: 600, fontSize: 13, marginBottom: 12, color: 'var(--fg-primary)' }}
-          >
-            Sections
-          </div>
+          <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 12 }}>Sections</div>
           {SECTIONS.map((section, i) => (
-            <button
+            <Button
               key={i}
               onClick={() => {
                 setActiveSection(i);
@@ -156,25 +167,33 @@ export default function PrdGenerationPage() {
                 }}
               />
               <span>{section.name}</span>
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* Center: requirements */}
-        <div style={{ overflowY: 'auto', padding: 24, background: 'var(--bg-canvas)' }}>
-          <div className="pg-page-header" style={{ marginBottom: 16 }}>
+        <div style={{ overflowY: 'auto', padding: 24 }}>
+          <div className="mb-5 flex items-start justify-between gap-4" style={{ marginBottom: 16 }}>
             <div>
               <h1 style={{ fontSize: 18 }}>5. Functional Requirements</h1>
               <div className="subtitle">12 requirements · 3 traced to intent · In Review</div>
             </div>
-            <div className="pg-page-header-actions">
-              <button className="pg-btn pg-btn-secondary pg-btn-sm">Regenerate</button>
-              <button className="pg-btn pg-btn-primary pg-btn-sm">Approve section</button>
+            <div className="flex shrink-0 items-center gap-2">
+              <Button variant="outline" size="sm" type="button">
+                Regenerate
+              </Button>
+              <Button size="sm" type="button">
+                Approve section
+              </Button>
             </div>
           </div>
 
           {REQUIREMENTS.map((req) => (
-            <div key={req.id} className="pg-card" style={{ marginBottom: 12 }}>
+            <div
+              key={req.id}
+              className="rounded-md border bg-card text-card-foreground p-4"
+              style={{ marginBottom: 12 }}
+            >
               <div
                 style={{
                   display: 'flex',
@@ -185,25 +204,22 @@ export default function PrdGenerationPage() {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span
-                    className="pg-badge pg-badge-accent"
+                    className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
                     style={{ fontFamily: 'monospace', fontSize: 11 }}
                   >
                     {req.id}
                   </span>
-                  <strong style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{req.title}</strong>
+                  <strong style={{ fontSize: 13 }}>{req.title}</strong>
                   {priorityBadge(req.priority)}
                 </div>
               </div>
-              <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 10 }}>
-                {req.description}
-              </div>
+              <div style={{ fontSize: 13, marginBottom: 10 }}>{req.description}</div>
               {req.acceptanceCriteria && req.acceptanceCriteria.length > 0 && (
                 <>
                   <div
                     style={{
                       fontSize: 11,
                       fontWeight: 600,
-                      color: 'var(--fg-tertiary)',
                       textTransform: 'uppercase',
                       letterSpacing: '0.04em',
                       marginBottom: 6,
@@ -222,7 +238,6 @@ export default function PrdGenerationPage() {
                         fontFamily: 'monospace',
                         marginBottom: 6,
                         lineHeight: '16px',
-                        color: 'var(--fg-primary)',
                       }}
                     >
                       {ac}
@@ -230,13 +245,11 @@ export default function PrdGenerationPage() {
                   ))}
                 </>
               )}
-              <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 6 }}>
+              <div style={{ fontSize: 11, marginTop: 6 }}>
                 Traces to:{' '}
                 {req.traces.map((t, i) => (
                   <span key={t}>
-                    <a href="#" style={{ color: 'var(--accent-primary)' }}>
-                      {t}
-                    </a>
+                    <a href="#">{t}</a>
                     {i < req.traces.length - 1 ? ', ' : ''}
                   </span>
                 ))}
@@ -248,7 +261,6 @@ export default function PrdGenerationPage() {
         {/* Right: inspector */}
         <div
           style={{
-            background: 'var(--bg-surface)',
             borderLeft: '1px solid var(--border-default)',
             overflowY: 'auto',
             padding: 16,
@@ -261,13 +273,12 @@ export default function PrdGenerationPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
               REASONING
             </div>
-            <div style={{ fontSize: 13, color: 'var(--fg-secondary)', lineHeight: '20px' }}>
+            <div style={{ fontSize: 13, lineHeight: '20px' }}>
               Extracted from user stories. Each FR is the minimum surface needed to support the
               workflow.
             </div>
@@ -277,7 +288,6 @@ export default function PrdGenerationPage() {
             style={{
               marginBottom: 16,
               paddingTop: 12,
-              borderTop: '1px solid var(--border-default)',
             }}
           >
             <div
@@ -286,13 +296,15 @@ export default function PrdGenerationPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
               APPROVAL ROUTING
             </div>
-            <div className="pg-card" style={{ background: 'var(--bg-canvas)', padding: 10 }}>
+            <div
+              className="rounded-md border bg-card text-card-foreground p-4"
+              style={{ padding: 10 }}
+            >
               {[
                 { initials: 'JD', name: 'Joana de Klerk', role: 'Owner', approved: true },
                 { initials: 'MA', name: 'Marcus Acker', role: 'Architect', approved: false },
@@ -301,29 +313,32 @@ export default function PrdGenerationPage() {
                   key={approver.initials}
                   style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}
                 >
-                  <div className="pg-avatar">{approver.initials}</div>
+                  <div className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary">
+                    {approver.initials}
+                  </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13 }}>{approver.name}</div>
-                    <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{approver.role}</div>
+                    <div style={{ fontSize: 11 }}>{approver.role}</div>
                   </div>
                   {approver.approved ? (
-                    <span className="pg-badge pg-badge-success">✓</span>
+                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                      ✓
+                    </span>
                   ) : (
-                    <span className="pg-badge pg-badge-warning">Pending</span>
+                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                      Pending
+                    </span>
                   )}
                 </div>
               ))}
             </div>
-            <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 6 }}>
-              Mode: All approvers required
-            </div>
+            <div style={{ fontSize: 11, marginTop: 6 }}>Mode: All approvers required</div>
           </div>
 
           <div
             style={{
               marginBottom: 16,
               paddingTop: 12,
-              borderTop: '1px solid var(--border-default)',
             }}
           >
             <div
@@ -332,7 +347,6 @@ export default function PrdGenerationPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
@@ -342,21 +356,23 @@ export default function PrdGenerationPage() {
               ['This section', '$0.42'],
               ['Total PRD', '$2.10'],
             ].map(([key, val]) => (
-              <div key={key} className="pg-inspector-row">
-                <span className="pg-inspector-key">{key}</span>
-                <span className="pg-inspector-val">{val}</span>
+              <div
+                key={key}
+                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+              >
+                <span className="text-muted-foreground">{key}</span>
+                <span className="font-medium">{val}</span>
               </div>
             ))}
           </div>
 
-          <div style={{ paddingTop: 12, borderTop: '1px solid var(--border-default)' }}>
+          <div style={{ paddingTop: 12 }}>
             <div
               style={{
                 fontSize: 10,
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
@@ -366,8 +382,11 @@ export default function PrdGenerationPage() {
               ['Coverage of intent', '100%', 'var(--fg-success)'],
               ['Cross-section consistency', 'No conflicts', 'var(--fg-success)'],
             ].map(([key, val, color]) => (
-              <div key={key} className="pg-inspector-row">
-                <span className="pg-inspector-key">{key}</span>
+              <div
+                key={key}
+                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+              >
+                <span className="text-muted-foreground">{key}</span>
                 <span style={{ color: color }}>{val}</span>
               </div>
             ))}

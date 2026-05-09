@@ -39,13 +39,14 @@ export default function AdminAuditPage() {
   return (
     <div>
       <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--fg-primary)' }}>
-          Audit log
-        </h1>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Audit log</h1>
       </div>
 
-      <div className="pg-card">
-        <div className="pg-card-header" style={{ paddingBottom: '0.75rem' }}>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div
+          className="mb-3 flex items-center justify-between border-b pb-3"
+          style={{ paddingBottom: '0.75rem' }}
+        >
           <input
             type="search"
             placeholder="Filter by event type…"
@@ -59,8 +60,6 @@ export default function AdminAuditPage() {
               padding: '0.4375rem 0.75rem',
               border: '1px solid var(--border-default)',
               borderRadius: '6px',
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
               fontSize: '0.875rem',
               outline: 'none',
             }}
@@ -73,7 +72,6 @@ export default function AdminAuditPage() {
                 padding: '2rem 0',
                 textAlign: 'center',
                 fontSize: '0.875rem',
-                color: 'var(--fg-secondary)',
               }}
               aria-live="polite"
             >
@@ -86,15 +84,14 @@ export default function AdminAuditPage() {
                 padding: '2rem 0',
                 textAlign: 'center',
                 fontSize: '0.875rem',
-                color: 'var(--fg-secondary)',
               }}
             >
               No audit events found.
             </p>
           )}
           {!loading && events.length > 0 && (
-            <div className="pg-table-wrap">
-              <table className="pg-data-table" role="grid" aria-label="Audit log">
+            <div className="overflow-hidden rounded-md border">
+              <table className="w-full border-collapse text-sm" role="grid" aria-label="Audit log">
                 <thead>
                   <tr>
                     <th>Event</th>
@@ -108,19 +105,15 @@ export default function AdminAuditPage() {
                     <tr key={ev.id}>
                       <td>
                         <span
-                          className="pg-badge pg-badge-default pg-mono"
+                          className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground font-mono text-sm"
                           style={{ fontSize: '0.75rem' }}
                         >
                           {ev.eventType}
                         </span>
                       </td>
-                      <td style={{ color: 'var(--fg-secondary)' }}>
-                        {ev.actorEmail ?? ev.actorId}
-                      </td>
-                      <td style={{ color: 'var(--fg-secondary)' }}>{ev.workspaceId ?? '—'}</td>
-                      <td style={{ color: 'var(--fg-secondary)' }}>
-                        {new Date(ev.createdAt).toLocaleString()}
-                      </td>
+                      <td>{ev.actorEmail ?? ev.actorId}</td>
+                      <td>{ev.workspaceId ?? '—'}</td>
+                      <td>{new Date(ev.createdAt).toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+
 const PENDING = [
   {
     id: 'AP-247',
@@ -89,52 +91,50 @@ const APPROVED = [
 
 export default function ApprovalsPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Approvals
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Approvals</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Single inbox of pending approvals across all projects · 4 pending · 2 awaiting you
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Settings</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
+            Settings
+          </Button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="pg-grid pg-grid-4" style={{ marginBottom: 24 }}>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Pending</div>
-          <div className="pg-stat-value">4</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            across 2 projects
+      <div className="grid grid-cols-4 gap-4" style={{ marginBottom: 24 }}>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Pending
           </div>
+          <div className="text-[22px] font-semibold tabular-nums">4</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">across 2 projects</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Awaiting you</div>
-          <div className="pg-stat-value" style={{ color: 'var(--fg-warning)' }}>
-            2
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Awaiting you
           </div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            1 urgent
-          </div>
+          <div className="text-[22px] font-semibold tabular-nums">2</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">1 urgent</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Approved · 7d</div>
-          <div className="pg-stat-value">23</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            avg time-to-approve 1h 47m
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Approved · 7d
           </div>
+          <div className="text-[22px] font-semibold tabular-nums">23</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">avg time-to-approve 1h 47m</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Rejected · 7d</div>
-          <div className="pg-stat-value">2</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            all returned for changes
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Rejected · 7d
           </div>
+          <div className="text-[22px] font-semibold tabular-nums">2</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">all returned for changes</div>
         </div>
       </div>
 
@@ -142,7 +142,7 @@ export default function ApprovalsPage() {
       {PENDING.map((a) => (
         <div
           key={a.id}
-          className="pg-card"
+          className="rounded-md border bg-card text-card-foreground p-4"
           style={{
             marginBottom: 12,
             borderColor: a.urgent ? 'var(--fg-warning)' : undefined,
@@ -157,29 +157,38 @@ export default function ApprovalsPage() {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span className="pg-badge pg-badge-accent pg-mono">{a.id}</span>
-              <span className="pg-badge pg-badge-default">{a.stage}</span>
-              <span style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>{a.project}</span>
-              {a.urgent && <span className="pg-badge pg-badge-warning">Urgent</span>}
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary font-mono text-sm">
+                {a.id}
+              </span>
+              <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                {a.stage}
+              </span>
+              <span style={{ fontSize: 12 }}>{a.project}</span>
+              {a.urgent && (
+                <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                  Urgent
+                </span>
+              )}
             </div>
             <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-              <button className="pg-btn pg-btn-ghost pg-btn-sm">View details</button>
-              <button className="pg-btn pg-btn-secondary pg-btn-sm">Reject</button>
-              <button className="pg-btn pg-btn-primary pg-btn-sm">Approve</button>
+              <Button variant="ghost" size="sm" type="button">
+                View details
+              </Button>
+              <Button variant="outline" size="sm" type="button">
+                Reject
+              </Button>
+              <Button size="sm" type="button">
+                Approve
+              </Button>
             </div>
           </div>
-          <div
-            style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)', marginBottom: 8 }}
-          >
-            {a.summary}
-          </div>
+          <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 8 }}>{a.summary}</div>
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 8,
               fontSize: 11,
-              color: 'var(--fg-tertiary)',
             }}
           >
             <span>Requested by {a.requester}</span>
@@ -187,19 +196,20 @@ export default function ApprovalsPage() {
             <span>{a.requested}</span>
             <span>·</span>
             <span>
-              Mode: <span className="pg-mono">{a.mode}</span> · {a.approved} of {a.total} approved
+              Mode: <span className="font-mono text-sm">{a.mode}</span> · {a.approved} of {a.total}{' '}
+              approved
             </span>
           </div>
         </div>
       ))}
 
       {/* Recently approved table */}
-      <div className="pg-card" style={{ marginTop: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Recently approved · 7 days</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4" style={{ marginTop: 16 }}>
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Recently approved · 7 days</div>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>ID</th>
@@ -213,14 +223,14 @@ export default function ApprovalsPage() {
             <tbody>
               {APPROVED.map((row) => (
                 <tr key={row.id}>
-                  <td className="pg-mono" style={{ fontSize: 11 }}>
+                  <td className="font-mono text-sm" style={{ fontSize: 11 }}>
                     {row.id}
                   </td>
                   <td style={{ fontSize: 13 }}>{row.what}</td>
-                  <td style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>{row.project}</td>
-                  <td style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>{row.by}</td>
-                  <td style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{row.when}</td>
-                  <td className="pg-tabular" style={{ fontSize: 11 }}>
+                  <td style={{ fontSize: 11 }}>{row.project}</td>
+                  <td style={{ fontSize: 11 }}>{row.by}</td>
+                  <td style={{ fontSize: 11 }}>{row.when}</td>
+                  <td className="tabular-nums" style={{ fontSize: 11 }}>
                     {row.tta}
                   </td>
                 </tr>

@@ -4,6 +4,8 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
+import { Button } from '@/components/ui/button';
+
 const TEMPLATE_KEYS = [
   { key: 'email_verification', label: 'Email verification' },
   { key: 'welcome', label: 'Welcome' },
@@ -31,8 +33,6 @@ const inputStyle: React.CSSProperties = {
   padding: '0 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
   width: '100%',
   boxSizing: 'border-box',
@@ -43,8 +43,6 @@ const textareaStyle: React.CSSProperties = {
   padding: '8px 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
   fontFamily: 'var(--font-mono, monospace)',
   boxSizing: 'border-box',
@@ -54,7 +52,6 @@ const textareaStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   fontSize: 12,
   fontWeight: 500,
-  color: 'var(--fg-primary)',
   display: 'block',
   marginBottom: 6,
 };
@@ -134,7 +131,7 @@ export default function WorkspaceEmailTemplatesPage() {
 
   if (loading)
     return (
-      <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }} aria-live="polite">
+      <p style={{ fontSize: 13 }} aria-live="polite">
         Loading…
       </p>
     );
@@ -148,14 +145,13 @@ export default function WorkspaceEmailTemplatesPage() {
           style={{
             fontSize: 20,
             fontWeight: 700,
-            color: 'var(--fg-primary)',
             margin: 0,
             marginBottom: 4,
           }}
         >
           Email templates
         </h1>
-        <p style={{ fontSize: 13, color: 'var(--fg-secondary)', margin: 0 }}>
+        <p style={{ fontSize: 13, margin: 0 }}>
           Override default email templates with custom subject and body for this workspace.
         </p>
       </div>
@@ -166,7 +162,7 @@ export default function WorkspaceEmailTemplatesPage() {
           style={{ width: 200, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 2 }}
         >
           {TEMPLATE_KEYS.map((t) => (
-            <button
+            <Button
               key={t.key}
               onClick={() => {
                 setSelected(t.key);
@@ -202,17 +198,17 @@ export default function WorkspaceEmailTemplatesPage() {
                   aria-label="customised"
                 />
               )}
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* Template editor */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="pg-card">
-            <div className="pg-card-header">
-              <span className="pg-card-title">{currentTemplate?.label}</span>
+          <div className="rounded-md border bg-card text-card-foreground p-4">
+            <div className="mb-3 flex items-center justify-between border-b pb-3">
+              <span className="text-sm font-semibold">{currentTemplate?.label}</span>
               {!overrides[selected] && (
-                <p style={{ fontSize: 12, color: 'var(--fg-tertiary)', margin: 0, marginTop: 2 }}>
+                <p style={{ fontSize: 12, margin: 0, marginTop: 2 }}>
                   Using platform default. Fill in below to override.
                 </p>
               )}
@@ -277,24 +273,20 @@ export default function WorkspaceEmailTemplatesPage() {
                 )}
 
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    type="submit"
-                    className="pg-btn pg-btn-primary"
-                    disabled={saving || formState.isSubmitting}
-                  >
+                  <Button type="submit" disabled={saving || formState.isSubmitting}>
                     {saving ? 'Saving…' : 'Save override'}
-                  </button>
+                  </Button>
                   {overrides[selected] && (
-                    <button
+                    <Button
+                      variant="outline"
                       type="button"
-                      className="pg-btn pg-btn-secondary"
                       disabled={saving}
                       onClick={() => {
                         void resetTemplate();
                       }}
                     >
                       Reset to default
-                    </button>
+                    </Button>
                   )}
                 </div>
               </form>

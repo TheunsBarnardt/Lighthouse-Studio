@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface Role {
   name: string;
   memberCount: number;
@@ -58,24 +60,26 @@ export default function AuthRolesPage() {
   const [selected, setSelected] = useState<string | null>(null);
 
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
       {/* Header */}
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1>Roles &amp; Permissions</h1>
           <p className="subtitle">{ROLES.length} roles · 142 permissions defined</p>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-primary pg-btn-sm">+ New role</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button size="sm" type="button">
+            + New role
+          </Button>
         </div>
       </div>
 
       {/* Grid of role cards */}
-      <div className="pg-grid pg-grid-2">
+      <div className="grid grid-cols-2 gap-4">
         {ROLES.map((role) => (
           <div
             key={role.name}
-            className="pg-card"
+            className="rounded-md border bg-card text-card-foreground p-4"
             style={{
               cursor: 'pointer',
               ...(selected === role.name
@@ -98,42 +102,39 @@ export default function AuthRolesPage() {
                   gap: 8,
                 }}
               >
-                <strong style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg-primary)' }}>
-                  {role.name}
-                </strong>
-                <span className="pg-badge pg-badge-default">
+                <strong style={{ fontSize: 13, fontWeight: 600 }}>{role.name}</strong>
+                <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                   {role.memberCount} {role.memberCount === 1 ? 'member' : 'members'}
                 </span>
               </div>
 
-              <p style={{ fontSize: 13, color: 'var(--fg-secondary)', margin: 0 }}>
-                {role.description}
-              </p>
+              <p style={{ fontSize: 13, margin: 0 }}>{role.description}</p>
 
-              <p style={{ fontSize: 12, color: 'var(--fg-tertiary)', margin: 0 }}>
-                {role.permissions}
-              </p>
+              <p style={{ fontSize: 12, margin: 0 }}>{role.permissions}</p>
 
               {selected === role.name && (
                 <div style={{ display: 'flex', gap: 8, paddingTop: 8 }}>
-                  <button
-                    className="pg-btn pg-btn-secondary pg-btn-sm"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                     }}
                   >
                     Edit role
-                  </button>
+                  </Button>
                   {role.name !== 'Workspace Owner' && (
-                    <button
-                      className="pg-btn pg-btn-ghost pg-btn-sm"
-                      style={{ color: 'var(--fg-danger)' }}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                       }}
                     >
                       Delete
-                    </button>
+                    </Button>
                   )}
                 </div>
               )}

@@ -2,16 +2,38 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface Props {
   signalIds: string[];
   onClose: () => void;
 }
 
 const PRIORITY_OPTIONS = [
-  { value: 'p0', label: 'P0 — Critical', badgeClass: 'pg-badge-danger' },
-  { value: 'p1', label: 'P1 — High', badgeClass: 'pg-badge-warning' },
-  { value: 'p2', label: 'P2 — Medium', badgeClass: 'pg-badge-warning' },
-  { value: 'p3', label: 'P3 — Low', badgeClass: 'pg-badge-default' },
+  {
+    value: 'p0',
+    label: 'P0 — Critical',
+    badgeClass:
+      'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive',
+  },
+  {
+    value: 'p1',
+    label: 'P1 — High',
+    badgeClass:
+      'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  },
+  {
+    value: 'p2',
+    label: 'P2 — Medium',
+    badgeClass:
+      'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  },
+  {
+    value: 'p3',
+    label: 'P3 — Low',
+    badgeClass:
+      'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground',
+  },
 ];
 
 export function CreateChangeRequestDialog({ signalIds, onClose }: Props) {
@@ -38,27 +60,33 @@ export function CreateChangeRequestDialog({ signalIds, onClose }: Props) {
         zIndex: 50,
       }}
     >
-      <div className="pg-card" style={{ width: '100%', maxWidth: 440, padding: 24 }}>
-        <div className="pg-card-header" style={{ marginBottom: 16 }}>
-          <div className="pg-card-title">Create Change Request</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ width: '100%', maxWidth: 440, padding: 24 }}
+      >
+        <div
+          className="mb-3 flex items-center justify-between border-b pb-3"
+          style={{ marginBottom: 16 }}
+        >
+          <div className="text-sm font-semibold">Create Change Request</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>
+          <p style={{ fontSize: 13 }}>
             Creating from {signalIds.length} signal{signalIds.length !== 1 ? 's' : ''}. The AI will
             summarise the signals into a description and suggest affected pipeline stages.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}>Priority</p>
+            <p style={{ fontSize: 12, fontWeight: 500 }}>Priority</p>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {PRIORITY_OPTIONS.map((opt) => (
-                <button
+                <Button
                   key={opt.value}
                   onClick={() => {
                     setPriority(opt.value);
                   }}
-                  className={`pg-badge ${opt.badgeClass}`}
+                  className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${opt.badgeClass}`}
                   style={{
                     cursor: 'pointer',
                     padding: '4px 10px',
@@ -72,7 +100,7 @@ export function CreateChangeRequestDialog({ signalIds, onClose }: Props) {
                   }}
                 >
                   {opt.label}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -80,16 +108,14 @@ export function CreateChangeRequestDialog({ signalIds, onClose }: Props) {
           <div
             style={{
               borderRadius: 4,
-              background: 'var(--bg-surface)',
               padding: 12,
               fontSize: 12,
-              color: 'var(--fg-secondary)',
               display: 'flex',
               flexDirection: 'column',
               gap: 4,
             }}
           >
-            <p style={{ fontWeight: 500, color: 'var(--fg-primary)' }}>What happens next</p>
+            <p style={{ fontWeight: 500 }}>What happens next</p>
             <ul
               style={{
                 listStyle: 'disc',
@@ -103,27 +129,21 @@ export function CreateChangeRequestDialog({ signalIds, onClose }: Props) {
               <li>Affected pipeline stages are identified automatically</li>
               <li>
                 Signals are linked and marked{' '}
-                <span className="pg-badge pg-badge-default">in change request</span>
+                <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                  in change request
+                </span>
               </li>
             </ul>
           </div>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
-          <button
-            className="pg-btn pg-btn-secondary pg-btn-sm"
-            onClick={onClose}
-            disabled={loading}
-          >
+          <Button variant="outline" size="sm" type="button" onClick={onClose} disabled={loading}>
             Cancel
-          </button>
-          <button
-            className="pg-btn pg-btn-primary pg-btn-sm"
-            onClick={handleCreate}
-            disabled={loading}
-          >
+          </Button>
+          <Button size="sm" type="button" onClick={handleCreate} disabled={loading}>
             {loading ? 'Creating…' : 'Create'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

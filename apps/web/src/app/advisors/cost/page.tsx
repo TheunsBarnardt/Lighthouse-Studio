@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+
 const OPPORTUNITIES = [
   {
     name: 'AI tokens · Stage 6 (UI gen)',
@@ -61,18 +63,16 @@ const total = BREAKDOWN.reduce((s, b) => s + b.amt, 0);
 
 export default function CostPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Cost optimisation
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Cost optimisation</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Spend across all sources · ${total.toFixed(2)} / mo current · ${(total - 23).toFixed(2)}{' '}
             / mo achievable
           </div>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           <select
             style={{
               width: 140,
@@ -80,8 +80,6 @@ export default function CostPage() {
               padding: '0 8px',
               borderRadius: 4,
               border: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
               fontSize: 12,
             }}
           >
@@ -89,58 +87,67 @@ export default function CostPage() {
             <option>Last 30 days</option>
             <option>Last quarter</option>
           </select>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Re-analyse</button>
+          <Button size="sm" type="button">
+            Re-analyse
+          </Button>
         </div>
       </div>
 
-      <div className="pg-grid pg-grid-4" style={{ marginBottom: 16 }}>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Current spend</div>
-          <div className="pg-stat-value">
+      <div className="grid grid-cols-4 gap-4" style={{ marginBottom: 16 }}>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Current spend
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">
             ${total.toFixed(2)}
-            <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--fg-secondary)' }}>/mo</span>
+            <span style={{ fontSize: 13, fontWeight: 400 }}>/mo</span>
           </div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            vs $50 budget
-          </div>
+          <div className="mt-1 text-[11px] text-muted-foreground">vs $50 budget</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Identified savings</div>
-          <div className="pg-stat-value" style={{ color: 'var(--fg-success)' }}>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Identified savings
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">
             $23.00
-            <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--fg-secondary)' }}>/mo</span>
+            <span style={{ fontSize: 13, fontWeight: 400 }}>/mo</span>
           </div>
-          <div className="pg-stat-delta pg-stat-up">47% reduction</div>
-        </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Top driver</div>
-          <div className="pg-stat-value">AI</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            47.5% of spend
+          <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
+            47% reduction
           </div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Forecast next month</div>
-          <div className="pg-stat-value">$54.20</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-warning)' }}>
-            +9.6% growth
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Top driver
           </div>
+          <div className="text-[22px] font-semibold tabular-nums">AI</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">47.5% of spend</div>
+        </div>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Forecast next month
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">$54.20</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">+9.6% growth</div>
         </div>
       </div>
 
       {/* Spend breakdown */}
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Spend breakdown</div>
-          <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>Last 30 days</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Spend breakdown</div>
+          <div style={{ fontSize: 11 }}>Last 30 days</div>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>Source</th>
-                <th className="pg-tabular">Amount</th>
-                <th className="pg-tabular">Share</th>
+                <th className="tabular-nums">Amount</th>
+                <th className="tabular-nums">Share</th>
                 <th>Detail</th>
               </tr>
             </thead>
@@ -148,15 +155,14 @@ export default function CostPage() {
               {BREAKDOWN.map((b) => (
                 <tr key={b.name}>
                   <td style={{ fontWeight: 500 }}>{b.name}</td>
-                  <td className="pg-tabular">${b.amt.toFixed(2)}</td>
-                  <td className="pg-tabular">
+                  <td className="tabular-nums">${b.amt.toFixed(2)}</td>
+                  <td className="tabular-nums">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span>{b.pct}%</span>
                       <div
                         style={{
                           flex: 1,
                           height: 4,
-                          background: 'var(--bg-hover)',
                           borderRadius: 2,
                           maxWidth: 80,
                         }}
@@ -172,7 +178,7 @@ export default function CostPage() {
                       </div>
                     </div>
                   </td>
-                  <td style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>{b.detail}</td>
+                  <td style={{ fontSize: 11 }}>{b.detail}</td>
                 </tr>
               ))}
             </tbody>
@@ -181,10 +187,15 @@ export default function CostPage() {
       </div>
 
       {/* Opportunities */}
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Optimisation opportunities</div>
-          <span className="pg-badge pg-badge-success">$23.00 / mo</span>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Optimisation opportunities</div>
+          <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+            $23.00 / mo
+          </span>
         </div>
         {OPPORTUNITIES.map((o) => (
           <div
@@ -194,7 +205,6 @@ export default function CostPage() {
               alignItems: 'flex-start',
               gap: 12,
               padding: '12px 0',
-              borderBottom: '1px solid var(--border-default)',
             }}
           >
             <div
@@ -210,7 +220,6 @@ export default function CostPage() {
                 flexShrink: 0,
                 marginTop: 2,
                 background: 'var(--bg-warning-subtle)',
-                color: 'var(--fg-warning)',
               }}
             >
               $
@@ -218,29 +227,26 @@ export default function CostPage() {
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                 <div style={{ fontWeight: 500, fontSize: 13 }}>{o.name}</div>
-                <div style={{ fontSize: 11, color: 'var(--fg-success)', fontWeight: 600 }}>
-                  Save {o.savings}
-                </div>
+                <div style={{ fontSize: 11, fontWeight: 600 }}>Save {o.savings}</div>
               </div>
-              <div style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>{o.desc}</div>
-              <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 4 }}>
-                Effort: {o.effort}
-              </div>
+              <div style={{ fontSize: 11 }}>{o.desc}</div>
+              <div style={{ fontSize: 11, marginTop: 4 }}>Effort: {o.effort}</div>
             </div>
-            <button className="pg-btn pg-btn-secondary pg-btn-sm">Apply</button>
+            <Button variant="outline" size="sm" type="button">
+              Apply
+            </Button>
           </div>
         ))}
       </div>
 
       {/* Trend chart */}
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Cost trend · 90 days</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Cost trend · 90 days</div>
         </div>
         <div
           style={{
             height: 120,
-            background: 'var(--bg-canvas)',
             borderRadius: 4,
             padding: 12,
             display: 'flex',
@@ -267,7 +273,6 @@ export default function CostPage() {
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: 11,
-            color: 'var(--fg-tertiary)',
             marginTop: 8,
           }}
         >

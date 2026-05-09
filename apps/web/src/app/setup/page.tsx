@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
+
 const SetupSchema = z.object({
   displayName: z.string().min(1, 'Name is required'),
   email: z.string().email('Enter a valid email address'),
@@ -27,8 +29,6 @@ const inputStyle: React.CSSProperties = {
   padding: '0 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
 };
 
@@ -36,7 +36,6 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: 12,
   fontWeight: 500,
-  color: 'var(--fg-secondary)',
   marginBottom: 6,
 };
 
@@ -121,7 +120,6 @@ export default function SetupPage() {
             width: 192,
             height: 4,
             borderRadius: 2,
-            background: 'var(--bg-surface)',
             overflow: 'hidden',
           }}
         >
@@ -145,21 +143,16 @@ export default function SetupPage() {
         minHeight: '100vh',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--bg-canvas)',
         padding: '0 16px',
       }}
     >
       <div style={{ width: '100%', maxWidth: 480 }}>
         <div style={{ marginBottom: 32, textAlign: 'center' }}>
-          <h1 style={{ fontSize: 24, fontWeight: 700, color: 'var(--fg-primary)', margin: 0 }}>
-            {t('title')}
-          </h1>
-          <p style={{ marginTop: 8, fontSize: 13, color: 'var(--fg-secondary)' }}>
-            {t('subtitle')}
-          </p>
+          <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>{t('title')}</h1>
+          <p style={{ marginTop: 8, fontSize: 13 }}>{t('subtitle')}</p>
         </div>
 
-        <div className="pg-card" style={{ padding: 32 }}>
+        <div className="rounded-md border bg-card text-card-foreground p-4" style={{ padding: 32 }}>
           <form
             onSubmit={(e) => {
               void handleSubmit(onSubmit)(e);
@@ -167,9 +160,7 @@ export default function SetupPage() {
             style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
             noValidate
           >
-            <h2 style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-              {t('ownerSectionTitle')}
-            </h2>
+            <h2 style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>{t('ownerSectionTitle')}</h2>
 
             <div>
               <label htmlFor="displayName" style={labelStyle}>
@@ -183,9 +174,7 @@ export default function SetupPage() {
                 {...register('displayName')}
               />
               {errors.displayName && (
-                <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-danger)' }}>
-                  {errors.displayName.message}
-                </p>
+                <p style={{ marginTop: 4, fontSize: 11 }}>{errors.displayName.message}</p>
               )}
             </div>
 
@@ -202,11 +191,7 @@ export default function SetupPage() {
                 aria-required
                 {...register('email')}
               />
-              {errors.email && (
-                <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-danger)' }}>
-                  {errors.email.message}
-                </p>
-              )}
+              {errors.email && <p style={{ marginTop: 4, fontSize: 11 }}>{errors.email.message}</p>}
             </div>
 
             <div>
@@ -223,18 +208,15 @@ export default function SetupPage() {
                 {...register('password')}
               />
               {errors.password && (
-                <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-danger)' }}>
-                  {errors.password.message}
-                </p>
+                <p style={{ marginTop: 4, fontSize: 11 }}>{errors.password.message}</p>
               )}
             </div>
 
-            <div style={{ borderTop: '1px solid var(--border-default)', paddingTop: 16 }}>
+            <div style={{ paddingTop: 16 }}>
               <h2
                 style={{
                   fontSize: 14,
                   fontWeight: 600,
-                  color: 'var(--fg-primary)',
                   margin: '0 0 16px',
                 }}
               >
@@ -261,9 +243,7 @@ export default function SetupPage() {
                   })}
                 />
                 {errors.workspaceName && (
-                  <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-danger)' }}>
-                    {errors.workspaceName.message}
-                  </p>
+                  <p style={{ marginTop: 4, fontSize: 11 }}>{errors.workspaceName.message}</p>
                 )}
               </div>
 
@@ -277,13 +257,9 @@ export default function SetupPage() {
                   placeholder={t('workspaceSlugPlaceholder')}
                   {...register('workspaceSlug')}
                 />
-                <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-tertiary)' }}>
-                  {t('workspaceSlugHint')}
-                </p>
+                <p style={{ marginTop: 4, fontSize: 11 }}>{t('workspaceSlugHint')}</p>
                 {errors.workspaceSlug && (
-                  <p style={{ marginTop: 4, fontSize: 11, color: 'var(--fg-danger)' }}>
-                    {errors.workspaceSlug.message}
-                  </p>
+                  <p style={{ marginTop: 4, fontSize: 11 }}>{errors.workspaceSlug.message}</p>
                 )}
               </div>
             </div>
@@ -296,21 +272,15 @@ export default function SetupPage() {
                   background: 'var(--bg-danger-subtle)',
                   padding: '10px 12px',
                   fontSize: 13,
-                  color: 'var(--fg-danger)',
                 }}
               >
                 {error}
               </div>
             )}
 
-            <button
-              type="submit"
-              className="pg-btn pg-btn-primary"
-              style={{ width: '100%' }}
-              disabled={isSubmitting}
-            >
+            <Button type="submit" style={{ width: '100%' }} disabled={isSubmitting}>
               {isSubmitting ? t('submitting') : t('submit')}
-            </button>
+            </Button>
           </form>
         </div>
       </div>

@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+
 // Simple SVG sparkline chart — no external deps
 function MetricChart({
   values,
@@ -27,7 +29,6 @@ function MetricChart({
     <div
       style={{
         height: 140,
-        background: 'var(--bg-canvas)',
         borderRadius: 4,
         padding: 8,
         position: 'relative',
@@ -86,17 +87,15 @@ export default function MetricsPage() {
   const lastDb = Math.round(dbConnData[dbConnData.length - 1]);
 
   return (
-    <div className="pg-page" style={{ maxWidth: 1400 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1400 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Metrics
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Metrics</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Time-series telemetry · OpenTelemetry · Last 60 minutes · Refresh in 30s
           </div>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           <select
             style={{
               width: 140,
@@ -104,8 +103,6 @@ export default function MetricsPage() {
               padding: '0 8px',
               borderRadius: 4,
               border: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
               fontSize: 12,
             }}
           >
@@ -121,8 +118,6 @@ export default function MetricsPage() {
               padding: '0 8px',
               borderRadius: 4,
               border: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
               fontSize: 12,
             }}
           >
@@ -130,51 +125,59 @@ export default function MetricsPage() {
             <option>Internal CRM</option>
             <option>Marketing Blog</option>
           </select>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Auto-refresh</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">+ Dashboard</button>
+          <Button variant="outline" size="sm" type="button">
+            Auto-refresh
+          </Button>
+          <Button size="sm" type="button">
+            + Dashboard
+          </Button>
         </div>
       </div>
 
       {/* Summary stats */}
-      <div className="pg-grid pg-grid-4" style={{ marginBottom: 16 }}>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Requests / min</div>
-          <div className="pg-stat-value">{lastReq}</div>
-          <div className="pg-stat-delta pg-stat-up">+12% vs avg</div>
-        </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">p95 latency</div>
-          <div className="pg-stat-value">{lastLat}ms</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            SLA: &lt;500ms
+      <div className="grid grid-cols-4 gap-4" style={{ marginBottom: 16 }}>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Requests / min
           </div>
+          <div className="text-[22px] font-semibold tabular-nums">{lastReq}</div>
+          <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">+12% vs avg</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Error rate</div>
-          <div className="pg-stat-value">0.12%</div>
-          <div className="pg-stat-delta pg-stat-up">SLA: &lt;1%</div>
-        </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Active users</div>
-          <div className="pg-stat-value">147</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            peak today: 312
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            p95 latency
           </div>
+          <div className="text-[22px] font-semibold tabular-nums">{lastLat}ms</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">SLA: &lt;500ms</div>
+        </div>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Error rate
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">0.12%</div>
+          <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">SLA: &lt;1%</div>
+        </div>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Active users
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">147</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">peak today: 312</div>
         </div>
       </div>
 
       {/* Requests + Latency */}
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 16 }}>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Requests / min</div>
-            <span style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>All endpoints</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Requests / min</div>
+            <span style={{ fontSize: 11 }}>All endpoints</span>
           </div>
           <MetricChart values={requestsData} color="oklch(0.50 0.20 250)" />
         </div>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">p95 latency · ms</div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">p95 latency · ms</div>
           </div>
           <MetricChart values={latencyData} color="oklch(0.55 0.16 145)" />
         </div>
@@ -184,22 +187,22 @@ export default function MetricsPage() {
       <div
         style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 16 }}
       >
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Error rate · %</div>
-            <span style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>2 spikes today</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Error rate · %</div>
+            <span style={{ fontSize: 11 }}>2 spikes today</span>
           </div>
           <MetricChart values={errorData} color="oklch(0.55 0.18 25)" />
         </div>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">CPU · %</div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">CPU · %</div>
           </div>
           <MetricChart values={cpuData} color="oklch(0.55 0.16 75)" />
         </div>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Memory · %</div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Memory · %</div>
           </div>
           <MetricChart values={memData} color="oklch(0.50 0.18 285)" />
         </div>
@@ -207,44 +210,44 @@ export default function MetricsPage() {
 
       {/* DB connections + Top endpoints */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Database connections · active</div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Database connections · active</div>
           </div>
           <MetricChart values={dbConnData} color="oklch(0.50 0.20 250)" max={30} />
-          <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 8 }}>
+          <div style={{ fontSize: 11, marginTop: 8 }}>
             Pool max: 25 · current: {lastDb} · idle: 6
           </div>
         </div>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Top endpoints by traffic</div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Top endpoints by traffic</div>
           </div>
-          <div className="pg-table-wrap" style={{ marginTop: -8 }}>
-            <table className="pg-data-table">
+          <div className="overflow-hidden rounded-md border" style={{ marginTop: -8 }}>
+            <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
                   <th>Endpoint</th>
-                  <th className="pg-tabular">RPS</th>
-                  <th className="pg-tabular">p50</th>
-                  <th className="pg-tabular">p95</th>
-                  <th className="pg-tabular">Errors</th>
+                  <th className="tabular-nums">RPS</th>
+                  <th className="tabular-nums">p50</th>
+                  <th className="tabular-nums">p95</th>
+                  <th className="tabular-nums">Errors</th>
                 </tr>
               </thead>
               <tbody>
                 {TOP_ENDPOINTS.map((ep) => (
                   <tr key={ep.path}>
-                    <td className="pg-mono" style={{ fontSize: 11 }}>
+                    <td className="font-mono text-sm" style={{ fontSize: 11 }}>
                       {ep.path}
                     </td>
-                    <td className="pg-tabular">{ep.rps}</td>
-                    <td className="pg-tabular" style={{ fontSize: 11 }}>
+                    <td className="tabular-nums">{ep.rps}</td>
+                    <td className="tabular-nums" style={{ fontSize: 11 }}>
                       {ep.p50}
                     </td>
-                    <td className="pg-tabular" style={{ fontSize: 11 }}>
+                    <td className="tabular-nums" style={{ fontSize: 11 }}>
                       {ep.p95}
                     </td>
-                    <td className="pg-tabular" style={{ fontSize: 11 }}>
+                    <td className="tabular-nums" style={{ fontSize: 11 }}>
                       {ep.errors}
                     </td>
                   </tr>

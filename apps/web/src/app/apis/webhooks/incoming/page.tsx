@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 interface IncomingEndpoint {
   id: string;
   source: string;
@@ -86,66 +88,73 @@ const SECRETS = [
 
 export default function IncomingWebhooksPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Webhooks · Incoming
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Webhooks · Incoming</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Receive events from external systems · 3 endpoints · 63 events / day average
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Audit log</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">+ New endpoint</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
+            Audit log
+          </Button>
+          <Button size="sm" type="button">
+            + New endpoint
+          </Button>
         </div>
       </div>
 
-      <div className="pg-grid pg-grid-4" style={{ marginBottom: 16 }}>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Endpoints</div>
-          <div className="pg-stat-value">3</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            all live
+      <div className="grid grid-cols-4 gap-4" style={{ marginBottom: 16 }}>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Endpoints
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">3</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">all live</div>
+        </div>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Events · 30d
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">1,892</div>
+          <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
+            +8% vs prior
           </div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Events · 30d</div>
-          <div className="pg-stat-value">1,892</div>
-          <div className="pg-stat-delta pg-stat-up">+8% vs prior</div>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Verification failures
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">0</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">all signatures valid</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Verification failures</div>
-          <div className="pg-stat-value" style={{ color: 'var(--fg-success)' }}>
-            0
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Function errors
           </div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            all signatures valid
-          </div>
-        </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Function errors</div>
-          <div className="pg-stat-value">2</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            last 30 days
-          </div>
+          <div className="text-[22px] font-semibold tabular-nums">2</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">last 30 days</div>
         </div>
       </div>
 
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Configured endpoints</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Configured endpoints</div>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>ID</th>
                 <th>Source</th>
                 <th>URL</th>
                 <th>Triggers</th>
-                <th className="pg-tabular">Events · 30d</th>
+                <th className="tabular-nums">Events · 30d</th>
                 <th>Status</th>
                 <th></th>
               </tr>
@@ -153,15 +162,14 @@ export default function IncomingWebhooksPage() {
             <tbody>
               {ENDPOINTS.map((ep) => (
                 <tr key={ep.id}>
-                  <td className="pg-mono" style={{ fontSize: 12 }}>
+                  <td className="font-mono text-sm" style={{ fontSize: 12 }}>
                     {ep.id}
                   </td>
                   <td style={{ fontWeight: 500, fontSize: 13 }}>{ep.source}</td>
                   <td
-                    className="pg-mono"
+                    className="font-mono text-sm"
                     style={{
                       fontSize: 12,
-                      color: 'var(--fg-secondary)',
                       maxWidth: 320,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -170,16 +178,22 @@ export default function IncomingWebhooksPage() {
                   >
                     {ep.url}
                   </td>
-                  <td className="pg-mono" style={{ fontSize: 12 }}>
+                  <td className="font-mono text-sm" style={{ fontSize: 12 }}>
                     {ep.triggers}
                   </td>
-                  <td className="pg-tabular">{ep.events30d}</td>
+                  <td className="tabular-nums">{ep.events30d}</td>
                   <td>
-                    <span className="pg-badge pg-badge-success">Live</span>
+                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                      Live
+                    </span>
                   </td>
                   <td style={{ display: 'flex', gap: 4 }}>
-                    <button className="pg-btn pg-btn-ghost pg-btn-xs">Logs</button>
-                    <button className="pg-btn pg-btn-ghost pg-btn-xs">Settings</button>
+                    <Button className="" variant="ghost" type="button">
+                      Logs
+                    </Button>
+                    <Button className="" variant="ghost" type="button">
+                      Settings
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -188,16 +202,17 @@ export default function IncomingWebhooksPage() {
         </div>
       </div>
 
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Verification</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Verification</div>
         </div>
-        <div className="pg-grid pg-grid-2">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <div style={{ fontWeight: 500, marginBottom: 8, color: 'var(--fg-primary)' }}>
-              Signature requirements
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 8 }}>
+            <div style={{ fontWeight: 500, marginBottom: 8 }}>Signature requirements</div>
+            <div style={{ fontSize: 13, marginBottom: 8 }}>
               Each endpoint requires the source to sign the request body. Unsigned or invalid
               requests are rejected with 401.
             </div>
@@ -205,11 +220,9 @@ export default function IncomingWebhooksPage() {
               style={{
                 fontFamily: 'ui-monospace, monospace',
                 fontSize: 11,
-                background: 'var(--bg-canvas)',
                 border: '1px solid var(--border-default)',
                 borderRadius: 4,
                 padding: '6px 10px',
-                color: 'var(--fg-primary)',
                 margin: 0,
               }}
             >
@@ -217,28 +230,27 @@ export default function IncomingWebhooksPage() {
             </pre>
           </div>
           <div>
-            <div style={{ fontWeight: 500, marginBottom: 8, color: 'var(--fg-primary)' }}>
-              Per-source secrets
-            </div>
+            <div style={{ fontWeight: 500, marginBottom: 8 }}>Per-source secrets</div>
             {SECRETS.map((s) => (
-              <div key={s.source} className="pg-inspector-row">
-                <span className="pg-inspector-key">{s.source}</span>
-                <span className="pg-inspector-val pg-mono">{s.secret}</span>
+              <div
+                key={s.source}
+                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+              >
+                <span className="text-muted-foreground">{s.source}</span>
+                <span className="font-medium font-mono text-sm">{s.secret}</span>
               </div>
             ))}
-            <div style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginTop: 8 }}>
-              Rotate secrets every 90 days.
-            </div>
+            <div style={{ fontSize: 12, marginTop: 8 }}>Rotate secrets every 90 days.</div>
           </div>
         </div>
       </div>
 
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Recent events</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Recent events</div>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>When</th>
@@ -246,28 +258,32 @@ export default function IncomingWebhooksPage() {
                 <th>Event type</th>
                 <th>Triggered function</th>
                 <th>Status</th>
-                <th className="pg-tabular">Latency</th>
+                <th className="tabular-nums">Latency</th>
               </tr>
             </thead>
             <tbody>
               {RECENT_EVENTS.map((ev, i) => (
                 <tr key={i}>
-                  <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>{ev.when}</td>
+                  <td style={{ fontSize: 12 }}>{ev.when}</td>
                   <td style={{ fontSize: 13 }}>{ev.source}</td>
-                  <td className="pg-mono" style={{ fontSize: 12 }}>
+                  <td className="font-mono text-sm" style={{ fontSize: 12 }}>
                     {ev.eventType}
                   </td>
-                  <td className="pg-mono" style={{ fontSize: 12 }}>
+                  <td className="font-mono text-sm" style={{ fontSize: 12 }}>
                     {ev.fn}
                   </td>
                   <td>
                     {ev.status === 'success' ? (
-                      <span className="pg-badge pg-badge-success">Success</span>
+                      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                        Success
+                      </span>
                     ) : (
-                      <span className="pg-badge pg-badge-danger">Error</span>
+                      <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">
+                        Error
+                      </span>
                     )}
                   </td>
-                  <td className="pg-tabular" style={{ fontSize: 12 }}>
+                  <td className="tabular-nums" style={{ fontSize: 12 }}>
                     {ev.latency}
                   </td>
                 </tr>

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface Props {
   testFileId: string;
   onClose: () => void;
@@ -33,17 +35,20 @@ export function RegenerateTestDialog({ testFileId: _testFileId, onClose: onClose
         zIndex: 50,
       }}
     >
-      <div className="pg-card" style={{ width: '100%', maxWidth: 440, padding: 24 }}>
-        <div className="pg-card-header" style={{ marginBottom: 16 }}>
-          <div className="pg-card-title">Regenerate Test</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ width: '100%', maxWidth: 440, padding: 24 }}
+      >
+        <div
+          className="mb-3 flex items-center justify-between border-b pb-3"
+          style={{ marginBottom: 16 }}
+        >
+          <div className="text-sm font-semibold">Regenerate Test</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label
-              htmlFor="feedback"
-              style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}
-            >
+            <label htmlFor="feedback" style={{ fontSize: 12, fontWeight: 500 }}>
               Feedback (optional)
             </label>
             <textarea
@@ -59,39 +64,40 @@ export function RegenerateTestDialog({ testFileId: _testFileId, onClose: onClose
                 padding: '6px 8px',
                 borderRadius: 4,
                 border: '1px solid var(--border-default)',
-                background: 'var(--bg-canvas)',
-                color: 'var(--fg-primary)',
                 fontSize: 12,
                 resize: 'none',
                 boxSizing: 'border-box',
               }}
             />
           </div>
-          <p style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+          <p style={{ fontSize: 11 }}>
             Leave blank to regenerate with the same specification. Provide feedback to guide the
             changes.
           </p>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
-          <button
-            className="pg-btn pg-btn-secondary pg-btn-sm"
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
             onClick={() => {
               onClose();
             }}
             disabled={isRegenerating}
           >
             Cancel
-          </button>
-          <button
-            className="pg-btn pg-btn-primary pg-btn-sm"
+          </Button>
+          <Button
+            size="sm"
+            type="button"
             onClick={() => {
               void handleRegenerate();
             }}
             disabled={isRegenerating}
           >
             {isRegenerating ? 'Regenerating…' : 'Regenerate'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

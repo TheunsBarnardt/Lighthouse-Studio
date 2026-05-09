@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -85,9 +87,11 @@ const USERS: AuthUser[] = [
 ];
 
 function statusBadgeClass(status: AuthUser['status']): string {
-  if (status === 'active') return 'pg-badge pg-badge-success';
-  if (status === 'banned') return 'pg-badge pg-badge-danger';
-  return 'pg-badge pg-badge-warning';
+  if (status === 'active')
+    return 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+  if (status === 'banned')
+    return 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive';
+  return 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
 }
 
 // ---------------------------------------------------------------------------
@@ -105,14 +109,14 @@ export default function AuthUsersPage() {
   );
 
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
       {/* Header */}
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1>Users</h1>
           <p className="subtitle">{USERS.length} members · Identity provider: Microsoft Entra ID</p>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           <input
             type="search"
             className="input input-h28"
@@ -124,13 +128,15 @@ export default function AuthUsersPage() {
             aria-label="Search users"
             style={{ width: 220 }}
           />
-          <button className="pg-btn pg-btn-primary pg-btn-sm">+ Invite user</button>
+          <Button size="sm" type="button">
+            + Invite user
+          </Button>
         </div>
       </div>
 
       {/* Table */}
-      <div className="pg-table-wrap">
-        <table className="pg-data-table">
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr>
               <th>Name</th>
@@ -150,7 +156,6 @@ export default function AuthUsersPage() {
                   style={{
                     textAlign: 'center',
                     padding: '40px 16px',
-                    color: 'var(--fg-secondary)',
                     fontSize: 13,
                   }}
                 >
@@ -165,24 +170,18 @@ export default function AuthUsersPage() {
                       <div className="avatar" aria-hidden="true">
                         {user.initials}
                       </div>
-                      <strong style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)' }}>
-                        {user.name}
-                      </strong>
+                      <strong style={{ fontSize: 13, fontWeight: 500 }}>{user.name}</strong>
                     </div>
                   </td>
-                  <td style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>{user.email}</td>
+                  <td style={{ fontSize: 13 }}>{user.email}</td>
                   <td>
-                    <span className="pg-badge pg-badge-default">{user.role}</span>
+                    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                      {user.role}
+                    </span>
                   </td>
-                  <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>{user.provider}</td>
-                  <td>
-                    {user.mfa === '—' ? (
-                      <span style={{ color: 'var(--fg-tertiary)' }}>—</span>
-                    ) : (
-                      <span style={{ color: 'var(--fg-success)' }}>✓ {user.mfa}</span>
-                    )}
-                  </td>
-                  <td className="pg-tabular" style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
+                  <td style={{ fontSize: 12 }}>{user.provider}</td>
+                  <td>{user.mfa === '—' ? <span>—</span> : <span>✓ {user.mfa}</span>}</td>
+                  <td className="tabular-nums" style={{ fontSize: 12 }}>
                     {user.lastSignIn}
                   </td>
                   <td>

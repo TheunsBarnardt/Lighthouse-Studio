@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
+
 const BrandingSchema = z.object({
   companyName: z.string().max(255).optional(),
   primaryColor: z
@@ -24,8 +26,6 @@ const inputStyle: React.CSSProperties = {
   padding: '0 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
   width: '100%',
   boxSizing: 'border-box',
@@ -34,7 +34,6 @@ const inputStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   fontSize: 12,
   fontWeight: 500,
-  color: 'var(--fg-primary)',
   display: 'block',
   marginBottom: 6,
 };
@@ -89,7 +88,7 @@ export default function WorkspaceBrandingPage() {
 
   if (loading)
     return (
-      <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }} aria-live="polite">
+      <p style={{ fontSize: 13 }} aria-live="polite">
         Loading…
       </p>
     );
@@ -97,14 +96,12 @@ export default function WorkspaceBrandingPage() {
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--fg-primary)', margin: 0 }}>
-          Branding
-        </h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Branding</h1>
       </div>
 
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <span className="pg-card-title">Workspace branding</span>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <span className="text-sm font-semibold">Workspace branding</span>
         </div>
         <div style={{ padding: 16 }}>
           <form
@@ -118,9 +115,7 @@ export default function WorkspaceBrandingPage() {
               <label style={labelStyle}>Company name</label>
               <input style={inputStyle} placeholder="Acme Corp" {...form.register('companyName')} />
               {form.formState.errors.companyName && (
-                <p
-                  style={{ fontSize: 12, color: 'var(--fg-danger)', marginTop: 4, marginBottom: 0 }}
-                >
+                <p style={{ fontSize: 12, marginTop: 4, marginBottom: 0 }}>
                   {form.formState.errors.companyName.message}
                 </p>
               )}
@@ -137,7 +132,6 @@ export default function WorkspaceBrandingPage() {
                     padding: 2,
                     borderRadius: 4,
                     border: '1px solid var(--border-default)',
-                    background: 'var(--bg-canvas)',
                     cursor: 'pointer',
                   }}
                   {...form.register('primaryColor')}
@@ -149,9 +143,7 @@ export default function WorkspaceBrandingPage() {
                 />
               </div>
               {form.formState.errors.primaryColor && (
-                <p
-                  style={{ fontSize: 12, color: 'var(--fg-danger)', marginTop: 4, marginBottom: 0 }}
-                >
+                <p style={{ fontSize: 12, marginTop: 4, marginBottom: 0 }}>
                   {form.formState.errors.primaryColor.message}
                 </p>
               )}
@@ -165,9 +157,7 @@ export default function WorkspaceBrandingPage() {
                 {...form.register('emailFromName')}
               />
               {form.formState.errors.emailFromName && (
-                <p
-                  style={{ fontSize: 12, color: 'var(--fg-danger)', marginTop: 4, marginBottom: 0 }}
-                >
+                <p style={{ fontSize: 12, marginTop: 4, marginBottom: 0 }}>
                   {form.formState.errors.emailFromName.message}
                 </p>
               )}
@@ -181,8 +171,6 @@ export default function WorkspaceBrandingPage() {
                   padding: '8px 12px',
                   borderRadius: 4,
                   border: '1px solid var(--border-default)',
-                  background: 'var(--bg-canvas)',
-                  color: 'var(--fg-primary)',
                   fontSize: 13,
                   fontFamily: 'var(--font-mono, monospace)',
                   minHeight: 120,
@@ -192,9 +180,7 @@ export default function WorkspaceBrandingPage() {
                 placeholder="--color-primary: #3b82f6;"
                 {...form.register('customCss')}
               />
-              <p
-                style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginTop: 4, marginBottom: 0 }}
-              >
+              <p style={{ fontSize: 12, marginTop: 4, marginBottom: 0 }}>
                 Only CSS variable declarations are applied. Unsupported rules are stripped.
               </p>
             </div>
@@ -207,7 +193,6 @@ export default function WorkspaceBrandingPage() {
                   background: 'color-mix(in srgb, var(--fg-success) 8%, var(--bg-canvas))',
                   padding: '10px 14px',
                   fontSize: 13,
-                  color: 'var(--fg-success)',
                 }}
               >
                 Branding saved successfully.
@@ -221,7 +206,6 @@ export default function WorkspaceBrandingPage() {
                   background: 'color-mix(in srgb, var(--fg-danger) 8%, var(--bg-canvas))',
                   padding: '10px 14px',
                   fontSize: 13,
-                  color: 'var(--fg-danger)',
                 }}
               >
                 {error}
@@ -229,13 +213,9 @@ export default function WorkspaceBrandingPage() {
             )}
 
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button
-                type="submit"
-                className="pg-btn pg-btn-primary"
-                disabled={form.formState.isSubmitting}
-              >
+              <Button type="submit" disabled={form.formState.isSubmitting}>
                 {form.formState.isSubmitting ? 'Saving…' : 'Save branding'}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

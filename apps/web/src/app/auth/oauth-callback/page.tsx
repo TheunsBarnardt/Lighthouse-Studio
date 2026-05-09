@@ -42,10 +42,11 @@ function OAuthCallbackPageInner() {
   }, [searchParams, router, refresh]);
 
   return (
-    <div className="pg-card" style={{ maxWidth: 480, margin: '64px auto', padding: '32px' }}>
-      <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 16 }}>
-        {t('title')}
-      </h2>
+    <div
+      className="rounded-md border bg-card text-card-foreground p-4"
+      style={{ maxWidth: 480, margin: '64px auto', padding: '32px' }}
+    >
+      <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>{t('title')}</h2>
       {error ? (
         <div
           role="alert"
@@ -54,13 +55,12 @@ function OAuthCallbackPageInner() {
             background: 'var(--bg-danger-subtle)',
             padding: '10px 12px',
             fontSize: 13,
-            color: 'var(--fg-danger)',
           }}
         >
           {error}
         </div>
       ) : (
-        <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }} aria-live="polite">
+        <p style={{ fontSize: 13 }} aria-live="polite">
           {t('title')}…
         </p>
       )}

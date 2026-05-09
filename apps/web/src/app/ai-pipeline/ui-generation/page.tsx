@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { PipelineStepper } from '../stepper';
 
 type ComponentStatus = 'approved' | 'in_review' | 'pending';
@@ -109,7 +111,7 @@ function KanbanPreview() {
           </div>
           <div style={{ fontSize: 12, color: 'oklch(0.50 0.005 145)' }}>14 active · $387,420</div>
         </div>
-        <button
+        <Button
           style={{
             background: 'oklch(0.50 0.16 145)',
             color: 'white',
@@ -122,7 +124,7 @@ function KanbanPreview() {
           }}
         >
           + New deal
-        </button>
+        </Button>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
         {stages.map((stage, i) => (
@@ -173,12 +175,14 @@ import { useQuery } from '@tanstack/react-query';
 import { platform } from '../lib/platform';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
+import { Button } from '@/components/ui/button';
+
 const STAGES = ['lead', 'qualified', 'proposal', 'negotiation', 'won', 'lost'] as const;
 
 export function DealKanbanPage() {
   const { data, isLoading } = useQuery({
     queryKey: ['deals'],
-    queryFn: () => platform.data('deals').list({ limit: 100 }),
+    queryFn: () => platform.data('deals').list({ limit: 100 })
   });
 
   const byStage = STAGES.reduce((acc, stage) => {
@@ -243,20 +247,13 @@ export default function UiGenerationPage() {
         {/* Left: component tree */}
         <div
           style={{
-            background: 'var(--bg-surface)',
             borderRight: '1px solid var(--border-default)',
             overflowY: 'auto',
             padding: 12,
           }}
         >
-          <div
-            style={{ fontWeight: 600, fontSize: 13, marginBottom: 6, color: 'var(--fg-primary)' }}
-          >
-            Generated components
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginBottom: 12 }}>
-            14 · Permission-aware · WCAG AA
-          </div>
+          <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>Generated components</div>
+          <div style={{ fontSize: 11, marginBottom: 12 }}>14 · Permission-aware · WCAG AA</div>
           {COMPONENT_GROUPS.map((group) => (
             <div key={group.label}>
               <div
@@ -265,7 +262,6 @@ export default function UiGenerationPage() {
                   fontWeight: 600,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
-                  color: 'var(--fg-tertiary)',
                   padding: '8px 8px 4px',
                 }}
               >
@@ -276,7 +272,7 @@ export default function UiGenerationPage() {
                   ? ('approved' as ComponentStatus)
                   : item.status;
                 return (
-                  <button
+                  <Button
                     key={item.name}
                     onClick={() => {
                       setSelectedComponent(item.name);
@@ -304,7 +300,7 @@ export default function UiGenerationPage() {
                   >
                     {statusDot(status)}
                     <span>{item.name}</span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -317,15 +313,12 @@ export default function UiGenerationPage() {
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            background: 'var(--bg-canvas)',
           }}
         >
           {/* Header */}
           <div
             style={{
               padding: '12px 20px',
-              borderBottom: '1px solid var(--border-default)',
-              background: 'var(--bg-surface)',
               flexShrink: 0,
             }}
           >
@@ -338,25 +331,28 @@ export default function UiGenerationPage() {
               }}
             >
               <div>
-                <h1 style={{ fontSize: 18, color: 'var(--fg-primary)' }}>{selectedComponent}</h1>
-                <div style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
+                <h1 style={{ fontSize: 18 }}>{selectedComponent}</h1>
+                <div style={{ fontSize: 12 }}>
                   142 lines · React + Tailwind · 0 lint errors · 0 a11y failures
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button className="pg-btn pg-btn-secondary pg-btn-sm">Regenerate</button>
-                <button
+                <Button variant="outline" size="sm" type="button">
+                  Regenerate
+                </Button>
+                <Button
+                  size="sm"
+                  type="button"
                   onClick={handleApprove}
                   disabled={approvedSet.has(selectedComponent)}
-                  className="pg-btn pg-btn-primary pg-btn-sm"
                 >
                   {approvedSet.has(selectedComponent) ? '✓ Approved' : 'Approve'}
-                </button>
+                </Button>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 0, borderBottom: 'none' }}>
               {(['preview', 'code', 'storybook', 'a11y'] as ViewTab[]).map((tab) => (
-                <button
+                <Button
                   key={tab}
                   onClick={() => {
                     setActiveTab(tab);
@@ -377,7 +373,7 @@ export default function UiGenerationPage() {
                   }}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -387,14 +383,11 @@ export default function UiGenerationPage() {
             <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
               <div
                 style={{
-                  background: 'var(--bg-surface)',
                   padding: '8px 12px',
-                  borderBottom: '1px solid var(--border-default)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 12,
                   fontSize: 11,
-                  color: 'var(--fg-tertiary)',
                 }}
               >
                 <span style={{ display: 'inline-flex', gap: 4 }}>
@@ -429,13 +422,12 @@ export default function UiGenerationPage() {
                 <div
                   style={{
                     flex: 1,
-                    background: 'var(--bg-surface-2)',
+                    background: 'var(--muted)',
                     border: '1px solid var(--border-default)',
                     borderRadius: 'var(--shell-radius-sm)',
                     padding: '4px 12px',
                     fontFamily: 'monospace',
                     fontSize: 11,
-                    color: 'var(--fg-secondary)',
                   }}
                 >
                   app.acme.example.com/deals
@@ -453,9 +445,7 @@ export default function UiGenerationPage() {
                   fontFamily: 'monospace',
                   fontSize: 11,
                   lineHeight: '18px',
-                  color: 'var(--fg-primary)',
                   margin: 0,
-                  background: 'var(--bg-surface)',
                   padding: 16,
                   borderRadius: 'var(--shell-radius-md)',
                   border: '1px solid var(--border-default)',
@@ -474,7 +464,6 @@ export default function UiGenerationPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--fg-tertiary)',
                 fontSize: 13,
               }}
             >
@@ -488,7 +477,6 @@ export default function UiGenerationPage() {
         {/* Right: inspector */}
         <div
           style={{
-            background: 'var(--bg-surface)',
             borderLeft: '1px solid var(--border-default)',
             overflowY: 'auto',
             padding: 16,
@@ -501,13 +489,12 @@ export default function UiGenerationPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
               REASONING
             </div>
-            <div style={{ fontSize: 13, color: 'var(--fg-secondary)', lineHeight: '20px' }}>
+            <div style={{ fontSize: 13, lineHeight: '20px' }}>
               Kanban generated because PRD FR-5 specified drag-between-stages.
             </div>
           </div>
@@ -516,7 +503,6 @@ export default function UiGenerationPage() {
             style={{
               marginBottom: 16,
               paddingTop: 12,
-              borderTop: '1px solid var(--border-default)',
             }}
           >
             <div
@@ -525,7 +511,6 @@ export default function UiGenerationPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
@@ -537,8 +522,11 @@ export default function UiGenerationPage() {
               ['axe-core', '✓ AA', 'var(--fg-success)'],
               ['Mobile', '✓', 'var(--fg-success)'],
             ].map(([k, v, c]) => (
-              <div key={k} className="pg-inspector-row">
-                <span className="pg-inspector-key">{k}</span>
+              <div
+                key={k}
+                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+              >
+                <span className="text-muted-foreground">{k}</span>
                 <span style={{ color: c, fontWeight: 500, fontSize: 13 }}>{v}</span>
               </div>
             ))}
@@ -548,7 +536,6 @@ export default function UiGenerationPage() {
             style={{
               marginBottom: 16,
               paddingTop: 12,
-              borderTop: '1px solid var(--border-default)',
             }}
           >
             <div
@@ -557,7 +544,6 @@ export default function UiGenerationPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
@@ -567,13 +553,12 @@ export default function UiGenerationPage() {
               ['View deals', 'deals.read'],
               ['Edit deals', 'deals.update'],
             ].map(([k, v]) => (
-              <div key={k} className="pg-inspector-row">
-                <span className="pg-inspector-key">{k}</span>
-                <span
-                  style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--fg-secondary)' }}
-                >
-                  {v}
-                </span>
+              <div
+                key={k}
+                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+              >
+                <span className="text-muted-foreground">{k}</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 11 }}>{v}</span>
               </div>
             ))}
           </div>
@@ -582,7 +567,6 @@ export default function UiGenerationPage() {
             style={{
               marginBottom: 16,
               paddingTop: 12,
-              borderTop: '1px solid var(--border-default)',
             }}
           >
             <div
@@ -591,7 +575,6 @@ export default function UiGenerationPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
@@ -601,21 +584,23 @@ export default function UiGenerationPage() {
               ['This component', '$1.84'],
               ['Total project', '$18.50'],
             ].map(([k, v]) => (
-              <div key={k} className="pg-inspector-row">
-                <span className="pg-inspector-key">{k}</span>
-                <span className="pg-inspector-val">{v}</span>
+              <div
+                key={k}
+                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+              >
+                <span className="text-muted-foreground">{k}</span>
+                <span className="font-medium">{v}</span>
               </div>
             ))}
           </div>
 
           {/* Progress */}
-          <div style={{ paddingTop: 12, borderTop: '1px solid var(--border-default)' }}>
+          <div style={{ paddingTop: 12 }}>
             <div
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 fontSize: 12,
-                color: 'var(--fg-secondary)',
                 marginBottom: 6,
               }}
             >
@@ -627,7 +612,6 @@ export default function UiGenerationPage() {
             <div
               style={{
                 height: 4,
-                background: 'var(--bg-hover)',
                 borderRadius: 2,
                 overflow: 'hidden',
               }}

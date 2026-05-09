@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+
 const FUNCTIONS = [
   {
     name: 'updateDealStage',
@@ -62,111 +64,107 @@ const FUNCTIONS = [
 export default function EdgeFunctionsPage() {
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Edge Functions
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Edge Functions</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             {FUNCTIONS.length} functions · sandboxed Node 22 · permission-declared
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-primary pg-btn-sm">+ New function</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button size="sm" type="button">
+            + New function
+          </Button>
         </div>
       </div>
 
-      <div className="pg-table-wrap" style={{ marginBottom: 24 }}>
-        <table className="pg-data-table">
+      <div className="overflow-hidden rounded-md border" style={{ marginBottom: 24 }}>
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr>
               <th>Name</th>
               <th>Type</th>
               <th>Status</th>
-              <th className="pg-tabular">Invocations 24h</th>
-              <th className="pg-tabular">p95</th>
+              <th className="tabular-nums">Invocations 24h</th>
+              <th className="tabular-nums">p95</th>
               <th>Last deployed</th>
             </tr>
           </thead>
           <tbody>
             {FUNCTIONS.map((fn) => (
               <tr key={fn.name} style={{ cursor: 'pointer' }}>
-                <td className="pg-mono" style={{ fontSize: 12 }}>
+                <td className="font-mono text-sm" style={{ fontSize: 12 }}>
                   {fn.name}
                 </td>
                 <td>
-                  <span className="pg-badge pg-badge-default">{fn.type}</span>
+                  <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                    {fn.type}
+                  </span>
                 </td>
                 <td>
-                  <span className="pg-badge pg-badge-success">Active</span>
+                  <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                    Active
+                  </span>
                 </td>
-                <td className="pg-tabular">{fn.invocations.toLocaleString()}</td>
-                <td className="pg-tabular" style={{ color: 'var(--fg-secondary)' }}>
-                  {fn.p95}
-                </td>
-                <td style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{fn.deployed}</td>
+                <td className="tabular-nums">{fn.invocations.toLocaleString()}</td>
+                <td className="tabular-nums">{fn.p95}</td>
+                <td style={{ fontSize: 11 }}>{fn.deployed}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <div className="pg-grid pg-grid-3">
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Sandbox limits</div>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Sandbox limits</div>
           </div>
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">Default timeout</span>
-            <span className="pg-inspector-val pg-tabular">30s</span>
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">Default timeout</span>
+            <span className="font-medium tabular-nums">30s</span>
           </div>
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">Default memory</span>
-            <span className="pg-inspector-val pg-tabular">256MB</span>
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">Default memory</span>
+            <span className="font-medium tabular-nums">256MB</span>
           </div>
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">Network</span>
-            <span className="pg-inspector-val">declared egress only</span>
-          </div>
-        </div>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Static analysis</div>
-          </div>
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">eval / Function()</span>
-            <span className="pg-inspector-val" style={{ color: 'var(--fg-success)' }}>
-              ✓ none
-            </span>
-          </div>
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">child_process</span>
-            <span className="pg-inspector-val" style={{ color: 'var(--fg-success)' }}>
-              ✓ none
-            </span>
-          </div>
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">fs/net direct</span>
-            <span className="pg-inspector-val" style={{ color: 'var(--fg-success)' }}>
-              ✓ none
-            </span>
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">Network</span>
+            <span className="font-medium">declared egress only</span>
           </div>
         </div>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Runtime</div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Static analysis</div>
           </div>
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">Engine</span>
-            <span className="pg-inspector-val">Node 22 LTS</span>
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">eval / Function()</span>
+            <span className="font-medium">✓ none</span>
           </div>
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">Pool</span>
-            <span className="pg-inspector-val">isolated workers</span>
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">child_process</span>
+            <span className="font-medium">✓ none</span>
           </div>
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">Cold start</span>
-            <span className="pg-inspector-val pg-tabular">~120ms p95</span>
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">fs/net direct</span>
+            <span className="font-medium">✓ none</span>
+          </div>
+        </div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Runtime</div>
+          </div>
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">Engine</span>
+            <span className="font-medium">Node 22 LTS</span>
+          </div>
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">Pool</span>
+            <span className="font-medium">isolated workers</span>
+          </div>
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">Cold start</span>
+            <span className="font-medium tabular-nums">~120ms p95</span>
           </div>
         </div>
       </div>

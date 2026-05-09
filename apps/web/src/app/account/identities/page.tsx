@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -20,14 +21,12 @@ export default function IdentitiesPage() {
   const identities = user?.identities ?? [];
 
   return (
-    <div className="pg-card">
-      <div className="pg-card-header">
-        <h2 className="pg-card-title">{t('title')}</h2>
+    <div className="rounded-md border bg-card text-card-foreground p-4">
+      <div className="mb-3 flex items-center justify-between border-b pb-3">
+        <h2 className="text-sm font-semibold">{t('title')}</h2>
       </div>
       <div style={{ padding: '1.25rem' }}>
-        {identities.length === 0 && (
-          <p style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)' }}>{t('noIdentities')}</p>
-        )}
+        {identities.length === 0 && <p style={{ fontSize: '0.875rem' }}>{t('noIdentities')}</p>}
 
         <ul
           style={{
@@ -53,43 +52,46 @@ export default function IdentitiesPage() {
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span
-                    style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--fg-primary)' }}
-                  >
+                  <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                     {PROVIDER_LABELS[identity.providerId] ?? identity.providerId}
                   </span>
                   {identity.primary && (
-                    <span className="pg-badge pg-badge-default" style={{ fontSize: '0.75rem' }}>
+                    <span
+                      className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                      style={{ fontSize: '0.75rem' }}
+                    >
                       {t('primary')}
                     </span>
                   )}
                 </div>
-                <p style={{ fontSize: '0.75rem', color: 'var(--fg-tertiary)' }}>{identity.email}</p>
+                <p style={{ fontSize: '0.75rem' }}>{identity.email}</p>
               </div>
 
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 {!identity.primary && (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     type="button"
-                    className="pg-btn pg-btn-ghost pg-btn-sm"
                     onClick={() => {
                       /* TODO: make primary */
                     }}
                   >
                     {t('makePrimary')}
-                  </button>
+                  </Button>
                 )}
                 {identities.length > 1 && (
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     type="button"
-                    className="pg-btn pg-btn-ghost pg-btn-sm"
                     onClick={() => {
                       /* TODO: unlink */
                     }}
                     aria-label={`${t('unlink')} ${PROVIDER_LABELS[identity.providerId] ?? identity.providerId}`}
                   >
                     {t('unlink')}
-                  </button>
+                  </Button>
                 )}
               </div>
             </li>
@@ -97,15 +99,15 @@ export default function IdentitiesPage() {
         </ul>
 
         <div style={{ marginTop: '1rem' }}>
-          <button
+          <Button
+            variant="outline"
             type="button"
-            className="pg-btn pg-btn-secondary"
             onClick={() => {
               /* TODO: link new provider */
             }}
           >
             {t('link')}
-          </button>
+          </Button>
         </div>
 
         {identities.length <= 1 && (
@@ -116,7 +118,6 @@ export default function IdentitiesPage() {
               borderRadius: '6px',
               border: '1px solid var(--border-default)',
               fontSize: '0.875rem',
-              color: 'var(--fg-secondary)',
             }}
           >
             {t('cannotUnlinkLast')}

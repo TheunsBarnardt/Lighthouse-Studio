@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 
 export default function DangerZonePage() {
@@ -38,13 +39,11 @@ export default function DangerZonePage() {
 
   return (
     <div
-      className="pg-card"
+      className="rounded-md border bg-card text-card-foreground p-4"
       style={{ borderColor: 'color-mix(in srgb, var(--fg-danger) 30%, transparent)' }}
     >
-      <div className="pg-card-header">
-        <h2 className="pg-card-title" style={{ color: 'var(--fg-danger)' }}>
-          {t('title')}
-        </h2>
+      <div className="mb-3 flex items-center justify-between border-b pb-3">
+        <h2 className="text-sm font-semibold">{t('title')}</h2>
       </div>
       <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         {/* Data export */}
@@ -54,28 +53,25 @@ export default function DangerZonePage() {
               marginBottom: '0.25rem',
               fontSize: '0.875rem',
               fontWeight: 600,
-              color: 'var(--fg-primary)',
             }}
           >
             {t('exportData')}
           </h3>
-          <p
-            style={{ marginBottom: '0.75rem', fontSize: '0.875rem', color: 'var(--fg-secondary)' }}
-          >
+          <p style={{ marginBottom: '0.75rem', fontSize: '0.875rem' }}>
             {t('exportDataDescription')}
           </p>
-          <button
+          <Button
+            variant="outline"
             type="button"
-            className="pg-btn pg-btn-secondary"
             onClick={() => {
               /* TODO: request data export */
             }}
           >
             {t('export')}
-          </button>
+          </Button>
         </div>
 
-        <hr style={{ border: 'none', borderTop: '1px solid var(--border-default)' }} />
+        <hr style={{ border: 'none' }} />
 
         {/* Delete account */}
         <div>
@@ -84,14 +80,11 @@ export default function DangerZonePage() {
               marginBottom: '0.25rem',
               fontSize: '0.875rem',
               fontWeight: 600,
-              color: 'var(--fg-danger)',
             }}
           >
             {t('deleteAccount')}
           </h3>
-          <p
-            style={{ marginBottom: '0.75rem', fontSize: '0.875rem', color: 'var(--fg-secondary)' }}
-          >
+          <p style={{ marginBottom: '0.75rem', fontSize: '0.875rem' }}>
             {t('deleteAccountDescription')}
           </p>
 
@@ -102,17 +95,13 @@ export default function DangerZonePage() {
               borderRadius: '6px',
               border: '1px solid var(--border-default)',
               fontSize: '0.875rem',
-              color: 'var(--fg-secondary)',
             }}
           >
             {t('gracePeriod')}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-            <label
-              htmlFor="delete-confirm"
-              style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--fg-primary)' }}
-            >
+            <label htmlFor="delete-confirm" style={{ fontSize: '0.8125rem', fontWeight: 500 }}>
               {t('deleteConfirmMessage')}
             </label>
             <input
@@ -128,8 +117,6 @@ export default function DangerZonePage() {
                 padding: '0.4375rem 0.75rem',
                 border: '1px solid var(--border-default)',
                 borderRadius: '6px',
-                background: 'var(--bg-canvas)',
-                color: 'var(--fg-primary)',
                 fontSize: '0.875rem',
                 outline: 'none',
               }}
@@ -145,16 +132,14 @@ export default function DangerZonePage() {
                 border: '1px solid var(--fg-danger)',
                 background: 'color-mix(in srgb, var(--fg-danger) 8%, transparent)',
                 fontSize: '0.875rem',
-                color: 'var(--fg-danger)',
               }}
             >
               {deleteError}
             </div>
           )}
 
-          <button
+          <Button
             type="button"
-            className="pg-btn pg-btn-primary"
             style={{
               marginTop: '1rem',
               background: canDelete && !deleting ? 'var(--fg-danger)' : undefined,
@@ -168,7 +153,7 @@ export default function DangerZonePage() {
             }}
           >
             {deleting ? 'Deleting…' : t('deleteConfirm')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

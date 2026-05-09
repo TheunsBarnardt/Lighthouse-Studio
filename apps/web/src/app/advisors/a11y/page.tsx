@@ -1,5 +1,7 @@
 import type React from 'react';
 
+import { Button } from '@/components/ui/button';
+
 function ScoreRing({ score }: { score: number }) {
   const C = 2 * Math.PI * 44;
   const offset = C - (C * score) / 100;
@@ -117,17 +119,15 @@ const GROUPS = [
 
 export default function A11yPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Accessibility Advisor
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Accessibility Advisor</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             WCAG 2.1 Level AA · axe-core + Lighthouse · Last scan 12 minutes ago
           </div>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           <select
             style={{
               width: 140,
@@ -135,8 +135,6 @@ export default function A11yPage() {
               padding: '0 8px',
               borderRadius: 4,
               border: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
               fontSize: 12,
             }}
           >
@@ -144,13 +142,15 @@ export default function A11yPage() {
             <option>WCAG 2.1 AAA</option>
             <option>WCAG 2.2 AA</option>
           </select>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Re-scan</button>
+          <Button size="sm" type="button">
+            Re-scan
+          </Button>
         </div>
       </div>
 
       {/* Score card */}
       <div
-        className="pg-card"
+        className="rounded-md border bg-card text-card-foreground p-4"
         style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 16 }}
       >
         <ScoreRing score={96} />
@@ -161,27 +161,26 @@ export default function A11yPage() {
               fontWeight: 700,
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
-              color: 'var(--fg-tertiary)',
             }}
           >
             Accessibility score
           </div>
-          <div style={{ fontWeight: 600, fontSize: 16, color: 'var(--fg-primary)', marginTop: 4 }}>
+          <div style={{ fontWeight: 600, fontSize: 16, marginTop: 4 }}>
             Almost perfect — 2 contrast warnings to fix
           </div>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Score based on axe-core automated checks. Manual testing recommended for complete
             coverage.
           </div>
           <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
             <span style={{ fontSize: 13 }}>
-              <span style={{ color: 'var(--fg-success)', fontWeight: 600 }}>17</span> passed
+              <span style={{ fontWeight: 600 }}>17</span> passed
             </span>
             <span style={{ fontSize: 13 }}>
-              <span style={{ color: 'var(--fg-warning)', fontWeight: 600 }}>2</span> warnings
+              <span style={{ fontWeight: 600 }}>2</span> warnings
             </span>
             <span style={{ fontSize: 13 }}>
-              <span style={{ color: 'var(--fg-danger)', fontWeight: 600 }}>0</span> failed
+              <span style={{ fontWeight: 600 }}>0</span> failed
             </span>
           </div>
         </div>
@@ -189,7 +188,7 @@ export default function A11yPage() {
 
       {/* Top finding */}
       <div
-        className="pg-card"
+        className="rounded-md border bg-card text-card-foreground p-4"
         style={{
           marginBottom: 16,
           background: 'var(--bg-warning-subtle)',
@@ -197,22 +196,32 @@ export default function A11yPage() {
         }}
       >
         <div style={{ fontWeight: 600, marginBottom: 8 }}>Top finding · contrast</div>
-        <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 12 }}>
+        <div style={{ fontSize: 13, marginBottom: 12 }}>
           Warning chip text on warning background fails WCAG AA on light theme. Contrast ratio{' '}
           <strong>4.2 : 1</strong>, requires <strong>4.5 : 1</strong> for normal text.
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Open in token editor</button>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Suppress (1 instance)</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Auto-fix</button>
+          <Button variant="outline" size="sm" type="button">
+            Open in token editor
+          </Button>
+          <Button variant="outline" size="sm" type="button">
+            Suppress (1 instance)
+          </Button>
+          <Button size="sm" type="button">
+            Auto-fix
+          </Button>
         </div>
       </div>
 
       {GROUPS.map((g) => (
-        <div className="pg-card" key={g.cat} style={{ marginBottom: 16 }}>
-          <div className="pg-card-header">
-            <div className="pg-card-title">{g.cat}</div>
-            <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+        <div
+          className="rounded-md border bg-card text-card-foreground p-4"
+          key={g.cat}
+          style={{ marginBottom: 16 }}
+        >
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">{g.cat}</div>
+            <div style={{ fontSize: 11 }}>
               {g.items.filter((i) => i.status === 'pass').length} of {g.items.length} passing
             </div>
           </div>
@@ -237,7 +246,6 @@ export default function A11yPage() {
                   alignItems: 'flex-start',
                   gap: 12,
                   padding: '12px 0',
-                  borderBottom: '1px solid var(--border-default)',
                 }}
               >
                 <div
@@ -262,22 +270,19 @@ export default function A11yPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <div style={{ fontWeight: 500, fontSize: 13 }}>{item.name}</div>
                     {'count' in item && item.count && (
-                      <div
-                        className="pg-tabular"
-                        style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}
-                      >
+                      <div className="tabular-nums" style={{ fontSize: 11 }}>
                         {item.count}
                       </div>
                     )}
                   </div>
                   {'desc' in item && item.desc && (
-                    <div style={{ fontSize: 11, color: 'var(--fg-secondary)', marginTop: 4 }}>
-                      {item.desc}
-                    </div>
+                    <div style={{ fontSize: 11, marginTop: 4 }}>{item.desc}</div>
                   )}
                 </div>
                 {item.status !== 'pass' && (
-                  <button className="pg-btn pg-btn-secondary pg-btn-sm">Fix</button>
+                  <Button variant="outline" size="sm" type="button">
+                    Fix
+                  </Button>
                 )}
               </div>
             );

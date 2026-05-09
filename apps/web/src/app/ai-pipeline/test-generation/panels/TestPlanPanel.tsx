@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface TestCase {
   id: string;
   acId: string;
@@ -15,10 +17,12 @@ interface UncoveredAc {
 }
 
 const TEST_TYPE_BADGE: Record<string, string> = {
-  unit: 'pg-badge pg-badge-default',
-  component: 'pg-badge pg-badge-warning',
-  integration: 'pg-badge pg-badge-warning',
-  e2e: 'pg-badge pg-badge-success',
+  unit: 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground',
+  component:
+    'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  integration:
+    'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  e2e: 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
 };
 
 const DEMO_TEST_CASES: TestCase[] = [
@@ -101,24 +105,20 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
         }}
       >
         <div style={{ textAlign: 'center', maxWidth: 440 }}>
-          <h2
-            style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: 'var(--fg-primary)' }}
-          >
-            Generate Test Plan
-          </h2>
-          <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 24 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>Generate Test Plan</h2>
+          <p style={{ fontSize: 13, marginBottom: 24 }}>
             The test plan analyses your PRD acceptance criteria and maps each AC to specific test
             cases, selecting the right test type for each scenario.
           </p>
-          <button
-            className="pg-btn pg-btn-primary"
+          <Button
+            type="button"
             onClick={() => {
               void handleGenerate();
             }}
             disabled={isGenerating}
           >
             {isGenerating ? 'Generating…' : 'Generate Test Plan'}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -129,7 +129,6 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
       <div
         style={{
           padding: '8px 16px',
-          borderBottom: '1px solid var(--border-default)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -137,12 +136,10 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)' }}>
-            {DEMO_TEST_CASES.length} test cases
-          </span>
+          <span style={{ fontSize: 13, fontWeight: 500 }}>{DEMO_TEST_CASES.length} test cases</span>
           <div style={{ display: 'flex', gap: 4 }}>
             {(['all', 'unit', 'component', 'integration', 'e2e'] as const).map((f) => (
-              <button
+              <Button
                 key={f}
                 onClick={() => {
                   setFilter(f);
@@ -160,18 +157,19 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
                 {f === 'all'
                   ? `All (${String(DEMO_TEST_CASES.length)})`
                   : `${f} (${String(counts[f])})`}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
-        <button
-          className="pg-btn pg-btn-primary pg-btn-sm"
+        <Button
+          size="sm"
+          type="button"
           onClick={() => {
             onPlanReady();
           }}
         >
           Approve &amp; Generate Suite →
-        </button>
+        </Button>
       </div>
 
       <div
@@ -197,10 +195,9 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
             }}
           >
             <span
-              className="pg-mono"
+              className="font-mono text-sm"
               style={{
                 fontSize: 11,
-                color: 'var(--fg-tertiary)',
                 marginTop: 2,
                 width: 64,
                 flexShrink: 0,
@@ -211,7 +208,7 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
             <span className={TEST_TYPE_BADGE[tc.testType]} style={{ marginTop: 2 }}>
               {tc.testType}
             </span>
-            <span style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{tc.description}</span>
+            <span style={{ fontSize: 13 }}>{tc.description}</span>
           </div>
         ))}
 
@@ -221,7 +218,6 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
               style={{
                 fontSize: 11,
                 fontWeight: 500,
-                color: 'var(--fg-tertiary)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
                 marginBottom: 8,
@@ -243,12 +239,12 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
                 }}
               >
                 <span
-                  className="pg-mono"
-                  style={{ fontSize: 11, color: 'var(--fg-warning)', width: 64, flexShrink: 0 }}
+                  className="font-mono text-sm"
+                  style={{ fontSize: 11, width: 64, flexShrink: 0 }}
                 >
                   {uc.acId}
                 </span>
-                <span style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{uc.reason}</span>
+                <span style={{ fontSize: 13 }}>{uc.reason}</span>
               </div>
             ))}
           </div>

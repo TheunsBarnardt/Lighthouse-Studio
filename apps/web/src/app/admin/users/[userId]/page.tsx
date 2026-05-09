@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface AdminUserDetail {
   id: string;
   email: string;
@@ -20,9 +22,8 @@ const cardStyle: React.CSSProperties = { padding: '16px 20px' };
 const labelStyle: React.CSSProperties = {
   fontSize: 12,
   fontWeight: 500,
-  color: 'var(--fg-secondary)',
 };
-const valueStyle: React.CSSProperties = { fontSize: 13, color: 'var(--fg-primary)' };
+const valueStyle: React.CSSProperties = { fontSize: 13 };
 
 export default function AdminUserDetailPage() {
   const { userId } = useParams<{ userId: string }>();
@@ -65,34 +66,23 @@ export default function AdminUserDetailPage() {
 
   if (loading)
     return (
-      <div
-        style={{ padding: '16px 24px', fontSize: 13, color: 'var(--fg-tertiary)' }}
-        aria-live="polite"
-      >
+      <div style={{ padding: '16px 24px', fontSize: 13 }} aria-live="polite">
         Loading…
       </div>
     );
-  if (!user)
-    return (
-      <div style={{ padding: '16px 24px', fontSize: 13, color: 'var(--fg-tertiary)' }}>
-        User not found.
-      </div>
-    );
+  if (!user) return <div style={{ padding: '16px 24px', fontSize: 13 }}>User not found.</div>;
 
   return (
     <div style={{ padding: '16px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <Link
-          href="/admin/users"
-          style={{ fontSize: 13, color: 'var(--fg-secondary)', textDecoration: 'none' }}
-        >
+        <Link href="/admin/users" style={{ fontSize: 13, textDecoration: 'none' }}>
           ← Users
         </Link>
-        <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
+        <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>
           {user.displayName ?? user.email}
         </h1>
         <span
-          className={`pg-badge ${user.status === 'active' ? 'pg-badge-success' : 'pg-badge-default'}`}
+          className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${user.status === 'active' ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'}`}
         >
           {user.status}
         </span>
@@ -115,10 +105,10 @@ export default function AdminUserDetailPage() {
         </div>
       )}
 
-      <div className="pg-grid pg-grid-2">
-        <div className="pg-card" style={cardStyle}>
-          <div className="pg-card-header">
-            <span className="pg-card-title">Profile</span>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="rounded-md border bg-card text-card-foreground p-4" style={cardStyle}>
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">Profile</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
             <div>
@@ -146,53 +136,59 @@ export default function AdminUserDetailPage() {
           </div>
         </div>
 
-        <div className="pg-card" style={cardStyle}>
-          <div className="pg-card-header">
-            <span className="pg-card-title">Actions</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4" style={cardStyle}>
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">Actions</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
             {user.status === 'active' ? (
-              <button
-                className="pg-btn pg-btn-secondary pg-btn-sm"
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
                 style={{ width: '100%' }}
                 onClick={() => {
                   void patch({ status: 'suspended' });
                 }}
               >
                 Suspend account
-              </button>
+              </Button>
             ) : (
-              <button
-                className="pg-btn pg-btn-secondary pg-btn-sm"
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
                 style={{ width: '100%' }}
                 onClick={() => {
                   void patch({ status: 'active' });
                 }}
               >
                 Reactivate account
-              </button>
+              </Button>
             )}
             {user.mfaEnabled && (
-              <button
-                className="pg-btn pg-btn-secondary pg-btn-sm"
+              <Button
+                variant="outline"
+                size="sm"
+                type="button"
                 style={{ width: '100%' }}
                 onClick={() => {
                   void patch({ mfaEnabled: false });
                 }}
               >
                 Reset MFA (admin recovery)
-              </button>
+              </Button>
             )}
           </div>
         </div>
 
-        <div className="pg-card" style={cardStyle}>
-          <div className="pg-card-header">
-            <span className="pg-card-title">Linked identities</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4" style={cardStyle}>
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">Linked identities</span>
           </div>
           <div style={{ marginTop: 12 }}>
             {user.identities.length === 0 ? (
-              <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>No linked identities.</p>
+              <p style={{ fontSize: 13 }}>No linked identities.</p>
             ) : (
               <ul
                 style={{
@@ -206,10 +202,7 @@ export default function AdminUserDetailPage() {
               >
                 {user.identities.map((i) => (
                   <li key={i.providerId} style={{ fontSize: 13 }}>
-                    <span
-                      className="pg-mono"
-                      style={{ fontSize: 11, color: 'var(--fg-secondary)' }}
-                    >
+                    <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                       {i.providerId}:
                     </span>{' '}
                     {i.email}
@@ -220,13 +213,13 @@ export default function AdminUserDetailPage() {
           </div>
         </div>
 
-        <div className="pg-card" style={cardStyle}>
-          <div className="pg-card-header">
-            <span className="pg-card-title">Roles</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4" style={cardStyle}>
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">Roles</span>
           </div>
           <div style={{ marginTop: 12 }}>
             {user.roles.length === 0 ? (
-              <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>No roles assigned.</p>
+              <p style={{ fontSize: 13 }}>No roles assigned.</p>
             ) : (
               <ul
                 style={{

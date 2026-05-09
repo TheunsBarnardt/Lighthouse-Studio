@@ -38,9 +38,9 @@ const DEMO_OUTCOMES: OutcomeRecord[] = [
 ];
 
 const TREND_ICON = {
-  improved: <TrendingUp style={{ width: 16, height: 16, color: 'var(--fg-success)' }} />,
-  degraded: <TrendingDown style={{ width: 16, height: 16, color: 'var(--fg-danger)' }} />,
-  neutral: <Minus style={{ width: 16, height: 16, color: 'var(--fg-tertiary)' }} />,
+  improved: <TrendingUp style={{ width: 16, height: 16 }} />,
+  degraded: <TrendingDown style={{ width: 16, height: 16 }} />,
+  neutral: <Minus style={{ width: 16, height: 16 }} />,
 };
 
 export function OutcomeTrackingPanel() {
@@ -53,7 +53,6 @@ export function OutcomeTrackingPanel() {
           alignItems: 'center',
           justifyContent: 'center',
           height: 192,
-          color: 'var(--fg-tertiary)',
           gap: 8,
         }}
       >
@@ -65,9 +64,7 @@ export function OutcomeTrackingPanel() {
 
   return (
     <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
-        Outcome Tracking ({DEMO_OUTCOMES.length})
-      </h2>
+      <h2 style={{ fontWeight: 600, fontSize: 14 }}>Outcome Tracking ({DEMO_OUTCOMES.length})</h2>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {DEMO_OUTCOMES.map((outcome) => (
@@ -93,19 +90,14 @@ export function OutcomeTrackingPanel() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                   {outcome.regressionDetected ? (
-                    <XCircle
-                      style={{ width: 16, height: 16, color: 'var(--fg-danger)', flexShrink: 0 }}
-                    />
+                    <XCircle style={{ width: 16, height: 16, flexShrink: 0 }} />
                   ) : (
-                    <CheckCircle2
-                      style={{ width: 16, height: 16, color: 'var(--fg-success)', flexShrink: 0 }}
-                    />
+                    <CheckCircle2 style={{ width: 16, height: 16, flexShrink: 0 }} />
                   )}
                   <p
                     style={{
                       fontSize: 13,
                       fontWeight: 500,
-                      color: 'var(--fg-primary)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
@@ -114,25 +106,25 @@ export function OutcomeTrackingPanel() {
                     {outcome.changeRequestDescription}
                   </p>
                 </div>
-                <p style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
-                  Resolved {outcome.resolvedAt}
-                </p>
+                <p style={{ fontSize: 11 }}>Resolved {outcome.resolvedAt}</p>
               </div>
               {outcome.regressionDetected && (
-                <span className="pg-badge pg-badge-danger" style={{ flexShrink: 0 }}>
+                <span
+                  className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive"
+                  style={{ flexShrink: 0 }}
+                >
                   Regression
                 </span>
               )}
             </div>
 
-            <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>{outcome.summary}</p>
+            <p style={{ fontSize: 13 }}>{outcome.summary}</p>
 
             <div>
               <p
                 style={{
                   fontSize: 11,
                   fontWeight: 500,
-                  color: 'var(--fg-tertiary)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   marginBottom: 8,
@@ -148,16 +140,15 @@ export function OutcomeTrackingPanel() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 8,
-                      background: 'var(--bg-surface)',
                       borderRadius: 4,
                       padding: 8,
                     }}
                   >
                     {TREND_ICON[metric.trend]}
                     <div style={{ minWidth: 0 }}>
-                      <p style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{metric.name}</p>
-                      <p className="pg-mono" style={{ fontSize: 11 }}>
-                        <span style={{ color: 'var(--fg-tertiary)' }}>
+                      <p style={{ fontSize: 11 }}>{metric.name}</p>
+                      <p className="font-mono text-sm" style={{ fontSize: 11 }}>
+                        <span>
                           {metric.before}
                           {metric.unit}
                         </span>

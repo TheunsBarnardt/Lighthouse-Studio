@@ -143,3 +143,43 @@ ADR-0232: Two-surface model (live + export)
 ADR-0233: fumadocs as the visual reference model
 ADR-0234: Telemetry phone-home protocol from exported sites
 ADR-0235: MDX as the source format for human-maintained sections
+
+---
+
+## Post-v1 Extension: Compliance Framework Mapping
+
+**Status:** Tracked addition from the Objectives 33–36 addon plan; implement after the original Definition of Done is met.
+
+**Gap addressed:** Enterprise customers require evidence that the platform's controls map to recognized compliance frameworks. The platform already implements the underlying controls (audit log per Obj 7, RBAC per Obj 6, encryption per Obj 5, sandboxing per Obj 27). What's missing is a generated artifact that maps those controls to framework requirements and produces an export the customer can hand to auditors.
+
+**Scope of the extension:**
+
+- **Framework mapping generator** for SOC 2 (Type II), ISO 27001, HIPAA, Cyber Essentials, NIST 800-53. Each framework has a control catalog; the generator produces a control-by-control mapping showing which platform feature satisfies each control + evidence references (audit event types, ADRs, runbook URLs).
+- **Workspace-scoped compliance report**. A workspace runs the generator and gets a PDF + structured JSON export covering the controls relevant to their selected framework(s).
+- **Living document**. The mapping is regenerated on demand; framework version updates are tracked.
+- **No false claims**. Where a control is partially satisfied or not satisfied, the report says so explicitly. The generator refuses to produce a green-tick mapping for controls the platform doesn't actually implement.
+
+**Out of scope (explicit):**
+
+- Compliance certification workflow / auditor portal.
+- Customer-evidence collection (collecting customer-side controls beyond the platform's perimeter).
+- Continuous compliance posture monitoring — that lives in operational dashboards, not docs.
+
+**Locked decisions (extension):**
+
+| Decision                   | Choice                                                                                              | Rationale                                    |
+| -------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Framework catalogs storage | Versioned in `packages/core/src/docs/compliance-frameworks/`; updated via PR when frameworks revise | Reviewable; versioned with platform          |
+| Control mapping authoring  | Hand-curated by platform team; AI-assisted draft via dedicated prompt; never auto-published         | Compliance claims are not generation outputs |
+| Evidence linking           | Audit event types, ADRs, runbook URLs, port/adapter source paths                                    | Auditor-traceable                            |
+| Partial / non-satisfaction | Explicit "Partial" / "Not satisfied" status with rationale; no green-washing                        | Honest mapping; auditor trust                |
+| Export formats             | PDF (human-readable) + JSON (machine-readable)                                                      | Standard auditor handoff + automation        |
+| Surface                    | New section in the in-platform docs site; export available per workspace                            | Reuses the two-surface model from D2/D3      |
+
+**Integration points (this objective):**
+
+- New section type in the docs generator: `compliance-mapping`.
+- New prompt: `packages/core/src/ai/prompts/docs/compliance-mapping.prompt.ts` (drafts mappings for review; humans approve before publication).
+- Reuses ADR registry, audit vocabulary, runbook index as evidence sources.
+
+**ADRs to write at extension time:** framework catalog versioning policy; partial-satisfaction discipline; AI-drafted-then-human-approved compliance authoring.

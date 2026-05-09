@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 // ---------------------------------------------------------------------------
 // Static mock data (matches prototype)
 // ---------------------------------------------------------------------------
@@ -43,40 +45,44 @@ const FILES: StorageFile[] = [
 
 export default function StoragePage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
       {/* Header */}
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Storage
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
-            3 buckets · 247 files · 1.2 GB / 5 GB
-          </div>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Storage</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>3 buckets · 247 files · 1.2 GB / 5 GB</div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">+ New bucket</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Upload</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
+            + New bucket
+          </Button>
+          <Button size="sm" type="button">
+            Upload
+          </Button>
         </div>
       </div>
 
       {/* Bucket cards */}
-      <div className="pg-grid pg-grid-3" style={{ marginBottom: 24 }}>
+      <div className="grid grid-cols-3 gap-4" style={{ marginBottom: 24 }}>
         {BUCKETS.map((bucket) => (
-          <div key={bucket.id} className="pg-card" style={{ cursor: 'pointer' }}>
-            <div className="pg-card-header">
-              <div className="pg-card-title pg-mono">{bucket.name}</div>
+          <div
+            key={bucket.id}
+            className="rounded-md border bg-card text-card-foreground p-4"
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="mb-3 flex items-center justify-between border-b pb-3">
+              <div className="text-sm font-semibold font-mono text-sm">{bucket.name}</div>
               <span
                 className={
                   bucket.access === 'Private'
-                    ? 'pg-badge pg-badge-success'
-                    : 'pg-badge pg-badge-default'
+                    ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                    : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'
                 }
               >
                 {bucket.access}
               </span>
             </div>
-            <div style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
+            <div style={{ fontSize: 12 }}>
               {bucket.fileCount} files · {bucket.size}
             </div>
           </div>
@@ -92,17 +98,19 @@ export default function StoragePage() {
         }}
       >
         {FILES.map((file) => (
-          <div key={file.name} className="pg-card" style={{ padding: 12, cursor: 'pointer' }}>
+          <div
+            key={file.name}
+            className="rounded-md border bg-card text-card-foreground p-4"
+            style={{ padding: 12, cursor: 'pointer' }}
+          >
             <div
               style={{
                 aspectRatio: '1',
-                background: 'var(--bg-canvas)',
                 borderRadius: 4,
                 marginBottom: 8,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--fg-tertiary)',
                 fontSize: 24,
               }}
             >
@@ -115,16 +123,12 @@ export default function StoragePage() {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
-                color: 'var(--fg-primary)',
               }}
               title={file.name}
             >
               {file.name}
             </div>
-            <div
-              className="pg-tabular"
-              style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 2 }}
-            >
+            <div className="tabular-nums" style={{ fontSize: 11, marginTop: 2 }}>
               {file.size}
             </div>
           </div>

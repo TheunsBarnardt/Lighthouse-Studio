@@ -43,30 +43,19 @@ export default function MemberDetailPage() {
 
   if (loading)
     return (
-      <div
-        style={{ padding: '16px 24px', fontSize: 13, color: 'var(--fg-tertiary)' }}
-        aria-live="polite"
-      >
+      <div style={{ padding: '16px 24px', fontSize: 13 }} aria-live="polite">
         Loading…
       </div>
     );
-  if (!member)
-    return (
-      <div style={{ padding: '16px 24px', fontSize: 13, color: 'var(--fg-tertiary)' }}>
-        Member not found.
-      </div>
-    );
+  if (!member) return <div style={{ padding: '16px 24px', fontSize: 13 }}>Member not found.</div>;
 
   return (
     <div style={{ padding: '16px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
-        <Link
-          href={`/workspaces/${slug}/members`}
-          style={{ fontSize: 13, color: 'var(--fg-secondary)', textDecoration: 'none' }}
-        >
+        <Link href={`/workspaces/${slug}/members`} style={{ fontSize: 13, textDecoration: 'none' }}>
           ← Members
         </Link>
-        <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
+        <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>
           {member.displayName ?? member.email}
         </h1>
       </div>
@@ -75,7 +64,6 @@ export default function MemberDetailPage() {
       <div
         style={{
           display: 'flex',
-          borderBottom: '1px solid var(--border-default)',
           marginBottom: 20,
         }}
       >
@@ -104,31 +92,31 @@ export default function MemberDetailPage() {
       </div>
 
       {activeTab === 'profile' && (
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <span className="pg-card-title">Profile</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">Profile</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
-            <div className="pg-inspector-row">
-              <span className="pg-inspector-key">Email</span>
-              <span className="pg-inspector-val">{member.email}</span>
+            <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+              <span className="text-muted-foreground">Email</span>
+              <span className="font-medium">{member.email}</span>
             </div>
-            <div className="pg-inspector-row">
-              <span className="pg-inspector-key">Status</span>
-              <span className="pg-inspector-val">{member.status}</span>
+            <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+              <span className="text-muted-foreground">Status</span>
+              <span className="font-medium">{member.status}</span>
             </div>
           </div>
         </div>
       )}
 
       {activeTab === 'roles' && (
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <span className="pg-card-title">Roles</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">Roles</span>
           </div>
           <div style={{ marginTop: 12 }}>
             {member.roles.length === 0 ? (
-              <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>No roles assigned.</p>
+              <p style={{ fontSize: 13 }}>No roles assigned.</p>
             ) : (
               <ul
                 style={{
@@ -152,13 +140,13 @@ export default function MemberDetailPage() {
       )}
 
       {activeTab === 'identities' && (
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <span className="pg-card-title">Linked identities</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">Linked identities</span>
           </div>
           <div style={{ marginTop: 12 }}>
             {member.identities.length === 0 ? (
-              <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>No identities.</p>
+              <p style={{ fontSize: 13 }}>No identities.</p>
             ) : (
               <ul
                 style={{
@@ -172,10 +160,7 @@ export default function MemberDetailPage() {
               >
                 {member.identities.map((i) => (
                   <li key={i.providerId} style={{ fontSize: 13 }}>
-                    <span
-                      className="pg-mono"
-                      style={{ fontSize: 11, color: 'var(--fg-secondary)' }}
-                    >
+                    <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                       {i.providerId}:
                     </span>{' '}
                     {i.email}
@@ -188,24 +173,20 @@ export default function MemberDetailPage() {
       )}
 
       {activeTab === 'sessions' && (
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <span className="pg-card-title">Sessions</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">Sessions</span>
           </div>
-          <p style={{ marginTop: 12, fontSize: 13, color: 'var(--fg-tertiary)' }}>
-            Session management coming soon.
-          </p>
+          <p style={{ marginTop: 12, fontSize: 13 }}>Session management coming soon.</p>
         </div>
       )}
 
       {activeTab === 'activity' && (
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <span className="pg-card-title">Activity history</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">Activity history</span>
           </div>
-          <p style={{ marginTop: 12, fontSize: 13, color: 'var(--fg-tertiary)' }}>
-            Activity log coming soon.
-          </p>
+          <p style={{ marginTop: 12, fontSize: 13 }}>Activity log coming soon.</p>
         </div>
       )}
     </div>

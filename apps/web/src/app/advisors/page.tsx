@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { Button } from '@/components/ui/button';
+
 const GROUPS = [
   {
     title: 'Quality',
@@ -112,10 +114,13 @@ const GROUPS = [
 ];
 
 function statusBadgeClass(status: string) {
-  if (status === 'good') return 'pg-badge-success';
-  if (status === 'medium') return 'pg-badge-warning';
-  if (status === 'attention') return 'pg-badge-danger';
-  return 'pg-badge-default';
+  if (status === 'good')
+    return 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400';
+  if (status === 'medium')
+    return 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400';
+  if (status === 'attention')
+    return 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive';
+  return 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground';
 }
 
 function statusLabel(status: string) {
@@ -133,56 +138,62 @@ function scoreColor(status: string) {
 
 export default function AdvisorsPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Advisors
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Advisors</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Quality, security, performance, cost — across the entire platform. Last full scan 12
             minutes ago.
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Settings</button>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Schedule scan</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">▶ Re-scan all</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
+            Settings
+          </Button>
+          <Button variant="outline" size="sm" type="button">
+            Schedule scan
+          </Button>
+          <Button size="sm" type="button">
+            ▶ Re-scan all
+          </Button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="pg-grid pg-grid-4" style={{ marginBottom: 24 }}>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Quality score</div>
-          <div className="pg-stat-value">91</div>
-          <div className="pg-stat-delta pg-stat-up">+3 vs last week</div>
-        </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Open security issues</div>
-          <div className="pg-stat-value" style={{ color: 'var(--fg-warning)' }}>
-            7
+      <div className="grid grid-cols-4 gap-4" style={{ marginBottom: 24 }}>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Quality score
           </div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            1 high · 4 medium · 2 low
+          <div className="text-[22px] font-semibold tabular-nums">91</div>
+          <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
+            +3 vs last week
           </div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">DB advisories</div>
-          <div className="pg-stat-value">10</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            3 sec · 7 perf
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Open security issues
           </div>
+          <div className="text-[22px] font-semibold tabular-nums">7</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">1 high · 4 medium · 2 low</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Cost savings available</div>
-          <div className="pg-stat-value">
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            DB advisories
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">10</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">3 sec · 7 perf</div>
+        </div>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Cost savings available
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">
             $23
-            <span style={{ fontSize: 13, color: 'var(--fg-secondary)', fontWeight: 400 }}>/mo</span>
+            <span style={{ fontSize: 13, fontWeight: 400 }}>/mo</span>
           </div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            12% of current spend
-          </div>
+          <div className="mt-1 text-[11px] text-muted-foreground">12% of current spend</div>
         </div>
       </div>
 
@@ -195,7 +206,6 @@ export default function AdvisorsPage() {
               fontWeight: 700,
               textTransform: 'uppercase',
               letterSpacing: '0.06em',
-              color: 'var(--fg-tertiary)',
               marginBottom: 12,
             }}
           >
@@ -215,7 +225,7 @@ export default function AdvisorsPage() {
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
                 <div
-                  className="pg-card"
+                  className="rounded-md border bg-card text-card-foreground p-4"
                   style={{ cursor: 'pointer', transition: 'border-color 100ms' }}
                   onMouseOver={(e) => {
                     (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-primary)';
@@ -233,16 +243,12 @@ export default function AdvisorsPage() {
                     }}
                   >
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--fg-primary)' }}>
-                        {item.title}
-                      </div>
-                      <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 4 }}>
-                        {item.desc}
-                      </div>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>{item.title}</div>
+                      <div style={{ fontSize: 11, marginTop: 4 }}>{item.desc}</div>
                     </div>
                     {item.score !== null && (
                       <div
-                        className="pg-tabular"
+                        className="tabular-nums"
                         style={{
                           fontSize: 22,
                           fontWeight: 600,
@@ -261,18 +267,15 @@ export default function AdvisorsPage() {
                       alignItems: 'center',
                       gap: 8,
                       paddingTop: 8,
-                      borderTop: '1px solid var(--border-default)',
                     }}
                   >
                     <span
-                      className={`pg-badge ${statusBadgeClass(item.status)}`}
+                      className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${statusBadgeClass(item.status)}`}
                       style={{ fontSize: 9 }}
                     >
                       {statusLabel(item.status)}
                     </span>
-                    <span style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>
-                      {item.finding}
-                    </span>
+                    <span style={{ fontSize: 11 }}>{item.finding}</span>
                   </div>
                 </div>
               </Link>

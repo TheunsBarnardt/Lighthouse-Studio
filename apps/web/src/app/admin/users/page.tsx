@@ -47,14 +47,15 @@ export default function AdminUsersPage() {
           justifyContent: 'space-between',
         }}
       >
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--fg-primary)' }}>
-          All users
-        </h1>
-        <span style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)' }}>{total} total</span>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>All users</h1>
+        <span style={{ fontSize: '0.875rem' }}>{total} total</span>
       </div>
 
-      <div className="pg-card">
-        <div className="pg-card-header" style={{ paddingBottom: '0.75rem' }}>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div
+          className="mb-3 flex items-center justify-between border-b pb-3"
+          style={{ paddingBottom: '0.75rem' }}
+        >
           <input
             type="search"
             placeholder="Search by name or email…"
@@ -68,8 +69,6 @@ export default function AdminUsersPage() {
               padding: '0.4375rem 0.75rem',
               border: '1px solid var(--border-default)',
               borderRadius: '6px',
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
               fontSize: '0.875rem',
               outline: 'none',
             }}
@@ -82,7 +81,6 @@ export default function AdminUsersPage() {
                 padding: '2rem 0',
                 textAlign: 'center',
                 fontSize: '0.875rem',
-                color: 'var(--fg-secondary)',
               }}
               aria-live="polite"
             >
@@ -95,15 +93,14 @@ export default function AdminUsersPage() {
                 padding: '2rem 0',
                 textAlign: 'center',
                 fontSize: '0.875rem',
-                color: 'var(--fg-secondary)',
               }}
             >
               No users found.
             </p>
           )}
           {!loading && users.length > 0 && (
-            <div className="pg-table-wrap">
-              <table className="pg-data-table" role="grid" aria-label="All users">
+            <div className="overflow-hidden rounded-md border">
+              <table className="w-full border-collapse text-sm" role="grid" aria-label="All users">
                 <thead>
                   <tr>
                     <th>Name</th>
@@ -121,29 +118,28 @@ export default function AdminUsersPage() {
                           href={`/admin/users/${user.id}`}
                           style={{
                             fontWeight: 500,
-                            color: 'var(--accent-primary)',
                             textDecoration: 'none',
                           }}
                         >
                           {user.displayName ?? user.email}
                         </Link>
                       </td>
-                      <td style={{ color: 'var(--fg-secondary)' }}>{user.email}</td>
+                      <td>{user.email}</td>
                       <td>
-                        <span className="pg-badge pg-badge-default">{user.status}</span>
+                        <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                          {user.status}
+                        </span>
                       </td>
                       <td>
                         {user.mfaEnabled ? (
-                          <span className="pg-badge pg-badge-success">Enabled</span>
-                        ) : (
-                          <span style={{ fontSize: '0.75rem', color: 'var(--fg-tertiary)' }}>
-                            Off
+                          <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                            Enabled
                           </span>
+                        ) : (
+                          <span style={{ fontSize: '0.75rem' }}>Off</span>
                         )}
                       </td>
-                      <td style={{ color: 'var(--fg-secondary)' }}>
-                        {new Date(user.createdAt).toLocaleDateString()}
-                      </td>
+                      <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>

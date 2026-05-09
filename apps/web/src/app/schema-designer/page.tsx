@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface Column {
   name: string;
   type: string;
@@ -142,8 +144,6 @@ export default function SchemaDesignerPage() {
           display: 'flex',
           alignItems: 'center',
           gap: 12,
-          borderBottom: '1px solid var(--border-default)',
-          background: 'var(--bg-canvas)',
           padding: '8px 16px',
         }}
       >
@@ -156,29 +156,29 @@ export default function SchemaDesignerPage() {
             padding: 2,
           }}
         >
-          <button
+          <Button
             style={modeTabStyle(mode === 'schema')}
             onClick={() => {
               setMode('schema');
             }}
           >
             Schema
-          </button>
-          <button
+          </Button>
+          <Button
             style={modeTabStyle(mode === 'pages')}
             onClick={() => {
               setMode('pages');
             }}
           >
             Pages
-          </button>
+          </Button>
         </div>
 
         {mode === 'pages' && (
           <>
             <div style={{ display: 'flex', gap: 2 }}>
               {PAGES.map((p) => (
-                <button
+                <Button
                   key={p}
                   onClick={() => {
                     setActivePage(p);
@@ -189,15 +189,15 @@ export default function SchemaDesignerPage() {
                   {p}
                   {(p === 'dashboard' || p === 'deals') && (
                     <span
-                      className="pg-badge pg-badge-default"
+                      className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
                       style={{ fontSize: 9, padding: '0 4px', lineHeight: '14px', height: 14 }}
                     >
                       auto
                     </span>
                   )}
-                </button>
+                </Button>
               ))}
-              <button style={pageTabStyle(false)}>+</button>
+              <Button style={pageTabStyle(false)}>+</Button>
             </div>
             <div
               style={{
@@ -210,7 +210,7 @@ export default function SchemaDesignerPage() {
               }}
             >
               {(['desktop', 'tablet', 'mobile'] as const).map((v) => (
-                <button
+                <Button
                   key={v}
                   onClick={() => {
                     setViewport(v);
@@ -218,29 +218,29 @@ export default function SchemaDesignerPage() {
                   style={modeTabStyle(viewport === v)}
                 >
                   {v.charAt(0).toUpperCase() + v.slice(1)}
-                </button>
+                </Button>
               ))}
             </div>
-            <button className="pg-btn pg-btn-ghost pg-btn-sm" style={{ fontSize: 12 }}>
+            <Button variant="ghost" size="sm" type="button" style={{ fontSize: 12 }}>
               Preview
-            </button>
-            <button className="pg-btn pg-btn-secondary pg-btn-sm" style={{ fontSize: 12 }}>
+            </Button>
+            <Button variant="outline" size="sm" type="button" style={{ fontSize: 12 }}>
               Discard
-            </button>
-            <button className="pg-btn pg-btn-primary pg-btn-sm" style={{ fontSize: 12 }}>
+            </Button>
+            <Button size="sm" type="button" style={{ fontSize: 12 }}>
               Save &amp; Deploy
-            </button>
+            </Button>
           </>
         )}
 
         {mode === 'schema' && (
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
-            <button className="pg-btn pg-btn-secondary pg-btn-sm" style={{ fontSize: 12 }}>
+            <Button variant="outline" size="sm" type="button" style={{ fontSize: 12 }}>
               Open in Designer
-            </button>
-            <button className="pg-btn pg-btn-primary pg-btn-sm" style={{ fontSize: 12 }}>
+            </Button>
+            <Button size="sm" type="button" style={{ fontSize: 12 }}>
               Approve &amp; apply →
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -272,7 +272,6 @@ export default function SchemaDesignerPage() {
                     cursor: 'pointer',
                     borderRadius: 6,
                     border: `1px solid ${selectedTable === table.name ? 'var(--accent-primary)' : 'var(--border-default)'}`,
-                    background: 'var(--bg-canvas)',
                     boxShadow:
                       selectedTable === table.name
                         ? '0 0 0 2px var(--accent-primary)'
@@ -306,19 +305,14 @@ export default function SchemaDesignerPage() {
                         padding: '4px 12px',
                       }}
                     >
-                      <span style={{ fontSize: 12, color: 'var(--fg-primary)' }}>
+                      <span style={{ fontSize: 12 }}>
                         {col.role === 'pk' && (
                           <span style={{ marginRight: 4, color: '#f59e0b' }}>🔑</span>
                         )}
-                        {col.role === 'fk' && (
-                          <span style={{ marginRight: 4, color: 'var(--accent-primary)' }}>⛓</span>
-                        )}
+                        {col.role === 'fk' && <span style={{ marginRight: 4 }}>⛓</span>}
                         {col.name}
                       </span>
-                      <span
-                        className="pg-mono"
-                        style={{ fontSize: 10, color: 'var(--fg-tertiary)' }}
-                      >
+                      <span className="font-mono text-sm" style={{ fontSize: 10 }}>
                         {col.type}
                       </span>
                     </div>
@@ -335,7 +329,6 @@ export default function SchemaDesignerPage() {
               flexShrink: 0,
               overflowY: 'auto',
               borderLeft: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
               padding: 16,
             }}
           >
@@ -346,14 +339,13 @@ export default function SchemaDesignerPage() {
                     style={{
                       fontSize: 14,
                       fontWeight: 600,
-                      color: 'var(--fg-primary)',
                       margin: 0,
                       marginBottom: 2,
                     }}
                   >
                     {selectedTable}
                   </h3>
-                  <p style={{ fontSize: 12, color: 'var(--fg-tertiary)', margin: 0 }}>
+                  <p style={{ fontSize: 12, margin: 0 }}>
                     {TABLES.find((t) => t.name === selectedTable)?.columns.length} columns
                   </p>
                 </div>
@@ -365,7 +357,6 @@ export default function SchemaDesignerPage() {
                       fontWeight: 600,
                       textTransform: 'uppercase',
                       letterSpacing: '0.06em',
-                      color: 'var(--fg-tertiary)',
                       marginBottom: 8,
                       marginTop: 0,
                     }}
@@ -387,13 +378,13 @@ export default function SchemaDesignerPage() {
                         marginBottom: 6,
                       }}
                     >
-                      <span
-                        className="pg-mono"
-                        style={{ fontSize: 12, color: 'var(--fg-primary)' }}
-                      >
+                      <span className="font-mono text-sm" style={{ fontSize: 12 }}>
                         {col.name}
                       </span>
-                      <span className="pg-badge pg-badge-default" style={{ fontSize: 9 }}>
+                      <span
+                        className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                        style={{ fontSize: 9 }}
+                      >
                         {col.type}
                       </span>
                     </div>
@@ -401,22 +392,21 @@ export default function SchemaDesignerPage() {
                 </div>
 
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    className="pg-btn pg-btn-secondary pg-btn-sm"
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    type="button"
                     style={{ flex: 1, fontSize: 12 }}
                   >
                     + Column
-                  </button>
-                  <button
-                    className="pg-btn pg-btn-ghost pg-btn-sm"
-                    style={{ fontSize: 12, color: 'var(--fg-danger)' }}
-                  >
+                  </Button>
+                  <Button variant="ghost" size="sm" type="button" style={{ fontSize: 12 }}>
                     Delete table
-                  </button>
+                  </Button>
                 </div>
               </>
             ) : (
-              <div style={{ padding: '32px 0', textAlign: 'center', color: 'var(--fg-tertiary)' }}>
+              <div style={{ padding: '32px 0', textAlign: 'center' }}>
                 <p style={{ fontSize: 24, opacity: 0.3, marginBottom: 8 }}>◰</p>
                 <p style={{ fontSize: 13, margin: 0 }}>Select a table to edit</p>
               </div>
@@ -433,7 +423,6 @@ export default function SchemaDesignerPage() {
               flexShrink: 0,
               overflowY: 'auto',
               borderRight: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
             }}
           >
             <div style={{ padding: 12 }}>
@@ -445,7 +434,6 @@ export default function SchemaDesignerPage() {
                   background: 'color-mix(in srgb, var(--border-default) 30%, var(--bg-canvas))',
                   padding: '4px 8px',
                   fontSize: 12,
-                  color: 'var(--fg-primary)',
                   marginBottom: 12,
                   boxSizing: 'border-box',
                 }}
@@ -457,7 +445,6 @@ export default function SchemaDesignerPage() {
                   fontWeight: 600,
                   textTransform: 'uppercase',
                   letterSpacing: '0.06em',
-                  color: 'var(--fg-tertiary)',
                   marginBottom: 8,
                   marginTop: 0,
                 }}
@@ -475,10 +462,8 @@ export default function SchemaDesignerPage() {
                       cursor: 'grab',
                       borderRadius: 4,
                       border: '1px dashed var(--border-default)',
-                      background: 'var(--bg-canvas)',
                       padding: '6px 8px',
                       fontSize: 12,
-                      color: 'var(--fg-primary)',
                     }}
                   >
                     <div
@@ -493,7 +478,6 @@ export default function SchemaDesignerPage() {
                         background: 'var(--border-default)',
                         fontSize: 10,
                         fontWeight: 600,
-                        color: 'var(--accent-primary)',
                       }}
                     >
                       {block.charAt(0)}
@@ -520,7 +504,6 @@ export default function SchemaDesignerPage() {
               style={{
                 borderRadius: 8,
                 border: '1px solid var(--border-default)',
-                background: 'var(--bg-canvas)',
                 boxShadow: '0 2px 16px rgba(0,0,0,0.12)',
                 width: viewport === 'desktop' ? 1024 : viewport === 'tablet' ? 768 : 375,
                 minHeight: 600,
@@ -533,7 +516,6 @@ export default function SchemaDesignerPage() {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 16,
-                  borderBottom: '1px solid var(--border-default)',
                   padding: '12px 24px',
                 }}
               >
@@ -553,9 +535,7 @@ export default function SchemaDesignerPage() {
                 >
                   A
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg-primary)' }}>
-                  Acme CRM
-                </span>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>Acme CRM</span>
                 <nav style={{ display: 'flex', gap: 16 }}>
                   {['Dashboard', 'Deals', 'Contacts'].map((nav) => (
                     <a
@@ -601,7 +581,6 @@ export default function SchemaDesignerPage() {
                               fontSize: 10,
                               fontWeight: 600,
                               textTransform: 'uppercase',
-                              color: 'var(--fg-tertiary)',
                               margin: 0,
                             }}
                           >
@@ -611,13 +590,12 @@ export default function SchemaDesignerPage() {
                             style={{
                               fontSize: 20,
                               fontWeight: 600,
-                              color: 'var(--fg-primary)',
                               margin: '4px 0 2px',
                             }}
                           >
                             {['87', '$387k', '42', '17d'][i]}
                           </p>
-                          <p style={{ fontSize: 12, color: 'var(--fg-success)', margin: 0 }}>
+                          <p style={{ fontSize: 12, margin: 0 }}>
                             {['+12%', '+$24k', '+18%', '-3d'][i]}
                           </p>
                         </div>
@@ -634,7 +612,6 @@ export default function SchemaDesignerPage() {
                         style={{
                           fontSize: 13,
                           fontWeight: 600,
-                          color: 'var(--fg-primary)',
                           marginBottom: 8,
                           marginTop: 0,
                         }}
@@ -653,12 +630,11 @@ export default function SchemaDesignerPage() {
                               display: 'flex',
                               justifyContent: 'space-between',
                               fontSize: 12,
-                              color: 'var(--fg-primary)',
                             }}
                           >
                             <span>{t}</span>
-                            <span style={{ color: 'var(--fg-tertiary)' }}>{s}</span>
-                            <span className="pg-tabular">{a}</span>
+                            <span>{s}</span>
+                            <span className="tabular-nums">{a}</span>
                           </div>
                         ))}
                       </div>
@@ -677,16 +653,13 @@ export default function SchemaDesignerPage() {
                       style={{
                         fontSize: 13,
                         fontWeight: 600,
-                        color: 'var(--fg-primary)',
                         marginBottom: 8,
                         marginTop: 0,
                       }}
                     >
                       All Deals
                     </p>
-                    <p style={{ fontSize: 12, color: 'var(--fg-tertiary)', margin: 0 }}>
-                      Deal list would render here.
-                    </p>
+                    <p style={{ fontSize: 12, margin: 0 }}>Deal list would render here.</p>
                   </div>
                 )}
                 {activePage === 'landing' && (
@@ -695,16 +668,15 @@ export default function SchemaDesignerPage() {
                       style={{
                         fontSize: 22,
                         fontWeight: 700,
-                        color: 'var(--fg-primary)',
                         marginBottom: 8,
                       }}
                     >
                       Sales pipeline you can trust
                     </p>
-                    <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 16 }}>
+                    <p style={{ fontSize: 13, marginBottom: 16 }}>
                       Built on Acme platform · self-hosted · GDPR-compliant.
                     </p>
-                    <button className="pg-btn pg-btn-primary">Sign in</button>
+                    <Button type="button">Sign in</Button>
                   </div>
                 )}
                 {activePage === 'sign-in' && (
@@ -721,7 +693,6 @@ export default function SchemaDesignerPage() {
                       style={{
                         fontSize: 16,
                         fontWeight: 600,
-                        color: 'var(--fg-primary)',
                         textAlign: 'center',
                         marginBottom: 16,
                       }}
@@ -735,8 +706,6 @@ export default function SchemaDesignerPage() {
                         border: '1px solid var(--border-default)',
                         padding: '8px 12px',
                         fontSize: 13,
-                        color: 'var(--fg-primary)',
-                        background: 'var(--bg-canvas)',
                         marginBottom: 12,
                         boxSizing: 'border-box',
                       }}
@@ -749,17 +718,15 @@ export default function SchemaDesignerPage() {
                         border: '1px solid var(--border-default)',
                         padding: '8px 12px',
                         fontSize: 13,
-                        color: 'var(--fg-primary)',
-                        background: 'var(--bg-canvas)',
                         marginBottom: 16,
                         boxSizing: 'border-box',
                       }}
                       type="password"
                       placeholder="Password"
                     />
-                    <button className="pg-btn pg-btn-primary" style={{ width: '100%' }}>
+                    <Button type="button" style={{ width: '100%' }}>
                       Sign in
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -773,7 +740,6 @@ export default function SchemaDesignerPage() {
               flexShrink: 0,
               overflowY: 'auto',
               borderLeft: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
               padding: 16,
             }}
           >
@@ -783,7 +749,6 @@ export default function SchemaDesignerPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 12,
                 marginTop: 0,
               }}
@@ -791,27 +756,24 @@ export default function SchemaDesignerPage() {
               Page inspector
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div className="pg-inspector-row">
-                <span className="pg-inspector-key">Page</span>
-                <span className="pg-inspector-val">{activePage}</span>
+              <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+                <span className="text-muted-foreground">Page</span>
+                <span className="font-medium">{activePage}</span>
               </div>
-              <div className="pg-inspector-row">
-                <span className="pg-inspector-key">Source</span>
-                <span className="pg-inspector-val">
+              <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+                <span className="text-muted-foreground">Source</span>
+                <span className="font-medium">
                   {activePage === 'dashboard' || activePage === 'deals' ? 'AI Pipeline' : 'Manual'}
                 </span>
               </div>
-              <div className="pg-inspector-row">
-                <span className="pg-inspector-key">Last edited</span>
-                <span className="pg-inspector-val" style={{ color: 'var(--fg-tertiary)' }}>
-                  12 min ago
-                </span>
+              <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+                <span className="text-muted-foreground">Last edited</span>
+                <span className="font-medium">12 min ago</span>
               </div>
             </div>
             <hr
               style={{
                 border: 'none',
-                borderTop: '1px solid var(--border-default)',
                 margin: '16px 0',
               }}
             />
@@ -821,7 +783,6 @@ export default function SchemaDesignerPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
                 marginTop: 0,
               }}
@@ -833,10 +794,8 @@ export default function SchemaDesignerPage() {
                 width: '100%',
                 borderRadius: 4,
                 border: '1px solid var(--border-default)',
-                background: 'var(--bg-canvas)',
                 padding: '6px 8px',
                 fontSize: 13,
-                color: 'var(--fg-primary)',
               }}
             >
               <option>App Chrome default</option>

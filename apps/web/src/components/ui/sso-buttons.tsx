@@ -4,6 +4,7 @@ import type { JSX } from 'react';
 
 import { useEffect, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { authApi } from '@/lib/auth-client';
 
 // ─── Provider SVG icons ───────────────────────────────────────────────────────
@@ -118,8 +119,6 @@ export function SsoButtons({ returnTo = '/' }: SsoButtonsProps) {
             padding: '0 8px',
             fontSize: 11,
             textTransform: 'uppercase',
-            color: 'var(--fg-tertiary)',
-            background: 'var(--bg-surface)',
             whiteSpace: 'nowrap',
           }}
         >
@@ -137,10 +136,11 @@ export function SsoButtons({ returnTo = '/' }: SsoButtonsProps) {
         }}
       >
         {active.map(({ id, label, Icon }) => (
-          <button
-            key={id}
+          <Button
+            variant="outline"
+            size="sm"
             type="button"
-            className="pg-btn pg-btn-secondary pg-btn-sm"
+            key={id}
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
             disabled={loading !== null}
             aria-label={`Continue with ${label}`}
@@ -148,7 +148,7 @@ export function SsoButtons({ returnTo = '/' }: SsoButtonsProps) {
           >
             <Icon />
             {label}
-          </button>
+          </Button>
         ))}
       </div>
 

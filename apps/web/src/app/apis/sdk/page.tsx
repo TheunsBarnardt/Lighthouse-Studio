@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 const QUICK_START_TS = `import { createClient } from '@acme/platform-js';
 
 const platform = createClient({
@@ -41,11 +43,9 @@ const codeBlockStyle: React.CSSProperties = {
   fontFamily: 'ui-monospace, monospace',
   fontSize: 12,
   lineHeight: 1.6,
-  background: 'var(--bg-canvas)',
   border: '1px solid var(--border-default)',
   borderRadius: 4,
   padding: '12px',
-  color: 'var(--fg-primary)',
   margin: 0,
   overflowX: 'auto',
   whiteSpace: 'pre',
@@ -53,66 +53,61 @@ const codeBlockStyle: React.CSSProperties = {
 
 export default function SdkPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Client SDKs
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Client SDKs</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Type-safe client libraries auto-generated from your schema · Updated when schema changes
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Changelog</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Regenerate</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
+            Changelog
+          </Button>
+          <Button size="sm" type="button">
+            Regenerate
+          </Button>
         </div>
       </div>
 
-      <div className="pg-grid pg-grid-4" style={{ marginBottom: 16 }}>
-        <div className="pg-card">
-          <div style={{ fontWeight: 600, marginBottom: 4, color: 'var(--fg-primary)' }}>
-            JavaScript / TypeScript
-          </div>
-          <div style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginBottom: 8 }}>
-            @acme/platform-js · v0.1.3
-          </div>
+      <div className="grid grid-cols-4 gap-4" style={{ marginBottom: 16 }}>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div style={{ fontWeight: 600, marginBottom: 4 }}>JavaScript / TypeScript</div>
+          <div style={{ fontSize: 12, marginBottom: 8 }}>@acme/platform-js · v0.1.3</div>
           <pre style={{ ...codeBlockStyle, fontSize: 11 }}>npm i @acme/platform-js</pre>
         </div>
-        <div className="pg-card">
-          <div style={{ fontWeight: 600, marginBottom: 4, color: 'var(--fg-primary)' }}>Python</div>
-          <div style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginBottom: 8 }}>
-            acme-platform · v0.1.3
-          </div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div style={{ fontWeight: 600, marginBottom: 4 }}>Python</div>
+          <div style={{ fontSize: 12, marginBottom: 8 }}>acme-platform · v0.1.3</div>
           <pre style={{ ...codeBlockStyle, fontSize: 11 }}>pip install acme-platform</pre>
         </div>
-        <div className="pg-card">
-          <div style={{ fontWeight: 600, marginBottom: 4, color: 'var(--fg-primary)' }}>Go</div>
-          <div style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginBottom: 8 }}>
-            github.com/acme/platform-go
-          </div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div style={{ fontWeight: 600, marginBottom: 4 }}>Go</div>
+          <div style={{ fontSize: 12, marginBottom: 8 }}>github.com/acme/platform-go</div>
           <pre style={{ ...codeBlockStyle, fontSize: 11 }}>go get github.com/acme/platform-go</pre>
         </div>
-        <div className="pg-card">
-          <div style={{ fontWeight: 600, marginBottom: 4, color: 'var(--fg-primary)' }}>cURL</div>
-          <div style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginBottom: 8 }}>
-            No SDK needed
-          </div>
-          <div style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
-            REST endpoints work with any HTTP client
-          </div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div style={{ fontWeight: 600, marginBottom: 4 }}>cURL</div>
+          <div style={{ fontSize: 12, marginBottom: 8 }}>No SDK needed</div>
+          <div style={{ fontSize: 12 }}>REST endpoints work with any HTTP client</div>
         </div>
       </div>
 
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Quick start</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Quick start</div>
         </div>
         <div style={{ display: 'flex', gap: 0, marginBottom: 12 }}>
           {['TypeScript', 'Python', 'Go', 'cURL'].map((tab, i) => (
-            <button
+            <Button
+              className=""
+              variant="ghost"
+              type="button"
               key={tab}
-              className="pg-btn pg-btn-ghost pg-btn-xs"
               style={{
                 background: i === 0 ? 'var(--accent-primary)' : 'transparent',
                 color: i === 0 ? '#fff' : 'var(--fg-secondary)',
@@ -120,22 +115,25 @@ export default function SdkPage() {
               }}
             >
               {tab}
-            </button>
+            </Button>
           ))}
         </div>
         <pre style={codeBlockStyle}>{QUICK_START_TS}</pre>
       </div>
 
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Subscribe to changes</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Subscribe to changes</div>
         </div>
         <pre style={codeBlockStyle}>{SUBSCRIBE_CODE}</pre>
       </div>
 
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Call a server function</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Call a server function</div>
         </div>
         <pre style={codeBlockStyle}>{FUNCTION_CODE}</pre>
       </div>

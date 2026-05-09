@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 type TestType = 'unit' | 'component' | 'integration' | 'e2e';
 
 interface Props {
@@ -57,15 +59,19 @@ export function RunTestsDialog({ onClose: onCloseProp, onStarted: onStartedProp 
         zIndex: 50,
       }}
     >
-      <div className="pg-card" style={{ width: '100%', maxWidth: 440, padding: 24 }}>
-        <div className="pg-card-header" style={{ marginBottom: 16 }}>
-          <div className="pg-card-title">Run Tests</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ width: '100%', maxWidth: 440, padding: 24 }}
+      >
+        <div
+          className="mb-3 flex items-center justify-between border-b pb-3"
+          style={{ marginBottom: 16 }}
+        >
+          <div className="text-sm font-semibold">Run Tests</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>
-            Select which test types to run.
-          </p>
+          <p style={{ fontSize: 13 }}>Select which test types to run.</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {TEST_TYPES.map((t) => (
@@ -99,15 +105,12 @@ export function RunTestsDialog({ onClose: onCloseProp, onStarted: onStartedProp 
                     style={{
                       fontSize: 13,
                       fontWeight: 500,
-                      color: 'var(--fg-primary)',
                       cursor: 'pointer',
                     }}
                   >
                     {t.label}
                   </label>
-                  <p style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 2 }}>
-                    {t.description}
-                  </p>
+                  <p style={{ fontSize: 11, marginTop: 2 }}>{t.description}</p>
                 </div>
               </div>
             ))}
@@ -115,10 +118,7 @@ export function RunTestsDialog({ onClose: onCloseProp, onStarted: onStartedProp 
 
           {needsUrl && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label
-                htmlFor="deploymentUrl"
-                style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}
-              >
+              <label htmlFor="deploymentUrl" style={{ fontSize: 12, fontWeight: 500 }}>
                 Deployment URL (required for E2E)
               </label>
               <input
@@ -133,8 +133,6 @@ export function RunTestsDialog({ onClose: onCloseProp, onStarted: onStartedProp 
                   padding: '0 8px',
                   borderRadius: 4,
                   border: '1px solid var(--border-default)',
-                  background: 'var(--bg-canvas)',
-                  color: 'var(--fg-primary)',
                   fontSize: 12,
                 }}
               />
@@ -143,23 +141,26 @@ export function RunTestsDialog({ onClose: onCloseProp, onStarted: onStartedProp 
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
-          <button
-            className="pg-btn pg-btn-secondary pg-btn-sm"
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
             onClick={() => {
               onClose();
             }}
           >
             Cancel
-          </button>
-          <button
-            className="pg-btn pg-btn-primary pg-btn-sm"
+          </Button>
+          <Button
+            size="sm"
+            type="button"
             onClick={() => {
               onStarted();
             }}
             disabled={selected.size === 0 || (needsUrl && !deploymentUrl)}
           >
             Start Test Run
-          </button>
+          </Button>
         </div>
       </div>
     </div>

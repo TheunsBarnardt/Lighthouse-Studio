@@ -8,6 +8,7 @@ import { useState, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { AuthApiError, authApi } from '@/lib/auth-client';
 
@@ -17,8 +18,6 @@ const inputStyle: React.CSSProperties = {
   padding: '0 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
   boxSizing: 'border-box',
   letterSpacing: '0.1em',
@@ -28,7 +27,6 @@ const cardStyle: React.CSSProperties = {
   padding: 32,
   borderRadius: 8,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-surface)',
 };
 
 const MfaSchema = z.object({
@@ -60,12 +58,8 @@ function MfaChallengePageInner() {
 
   return (
     <div style={cardStyle}>
-      <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 4 }}>
-        {t('title')}
-      </h1>
-      <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 20 }}>
-        {t('subtitle')}
-      </p>
+      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 4 }}>{t('title')}</h1>
+      <p style={{ fontSize: 13, marginBottom: 20 }}>{t('subtitle')}</p>
 
       <form
         onSubmit={(e) => {
@@ -80,7 +74,6 @@ function MfaChallengePageInner() {
               display: 'block',
               fontSize: 13,
               fontWeight: 500,
-              color: 'var(--fg-primary)',
               marginBottom: 4,
             }}
           >
@@ -121,18 +114,17 @@ function MfaChallengePageInner() {
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
-          className="pg-btn pg-btn-primary"
           style={{ width: '100%', marginBottom: 16 }}
           disabled={formState.isSubmitting}
         >
           {formState.isSubmitting ? t('submitting') : t('submit')}
-        </button>
+        </Button>
       </form>
 
       <p style={{ textAlign: 'center', fontSize: 13 }}>
-        <Link href="/auth/sign-in" style={{ color: 'var(--fg-secondary)', textDecoration: 'none' }}>
+        <Link href="/auth/sign-in" style={{ textDecoration: 'none' }}>
           {t('lostDevice')}
         </Link>
       </p>

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { PipelineStepper } from '../stepper';
 
 type FnStatus = 'approved' | 'validated' | 'draft' | 'rejected';
@@ -178,20 +180,13 @@ export default function CodeGenerationPage() {
         {/* Left: function list */}
         <div
           style={{
-            background: 'var(--bg-surface)',
             borderRight: '1px solid var(--border-default)',
             overflowY: 'auto',
             padding: 12,
           }}
         >
-          <div
-            style={{ fontWeight: 600, fontSize: 13, marginBottom: 6, color: 'var(--fg-primary)' }}
-          >
-            Server functions
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginBottom: 12 }}>
-            7 functions · 2 integrations
-          </div>
+          <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>Server functions</div>
+          <div style={{ fontSize: 11, marginBottom: 12 }}>7 functions · 2 integrations</div>
           {FUNCTION_GROUPS.map((group) => (
             <div key={group.label}>
               <div
@@ -200,7 +195,6 @@ export default function CodeGenerationPage() {
                   fontWeight: 600,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
-                  color: 'var(--fg-tertiary)',
                   padding: '8px 8px 4px',
                 }}
               >
@@ -209,7 +203,7 @@ export default function CodeGenerationPage() {
               {group.items.map((fn) => {
                 const status = getStatus(fn);
                 return (
-                  <button
+                  <Button
                     key={fn.id}
                     onClick={() => {
                       setSelectedFn(fn);
@@ -234,7 +228,7 @@ export default function CodeGenerationPage() {
                   >
                     {statusDot(status)}
                     <span>{fn.name}</span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -243,16 +237,13 @@ export default function CodeGenerationPage() {
             style={{
               marginTop: 16,
               paddingTop: 12,
-              borderTop: '1px solid var(--border-default)',
               fontSize: 12,
-              color: 'var(--fg-tertiary)',
             }}
           >
             {approvedCount}/{totalFns} approved
             <div
               style={{
                 height: 3,
-                background: 'var(--bg-hover)',
                 borderRadius: 2,
                 marginTop: 6,
                 overflow: 'hidden',
@@ -275,14 +266,11 @@ export default function CodeGenerationPage() {
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            background: 'var(--bg-canvas)',
           }}
         >
           <div
             style={{
               padding: '12px 20px',
-              borderBottom: '1px solid var(--border-default)',
-              background: 'var(--bg-surface)',
               flexShrink: 0,
             }}
           >
@@ -295,10 +283,8 @@ export default function CodeGenerationPage() {
               }}
             >
               <div>
-                <h1 style={{ fontSize: 18, fontFamily: 'monospace', color: 'var(--fg-primary)' }}>
-                  {selectedFn.name}
-                </h1>
-                <div style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
+                <h1 style={{ fontSize: 18, fontFamily: 'monospace' }}>{selectedFn.name}</h1>
+                <div style={{ fontSize: 12 }}>
                   {selectedFn.trigger.toUpperCase()} ·{' '}
                   {selectedFn.trigger === 'http'
                     ? 'POST /deals/:id/stage'
@@ -311,19 +297,22 @@ export default function CodeGenerationPage() {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <button className="pg-btn pg-btn-secondary pg-btn-sm">Regenerate</button>
-                <button
+                <Button variant="outline" size="sm" type="button">
+                  Regenerate
+                </Button>
+                <Button
+                  size="sm"
+                  type="button"
                   onClick={handleApprove}
                   disabled={approvedSet.has(selectedFn.id)}
-                  className="pg-btn pg-btn-primary pg-btn-sm"
                 >
                   {approvedSet.has(selectedFn.id) ? '✓ Approved' : 'Approve'}
-                </button>
+                </Button>
               </div>
             </div>
             <div style={{ display: 'flex' }}>
               {(['code', 'manifest', 'analysis', 'tests'] as TabView[]).map((tab) => (
-                <button
+                <Button
                   key={tab}
                   onClick={() => {
                     setActiveTab(tab);
@@ -348,7 +337,7 @@ export default function CodeGenerationPage() {
                     : tab === 'tests'
                       ? 'Tests preview'
                       : tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -360,9 +349,7 @@ export default function CodeGenerationPage() {
                   fontFamily: 'monospace',
                   fontSize: 12,
                   lineHeight: '20px',
-                  color: 'var(--fg-primary)',
                   margin: 0,
-                  background: 'var(--bg-surface)',
                   padding: 16,
                   borderRadius: 'var(--shell-radius-md)',
                   border: '1px solid var(--border-default)',
@@ -377,9 +364,7 @@ export default function CodeGenerationPage() {
                   fontFamily: 'monospace',
                   fontSize: 12,
                   lineHeight: '20px',
-                  color: 'var(--fg-primary)',
                   margin: 0,
-                  background: 'var(--bg-surface)',
                   padding: 16,
                   borderRadius: 'var(--shell-radius-md)',
                   border: '1px solid var(--border-default)',
@@ -396,9 +381,9 @@ export default function CodeGenerationPage() {
               </pre>
             )}
             {activeTab === 'analysis' && (
-              <div className="pg-card">
-                <div className="pg-card-header">
-                  <span className="pg-card-title">Static analysis results</span>
+              <div className="rounded-md border bg-card text-card-foreground p-4">
+                <div className="mb-3 flex items-center justify-between border-b pb-3">
+                  <span className="text-sm font-semibold">Static analysis results</span>
                 </div>
                 {[
                   ['eval / Function()', '✓ None', true],
@@ -411,8 +396,11 @@ export default function CodeGenerationPage() {
                     selectedFn.staticAnalysis,
                   ],
                 ].map(([k, v, pass]) => (
-                  <div key={k as string} className="pg-inspector-row">
-                    <span className="pg-inspector-key">{k as string}</span>
+                  <div
+                    key={k as string}
+                    className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+                  >
+                    <span className="text-muted-foreground">{k as string}</span>
                     <span
                       style={{
                         color: pass ? 'var(--fg-success)' : 'var(--fg-warning)',
@@ -429,7 +417,6 @@ export default function CodeGenerationPage() {
             {activeTab === 'tests' && (
               <div
                 style={{
-                  color: 'var(--fg-tertiary)',
                   fontSize: 13,
                   padding: 20,
                   textAlign: 'center',
@@ -444,7 +431,6 @@ export default function CodeGenerationPage() {
         {/* Right: inspector */}
         <div
           style={{
-            background: 'var(--bg-surface)',
             borderLeft: '1px solid var(--border-default)',
             overflowY: 'auto',
             padding: 16,
@@ -457,13 +443,12 @@ export default function CodeGenerationPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
               REASONING
             </div>
-            <div style={{ fontSize: 13, color: 'var(--fg-secondary)', lineHeight: '20px' }}>
+            <div style={{ fontSize: 13, lineHeight: '20px' }}>
               Generated because UI's DealKanbanPage calls platform.functions.updateDealStage(). The
               "won" trigger derives from PRD FR-7.
             </div>
@@ -473,7 +458,6 @@ export default function CodeGenerationPage() {
             style={{
               marginBottom: 16,
               paddingTop: 12,
-              borderTop: '1px solid var(--border-default)',
             }}
           >
             <div
@@ -482,7 +466,6 @@ export default function CodeGenerationPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
@@ -495,8 +478,11 @@ export default function CodeGenerationPage() {
                 ['fs/net direct', '✓ None', 'var(--fg-success)'],
               ] as [string, string, string][]
             ).map(([k, v, c]) => (
-              <div key={k} className="pg-inspector-row">
-                <span className="pg-inspector-key">{k}</span>
+              <div
+                key={k}
+                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+              >
+                <span className="text-muted-foreground">{k}</span>
                 <span style={{ color: c, fontWeight: 500, fontSize: 13 }}>{v}</span>
               </div>
             ))}
@@ -506,7 +492,6 @@ export default function CodeGenerationPage() {
             style={{
               marginBottom: 16,
               paddingTop: 12,
-              borderTop: '1px solid var(--border-default)',
             }}
           >
             <div
@@ -515,7 +500,6 @@ export default function CodeGenerationPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
@@ -526,37 +510,42 @@ export default function CodeGenerationPage() {
               ['Memory', '256MB'],
               ['Network', 'none'],
             ].map(([k, v]) => (
-              <div key={k} className="pg-inspector-row">
-                <span className="pg-inspector-key">{k}</span>
-                <span className="pg-inspector-val" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <div
+                key={k}
+                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+              >
+                <span className="text-muted-foreground">{k}</span>
+                <span className="font-medium" style={{ fontVariantNumeric: 'tabular-nums' }}>
                   {v}
                 </span>
               </div>
             ))}
           </div>
 
-          <div style={{ paddingTop: 12, borderTop: '1px solid var(--border-default)' }}>
+          <div style={{ paddingTop: 12 }}>
             <div
               style={{
                 fontSize: 10,
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.06em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
               PERMISSIONS
             </div>
             {['deals.read', 'deals.update', 'functions.invoke'].map((p) => (
-              <div key={p} className="pg-inspector-row">
+              <div
+                key={p}
+                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+              >
                 <span
-                  className="pg-inspector-key"
+                  className="text-muted-foreground"
                   style={{ fontFamily: 'monospace', fontSize: 11 }}
                 >
                   {p}
                 </span>
-                <span style={{ color: 'var(--fg-success)', fontWeight: 500 }}>✓</span>
+                <span style={{ fontWeight: 500 }}>✓</span>
               </div>
             ))}
           </div>

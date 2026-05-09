@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { InviteMemberDialog } from '@/components/workspace/invite-member-dialog';
 import { MemberEventListener } from '@/components/workspace/member-event-listener';
 
@@ -19,13 +20,19 @@ interface Member {
 }
 
 const STATUS_CLASS: Record<string, string> = {
-  active: 'pg-badge pg-badge-success',
-  pending: 'pg-badge pg-badge-warning',
-  suspended: 'pg-badge pg-badge-danger',
+  active:
+    'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+  pending:
+    'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  suspended:
+    'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive',
 };
 
 function statusBadgeClass(status: string): string {
-  return STATUS_CLASS[status] ?? 'pg-badge pg-badge-default';
+  return (
+    STATUS_CLASS[status] ??
+    'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'
+  );
 }
 
 export default function WorkspaceMembersPage() {
@@ -61,7 +68,7 @@ export default function WorkspaceMembersPage() {
   );
 
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
       <MemberEventListener
         workspaceId={slug}
         onEvent={() => {
@@ -69,22 +76,23 @@ export default function WorkspaceMembersPage() {
         }}
       />
 
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1>Members</h1>
           <p className="subtitle">
             {String(members.length)} member{members.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <div className="pg-page-header-actions">
-          <button
-            className="pg-btn pg-btn-primary pg-btn-sm"
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            size="sm"
+            type="button"
             onClick={() => {
               setShowInvite(true);
             }}
           >
             + Invite member
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -94,11 +102,10 @@ export default function WorkspaceMembersPage() {
           display: 'flex',
           gap: 2,
           marginBottom: 16,
-          borderBottom: '1px solid var(--border-default)',
         }}
       >
         {(['members', 'pending'] as const).map((tab) => (
-          <button
+          <Button
             key={tab}
             onClick={() => {
               setActiveTab(tab);
@@ -116,14 +123,14 @@ export default function WorkspaceMembersPage() {
             }}
           >
             {tab === 'members' ? 'Members' : 'Pending invites'}
-          </button>
+          </Button>
         ))}
       </div>
 
       {activeTab === 'members' && (
-        <div className="pg-card">
+        <div className="rounded-md border bg-card text-card-foreground p-4">
           {/* Search */}
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-default)' }}>
+          <div style={{ padding: '12px 16px' }}>
             <input
               type="search"
               className="input input-h32"
@@ -143,7 +150,6 @@ export default function WorkspaceMembersPage() {
                 padding: '32px 16px',
                 textAlign: 'center',
                 fontSize: 13,
-                color: 'var(--fg-secondary)',
               }}
               aria-live="polite"
             >
@@ -157,7 +163,6 @@ export default function WorkspaceMembersPage() {
                 padding: '32px 16px',
                 textAlign: 'center',
                 fontSize: 13,
-                color: 'var(--fg-secondary)',
               }}
             >
               No members found.
@@ -165,8 +170,8 @@ export default function WorkspaceMembersPage() {
           )}
 
           {!loading && filtered.length > 0 && (
-            <div className="pg-table-wrap">
-              <table className="pg-data-table" role="grid" aria-label="Members">
+            <div className="overflow-hidden rounded-md border">
+              <table className="w-full border-collapse text-sm" role="grid" aria-label="Members">
                 <thead>
                   <tr>
                     <th>Name</th>
@@ -183,22 +188,19 @@ export default function WorkspaceMembersPage() {
                           href={`/workspaces/${slug}/members/${member.userId}`}
                           style={{
                             fontWeight: 500,
-                            color: 'var(--fg-primary)',
                             textDecoration: 'none',
                           }}
                         >
                           {member.displayName ?? member.email}
                         </Link>
                       </td>
-                      <td style={{ color: 'var(--fg-secondary)' }}>{member.email}</td>
+                      <td>{member.email}</td>
                       <td>
                         <span className={statusBadgeClass(member.status)}>
                           {member.status.charAt(0).toUpperCase() + member.status.slice(1)}
                         </span>
                       </td>
-                      <td style={{ color: 'var(--fg-secondary)' }}>
-                        {new Date(member.joinedAt).toLocaleDateString()}
-                      </td>
+                      <td>{new Date(member.joinedAt).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -209,13 +211,12 @@ export default function WorkspaceMembersPage() {
       )}
 
       {activeTab === 'pending' && (
-        <div className="pg-card">
+        <div className="rounded-md border bg-card text-card-foreground p-4">
           <p
             style={{
               padding: '32px 16px',
               textAlign: 'center',
               fontSize: 13,
-              color: 'var(--fg-secondary)',
             }}
           >
             No pending invitations.

@@ -4,6 +4,8 @@ import type { ChangeEvent } from 'react';
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 // ---------------------------------------------------------------------------
 // Types & static data
 // ---------------------------------------------------------------------------
@@ -48,9 +50,9 @@ export default function SettingsPage() {
   const [slug, setSlug] = useState('acme-corp');
 
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
       {/* Page header */}
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1>General Settings</h1>
           <p className="subtitle">Workspace: Acme Corp</p>
@@ -58,19 +60,16 @@ export default function SettingsPage() {
       </div>
 
       {/* Top 2-column grid */}
-      <div className="pg-grid pg-grid-2" style={{ marginBottom: 16 }}>
+      <div className="grid grid-cols-2 gap-4" style={{ marginBottom: 16 }}>
         {/* Workspace card */}
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Workspace</div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Workspace</div>
           </div>
           <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
             {/* Name */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <label
-                htmlFor="ws-name"
-                style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-secondary)' }}
-              >
+              <label htmlFor="ws-name" style={{ fontSize: 12, fontWeight: 500 }}>
                 Name
               </label>
               <input
@@ -85,15 +84,12 @@ export default function SettingsPage() {
 
             {/* Slug */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <label
-                htmlFor="ws-slug"
-                style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-secondary)' }}
-              >
+              <label htmlFor="ws-slug" style={{ fontSize: 12, fontWeight: 500 }}>
                 Slug
               </label>
               <input
                 id="ws-slug"
-                className="input input-h32 pg-mono"
+                className="input input-h32 font-mono text-sm"
                 value={slug}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                   setSlug(e.target.value);
@@ -103,10 +99,7 @@ export default function SettingsPage() {
 
             {/* Database type */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <label
-                htmlFor="ws-db"
-                style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-secondary)' }}
-              >
+              <label htmlFor="ws-db" style={{ fontSize: 12, fontWeight: 500 }}>
                 Database type
               </label>
               <select id="ws-db" className="select input-h32" defaultValue="postgres" disabled>
@@ -114,21 +107,23 @@ export default function SettingsPage() {
                 <option value="mssql">Microsoft SQL Server</option>
                 <option value="mongodb">MongoDB</option>
               </select>
-              <p style={{ fontSize: 12, color: 'var(--fg-tertiary)', margin: 0 }}>
+              <p style={{ fontSize: 12, margin: 0 }}>
                 Workspace database is locked once data exists. Migrate via Stage 5.
               </p>
             </div>
 
             <div style={{ paddingTop: 4 }}>
-              <button className="pg-btn pg-btn-primary pg-btn-sm">Save changes</button>
+              <Button size="sm" type="button">
+                Save changes
+              </Button>
             </div>
           </div>
         </div>
 
         {/* AI Providers card */}
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">AI Providers</div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">AI Providers</div>
           </div>
           <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
             {AI_PROVIDERS.map((provider) => (
@@ -140,7 +135,7 @@ export default function SettingsPage() {
                   justifyContent: 'space-between',
                   borderRadius: 'var(--shell-radius-md)',
                   padding: '8px 12px',
-                  background: 'var(--bg-surface-2)',
+                  background: 'var(--muted)',
                   border: '1px solid var(--border-default)',
                 }}
               >
@@ -149,7 +144,6 @@ export default function SettingsPage() {
                     style={{
                       fontSize: 13,
                       fontWeight: 500,
-                      color: 'var(--fg-primary)',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
@@ -157,17 +151,13 @@ export default function SettingsPage() {
                   >
                     {provider.name}
                   </span>
-                  {provider.role && (
-                    <span style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
-                      ({provider.role})
-                    </span>
-                  )}
+                  {provider.role && <span style={{ fontSize: 12 }}>({provider.role})</span>}
                 </div>
                 <span
                   className={
                     provider.status === 'active'
-                      ? 'pg-badge pg-badge-success'
-                      : 'pg-badge pg-badge-default'
+                      ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                      : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'
                   }
                 >
                   {provider.status === 'active'
@@ -180,32 +170,34 @@ export default function SettingsPage() {
             ))}
 
             <div style={{ paddingTop: 8 }}>
-              <button className="pg-btn pg-btn-secondary pg-btn-sm">Configure</button>
+              <Button variant="outline" size="sm" type="button">
+                Configure
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
       {/* AI Token Budget — full width */}
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">AI Token Budget — this month</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">AI Token Budget — this month</div>
         </div>
         <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Budget bar */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-              <span style={{ color: 'var(--fg-primary)' }}>
+              <span>
                 Used <strong>${BUDGET_USED.toFixed(2)}</strong>
               </span>
-              <span style={{ color: 'var(--fg-secondary)' }}>
+              <span>
                 Budget <strong>${BUDGET_TOTAL.toFixed(2)}</strong>
               </span>
             </div>
             <div className="progress-bar">
               <div className="progress-fill" style={{ width: `${String(BUDGET_PCT)}%` }} />
             </div>
-            <p style={{ fontSize: 12, color: 'var(--fg-tertiary)', margin: 0 }}>
+            <p style={{ fontSize: 12, margin: 0 }}>
               {String(BUDGET_PCT)}% used · 16 days remaining in cycle
             </p>
           </div>
@@ -219,13 +211,12 @@ export default function SettingsPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
-                color: 'var(--fg-tertiary)',
               }}
             >
               Top consumers
             </p>
-            <div className="pg-table-wrap">
-              <table className="pg-data-table">
+            <div className="overflow-hidden rounded-md border">
+              <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr>
                     <th>Feature</th>
@@ -236,17 +227,11 @@ export default function SettingsPage() {
                 <tbody>
                   {TOKEN_CONSUMERS.map((row) => (
                     <tr key={row.name}>
-                      <td style={{ color: 'var(--fg-primary)', fontWeight: 500 }}>{row.name}</td>
-                      <td
-                        className="pg-tabular"
-                        style={{ textAlign: 'right', color: 'var(--fg-secondary)' }}
-                      >
+                      <td style={{ fontWeight: 500 }}>{row.name}</td>
+                      <td className="tabular-nums" style={{ textAlign: 'right' }}>
                         {row.spend}
                       </td>
-                      <td
-                        className="pg-tabular"
-                        style={{ textAlign: 'right', color: 'var(--fg-secondary)' }}
-                      >
+                      <td className="tabular-nums" style={{ textAlign: 'right' }}>
                         {String(row.calls)}
                       </td>
                     </tr>

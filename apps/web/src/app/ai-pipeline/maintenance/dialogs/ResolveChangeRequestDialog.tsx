@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface Props {
   requestId: string;
   onClose: () => void;
@@ -53,14 +55,20 @@ export function ResolveChangeRequestDialog({ requestId: _requestId, onClose }: P
         zIndex: 50,
       }}
     >
-      <div className="pg-card" style={{ width: '100%', maxWidth: 440, padding: 24 }}>
-        <div className="pg-card-header" style={{ marginBottom: 16 }}>
-          <div className="pg-card-title">Resolve Change Request</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ width: '100%', maxWidth: 440, padding: 24 }}
+      >
+        <div
+          className="mb-3 flex items-center justify-between border-b pb-3"
+          style={{ marginBottom: 16 }}
+        >
+          <div className="text-sm font-semibold">Resolve Change Request</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}>Resolution</p>
+            <p style={{ fontSize: 12, fontWeight: 500 }}>Resolution</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {RESOLUTIONS.map((res) => (
                 <label
@@ -93,12 +101,8 @@ export function ResolveChangeRequestDialog({ requestId: _requestId, onClose }: P
                     style={{ marginTop: 2, cursor: 'pointer' }}
                   />
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)' }}>
-                      {res.label}
-                    </p>
-                    <p style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 2 }}>
-                      {res.description}
-                    </p>
+                    <p style={{ fontSize: 13, fontWeight: 500 }}>{res.label}</p>
+                    <p style={{ fontSize: 11, marginTop: 2 }}>{res.description}</p>
                   </div>
                 </label>
               ))}
@@ -106,17 +110,13 @@ export function ResolveChangeRequestDialog({ requestId: _requestId, onClose }: P
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}>
-              Notes (optional)
-            </label>
+            <label style={{ fontSize: 12, fontWeight: 500 }}>Notes (optional)</label>
             <textarea
               style={{
                 width: '100%',
                 padding: '6px 8px',
                 borderRadius: 4,
                 border: '1px solid var(--border-default)',
-                background: 'var(--bg-canvas)',
-                color: 'var(--fg-primary)',
                 fontSize: 12,
                 resize: 'none',
                 boxSizing: 'border-box',
@@ -132,20 +132,12 @@ export function ResolveChangeRequestDialog({ requestId: _requestId, onClose }: P
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
-          <button
-            className="pg-btn pg-btn-secondary pg-btn-sm"
-            onClick={onClose}
-            disabled={loading}
-          >
+          <Button variant="outline" size="sm" type="button" onClick={onClose} disabled={loading}>
             Cancel
-          </button>
-          <button
-            className="pg-btn pg-btn-primary pg-btn-sm"
-            onClick={handleResolve}
-            disabled={loading}
-          >
+          </Button>
+          <Button size="sm" type="button" onClick={handleResolve} disabled={loading}>
             {loading ? 'Resolving…' : 'Resolve'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

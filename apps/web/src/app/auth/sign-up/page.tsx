@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
 import { CaptchaWidget } from '@/components/ui/captcha-widget';
 import { PasswordRules } from '@/components/ui/password-rules';
 import { SsoButtons } from '@/components/ui/sso-buttons';
@@ -19,8 +20,6 @@ const inputStyle: React.CSSProperties = {
   padding: '0 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
   boxSizing: 'border-box',
 };
@@ -29,7 +28,6 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: 13,
   fontWeight: 500,
-  color: 'var(--fg-primary)',
   marginBottom: 4,
 };
 
@@ -104,20 +102,12 @@ export default function SignUpPage() {
           padding: 32,
           borderRadius: 8,
           border: '1px solid var(--border-default)',
-          background: 'var(--bg-surface)',
         }}
       >
-        <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 12 }}>
-          Check your email
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 20 }}>
-          {verifyNotice}
-        </p>
+        <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>Check your email</h1>
+        <p style={{ fontSize: 13, marginBottom: 20 }}>{verifyNotice}</p>
         <p style={{ textAlign: 'center', fontSize: 13 }}>
-          <Link
-            href="/auth/sign-in"
-            style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}
-          >
+          <Link href="/auth/sign-in" style={{ textDecoration: 'none' }}>
             {t('signIn')}
           </Link>
         </p>
@@ -131,12 +121,9 @@ export default function SignUpPage() {
         padding: 32,
         borderRadius: 8,
         border: '1px solid var(--border-default)',
-        background: 'var(--bg-surface)',
       }}
     >
-      <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 20 }}>
-        {t('title')}
-      </h1>
+      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 20 }}>{t('title')}</h1>
 
       <form
         onSubmit={(e) => {
@@ -239,24 +226,16 @@ export default function SignUpPage() {
           </div>
         )}
 
-        <button
-          type="submit"
-          className="pg-btn pg-btn-primary"
-          style={{ width: '100%' }}
-          disabled={formState.isSubmitting}
-        >
+        <Button type="submit" style={{ width: '100%' }} disabled={formState.isSubmitting}>
           {formState.isSubmitting ? t('submitting') : t('submit')}
-        </button>
+        </Button>
       </form>
 
       <SsoButtons returnTo="/" />
 
-      <p style={{ marginTop: 20, textAlign: 'center', fontSize: 13, color: 'var(--fg-secondary)' }}>
+      <p style={{ marginTop: 20, textAlign: 'center', fontSize: 13 }}>
         {t('alreadyHaveAccount')}&nbsp;
-        <Link
-          href="/auth/sign-in"
-          style={{ fontWeight: 500, color: 'var(--accent-primary)', textDecoration: 'none' }}
-        >
+        <Link href="/auth/sign-in" style={{ fontWeight: 500, textDecoration: 'none' }}>
           {t('signIn')}
         </Link>
       </p>

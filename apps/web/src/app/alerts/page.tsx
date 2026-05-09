@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+
 const FIRING = [
   {
     id: 'ALERT-247',
@@ -141,40 +143,41 @@ const HISTORY = [
 
 export default function AlertsPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Alerts
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Alerts</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             2 currently firing · 9 rules configured · 17 alerts in last 30 days
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Notification channels</button>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">History</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">+ New rule</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
+            Notification channels
+          </Button>
+          <Button variant="outline" size="sm" type="button">
+            History
+          </Button>
+          <Button size="sm" type="button">
+            + New rule
+          </Button>
         </div>
       </div>
 
       {/* Currently firing */}
       <div
-        className="pg-card"
+        className="rounded-md border bg-card text-card-foreground p-4"
         style={{
           marginBottom: 16,
           background: 'var(--bg-danger-subtle)',
           borderColor: 'var(--fg-danger)',
         }}
       >
-        <div className="pg-card-header">
-          <div className="pg-card-title">Currently firing</div>
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Currently firing</div>
         </div>
         {FIRING.map((alert) => (
-          <div
-            key={alert.id}
-            style={{ padding: '12px 0', borderBottom: '1px solid var(--border-default)' }}
-          >
+          <div key={alert.id} style={{ padding: '12px 0' }}>
             <div
               style={{
                 display: 'flex',
@@ -185,48 +188,54 @@ export default function AlertsPage() {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span
-                  className={`pg-badge ${alert.isCritical ? 'pg-badge-danger' : 'pg-badge-warning'}`}
+                  className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${alert.isCritical ? 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive' : 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}
                 >
                   {alert.severity.toUpperCase()}
                 </span>
-                <span className="pg-mono" style={{ fontSize: 11 }}>
+                <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                   {alert.id}
                 </span>
-                <span style={{ fontWeight: 500, fontSize: 13, color: 'var(--fg-primary)' }}>
-                  {alert.title}
-                </span>
+                <span style={{ fontWeight: 500, fontSize: 13 }}>{alert.title}</span>
               </div>
               <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                <button className="pg-btn pg-btn-ghost pg-btn-sm">Acknowledge</button>
-                <button className="pg-btn pg-btn-secondary pg-btn-sm">Silence 1h</button>
-                <button className="pg-btn pg-btn-primary pg-btn-sm">View metric</button>
+                <Button variant="ghost" size="sm" type="button">
+                  Acknowledge
+                </Button>
+                <Button variant="outline" size="sm" type="button">
+                  Silence 1h
+                </Button>
+                <Button size="sm" type="button">
+                  View metric
+                </Button>
               </div>
             </div>
-            <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 4 }}>
-              {alert.desc}
-            </div>
-            <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
-              Firing since {alert.when} · Metric: <span className="pg-mono">{alert.metric}</span>
+            <div style={{ fontSize: 13, marginBottom: 4 }}>{alert.desc}</div>
+            <div style={{ fontSize: 11 }}>
+              Firing since {alert.when} · Metric:{' '}
+              <span className="font-mono text-sm">{alert.metric}</span>
             </div>
           </div>
         ))}
       </div>
 
       {/* Alert rules table */}
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Alert rules</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Alert rules</div>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>Rule</th>
                 <th>Type</th>
-                <th className="pg-tabular">Threshold</th>
+                <th className="tabular-nums">Threshold</th>
                 <th>Channels</th>
                 <th>Status</th>
-                <th className="pg-tabular">Triggered · 30d</th>
+                <th className="tabular-nums">Triggered · 30d</th>
                 <th></th>
               </tr>
             </thead>
@@ -234,26 +243,32 @@ export default function AlertsPage() {
               {RULES.map((rule) => (
                 <tr key={rule.name}>
                   <td style={{ fontWeight: 500, fontSize: 13 }}>{rule.name}</td>
-                  <td style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>{rule.type}</td>
-                  <td className="pg-tabular pg-mono" style={{ fontSize: 11 }}>
+                  <td style={{ fontSize: 11 }}>{rule.type}</td>
+                  <td className="tabular-nums font-mono text-sm" style={{ fontSize: 11 }}>
                     {rule.threshold}
                   </td>
-                  <td style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>{rule.channels}</td>
+                  <td style={{ fontSize: 11 }}>{rule.channels}</td>
                   <td>
                     {rule.enabled ? (
-                      <span className="pg-badge pg-badge-success">Enabled</span>
+                      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                        Enabled
+                      </span>
                     ) : (
-                      <span className="pg-badge pg-badge-default">Off</span>
+                      <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                        Off
+                      </span>
                     )}
                   </td>
                   <td
-                    className="pg-tabular"
+                    className="tabular-nums"
                     style={{ color: rule.triggered > 5 ? 'var(--fg-warning)' : undefined }}
                   >
                     {rule.triggered}
                   </td>
                   <td>
-                    <button className="pg-btn pg-btn-ghost pg-btn-xs">Edit</button>
+                    <Button className="" variant="ghost" type="button">
+                      Edit
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -263,42 +278,45 @@ export default function AlertsPage() {
       </div>
 
       {/* Notification channels */}
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Notification channels</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Notification channels</div>
         </div>
-        <div className="pg-grid pg-grid-3" style={{ padding: '0 0 4px' }}>
+        <div className="grid grid-cols-3 gap-4" style={{ padding: '0 0 4px' }}>
           <div>
             <div style={{ fontWeight: 500, fontSize: 13, marginBottom: 4 }}>Slack</div>
-            <div style={{ fontSize: 11, color: 'var(--fg-secondary)', marginBottom: 6 }}>
-              #ops-alerts · #sec-alerts
-            </div>
-            <span className="pg-badge pg-badge-success">Connected</span>
+            <div style={{ fontSize: 11, marginBottom: 6 }}>#ops-alerts · #sec-alerts</div>
+            <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+              Connected
+            </span>
           </div>
           <div>
             <div style={{ fontWeight: 500, fontSize: 13, marginBottom: 4 }}>Email</div>
-            <div style={{ fontSize: 11, color: 'var(--fg-secondary)', marginBottom: 6 }}>
-              ops@acme.com · oncall@acme.com
-            </div>
-            <span className="pg-badge pg-badge-success">Connected</span>
+            <div style={{ fontSize: 11, marginBottom: 6 }}>ops@acme.com · oncall@acme.com</div>
+            <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+              Connected
+            </span>
           </div>
           <div>
             <div style={{ fontWeight: 500, fontSize: 13, marginBottom: 4 }}>PagerDuty</div>
-            <div style={{ fontSize: 11, color: 'var(--fg-secondary)', marginBottom: 6 }}>
-              Service: platform-prod
-            </div>
-            <span className="pg-badge pg-badge-success">Connected</span>
+            <div style={{ fontSize: 11, marginBottom: 6 }}>Service: platform-prod</div>
+            <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+              Connected
+            </span>
           </div>
         </div>
       </div>
 
       {/* Recent alerts */}
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Recent alerts · last 7 days</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Recent alerts · last 7 days</div>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>When</th>
@@ -312,24 +330,24 @@ export default function AlertsPage() {
             <tbody>
               {HISTORY.map((row, i) => (
                 <tr key={i}>
-                  <td style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{row.when}</td>
+                  <td style={{ fontSize: 11 }}>{row.when}</td>
                   <td style={{ fontSize: 13 }}>{row.alert}</td>
                   <td>
                     <span
-                      className={`pg-badge ${row.severity === 'high' ? 'pg-badge-danger' : 'pg-badge-warning'}`}
+                      className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${row.severity === 'high' ? 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive' : 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}
                     >
                       {row.severity === 'high' ? 'High' : 'Med'}
                     </span>
                   </td>
                   <td>
                     <span
-                      className={`pg-badge ${row.status === 'firing' ? 'pg-badge-warning' : 'pg-badge-success'}`}
+                      className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${row.status === 'firing' ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}`}
                     >
                       {row.status === 'firing' ? 'Firing' : 'Resolved'}
                     </span>
                   </td>
                   <td style={{ fontSize: 11 }}>{row.resolved}</td>
-                  <td className="pg-tabular" style={{ fontSize: 11 }}>
+                  <td className="tabular-nums" style={{ fontSize: 11 }}>
                     {row.ttr}
                   </td>
                 </tr>

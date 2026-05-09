@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { PipelineStepper } from '../stepper';
 
 // eslint-disable-next-line no-restricted-syntax -- client-side
@@ -117,7 +119,7 @@ function briefSectionStyle(status: BriefStatus): React.CSSProperties {
   const styles: Record<BriefStatus, React.CSSProperties> = {
     confident: { borderColor: 'var(--fg-success)', background: 'var(--bg-success-subtle)' },
     tentative: { borderColor: 'var(--fg-warning)', background: 'var(--bg-warning-subtle)' },
-    empty: { opacity: 0.5, background: 'var(--bg-surface)' },
+    empty: { opacity: 0.5 },
   };
   return {
     padding: '10px 12px',
@@ -177,7 +179,6 @@ export default function IntentCapturePage() {
             display: 'flex',
             flexDirection: 'column',
             borderRight: '1px solid var(--border-default)',
-            background: 'var(--bg-surface)',
             overflow: 'hidden',
           }}
         >
@@ -204,7 +205,6 @@ export default function IntentCapturePage() {
                   style={{
                     fontSize: 11,
                     fontWeight: 600,
-                    color: 'var(--fg-tertiary)',
                     marginBottom: 4,
                     textTransform: 'uppercase',
                     letterSpacing: '0.04em',
@@ -221,7 +221,6 @@ export default function IntentCapturePage() {
                     border: `1px solid ${msg.role === 'user' ? 'var(--accent-primary-subtle)' : 'var(--border-default)'}`,
                     fontSize: 14,
                     lineHeight: '22px',
-                    color: 'var(--fg-primary)',
                     whiteSpace: 'pre-wrap',
                   }}
                 >
@@ -231,7 +230,6 @@ export default function IntentCapturePage() {
                   <div
                     style={{
                       fontSize: 11,
-                      color: 'var(--fg-tertiary)',
                       marginTop: 4,
                       cursor: 'pointer',
                     }}
@@ -247,10 +245,8 @@ export default function IntentCapturePage() {
           <div
             style={{
               padding: '12px 16px',
-              borderTop: '1px solid var(--border-default)',
               display: 'flex',
               gap: 8,
-              background: 'var(--bg-surface)',
               flexShrink: 0,
             }}
           >
@@ -271,22 +267,19 @@ export default function IntentCapturePage() {
                 fontSize: 13,
                 lineHeight: '20px',
                 background: 'var(--bg-input)',
-                color: 'var(--fg-primary)',
                 fontFamily: 'inherit',
                 outline: 'none',
                 minHeight: 36,
               }}
             />
-            <button onClick={handleSend} className="pg-btn pg-btn-primary">
+            <Button type="button" onClick={handleSend}>
               Send
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Brief panel */}
-        <div
-          style={{ overflowY: 'auto', padding: 16, background: 'var(--bg-canvas)', flexShrink: 0 }}
-        >
+        <div style={{ overflowY: 'auto', padding: 16, flexShrink: 0 }}>
           <div
             style={{
               display: 'flex',
@@ -295,16 +288,15 @@ export default function IntentCapturePage() {
               marginBottom: 8,
             }}
           >
-            <div style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
-              Intent Brief
-            </div>
-            <Link href="/ai-pipeline/prd-generation" className="pg-btn pg-btn-primary pg-btn-sm">
+            <div style={{ fontWeight: 600, fontSize: 14 }}>Intent Brief</div>
+            <Link
+              href="/ai-pipeline/prd-generation"
+              className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
               Generate brief →
             </Link>
           </div>
-          <div style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginBottom: 16 }}>
-            Updates as we talk.
-          </div>
+          <div style={{ fontSize: 12, marginBottom: 16 }}>Updates as we talk.</div>
 
           {BRIEF_FIELDS.map((field) => (
             <div key={field.key} style={briefSectionStyle(field.status)}>
@@ -322,36 +314,33 @@ export default function IntentCapturePage() {
                     fontWeight: 600,
                     textTransform: 'uppercase',
                     letterSpacing: '0.04em',
-                    color: 'var(--fg-secondary)',
                   }}
                 >
                   {field.label}
                 </div>
                 <div style={statusDotStyle(field.status)} />
               </div>
-              <div style={{ fontSize: 12, color: 'var(--fg-primary)', lineHeight: '18px' }}>
+              <div style={{ fontSize: 12, lineHeight: '18px' }}>
                 {field.content ?? 'Not yet discussed.'}
               </div>
             </div>
           ))}
 
-          <div style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginTop: 16 }}>
+          <div style={{ fontSize: 12, marginTop: 16 }}>
             Cost so far: $0.34 of $50 monthly budget
           </div>
 
-          <div
-            style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border-default)' }}
-          >
-            <button
+          <div style={{ marginTop: 16, paddingTop: 16 }}>
+            <Button
               onClick={() => {
                 void handleStartBlank();
               }}
               disabled={isCreating}
-              className="pg-btn pg-btn-secondary"
+              className="inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted"
               style={{ width: '100%', justifyContent: 'center', fontSize: 12 }}
             >
               {isCreating ? 'Starting…' : '+ New conversation'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface IdentityProvider {
   id: string;
   name: string;
@@ -59,9 +61,9 @@ export default function AuthProvidersPage() {
   const availableCount = PROVIDERS.filter((p) => p.status === 'available').length;
 
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
       {/* Header */}
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1>Identity Providers</h1>
           <p className="subtitle">
@@ -71,9 +73,9 @@ export default function AuthProvidersPage() {
       </div>
 
       {/* Provider grid */}
-      <div className="pg-grid pg-grid-2">
+      <div className="grid grid-cols-2 gap-4">
         {PROVIDERS.map((provider) => (
-          <div key={provider.id} className="pg-card">
+          <div key={provider.id} className="rounded-md border bg-card text-card-foreground p-4">
             <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div
                 style={{
@@ -83,51 +85,44 @@ export default function AuthProvidersPage() {
                   gap: 8,
                 }}
               >
-                <strong style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg-primary)' }}>
-                  {provider.name}
-                </strong>
+                <strong style={{ fontSize: 13, fontWeight: 600 }}>{provider.name}</strong>
                 <span
                   className={
                     provider.status === 'configured'
-                      ? 'pg-badge pg-badge-success'
-                      : 'pg-badge pg-badge-default'
+                      ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                      : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'
                   }
                 >
                   {provider.status === 'configured' ? 'Configured' : 'Available'}
                 </span>
               </div>
 
-              <p style={{ fontSize: 13, color: 'var(--fg-secondary)', margin: 0 }}>
-                {provider.description}
-              </p>
+              <p style={{ fontSize: 13, margin: 0 }}>{provider.description}</p>
 
-              {provider.detail && (
-                <p style={{ fontSize: 12, color: 'var(--fg-tertiary)', margin: 0 }}>
-                  {provider.detail}
-                </p>
-              )}
+              {provider.detail && <p style={{ fontSize: 12, margin: 0 }}>{provider.detail}</p>}
 
               <div style={{ display: 'flex', gap: 8, paddingTop: 4 }}>
                 {provider.status === 'configured' ? (
                   <>
-                    <button className="pg-btn pg-btn-secondary pg-btn-xs">Edit</button>
-                    <button
-                      className="pg-btn pg-btn-ghost pg-btn-xs"
-                      style={{ color: 'var(--fg-danger)' }}
-                    >
+                    <Button variant="outline" size="xs" type="button">
+                      Edit
+                    </Button>
+                    <Button className="" variant="ghost" type="button">
                       Disable
-                    </button>
+                    </Button>
                   </>
                 ) : (
-                  <button
-                    className="pg-btn pg-btn-secondary pg-btn-xs"
+                  <Button
+                    variant="outline"
+                    size="xs"
+                    type="button"
                     disabled={configuring === provider.id}
                     onClick={() => {
                       setConfiguring(provider.id);
                     }}
                   >
                     {configuring === provider.id ? 'Configuring…' : 'Configure'}
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>

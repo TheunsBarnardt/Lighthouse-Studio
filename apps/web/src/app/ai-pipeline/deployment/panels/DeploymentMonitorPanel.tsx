@@ -3,6 +3,8 @@
 import { CheckCircle2, XCircle, Clock, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { RollbackDialog } from '../dialogs/RollbackDialog';
 
 type StepStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
@@ -26,11 +28,11 @@ const STEP_LABELS: Record<string, string> = {
 };
 
 const STATUS_ICON: Record<StepStatus, React.ReactNode> = {
-  pending: <Clock style={{ width: 16, height: 16, color: 'var(--fg-tertiary)' }} />,
-  running: <Clock style={{ width: 16, height: 16, color: 'var(--fg-warning)' }} />,
-  completed: <CheckCircle2 style={{ width: 16, height: 16, color: 'var(--fg-success)' }} />,
-  failed: <XCircle style={{ width: 16, height: 16, color: 'var(--fg-danger)' }} />,
-  skipped: <AlertCircle style={{ width: 16, height: 16, color: 'var(--fg-tertiary)' }} />,
+  pending: <Clock style={{ width: 16, height: 16 }} />,
+  running: <Clock style={{ width: 16, height: 16 }} />,
+  completed: <CheckCircle2 style={{ width: 16, height: 16 }} />,
+  failed: <XCircle style={{ width: 16, height: 16 }} />,
+  skipped: <AlertCircle style={{ width: 16, height: 16 }} />,
 };
 
 interface Props {
@@ -85,22 +87,24 @@ export function DeploymentMonitorPanel({ deploymentId }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 24, gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
-            Deployment Monitor
-          </h2>
-          <span className={`pg-badge ${isDone ? 'pg-badge-success' : 'pg-badge-default'}`}>
+          <h2 style={{ fontWeight: 600, fontSize: 14 }}>Deployment Monitor</h2>
+          <span
+            className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${isDone ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'}`}
+          >
             {isDone ? 'Deployed' : 'Running…'}
           </span>
         </div>
         {isDone && (
-          <button
-            className="pg-btn pg-btn-secondary pg-btn-sm"
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
             onClick={() => {
               setShowRollback(true);
             }}
           >
             Rollback
-          </button>
+          </Button>
         )}
       </div>
 
@@ -154,19 +158,15 @@ export function DeploymentMonitorPanel({ deploymentId }: Props) {
           >
             {STATUS_ICON[step.status]}
             <div style={{ flex: 1 }}>
-              <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)' }}>
+              <span style={{ fontSize: 13, fontWeight: 500 }}>
                 {STEP_LABELS[step.stepType] ?? step.stepType}
               </span>
               {step.errorMessage && (
-                <p style={{ fontSize: 11, color: 'var(--fg-danger)', marginTop: 2 }}>
-                  {step.errorMessage}
-                </p>
+                <p style={{ fontSize: 11, marginTop: 2 }}>{step.errorMessage}</p>
               )}
             </div>
             {step.durationMs && (
-              <span style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
-                {(step.durationMs / 1000).toFixed(1)}s
-              </span>
+              <span style={{ fontSize: 11 }}>{(step.durationMs / 1000).toFixed(1)}s</span>
             )}
           </div>
         ))}
@@ -181,10 +181,8 @@ export function DeploymentMonitorPanel({ deploymentId }: Props) {
             padding: 16,
           }}
         >
-          <p style={{ fontWeight: 500, color: 'var(--fg-success)', marginBottom: 4, fontSize: 13 }}>
-            Deployment complete
-          </p>
-          <p style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
+          <p style={{ fontWeight: 500, marginBottom: 4, fontSize: 13 }}>Deployment complete</p>
+          <p style={{ fontSize: 12 }}>
             Application is live. Health checks passed. Ready to promote to staging.
           </p>
         </div>

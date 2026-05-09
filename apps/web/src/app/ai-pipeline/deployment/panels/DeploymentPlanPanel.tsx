@@ -3,6 +3,8 @@
 import { AlertTriangle, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface EnvironmentConfig {
   name: string;
   autoDeploy: boolean;
@@ -78,24 +80,22 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
         }}
       >
         <div style={{ textAlign: 'center', maxWidth: 440 }}>
-          <h2
-            style={{ fontSize: 18, fontWeight: 600, marginBottom: 8, color: 'var(--fg-primary)' }}
-          >
+          <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
             Generate Deployment Plan
           </h2>
-          <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 24 }}>
+          <p style={{ fontSize: 13, marginBottom: 24 }}>
             The deployment plan defines how your application will be deployed across dev, staging,
             and production environments, including schema migration sequencing and health checks.
           </p>
-          <button
-            className="pg-btn pg-btn-primary"
+          <Button
+            type="button"
             onClick={() => {
               void handleGenerate();
             }}
             disabled={isGenerating}
           >
             {isGenerating ? 'Generating…' : 'Generate Deployment Plan'}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -115,22 +115,21 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
-            Deployment Plan v0.0.1
-          </h2>
-          <p style={{ fontSize: 12, color: 'var(--fg-secondary)', marginTop: 2 }}>
+          <h2 style={{ fontWeight: 600, fontSize: 14 }}>Deployment Plan v0.0.1</h2>
+          <p style={{ fontSize: 12, marginTop: 2 }}>
             3 environments · {DEMO_MIGRATIONS.length} migrations · {DEMO_IRREVERSIBLE.length}{' '}
             irreversible operations
           </p>
         </div>
-        <button
-          className="pg-btn pg-btn-primary pg-btn-sm"
+        <Button
+          size="sm"
+          type="button"
           onClick={() => {
             onApproved();
           }}
         >
           Approve Plan
-        </button>
+        </Button>
       </div>
 
       {DEMO_IRREVERSIBLE.length > 0 && (
@@ -143,13 +142,13 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <AlertTriangle style={{ width: 16, height: 16, color: 'var(--fg-danger)' }} />
-            <span style={{ fontWeight: 500, color: 'var(--fg-danger)' }}>
+            <AlertTriangle style={{ width: 16, height: 16 }} />
+            <span style={{ fontWeight: 500 }}>
               {DEMO_IRREVERSIBLE.length} irreversible operations
             </span>
           </div>
           {DEMO_IRREVERSIBLE.map((op, i) => (
-            <p key={i} style={{ fontSize: 13, color: 'var(--fg-danger)' }}>
+            <p key={i} style={{ fontSize: 13 }}>
               {op.description}: {op.warning}
             </p>
           ))}
@@ -160,17 +159,15 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
       <div
         style={{ border: '1px solid var(--border-default)', borderRadius: 6, overflow: 'hidden' }}
       >
-        <button
+        <Button
           style={{
             width: '100%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: 16,
-            background: 'var(--bg-surface)',
             border: 'none',
             cursor: 'pointer',
-            color: 'var(--fg-primary)',
           }}
           onClick={() => {
             toggle('environments');
@@ -184,9 +181,9 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
           ) : (
             <ChevronRight style={{ width: 16, height: 16 }} />
           )}
-        </button>
+        </Button>
         {expandedSection === 'environments' && (
-          <div style={{ borderTop: '1px solid var(--border-default)' }}>
+          <div>
             {DEMO_ENVIRONMENTS.map((env, idx) => (
               <div
                 key={env.name}
@@ -200,20 +197,19 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
               >
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontWeight: 500, fontSize: 13, color: 'var(--fg-primary)' }}>
-                      {env.name}
-                    </span>
+                    <span style={{ fontWeight: 500, fontSize: 13 }}>{env.name}</span>
                     {env.autoDeploy && (
-                      <span className="pg-badge pg-badge-default">auto-deploy</span>
+                      <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                        auto-deploy
+                      </span>
                     )}
-                    <span className="pg-badge pg-badge-default">
+                    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                       {env.deployMode.replace('_', '/')}
                     </span>
                   </div>
                   <div
                     style={{
                       fontSize: 11,
-                      color: 'var(--fg-tertiary)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: 2,
@@ -226,9 +222,7 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
                     </p>
                   </div>
                 </div>
-                <CheckCircle2
-                  style={{ width: 16, height: 16, color: 'var(--fg-tertiary)', marginTop: 2 }}
-                />
+                <CheckCircle2 style={{ width: 16, height: 16, marginTop: 2 }} />
               </div>
             ))}
           </div>
@@ -239,17 +233,15 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
       <div
         style={{ border: '1px solid var(--border-default)', borderRadius: 6, overflow: 'hidden' }}
       >
-        <button
+        <Button
           style={{
             width: '100%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             padding: 16,
-            background: 'var(--bg-surface)',
             border: 'none',
             cursor: 'pointer',
-            color: 'var(--fg-primary)',
           }}
           onClick={() => {
             toggle('migrations');
@@ -263,9 +255,9 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
           ) : (
             <ChevronRight style={{ width: 16, height: 16 }} />
           )}
-        </button>
+        </Button>
         {expandedSection === 'migrations' && (
-          <div style={{ borderTop: '1px solid var(--border-default)' }}>
+          <div>
             {DEMO_MIGRATIONS.map((m, idx) => (
               <div
                 key={m.sequence}
@@ -278,21 +270,18 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
                 }}
               >
                 <span
-                  className="pg-mono"
+                  className="font-mono text-sm"
                   style={{
                     fontSize: 11,
-                    color: 'var(--fg-tertiary)',
                     width: 24,
                     textAlign: 'right',
                   }}
                 >
                   {m.sequence}
                 </span>
-                <span style={{ fontSize: 13, flex: 1, color: 'var(--fg-primary)' }}>
-                  {m.description}
-                </span>
+                <span style={{ fontSize: 13, flex: 1 }}>{m.description}</span>
                 <span
-                  className={`pg-badge ${m.reversible ? 'pg-badge-success' : 'pg-badge-danger'}`}
+                  className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${m.reversible ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive'}`}
                 >
                   {m.reversible ? 'reversible' : 'irreversible'}
                 </span>
@@ -313,17 +302,15 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
           gap: 6,
         }}
       >
-        <p style={{ fontWeight: 500, fontSize: 13, color: 'var(--fg-primary)', marginBottom: 4 }}>
-          Global Config
+        <p style={{ fontWeight: 500, fontSize: 13, marginBottom: 4 }}>Global Config</p>
+        <p style={{ fontSize: 12 }}>
+          Rollback retention: <span>7 days</span>
         </p>
-        <p style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
-          Rollback retention: <span style={{ color: 'var(--fg-primary)' }}>7 days</span>
+        <p style={{ fontSize: 12 }}>
+          Health check timeout: <span>60 seconds</span>
         </p>
-        <p style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
-          Health check timeout: <span style={{ color: 'var(--fg-primary)' }}>60 seconds</span>
-        </p>
-        <p style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
-          Notification channels: <span style={{ color: 'var(--fg-primary)' }}>in-app, email</span>
+        <p style={{ fontSize: 12 }}>
+          Notification channels: <span>in-app, email</span>
         </p>
       </div>
     </div>

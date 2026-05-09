@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { PipelineStepper } from '../stepper';
 
 interface CoverageItem {
@@ -123,9 +125,9 @@ export default function TestGenerationPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <PipelineStepper active="test-gen" />
 
-      <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-canvas)' }}>
-        <div className="pg-page" style={{ maxWidth: 1400 }}>
-          <div className="pg-page-header">
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1400 }}>
+          <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <h1 style={{ fontSize: 18 }}>Tests · Continuous</h1>
               <div className="subtitle">
@@ -133,57 +135,84 @@ export default function TestGenerationPage() {
                 Last update 12 min ago.
               </div>
             </div>
-            <div className="pg-page-header-actions">
-              <button className="pg-btn pg-btn-secondary pg-btn-sm">Schedules</button>
-              <button className="pg-btn pg-btn-secondary pg-btn-sm">Settings</button>
-              <button
+            <div className="flex shrink-0 items-center gap-2">
+              <Button variant="outline" size="sm" type="button">
+                Schedules
+              </Button>
+              <Button variant="outline" size="sm" type="button">
+                Settings
+              </Button>
+              <Button
                 onClick={() => {
                   setRunningTest(true);
                 }}
                 disabled={runningTest}
-                className="pg-btn pg-btn-primary pg-btn-sm"
+                className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 {runningTest ? '● Running…' : '▶ Run all'}
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="pg-grid pg-grid-4 pg-mb-4">
-            <div className="pg-stat-card">
-              <div className="pg-stat-label">Suite size</div>
-              <div className="pg-stat-value">87</div>
-              <div className="pg-stat-delta">42 unit · 28 component · 11 int · 6 e2e</div>
+          <div className="grid grid-cols-4 gap-4 mb-4">
+            <div className="rounded-md border bg-card p-4">
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                Suite size
+              </div>
+              <div className="text-[22px] font-semibold tabular-nums">87</div>
+              <div className="mt-1 text-[11px] text-muted-foreground">
+                42 unit · 28 component · 11 int · 6 e2e
+              </div>
             </div>
-            <div className="pg-stat-card">
-              <div className="pg-stat-label">Pass rate · 30d</div>
-              <div className="pg-stat-value">98.4%</div>
-              <div className="pg-stat-delta pg-stat-up">+0.8% vs prior 30d</div>
+            <div className="rounded-md border bg-card p-4">
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                Pass rate · 30d
+              </div>
+              <div className="text-[22px] font-semibold tabular-nums">98.4%</div>
+              <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
+                +0.8% vs prior 30d
+              </div>
             </div>
-            <div className="pg-stat-card">
-              <div className="pg-stat-label">AC coverage (must)</div>
-              <div className="pg-stat-value">100%</div>
-              <div className="pg-stat-delta pg-stat-up">5/5 must-FRs</div>
+            <div className="rounded-md border bg-card p-4">
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                AC coverage (must)
+              </div>
+              <div className="text-[22px] font-semibold tabular-nums">100%</div>
+              <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
+                5/5 must-FRs
+              </div>
             </div>
-            <div className="pg-stat-card">
-              <div className="pg-stat-label">Flake rate · 30d</div>
-              <div className="pg-stat-value">0.7%</div>
-              <div className="pg-stat-delta pg-stat-up">−0.3% vs prior</div>
+            <div className="rounded-md border bg-card p-4">
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                Flake rate · 30d
+              </div>
+              <div className="text-[22px] font-semibold tabular-nums">0.7%</div>
+              <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
+                −0.3% vs prior
+              </div>
             </div>
           </div>
 
           {/* Main grid */}
-          <div className="pg-grid pg-mb-4" style={{ gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+          <div className="grid gap-4 mb-4" style={{ gridTemplateColumns: '2fr 1fr', gap: 16 }}>
             {/* Recent runs table */}
-            <div className="pg-card" style={{ padding: 0, overflow: 'hidden' }}>
-              <div className="pg-card-header" style={{ padding: '12px 16px', borderRadius: 0 }}>
-                <span className="pg-card-title">Recent runs</span>
-                <span style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
-                  Auto-runs on push · PR · nightly
-                </span>
+            <div
+              className="rounded-md border bg-card text-card-foreground p-4"
+              style={{ padding: 0, overflow: 'hidden' }}
+            >
+              <div
+                className="mb-3 flex items-center justify-between border-b pb-3"
+                style={{ padding: '12px 16px', borderRadius: 0 }}
+              >
+                <span className="text-sm font-semibold">Recent runs</span>
+                <span style={{ fontSize: 12 }}>Auto-runs on push · PR · nightly</span>
               </div>
-              <div className="pg-table-wrap" style={{ border: 'none', borderRadius: 0 }}>
-                <table className="pg-data-table">
+              <div
+                className="overflow-hidden rounded-md border"
+                style={{ border: 'none', borderRadius: 0 }}
+              >
+                <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr>
                       <th>Run</th>
@@ -198,14 +227,16 @@ export default function TestGenerationPage() {
                     {RECENT_RUNS.map((run) => (
                       <tr key={run.id}>
                         <td style={{ fontFamily: 'monospace', fontSize: 11 }}>{run.id}</td>
-                        <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
-                          {run.trigger}
-                        </td>
+                        <td style={{ fontSize: 12 }}>{run.trigger}</td>
                         <td>
                           {run.status === 'passed' ? (
-                            <span className="pg-badge pg-badge-success">Passed</span>
+                            <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                              Passed
+                            </span>
                           ) : (
-                            <span className="pg-badge pg-badge-danger">Failed</span>
+                            <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">
+                              Failed
+                            </span>
                           )}
                         </td>
                         <td
@@ -217,9 +248,7 @@ export default function TestGenerationPage() {
                         >
                           {run.passed}/{run.total}
                           {run.failed > 0 && (
-                            <span style={{ color: 'var(--fg-danger)', marginLeft: 4 }}>
-                              ({run.failed} failed)
-                            </span>
+                            <span style={{ marginLeft: 4 }}>({run.failed} failed)</span>
                           )}
                         </td>
                         <td
@@ -231,7 +260,7 @@ export default function TestGenerationPage() {
                         >
                           {run.duration}
                         </td>
-                        <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>{run.when}</td>
+                        <td style={{ fontSize: 12 }}>{run.when}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -242,10 +271,12 @@ export default function TestGenerationPage() {
             {/* Right column */}
             <div>
               {/* AC Coverage */}
-              <div className="pg-card pg-mb-4">
-                <div className="pg-card-header">
-                  <span className="pg-card-title">AC coverage</span>
-                  <span className="pg-badge pg-badge-success">100% MUST</span>
+              <div className="rounded-md border bg-card text-card-foreground p-4 mb-4">
+                <div className="mb-3 flex items-center justify-between border-b pb-3">
+                  <span className="text-sm font-semibold">AC coverage</span>
+                  <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                    100% MUST
+                  </span>
                 </div>
                 {COVERAGE.map((item) => (
                   <div
@@ -259,7 +290,7 @@ export default function TestGenerationPage() {
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span
-                        className="pg-badge pg-badge-accent"
+                        className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
                         style={{ fontFamily: 'monospace', fontSize: 9 }}
                       >
                         {item.id}
@@ -271,26 +302,32 @@ export default function TestGenerationPage() {
                         {item.testCount}
                       </span>
                       {item.status === 'covered' ? (
-                        <span className="pg-badge pg-badge-success" style={{ fontSize: 9 }}>
+                        <span
+                          className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                          style={{ fontSize: 9 }}
+                        >
                           ✓
                         </span>
                       ) : (
-                        <span className="pg-badge pg-badge-warning" style={{ fontSize: 9 }}>
+                        <span
+                          className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                          style={{ fontSize: 9 }}
+                        >
                           ⚠
                         </span>
                       )}
                     </div>
                   </div>
                 ))}
-                <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 8 }}>
+                <div style={{ fontSize: 11, marginTop: 8 }}>
                   FR-4 awaits Outlook API integration before tests can be written.
                 </div>
               </div>
 
               {/* Active gates */}
-              <div className="pg-card">
-                <div className="pg-card-header">
-                  <span className="pg-card-title">Active gates</span>
+              <div className="rounded-md border bg-card text-card-foreground p-4">
+                <div className="mb-3 flex items-center justify-between border-b pb-3">
+                  <span className="text-sm font-semibold">Active gates</span>
                 </div>
                 {[
                   ['On push to main', 'Enabled', 'var(--fg-success)'],
@@ -298,8 +335,11 @@ export default function TestGenerationPage() {
                   ['Nightly e2e', '02:00 UTC', 'var(--fg-primary)'],
                   ['Pre-deploy gate', 'Required', 'var(--fg-success)'],
                 ].map(([k, v, c]) => (
-                  <div key={k} className="pg-inspector-row">
-                    <span className="pg-inspector-key">{k}</span>
+                  <div
+                    key={k}
+                    className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+                  >
+                    <span className="text-muted-foreground">{k}</span>
                     <span style={{ color: c, fontWeight: 500, fontSize: 13 }}>{v}</span>
                   </div>
                 ))}
@@ -308,13 +348,24 @@ export default function TestGenerationPage() {
           </div>
 
           {/* Flaky tests */}
-          <div className="pg-card pg-mb-4" style={{ padding: 0, overflow: 'hidden' }}>
-            <div className="pg-card-header" style={{ padding: '12px 16px', borderRadius: 0 }}>
-              <span className="pg-card-title">Flaky tests · last 30 days</span>
-              <span className="pg-badge pg-badge-warning">3 flagged</span>
+          <div
+            className="rounded-md border bg-card text-card-foreground p-4 mb-4"
+            style={{ padding: 0, overflow: 'hidden' }}
+          >
+            <div
+              className="mb-3 flex items-center justify-between border-b pb-3"
+              style={{ padding: '12px 16px', borderRadius: 0 }}
+            >
+              <span className="text-sm font-semibold">Flaky tests · last 30 days</span>
+              <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                3 flagged
+              </span>
             </div>
-            <div className="pg-table-wrap" style={{ border: 'none', borderRadius: 0 }}>
-              <table className="pg-data-table">
+            <div
+              className="overflow-hidden rounded-md border"
+              style={{ border: 'none', borderRadius: 0 }}
+            >
+              <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr>
                     <th>Test</th>
@@ -329,10 +380,12 @@ export default function TestGenerationPage() {
                     <tr key={test.name}>
                       <td style={{ fontFamily: 'monospace', fontSize: 11 }}>{test.name}</td>
                       <td style={{ textAlign: 'right', fontSize: 13 }}>{test.failures}</td>
-                      <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>{test.window}</td>
-                      <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>{test.cause}</td>
+                      <td style={{ fontSize: 12 }}>{test.window}</td>
+                      <td style={{ fontSize: 12 }}>{test.cause}</td>
                       <td>
-                        <button className="pg-btn pg-btn-secondary pg-btn-xs">Quarantine</button>
+                        <Button variant="outline" size="xs" type="button">
+                          Quarantine
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -342,14 +395,13 @@ export default function TestGenerationPage() {
           </div>
 
           {/* Coverage trend */}
-          <div className="pg-card">
-            <div className="pg-card-header">
-              <span className="pg-card-title">Coverage trend · 30 days</span>
+          <div className="rounded-md border bg-card text-card-foreground p-4">
+            <div className="mb-3 flex items-center justify-between border-b pb-3">
+              <span className="text-sm font-semibold">Coverage trend · 30 days</span>
             </div>
             <div
               style={{
                 height: 120,
-                background: 'var(--bg-canvas)',
                 borderRadius: 'var(--shell-radius-sm)',
                 padding: 12,
                 display: 'flex',
@@ -376,7 +428,6 @@ export default function TestGenerationPage() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 fontSize: 11,
-                color: 'var(--fg-tertiary)',
                 marginTop: 8,
               }}
             >

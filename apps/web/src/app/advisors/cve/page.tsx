@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+
 const VULNS = [
   {
     id: 'GHSA-jf85-cpcp-j695',
@@ -68,58 +70,62 @@ const ECOSYSTEM = [
 
 export default function CvePage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            CVE / Dependencies
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>CVE / Dependencies</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Continuous vulnerability monitoring · GHSA · NVD · OSV.dev · Last scan 2 minutes ago
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">SBOM export</button>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Settings</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Re-scan</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
+            SBOM export
+          </Button>
+          <Button variant="outline" size="sm" type="button">
+            Settings
+          </Button>
+          <Button size="sm" type="button">
+            Re-scan
+          </Button>
         </div>
       </div>
 
-      <div className="pg-grid pg-grid-4" style={{ marginBottom: 16 }}>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Total vulnerabilities</div>
-          <div className="pg-stat-value">4</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            across 412 deps
+      <div className="grid grid-cols-4 gap-4" style={{ marginBottom: 16 }}>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Total vulnerabilities
           </div>
+          <div className="text-[22px] font-semibold tabular-nums">4</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">across 412 deps</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">High</div>
-          <div className="pg-stat-value" style={{ color: 'var(--fg-danger)' }}>
-            1
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            High
           </div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            CVSS ≥ 7.0
-          </div>
+          <div className="text-[22px] font-semibold tabular-nums">1</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">CVSS ≥ 7.0</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Medium</div>
-          <div className="pg-stat-value" style={{ color: 'var(--fg-warning)' }}>
-            2
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Medium
           </div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            4.0–6.9
-          </div>
+          <div className="text-[22px] font-semibold tabular-nums">2</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">4.0–6.9</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Auto-fixable</div>
-          <div className="pg-stat-value">3</div>
-          <div className="pg-stat-delta pg-stat-up">via patch update</div>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Auto-fixable
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">3</div>
+          <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
+            via patch update
+          </div>
         </div>
       </div>
 
       <div
-        className="pg-card"
+        className="rounded-md border bg-card text-card-foreground p-4"
         style={{
           marginBottom: 16,
           background: 'var(--bg-danger-subtle)',
@@ -131,25 +137,27 @@ export default function CvePage() {
             <div style={{ fontWeight: 600, marginBottom: 4 }}>
               1 high-severity vulnerability requires action
             </div>
-            <div style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>
-              <span className="pg-mono">lodash@4.17.20</span> has a known Prototype Pollution
-              vulnerability. Patch available: <span className="pg-mono">4.17.21</span>. AI can
-              auto-create a CR.
+            <div style={{ fontSize: 13 }}>
+              <span className="font-mono text-sm">lodash@4.17.20</span> has a known Prototype
+              Pollution vulnerability. Patch available:{' '}
+              <span className="font-mono text-sm">4.17.21</span>. AI can auto-create a CR.
             </div>
           </div>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">✦ Auto-create CR</button>
+          <Button size="sm" type="button">
+            ✦ Auto-create CR
+          </Button>
         </div>
       </div>
 
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Open advisories</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Open advisories</div>
         </div>
         {VULNS.map((v) => (
-          <div
-            key={v.id}
-            style={{ padding: '16px 0', borderBottom: '1px solid var(--border-default)' }}
-          >
+          <div key={v.id} style={{ padding: '16px 0' }}>
             <div
               style={{
                 display: 'flex',
@@ -160,56 +168,60 @@ export default function CvePage() {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span
-                  className={`pg-badge ${v.severity === 'high' ? 'pg-badge-danger' : v.severity === 'medium' ? 'pg-badge-warning' : 'pg-badge-default'}`}
+                  className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${v.severity === 'high' ? 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive' : v.severity === 'medium' ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'}`}
                 >
                   {v.severity.toUpperCase()} · CVSS {v.cvss}
                 </span>
-                <span className="pg-mono" style={{ fontSize: 11 }}>
+                <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                   {v.id}
                 </span>
-                <span className="pg-mono" style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+                <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                   {v.cve}
                 </span>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
-                <button className="pg-btn pg-btn-ghost pg-btn-sm">Snooze</button>
-                <button className="pg-btn pg-btn-secondary pg-btn-sm">Suppress</button>
-                <button className="pg-btn pg-btn-primary pg-btn-sm">Auto-fix</button>
+                <Button variant="ghost" size="sm" type="button">
+                  Snooze
+                </Button>
+                <Button variant="outline" size="sm" type="button">
+                  Suppress
+                </Button>
+                <Button size="sm" type="button">
+                  Auto-fix
+                </Button>
               </div>
             </div>
             <div style={{ fontWeight: 500, fontSize: 13, marginBottom: 4 }}>
-              {v.type} in <span className="pg-mono">{v.pkg}</span>
+              {v.type} in <span className="font-mono text-sm">{v.pkg}</span>
             </div>
-            <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 8 }}>
-              {v.desc}
-            </div>
-            <div className="pg-grid pg-grid-4" style={{ gap: 12, marginBottom: 8 }}>
+            <div style={{ fontSize: 13, marginBottom: 8 }}>{v.desc}</div>
+            <div className="grid grid-cols-4 gap-4" style={{ gap: 12, marginBottom: 8 }}>
               <div>
-                <div style={{ fontSize: 10, color: 'var(--fg-tertiary)' }}>Package</div>
-                <div className="pg-mono" style={{ fontSize: 11 }}>
+                <div style={{ fontSize: 10 }}>Package</div>
+                <div className="font-mono text-sm" style={{ fontSize: 11 }}>
                   {v.pkg}
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 10, color: 'var(--fg-tertiary)' }}>Current</div>
-                <div className="pg-mono" style={{ fontSize: 11, color: 'var(--fg-danger)' }}>
+                <div style={{ fontSize: 10 }}>Current</div>
+                <div className="font-mono text-sm" style={{ fontSize: 11 }}>
                   {v.current}
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 10, color: 'var(--fg-tertiary)' }}>Fixed in</div>
-                <div className="pg-mono" style={{ fontSize: 11, color: 'var(--fg-success)' }}>
+                <div style={{ fontSize: 10 }}>Fixed in</div>
+                <div className="font-mono text-sm" style={{ fontSize: 11 }}>
                   {v.fixed}
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 10, color: 'var(--fg-tertiary)' }}>Path</div>
+                <div style={{ fontSize: 10 }}>Path</div>
                 <div style={{ fontSize: 11 }}>{v.via}</div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 8, fontSize: 11, color: 'var(--fg-tertiary)' }}>
+            <div style={{ display: 'flex', gap: 8, fontSize: 11 }}>
               {v.exploitable ? (
-                <span style={{ color: 'var(--fg-danger)' }}>⚠ Reachable in our code</span>
+                <span>⚠ Reachable in our code</span>
               ) : (
                 <span>Not reachable in our code</span>
               )}
@@ -220,17 +232,17 @@ export default function CvePage() {
         ))}
       </div>
 
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Ecosystems</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Ecosystems</div>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>Source</th>
-                <th className="pg-tabular">Dependencies</th>
-                <th className="pg-tabular">Vulnerabilities</th>
+                <th className="tabular-nums">Dependencies</th>
+                <th className="tabular-nums">Vulnerabilities</th>
                 <th>Last audit</th>
               </tr>
             </thead>
@@ -238,15 +250,11 @@ export default function CvePage() {
               {ECOSYSTEM.map((e) => (
                 <tr key={e.name}>
                   <td>{e.name}</td>
-                  <td className="pg-tabular">{e.deps}</td>
-                  <td className="pg-tabular">
-                    {e.vulns > 0 ? (
-                      <span style={{ color: 'var(--fg-warning)' }}>{e.vulns}</span>
-                    ) : (
-                      <span style={{ color: 'var(--fg-success)' }}>{e.vulns}</span>
-                    )}
+                  <td className="tabular-nums">{e.deps}</td>
+                  <td className="tabular-nums">
+                    {e.vulns > 0 ? <span>{e.vulns}</span> : <span>{e.vulns}</span>}
                   </td>
-                  <td style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{e.audited}</td>
+                  <td style={{ fontSize: 11 }}>{e.audited}</td>
                 </tr>
               ))}
             </tbody>

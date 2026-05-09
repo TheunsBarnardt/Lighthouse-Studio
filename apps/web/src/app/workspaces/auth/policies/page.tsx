@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface Policy {
   key: string;
   value: string;
@@ -32,37 +34,41 @@ export default function AuthPoliciesPage() {
   }
 
   return (
-    <div className="pg-page" style={{ maxWidth: 800 }}>
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 800 }}>
       {/* Header */}
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1>Auth Policies</h1>
           <p className="subtitle">Workspace-wide authentication requirements</p>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           {!editing ? (
-            <button
-              className="pg-btn pg-btn-secondary pg-btn-sm"
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
               onClick={() => {
                 setEditing(true);
                 setSaved(false);
               }}
             >
               Edit policies
-            </button>
+            </Button>
           ) : (
             <>
-              <button className="pg-btn pg-btn-primary pg-btn-sm" onClick={handleSave}>
+              <Button size="sm" type="button" onClick={handleSave}>
                 Save
-              </button>
-              <button
-                className="pg-btn pg-btn-ghost pg-btn-sm"
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                type="button"
                 onClick={() => {
                   setEditing(false);
                 }}
               >
                 Cancel
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -74,38 +80,29 @@ export default function AuthPoliciesPage() {
             marginBottom: 16,
             padding: '10px 14px',
             borderRadius: 'var(--shell-radius-md)',
-            background: 'var(--bg-surface-2)',
+            background: 'var(--muted)',
             border: '1px solid var(--border-default)',
             fontSize: 13,
-            color: 'var(--fg-success)',
           }}
         >
           Auth policies saved successfully.
         </div>
       )}
 
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Current policy</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Current policy</div>
         </div>
         {POLICIES.map((p, i) => (
           <div
             key={p.key}
-            className="pg-inspector-row"
-            style={
-              i < POLICIES.length - 1 ? { borderBottom: '1px solid var(--border-default)' } : {}
-            }
+            className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+            style={i < POLICIES.length - 1 ? {} : {}}
           >
-            <span className="pg-inspector-key">{p.key}</span>
+            <span className="text-muted-foreground">{p.key}</span>
             <span
-              className="pg-inspector-val"
-              style={
-                p.highlight === 'success'
-                  ? { color: 'var(--fg-success)' }
-                  : p.highlight === 'warning'
-                    ? { color: 'var(--fg-warning)' }
-                    : {}
-              }
+              className="font-medium"
+              style={p.highlight === 'success' ? {} : p.highlight === 'warning' ? {} : {}}
             >
               {p.value}
             </span>

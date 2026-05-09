@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface DbStatus {
   id: string;
   kind: string;
@@ -35,22 +37,16 @@ interface LogLine {
 function kindBadgeStyle(kind: string): React.CSSProperties {
   const map: Record<string, React.CSSProperties> = {
     postgres: {
-      background: 'var(--bg-surface)',
-      color: 'var(--accent-primary)',
       border: '1px solid var(--accent-primary)',
     },
     mssql: {
-      background: 'var(--bg-surface)',
-      color: 'var(--fg-warning)',
       border: '1px solid var(--fg-warning)',
     },
     mongo: {
-      background: 'var(--bg-surface)',
-      color: 'var(--fg-success)',
       border: '1px solid var(--fg-success)',
     },
   };
-  return map[kind] ?? { background: 'var(--bg-surface)', color: 'var(--fg-secondary)' };
+  return map[kind] ?? {};
 }
 
 export default function AdminUpgradePage() {
@@ -161,46 +157,50 @@ export default function AdminUpgradePage() {
 
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Platform upgrade
-          </h1>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Platform upgrade</h1>
           {status && (
-            <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+            <div style={{ fontSize: 13, marginTop: 4 }}>
               Code version:{' '}
-              <span className="pg-mono" style={{ fontWeight: 500 }}>
+              <span className="font-mono text-sm" style={{ fontWeight: 500 }}>
                 {status.codeVersion}
               </span>
             </div>
           )}
         </div>
-        <div className="pg-page-header-actions">
-          <button
-            className="pg-btn pg-btn-secondary pg-btn-sm"
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
             disabled={busy || allUpToDate}
             onClick={() => {
               void runDryRun();
             }}
           >
             Dry run
-          </button>
-          <button
-            className="pg-btn pg-btn-primary pg-btn-sm"
+          </Button>
+          <Button
+            size="sm"
+            type="button"
             disabled={busy || allUpToDate}
             onClick={() => {
               void runUpgrade();
             }}
           >
             {busy ? 'Upgrading…' : 'Run upgrade'}
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Database status */}
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <span className="pg-card-title">Database versions</span>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <span className="text-sm font-semibold">Database versions</span>
         </div>
         {loading && (
           <p
@@ -208,7 +208,6 @@ export default function AdminUpgradePage() {
               padding: '32px 0',
               textAlign: 'center',
               fontSize: 13,
-              color: 'var(--fg-tertiary)',
             }}
             aria-live="polite"
           >
@@ -221,15 +220,18 @@ export default function AdminUpgradePage() {
               padding: '32px 0',
               textAlign: 'center',
               fontSize: 13,
-              color: 'var(--fg-tertiary)',
             }}
           >
             No databases configured.
           </p>
         )}
         {!loading && status && status.dbs.length > 0 && (
-          <div className="pg-table-wrap" style={{ marginTop: 0 }}>
-            <table className="pg-data-table" role="grid" aria-label="Database version status">
+          <div className="overflow-hidden rounded-md border" style={{ marginTop: 0 }}>
+            <table
+              className="w-full border-collapse text-sm"
+              role="grid"
+              aria-label="Database version status"
+            >
               <thead>
                 <tr>
                   <th>Database</th>
@@ -242,7 +244,7 @@ export default function AdminUpgradePage() {
               <tbody>
                 {status.dbs.map((db) => (
                   <tr key={db.id}>
-                    <td className="pg-mono" style={{ fontSize: 11 }}>
+                    <td className="font-mono text-sm" style={{ fontSize: 11 }}>
                       {db.id}
                     </td>
                     <td>
@@ -260,14 +262,12 @@ export default function AdminUpgradePage() {
                         {db.kind}
                       </span>
                     </td>
-                    <td className="pg-mono" style={{ fontSize: 11 }}>
+                    <td className="font-mono text-sm" style={{ fontSize: 11 }}>
                       {db.currentVersion ?? (
-                        <span style={{ fontStyle: 'italic', color: 'var(--fg-tertiary)' }}>
-                          fresh install
-                        </span>
+                        <span style={{ fontStyle: 'italic' }}>fresh install</span>
                       )}
                     </td>
-                    <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
+                    <td style={{ fontSize: 12 }}>
                       {db.appliedAt ? (
                         new Date(db.appliedAt).toLocaleString()
                       ) : (
@@ -276,9 +276,13 @@ export default function AdminUpgradePage() {
                     </td>
                     <td>
                       {db.needsUpgrade ? (
-                        <span className="pg-badge pg-badge-danger">Needs upgrade</span>
+                        <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">
+                          Needs upgrade
+                        </span>
                       ) : (
-                        <span className="pg-badge pg-badge-success">Up to date</span>
+                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                          Up to date
+                        </span>
                       )}
                     </td>
                   </tr>
@@ -288,9 +292,7 @@ export default function AdminUpgradePage() {
           </div>
         )}
         {allUpToDate && !loading && (
-          <p
-            style={{ marginTop: 12, textAlign: 'center', fontSize: 13, color: 'var(--fg-success)' }}
-          >
+          <p style={{ marginTop: 12, textAlign: 'center', fontSize: 13 }}>
             All databases are up to date.
           </p>
         )}
@@ -298,9 +300,12 @@ export default function AdminUpgradePage() {
 
       {/* Progress log */}
       {log.length > 0 && (
-        <div className="pg-card" style={{ marginBottom: 16 }}>
-          <div className="pg-card-header">
-            <span className="pg-card-title">
+        <div
+          className="rounded-md border bg-card text-card-foreground p-4"
+          style={{ marginBottom: 16 }}
+        >
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">
               Upgrade log
               {busy && (
                 <span
@@ -323,7 +328,6 @@ export default function AdminUpgradePage() {
               height: 160,
               overflowY: 'auto',
               borderRadius: 4,
-              background: 'var(--bg-canvas)',
               border: '1px solid var(--border-default)',
               padding: '8px 12px',
               fontFamily: 'monospace',
@@ -345,7 +349,7 @@ export default function AdminUpgradePage() {
                         : 'var(--fg-primary)',
                 }}
               >
-                <span style={{ marginRight: 8, color: 'var(--fg-tertiary)' }}>[{line.ts}]</span>
+                <span style={{ marginRight: 8 }}>[{line.ts}]</span>
                 {line.message}
               </div>
             ))}
@@ -354,9 +358,9 @@ export default function AdminUpgradePage() {
       )}
 
       {/* Upgrade history */}
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <span className="pg-card-title">Upgrade history</span>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <span className="text-sm font-semibold">Upgrade history</span>
         </div>
         {history.length === 0 ? (
           <p
@@ -364,15 +368,18 @@ export default function AdminUpgradePage() {
               padding: '32px 0',
               textAlign: 'center',
               fontSize: 13,
-              color: 'var(--fg-tertiary)',
               fontStyle: 'italic',
             }}
           >
             No upgrades recorded yet.
           </p>
         ) : (
-          <div className="pg-table-wrap" style={{ marginTop: 0 }}>
-            <table className="pg-data-table" role="grid" aria-label="Upgrade history">
+          <div className="overflow-hidden rounded-md border" style={{ marginTop: 0 }}>
+            <table
+              className="w-full border-collapse text-sm"
+              role="grid"
+              aria-label="Upgrade history"
+            >
               <thead>
                 <tr>
                   <th>Version</th>
@@ -384,20 +391,14 @@ export default function AdminUpgradePage() {
               <tbody>
                 {history.map((entry, i) => (
                   <tr key={i}>
-                    <td className="pg-mono" style={{ fontSize: 11, fontWeight: 600 }}>
+                    <td className="font-mono text-sm" style={{ fontSize: 11, fontWeight: 600 }}>
                       {entry.releaseVersion}
                     </td>
-                    <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
-                      {new Date(entry.appliedAt).toLocaleString()}
-                    </td>
+                    <td style={{ fontSize: 12 }}>{new Date(entry.appliedAt).toLocaleString()}</td>
                     <td style={{ fontSize: 13 }}>
-                      {entry.appliedBy ?? (
-                        <span style={{ fontStyle: 'italic', color: 'var(--fg-tertiary)' }}>
-                          automated
-                        </span>
-                      )}
+                      {entry.appliedBy ?? <span style={{ fontStyle: 'italic' }}>automated</span>}
                     </td>
-                    <td className="pg-mono" style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>
+                    <td className="font-mono text-sm" style={{ fontSize: 11 }}>
                       {entry.schemaMigrationHighWater ?? (
                         <span style={{ fontStyle: 'italic' }}>—</span>
                       )}

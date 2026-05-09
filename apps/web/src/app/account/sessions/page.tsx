@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import type { SessionInfo } from '@/lib/auth-client';
 
+import { Button } from '@/components/ui/button';
 import { SessionEventListener } from '@/components/workspace/session-event-listener';
 import { useAuth } from '@/context/auth-context';
 import { authApi } from '@/lib/auth-client';
@@ -78,33 +79,34 @@ export default function SessionsPage() {
   return (
     <>
       {user && <SessionEventListener userId={user.id} onRevoked={handleSessionRevoked} />}
-      <div className="pg-card">
+      <div className="rounded-md border bg-card text-card-foreground p-4">
         <div
-          className="pg-card-header"
+          className="mb-3 flex items-center justify-between border-b pb-3"
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
-          <h2 className="pg-card-title">{t('title')}</h2>
+          <h2 className="text-sm font-semibold">{t('title')}</h2>
           {sessions.length > 0 && (
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               type="button"
-              className="pg-btn pg-btn-secondary pg-btn-sm"
               onClick={() => {
                 void revokeAll();
               }}
               disabled={revoking === 'all'}
             >
               {t('revokeAll')}
-            </button>
+            </Button>
           )}
         </div>
         <div style={{ padding: '1.25rem' }}>
           {loading && (
-            <p style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)' }} aria-live="polite">
+            <p style={{ fontSize: '0.875rem' }} aria-live="polite">
               Loading…
             </p>
           )}
           {!loading && sessions.length === 0 && (
-            <p style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)' }}>{t('noSessions')}</p>
+            <p style={{ fontSize: '0.875rem' }}>{t('noSessions')}</p>
           )}
           <ul
             style={{
@@ -131,29 +133,27 @@ export default function SessionsPage() {
               >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span
-                      style={{ fontSize: '0.875rem', fontWeight: 500, color: 'var(--fg-primary)' }}
-                    >
+                    <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                       {parseUserAgent(session.userAgent)}
                     </span>
                     {session.isCurrent && (
-                      <span className="pg-badge pg-badge-default" style={{ fontSize: '0.75rem' }}>
+                      <span
+                        className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                        style={{ fontSize: '0.75rem' }}
+                      >
                         {t('currentDevice')}
                       </span>
                     )}
                   </div>
-                  {session.ipAddress && (
-                    <p style={{ fontSize: '0.75rem', color: 'var(--fg-tertiary)' }}>
-                      {session.ipAddress}
-                    </p>
-                  )}
-                  <p style={{ fontSize: '0.75rem', color: 'var(--fg-tertiary)' }}>
+                  {session.ipAddress && <p style={{ fontSize: '0.75rem' }}>{session.ipAddress}</p>}
+                  <p style={{ fontSize: '0.75rem' }}>
                     {t('lastSeen', { time: formatTime(session.lastSeenAt) })}
                   </p>
                 </div>
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   type="button"
-                  className="pg-btn pg-btn-ghost pg-btn-sm"
                   onClick={() => {
                     void revokeSession(session.id);
                   }}
@@ -161,7 +161,7 @@ export default function SessionsPage() {
                   aria-label={`${t('revoke')} — ${parseUserAgent(session.userAgent)}`}
                 >
                   {t('revoke')}
-                </button>
+                </Button>
               </li>
             ))}
           </ul>

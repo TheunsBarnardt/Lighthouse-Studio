@@ -5,6 +5,7 @@ import { useRef, useState } from 'react';
 
 import type { CustomerSchema, DatabaseDriver } from '@/lib/types';
 
+import { Button } from '@/components/ui/button';
 import { useImportSchema } from '@/hooks/useSchemaService';
 
 // eslint-disable-next-line no-restricted-syntax
@@ -16,8 +17,6 @@ const inputStyle = {
   padding: '0 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
 };
 
@@ -76,18 +75,12 @@ export default function ImportSchemaPage() {
 
   return (
     <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 24px' }}>
-      <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 24 }}>
-        Import Schema
-      </h2>
+      <h2 style={{ fontSize: 18, fontWeight: 600, marginBottom: 24 }}>Import Schema</h2>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {/* File upload */}
         <div>
-          <div
-            style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-secondary)', marginBottom: 8 }}
-          >
-            Upload JSON file
-          </div>
+          <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 8 }}>Upload JSON file</div>
           <div
             style={{
               display: 'flex',
@@ -97,7 +90,6 @@ export default function ImportSchemaPage() {
               borderRadius: 6,
               border: '2px dashed var(--border-default)',
               padding: '32px 0',
-              color: 'var(--fg-tertiary)',
               cursor: 'pointer',
               transition: 'border-color 150ms',
             }}
@@ -133,7 +125,6 @@ export default function ImportSchemaPage() {
             style={{
               fontSize: 12,
               fontWeight: 500,
-              color: 'var(--fg-secondary)',
               display: 'block',
               marginBottom: 8,
             }}
@@ -152,8 +143,6 @@ export default function ImportSchemaPage() {
               padding: '8px 12px',
               borderRadius: 4,
               border: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
               fontSize: 11,
               fontFamily: 'monospace',
               resize: 'vertical',
@@ -170,7 +159,6 @@ export default function ImportSchemaPage() {
             style={{
               fontSize: 12,
               fontWeight: 500,
-              color: 'var(--fg-secondary)',
               display: 'block',
               marginBottom: 8,
             }}
@@ -193,11 +181,12 @@ export default function ImportSchemaPage() {
 
         {/* Preview */}
         {preview && (
-          <div className="pg-card" style={{ padding: '10px 16px' }}>
+          <div
+            className="rounded-md border bg-card text-card-foreground p-4"
+            style={{ padding: '10px 16px' }}
+          >
             <span style={{ fontWeight: 500, fontSize: 13 }}>{preview.name}</span>
-            <span style={{ marginLeft: 8, fontSize: 13, color: 'var(--fg-secondary)' }}>
-              · {preview.tables} tables
-            </span>
+            <span style={{ marginLeft: 8, fontSize: 13 }}>· {preview.tables} tables</span>
           </div>
         )}
 
@@ -209,7 +198,6 @@ export default function ImportSchemaPage() {
               background: 'var(--bg-danger-subtle)',
               padding: '10px 12px',
               fontSize: 13,
-              color: 'var(--fg-danger)',
             }}
             role="alert"
           >
@@ -224,7 +212,6 @@ export default function ImportSchemaPage() {
               background: 'var(--bg-danger-subtle)',
               padding: '10px 12px',
               fontSize: 13,
-              color: 'var(--fg-danger)',
             }}
             role="alert"
           >
@@ -234,21 +221,22 @@ export default function ImportSchemaPage() {
 
         {/* Actions */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button
-            className="pg-btn pg-btn-secondary"
+          <Button
+            variant="outline"
+            type="button"
             onClick={() => {
               router.back();
             }}
           >
             Cancel
-          </button>
-          <button
-            className="pg-btn pg-btn-primary"
+          </Button>
+          <Button
+            type="button"
             onClick={handleImport}
             disabled={!jsonContent || !!parseError || importSchema.isPending}
           >
             {importSchema.isPending ? 'Importing…' : 'Import Schema'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

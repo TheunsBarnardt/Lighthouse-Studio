@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 interface DbWebhook {
   name: string;
   table: string;
@@ -45,23 +47,19 @@ const WEBHOOKS: DbWebhook[] = [
 export default function WebhooksPage() {
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Database Webhooks
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
-            HTTP requests on database events
-          </div>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Database Webhooks</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>HTTP requests on database events</div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-primary pg-btn-sm" type="button">
+        <div className="flex shrink-0 items-center gap-2">
+          <Button size="sm" type="button">
             + New webhook
-          </button>
+          </Button>
         </div>
       </div>
-      <div className="pg-table-wrap">
-        <table className="pg-data-table">
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr>
               <th>Name</th>
@@ -78,19 +76,20 @@ export default function WebhooksPage() {
               <tr key={hook.name}>
                 <td style={{ fontSize: 13 }}>{hook.name}</td>
                 <td>
-                  <span className="pg-mono" style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>
+                  <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                     {hook.table}
                   </span>
                 </td>
                 <td>
-                  <span className="pg-badge pg-badge-default">{hook.event}</span>
+                  <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                    {hook.event}
+                  </span>
                 </td>
                 <td>
                   <span
-                    className="pg-mono"
+                    className="font-mono text-sm"
                     style={{
                       fontSize: 11,
-                      color: 'var(--fg-tertiary)',
                       display: 'block',
                       maxWidth: 220,
                       overflow: 'hidden',
@@ -104,24 +103,24 @@ export default function WebhooksPage() {
                 </td>
                 <td>
                   {hook.status === 'active' ? (
-                    <span className="pg-badge pg-badge-success">active</span>
+                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                      active
+                    </span>
                   ) : (
-                    <span className="pg-badge pg-badge-warning">paused</span>
+                    <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                      paused
+                    </span>
                   )}
                 </td>
-                <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>{hook.lastFired}</td>
+                <td style={{ fontSize: 12 }}>{hook.lastFired}</td>
                 <td>
                   <div style={{ display: 'flex', gap: 4 }}>
-                    <button className="pg-btn pg-btn-ghost pg-btn-xs" type="button">
+                    <Button className="" variant="ghost" type="button">
                       Edit
-                    </button>
-                    <button
-                      className="pg-btn pg-btn-ghost pg-btn-xs"
-                      type="button"
-                      style={{ color: 'var(--fg-danger)' }}
-                    >
+                    </Button>
+                    <Button className="" variant="ghost" type="button">
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>

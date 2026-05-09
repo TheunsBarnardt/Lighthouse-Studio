@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 interface Publication {
   name: string;
   tables: string;
@@ -24,33 +26,25 @@ const PUBLICATIONS: Publication[] = [
 ];
 
 function Check({ value }: { value: boolean }) {
-  return value ? (
-    <span style={{ color: 'var(--fg-success)' }}>✓</span>
-  ) : (
-    <span style={{ color: 'var(--fg-tertiary)' }}>✗</span>
-  );
+  return value ? <span>✓</span> : <span>✗</span>;
 }
 
 export default function PublicationsPage() {
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Publications
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
-            Logical replication publications
-          </div>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Publications</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>Logical replication publications</div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-primary pg-btn-sm" type="button">
+        <div className="flex shrink-0 items-center gap-2">
+          <Button size="sm" type="button">
             + New publication
-          </button>
+          </Button>
         </div>
       </div>
-      <div className="pg-table-wrap">
-        <table className="pg-data-table">
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr>
               <th>Name</th>
@@ -64,9 +58,9 @@ export default function PublicationsPage() {
             {PUBLICATIONS.map((pub) => (
               <tr key={pub.name}>
                 <td>
-                  <span className="pg-mono">{pub.name}</span>
+                  <span className="font-mono text-sm">{pub.name}</span>
                 </td>
-                <td style={{ color: 'var(--fg-secondary)' }}>{pub.tables}</td>
+                <td>{pub.tables}</td>
                 <td>
                   <Check value={pub.insert} />
                 </td>

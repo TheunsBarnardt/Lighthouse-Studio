@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+
 const SERVICES = [
   { name: 'API · REST', uptime: '99.97%', outages: [3] },
   { name: 'API · GraphQL', uptime: '99.99%', outages: [] },
@@ -78,27 +80,31 @@ function UptimeBar({ outages }: { outages: number[] }) {
 
 export default function UptimePage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Uptime / Status
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Uptime / Status</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             All systems operational · Last incident 3 days ago · Public status:
             status.acme.platform.local
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Public status page</button>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Incident history</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">+ Incident</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
+            Public status page
+          </Button>
+          <Button variant="outline" size="sm" type="button">
+            Incident history
+          </Button>
+          <Button size="sm" type="button">
+            + Incident
+          </Button>
         </div>
       </div>
 
       {/* All systems green banner */}
       <div
-        className="pg-card"
+        className="rounded-md border bg-card text-card-foreground p-4"
         style={{
           marginBottom: 16,
           background: 'var(--bg-success-subtle)',
@@ -117,65 +123,63 @@ export default function UptimePage() {
               }}
             />
             <div>
-              <div style={{ fontWeight: 600, color: 'var(--fg-primary)' }}>
-                All systems operational
-              </div>
-              <div style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>
+              <div style={{ fontWeight: 600 }}>All systems operational</div>
+              <div style={{ fontSize: 13 }}>
                 8 of 8 services responding normally · last check 30 seconds ago
               </div>
             </div>
           </div>
-          <div
-            className="pg-tabular"
-            style={{ fontSize: 24, fontWeight: 700, color: 'var(--fg-success)' }}
-          >
+          <div className="tabular-nums" style={{ fontSize: 24, fontWeight: 700 }}>
             99.97%
           </div>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="pg-grid pg-grid-4" style={{ marginBottom: 16 }}>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">90-day uptime</div>
-          <div className="pg-stat-value" style={{ color: 'var(--fg-success)' }}>
-            99.97%
+      <div className="grid grid-cols-4 gap-4" style={{ marginBottom: 16 }}>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            90-day uptime
           </div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            SLA: 99.9%
-          </div>
+          <div className="text-[22px] font-semibold tabular-nums">99.97%</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">SLA: 99.9%</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">30-day uptime</div>
-          <div className="pg-stat-value" style={{ color: 'var(--fg-success)' }}>
-            99.99%
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            30-day uptime
           </div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            no incidents
-          </div>
+          <div className="text-[22px] font-semibold tabular-nums">99.99%</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">no incidents</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Total downtime · 90d</div>
-          <div className="pg-stat-value">37m</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            3 incidents
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Total downtime · 90d
           </div>
+          <div className="text-[22px] font-semibold tabular-nums">37m</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">3 incidents</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">MTTR</div>
-          <div className="pg-stat-value">12m</div>
-          <div className="pg-stat-delta pg-stat-up">−4m vs prior</div>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            MTTR
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">12m</div>
+          <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
+            −4m vs prior
+          </div>
         </div>
       </div>
 
       {/* Service status bars */}
-      <div className="pg-card" style={{ marginBottom: 16 }}>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
         <div
-          className="pg-card-header"
+          className="mb-3 flex items-center justify-between border-b pb-3"
           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         >
-          <div className="pg-card-title">Service status · last 90 days</div>
-          <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--fg-tertiary)' }}>
+          <div className="text-sm font-semibold">Service status · last 90 days</div>
+          <div style={{ display: 'flex', gap: 12, fontSize: 11 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
               <span
                 style={{
@@ -224,13 +228,8 @@ export default function UptimePage() {
                 marginBottom: 6,
               }}
             >
-              <span style={{ fontWeight: 500, fontSize: 13, color: 'var(--fg-primary)' }}>
-                {svc.name}
-              </span>
-              <span
-                className="pg-tabular"
-                style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg-success)' }}
-              >
+              <span style={{ fontWeight: 500, fontSize: 13 }}>{svc.name}</span>
+              <span className="tabular-nums" style={{ fontSize: 13, fontWeight: 600 }}>
                 {svc.uptime}
               </span>
             </div>
@@ -242,7 +241,6 @@ export default function UptimePage() {
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: 11,
-            color: 'var(--fg-tertiary)',
             marginTop: 8,
           }}
         >
@@ -252,12 +250,12 @@ export default function UptimePage() {
       </div>
 
       {/* Incident history */}
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Incident history</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Incident history</div>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>When</th>
@@ -271,20 +269,20 @@ export default function UptimePage() {
             <tbody>
               {INCIDENTS.map((inc, i) => (
                 <tr key={i}>
-                  <td style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{inc.when}</td>
+                  <td style={{ fontSize: 11 }}>{inc.when}</td>
                   <td style={{ fontSize: 13 }}>{inc.service}</td>
                   <td>
                     <span
-                      className={`pg-badge ${inc.type === 'outage' ? 'pg-badge-danger' : 'pg-badge-warning'}`}
+                      className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${inc.type === 'outage' ? 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive' : 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}
                     >
                       {inc.type === 'outage' ? 'Outage' : 'Degraded'}
                     </span>
                   </td>
-                  <td className="pg-tabular" style={{ fontSize: 11 }}>
+                  <td className="tabular-nums" style={{ fontSize: 11 }}>
                     {inc.duration}
                   </td>
                   <td style={{ fontSize: 13 }}>{inc.impact}</td>
-                  <td style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>{inc.resolution}</td>
+                  <td style={{ fontSize: 11 }}>{inc.resolution}</td>
                 </tr>
               ))}
             </tbody>

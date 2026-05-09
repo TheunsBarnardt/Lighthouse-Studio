@@ -3,6 +3,8 @@
 import { CheckCircle2, Clock, XCircle, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { PromoteDialog } from '../dialogs/PromoteDialog';
 import { RollbackDialog } from '../dialogs/RollbackDialog';
 
@@ -17,10 +19,10 @@ interface EnvironmentState {
 }
 
 const STATUS_ICON: Record<EnvStatus, React.ReactNode> = {
-  not_deployed: <Clock style={{ width: 16, height: 16, color: 'var(--fg-tertiary)' }} />,
-  deployed: <CheckCircle2 style={{ width: 16, height: 16, color: 'var(--fg-success)' }} />,
-  failed: <XCircle style={{ width: 16, height: 16, color: 'var(--fg-danger)' }} />,
-  rolling_back: <Clock style={{ width: 16, height: 16, color: 'var(--fg-warning)' }} />,
+  not_deployed: <Clock style={{ width: 16, height: 16 }} />,
+  deployed: <CheckCircle2 style={{ width: 16, height: 16 }} />,
+  failed: <XCircle style={{ width: 16, height: 16 }} />,
+  rolling_back: <Clock style={{ width: 16, height: 16 }} />,
 };
 
 const STATUS_LABELS: Record<EnvStatus, string> = {
@@ -50,9 +52,7 @@ export function EnvironmentStatusPanel({ onDeploy: onDeployProp }: Props) {
 
   return (
     <div style={{ padding: 24, maxWidth: 640 }}>
-      <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)', marginBottom: 16 }}>
-        Environment Status
-      </h2>
+      <h2 style={{ fontWeight: 600, fontSize: 14, marginBottom: 16 }}>Environment Status</h2>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {environments.map((env, i) => {
@@ -67,7 +67,6 @@ export function EnvironmentStatusPanel({ onDeploy: onDeployProp }: Props) {
                     style={{
                       width: 16,
                       height: 16,
-                      color: 'var(--fg-tertiary)',
                       transform: 'rotate(90deg)',
                     }}
                   />
@@ -90,7 +89,6 @@ export function EnvironmentStatusPanel({ onDeploy: onDeployProp }: Props) {
                     style={{
                       fontWeight: 500,
                       fontSize: 13,
-                      color: 'var(--fg-primary)',
                       textTransform: 'capitalize',
                     }}
                   >
@@ -100,12 +98,12 @@ export function EnvironmentStatusPanel({ onDeploy: onDeployProp }: Props) {
 
                 <div style={{ flex: 1 }}>
                   <span
-                    className={`pg-badge ${env.status === 'deployed' ? 'pg-badge-success' : 'pg-badge-default'}`}
+                    className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${env.status === 'deployed' ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'}`}
                   >
                     {STATUS_LABELS[env.status]}
                   </span>
                   {env.version && (
-                    <span style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginLeft: 8 }}>
+                    <span style={{ fontSize: 11, marginLeft: 8 }}>
                       {env.version} · {env.deployedAt}
                     </span>
                   )}
@@ -113,37 +111,42 @@ export function EnvironmentStatusPanel({ onDeploy: onDeployProp }: Props) {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   {env.status === 'not_deployed' && (
-                    <button
-                      className="pg-btn pg-btn-primary pg-btn-sm"
+                    <Button
+                      size="sm"
+                      type="button"
                       disabled={!canDeploy}
                       onClick={() => {
                         onDeploy(env.name);
                       }}
                     >
                       {i === 0 ? 'Deploy' : `Promote to ${env.name}`}
-                    </button>
+                    </Button>
                   )}
                   {env.status === 'deployed' &&
                     i < environments.length - 1 &&
                     environments[i + 1]?.status !== 'deployed' && (
-                      <button
-                        className="pg-btn pg-btn-secondary pg-btn-sm"
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        type="button"
                         onClick={() => {
                           setPromoteTarget(environments[i + 1]?.name ?? '');
                         }}
                       >
                         Promote →
-                      </button>
+                      </Button>
                     )}
                   {env.status === 'deployed' && (
-                    <button
-                      className="pg-btn pg-btn-ghost pg-btn-sm"
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      type="button"
                       onClick={() => {
                         setRollbackTarget(env.deployId ?? 'dep-1');
                       }}
                     >
                       Rollback
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>

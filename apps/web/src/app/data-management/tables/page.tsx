@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 const TABLES = [
   { name: 'contacts', cols: 8, rows: '1,247', size: '4.2 MB' },
   { name: 'deals', cols: 9, rows: '342', size: '1.8 MB' },
@@ -12,22 +14,16 @@ const TABLES = [
 export default function DatabaseTablesPage() {
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Database Tables
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
-            {TABLES.length} tables · public schema
-          </div>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Database Tables</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>{TABLES.length} tables · public schema</div>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           <select
             style={{
               border: '1px solid var(--border-default)',
               borderRadius: 4,
-              background: 'var(--bg-surface)',
-              color: 'var(--fg-secondary)',
               fontSize: 12,
               padding: '3px 8px',
               height: 28,
@@ -40,8 +36,6 @@ export default function DatabaseTablesPage() {
             style={{
               border: '1px solid var(--border-default)',
               borderRadius: 4,
-              background: 'var(--bg-surface)',
-              color: 'var(--fg-primary)',
               fontSize: 12,
               padding: '3px 8px',
               height: 28,
@@ -49,19 +43,19 @@ export default function DatabaseTablesPage() {
               outline: 'none',
             }}
           />
-          <button className="pg-btn pg-btn-primary pg-btn-sm" type="button">
+          <Button size="sm" type="button">
             + New table
-          </button>
+          </Button>
         </div>
       </div>
-      <div className="pg-table-wrap">
-        <table className="pg-data-table">
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr>
               <th>Name</th>
-              <th className="pg-tabular">Columns</th>
-              <th className="pg-tabular">Rows (est.)</th>
-              <th className="pg-tabular">Size (est.)</th>
+              <th className="tabular-nums">Columns</th>
+              <th className="tabular-nums">Rows (est.)</th>
+              <th className="tabular-nums">Size (est.)</th>
               <th>Realtime</th>
               <th />
             </tr>
@@ -70,25 +64,19 @@ export default function DatabaseTablesPage() {
             {TABLES.map((t) => (
               <tr key={t.name} style={{ cursor: 'pointer' }}>
                 <td>
-                  <span className="pg-mono" style={{ fontSize: 12 }}>
-                    <span style={{ color: 'var(--fg-tertiary)', marginRight: 6 }}>▦</span>
+                  <span className="font-mono text-sm" style={{ fontSize: 12 }}>
+                    <span style={{ marginRight: 6 }}>▦</span>
                     {t.name}
                   </span>
                 </td>
-                <td className="pg-tabular" style={{ color: 'var(--fg-secondary)' }}>
-                  {t.cols}
-                </td>
-                <td className="pg-tabular" style={{ color: 'var(--fg-secondary)' }}>
-                  {t.rows}
-                </td>
-                <td className="pg-tabular" style={{ color: 'var(--fg-tertiary)' }}>
-                  {t.size}
-                </td>
-                <td style={{ color: 'var(--fg-tertiary)', fontSize: 12 }}>✕ Disabled</td>
+                <td className="tabular-nums">{t.cols}</td>
+                <td className="tabular-nums">{t.rows}</td>
+                <td className="tabular-nums">{t.size}</td>
+                <td style={{ fontSize: 12 }}>✕ Disabled</td>
                 <td>
-                  <button className="pg-btn pg-btn-secondary pg-btn-xs" type="button">
+                  <Button variant="outline" size="xs" type="button">
                     View columns
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}

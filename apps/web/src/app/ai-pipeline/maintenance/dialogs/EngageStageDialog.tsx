@@ -3,6 +3,8 @@
 import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface Props {
   requestId: string;
   onClose: () => void;
@@ -52,19 +54,25 @@ export function EngageStageDialog({ requestId: _requestId, onClose }: Props) {
         zIndex: 50,
       }}
     >
-      <div className="pg-card" style={{ width: '100%', maxWidth: 440, padding: 24 }}>
-        <div className="pg-card-header" style={{ marginBottom: 16 }}>
-          <div className="pg-card-title">Engage Pipeline Stage</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ width: '100%', maxWidth: 440, padding: 24 }}
+      >
+        <div
+          className="mb-3 flex items-center justify-between border-b pb-3"
+          style={{ marginBottom: 16 }}
+        >
+          <div className="text-sm font-semibold">Engage Pipeline Stage</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>
+          <p style={{ fontSize: 13 }}>
             Select which pipeline stages to re-engage for this change request. Only the minimum
             required stages will be re-run.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <p style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}>Stages</p>
+            <p style={{ fontSize: 12, fontWeight: 500 }}>Stages</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {STAGES.map((stage) => (
                 <label
@@ -87,7 +95,7 @@ export function EngageStageDialog({ requestId: _requestId, onClose }: Props) {
                     }}
                     style={{ cursor: 'pointer' }}
                   />
-                  <span style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{stage.label}</span>
+                  <span style={{ fontSize: 13 }}>{stage.label}</span>
                 </label>
               ))}
             </div>
@@ -97,19 +105,20 @@ export function EngageStageDialog({ requestId: _requestId, onClose }: Props) {
             <div
               style={{
                 borderRadius: 4,
-                background: 'var(--bg-surface)',
                 padding: 12,
                 fontSize: 12,
-                color: 'var(--fg-secondary)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 6,
               }}
             >
-              <p style={{ fontWeight: 500, color: 'var(--fg-primary)' }}>Will re-engage:</p>
+              <p style={{ fontWeight: 500 }}>Will re-engage:</p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {STAGES.filter((s) => selectedStages.has(s.id)).map((s) => (
-                  <span key={s.id} className="pg-badge pg-badge-default">
+                  <span
+                    key={s.id}
+                    className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                  >
                     {s.label}
                   </span>
                 ))}
@@ -119,15 +128,12 @@ export function EngageStageDialog({ requestId: _requestId, onClose }: Props) {
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 20 }}>
-          <button
-            className="pg-btn pg-btn-secondary pg-btn-sm"
-            onClick={onClose}
-            disabled={loading}
-          >
+          <Button variant="outline" size="sm" type="button" onClick={onClose} disabled={loading}>
             Cancel
-          </button>
-          <button
-            className="pg-btn pg-btn-primary pg-btn-sm"
+          </Button>
+          <Button
+            size="sm"
+            type="button"
             onClick={handleEngage}
             disabled={loading || selectedStages.size === 0}
             style={{ display: 'flex', alignItems: 'center', gap: 4 }}
@@ -140,7 +146,7 @@ export function EngageStageDialog({ requestId: _requestId, onClose }: Props) {
                 <ArrowRight style={{ width: 12, height: 12 }} />
               </>
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

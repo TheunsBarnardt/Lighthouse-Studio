@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+
 const RECOMMENDATIONS = [
   {
     title: 'Missing index on `contacts.company`',
@@ -26,35 +28,35 @@ const RECOMMENDATIONS = [
 export default function DbPerformancePage() {
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Performance Advisor
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
-            7 optimizations recommended
-          </div>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Performance Advisor</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>7 optimizations recommended</div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Re-scan</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button size="sm" type="button">
+            Re-scan
+          </Button>
         </div>
       </div>
 
       {RECOMMENDATIONS.map((rec) => (
-        <div key={rec.title} className="pg-card" style={{ marginBottom: 12 }}>
+        <div
+          key={rec.title}
+          className="rounded-md border bg-card text-card-foreground p-4"
+          style={{ marginBottom: 12 }}
+        >
           <div
             style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}
           >
             <div>
               <strong style={{ fontSize: 13 }}>{rec.title}</strong>
-              <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
-                {rec.desc}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--fg-success)', marginTop: 6 }}>
-                {rec.improvement}
-              </div>
+              <div style={{ fontSize: 13, marginTop: 4 }}>{rec.desc}</div>
+              <div style={{ fontSize: 12, marginTop: 6 }}>{rec.improvement}</div>
             </div>
-            <button className="pg-btn pg-btn-secondary pg-btn-sm">View SQL</button>
+            <Button variant="outline" size="sm" type="button">
+              View SQL
+            </Button>
           </div>
         </div>
       ))}

@@ -8,6 +8,7 @@ import { useState, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
 import { SsoButtons } from '@/components/ui/sso-buttons';
 import { useAuth } from '@/context/auth-context';
 import { AuthApiError, authApi } from '@/lib/auth-client';
@@ -18,8 +19,6 @@ const inputStyle: React.CSSProperties = {
   padding: '0 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
   boxSizing: 'border-box',
 };
@@ -28,7 +27,6 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
   fontSize: 13,
   fontWeight: 500,
-  color: 'var(--fg-primary)',
   marginBottom: 4,
 };
 
@@ -93,15 +91,10 @@ function SignInPageInner() {
         padding: 32,
         borderRadius: 8,
         border: '1px solid var(--border-default)',
-        background: 'var(--bg-surface)',
       }}
     >
-      <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 4 }}>
-        {t('title')}
-      </h1>
-      <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 20 }}>
-        {t('subtitle')}
-      </p>
+      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 4 }}>{t('title')}</h1>
+      <p style={{ fontSize: 13, marginBottom: 20 }}>{t('subtitle')}</p>
 
       <form
         onSubmit={(e) => {
@@ -137,10 +130,7 @@ function SignInPageInner() {
             <label htmlFor="password" style={{ ...labelStyle, marginBottom: 0 }}>
               {t('passwordLabel')}
             </label>
-            <Link
-              href="/auth/forgot-password"
-              style={{ fontSize: 12, color: 'var(--fg-secondary)', textDecoration: 'none' }}
-            >
+            <Link href="/auth/forgot-password" style={{ fontSize: 12, textDecoration: 'none' }}>
               {t('forgotPassword')}
             </Link>
           </div>
@@ -165,10 +155,7 @@ function SignInPageInner() {
             style={{ width: 14, height: 14, cursor: 'pointer' }}
             {...form.register('remember')}
           />
-          <label
-            htmlFor="remember"
-            style={{ fontSize: 13, color: 'var(--fg-secondary)', cursor: 'pointer' }}
-          >
+          <label htmlFor="remember" style={{ fontSize: 13, cursor: 'pointer' }}>
             {t('rememberMe')}
           </label>
         </div>
@@ -190,25 +177,21 @@ function SignInPageInner() {
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
-          className="pg-btn pg-btn-primary"
           style={{ width: '100%' }}
           disabled={formState.isSubmitting}
           aria-busy={formState.isSubmitting}
         >
           {formState.isSubmitting ? t('submitting') : t('submit')}
-        </button>
+        </Button>
       </form>
 
       <SsoButtons returnTo={returnTo} />
 
-      <p style={{ marginTop: 20, textAlign: 'center', fontSize: 13, color: 'var(--fg-secondary)' }}>
+      <p style={{ marginTop: 20, textAlign: 'center', fontSize: 13 }}>
         {t('noAccount')}&nbsp;
-        <Link
-          href="/auth/sign-up"
-          style={{ fontWeight: 500, color: 'var(--accent-primary)', textDecoration: 'none' }}
-        >
+        <Link href="/auth/sign-up" style={{ fontWeight: 500, textDecoration: 'none' }}>
           {t('signUp')}
         </Link>
       </p>

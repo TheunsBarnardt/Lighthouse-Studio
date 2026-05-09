@@ -3,6 +3,8 @@
 import { Loader2, Download, CheckCircle2, X } from 'lucide-react';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface Props {
   onClose: () => void;
 }
@@ -12,8 +14,6 @@ const inputStyle: React.CSSProperties = {
   padding: '0 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
   fontFamily: 'var(--font-mono, monospace)',
   width: '100%',
@@ -44,15 +44,18 @@ export function ExportDialog({ onClose }: Props) {
         background: 'rgba(0,0,0,0.4)',
       }}
     >
-      <div className="pg-card" style={{ width: 440, maxWidth: 'calc(100vw - 32px)' }}>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ width: 440, maxWidth: 'calc(100vw - 32px)' }}
+      >
         <div
-          className="pg-card-header"
+          className="mb-3 flex items-center justify-between border-b pb-3"
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
-          <span className="pg-card-title">Export Documentation Site</span>
-          <button className="pg-btn pg-btn-ghost pg-btn-xs" onClick={onClose}>
+          <span className="text-sm font-semibold">Export Documentation Site</span>
+          <Button className="" variant="ghost" type="button" onClick={onClose}>
             <X style={{ width: 14, height: 14 }} />
-          </button>
+          </Button>
         </div>
 
         {step === 'config' && (
@@ -60,7 +63,7 @@ export function ExportDialog({ onClose }: Props) {
             <div
               style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}
             >
-              <p style={{ fontSize: 13, color: 'var(--fg-secondary)', margin: 0 }}>
+              <p style={{ fontSize: 13, margin: 0 }}>
                 Generate a standalone Next.js + fumadocs documentation site. The export is a zip
                 file that can be deployed to any static host.
               </p>
@@ -70,7 +73,6 @@ export function ExportDialog({ onClose }: Props) {
                   style={{
                     fontSize: 12,
                     fontWeight: 500,
-                    color: 'var(--fg-primary)',
                     display: 'block',
                     marginBottom: 6,
                   }}
@@ -102,17 +104,16 @@ export function ExportDialog({ onClose }: Props) {
                     style={{
                       fontSize: 13,
                       fontWeight: 500,
-                      color: 'var(--fg-primary)',
                       margin: 0,
                       marginBottom: 2,
                     }}
                   >
                     Include telemetry
                   </p>
-                  <p style={{ fontSize: 12, color: 'var(--fg-tertiary)', margin: 0 }}>
+                  <p style={{ fontSize: 12, margin: 0 }}>
                     The exported site will send anonymised page-view events back to this platform.
                     No PII is collected. You can disable this at any time by editing{' '}
-                    <code className="pg-mono">lib/telemetry.ts</code>.
+                    <code className="font-mono text-sm">lib/telemetry.ts</code>.
                   </p>
                 </div>
               </label>
@@ -123,13 +124,11 @@ export function ExportDialog({ onClose }: Props) {
                   background: 'var(--border-default)',
                   padding: 12,
                   fontSize: 12,
-                  color: 'var(--fg-secondary)',
                 }}
               >
                 <p
                   style={{
                     fontWeight: 500,
-                    color: 'var(--fg-primary)',
                     margin: 0,
                     marginBottom: 6,
                   }}
@@ -151,7 +150,7 @@ export function ExportDialog({ onClose }: Props) {
                   <li>Static search index</li>
                   {telemetryEnabled && (
                     <li>
-                      Telemetry beacon (<code className="pg-mono">lib/telemetry.ts</code>)
+                      Telemetry beacon (<code className="font-mono text-sm">lib/telemetry.ts</code>)
                     </li>
                   )}
                   <li>Workspace brand assets (logo, colors)</li>
@@ -165,16 +164,15 @@ export function ExportDialog({ onClose }: Props) {
                 justifyContent: 'flex-end',
                 gap: 8,
                 padding: 16,
-                borderTop: '1px solid var(--border-default)',
               }}
             >
-              <button className="pg-btn pg-btn-secondary" onClick={onClose}>
+              <Button variant="outline" type="button" onClick={onClose}>
                 Cancel
-              </button>
-              <button className="pg-btn pg-btn-primary" onClick={handleExport}>
+              </Button>
+              <Button type="button" onClick={handleExport}>
                 <Download style={{ width: 14, height: 14, marginRight: 6 }} />
                 Export {version}
-              </button>
+              </Button>
             </div>
           </>
         )}
@@ -193,17 +191,14 @@ export function ExportDialog({ onClose }: Props) {
               style={{
                 width: 32,
                 height: 32,
-                color: 'var(--accent-primary)',
                 animation: 'spin 1s linear infinite',
               }}
             />
             <div style={{ textAlign: 'center' }}>
-              <p
-                style={{ fontWeight: 500, color: 'var(--fg-primary)', margin: 0, marginBottom: 4 }}
-              >
+              <p style={{ fontWeight: 500, margin: 0, marginBottom: 4 }}>
                 Generating documentation site…
               </p>
-              <p style={{ fontSize: 13, color: 'var(--fg-secondary)', margin: 0 }}>
+              <p style={{ fontSize: 13, margin: 0 }}>
                 Building MDX pages, search index, and scaffold
               </p>
             </div>
@@ -221,20 +216,21 @@ export function ExportDialog({ onClose }: Props) {
                 gap: 16,
               }}
             >
-              <CheckCircle2 style={{ width: 40, height: 40, color: 'var(--fg-success)' }} />
+              <CheckCircle2 style={{ width: 40, height: 40 }} />
               <div style={{ textAlign: 'center' }}>
                 <p
                   style={{
                     fontWeight: 600,
-                    color: 'var(--fg-primary)',
                     margin: 0,
                     marginBottom: 4,
                   }}
                 >
                   Export ready
                 </p>
-                <p style={{ fontSize: 13, color: 'var(--fg-secondary)', margin: 0 }}>
-                  <span className="pg-badge pg-badge-default pg-mono">{version}</span>
+                <p style={{ fontSize: 13, margin: 0 }}>
+                  <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground font-mono text-sm">
+                    {version}
+                  </span>
                   {' · '}~18 MB · fumadocs + Next.js
                 </p>
               </div>
@@ -246,16 +242,15 @@ export function ExportDialog({ onClose }: Props) {
                 justifyContent: 'flex-end',
                 gap: 8,
                 padding: 16,
-                borderTop: '1px solid var(--border-default)',
               }}
             >
-              <button className="pg-btn pg-btn-secondary" onClick={onClose}>
+              <Button variant="outline" type="button" onClick={onClose}>
                 Close
-              </button>
-              <button className="pg-btn pg-btn-primary">
+              </Button>
+              <Button type="button">
                 <Download style={{ width: 14, height: 14, marginRight: 6 }} />
                 Download ZIP
-              </button>
+              </Button>
             </div>
           </>
         )}

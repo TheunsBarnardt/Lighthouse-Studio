@@ -2,6 +2,8 @@
 
 import { ShieldAlert } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
+
 interface Advisory {
   id: string;
   packageName: string;
@@ -14,10 +16,12 @@ interface Advisory {
 }
 
 const SEVERITY_BADGE: Record<string, string> = {
-  critical: 'pg-badge-danger',
-  high: 'pg-badge-danger',
-  medium: 'pg-badge-warning',
-  low: 'pg-badge-default',
+  critical:
+    'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive',
+  high: 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive',
+  medium:
+    'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  low: 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground',
 };
 
 const ACTION_LABEL: Record<string, string> = {
@@ -27,9 +31,12 @@ const ACTION_LABEL: Record<string, string> = {
 };
 
 const ACTION_BADGE: Record<string, string> = {
-  upgrade_now: 'pg-badge-danger',
-  upgrade_soon: 'pg-badge-warning',
-  monitor: 'pg-badge-default',
+  upgrade_now:
+    'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive',
+  upgrade_soon:
+    'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  monitor:
+    'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground',
 };
 
 const DEMO_ADVISORIES: Advisory[] = [
@@ -55,7 +62,6 @@ export function DependencyAdvisoriesPanel() {
           alignItems: 'center',
           justifyContent: 'center',
           height: 192,
-          color: 'var(--fg-tertiary)',
           gap: 8,
         }}
       >
@@ -67,7 +73,7 @@ export function DependencyAdvisoriesPanel() {
 
   return (
     <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
+      <h2 style={{ fontWeight: 600, fontSize: 14 }}>
         Dependency Advisories ({DEMO_ADVISORIES.length})
       </h2>
 
@@ -89,7 +95,6 @@ export function DependencyAdvisoriesPanel() {
                 style={{
                   width: 18,
                   height: 18,
-                  color: 'var(--fg-warning)',
                   marginTop: 2,
                   flexShrink: 0,
                 }}
@@ -104,39 +109,40 @@ export function DependencyAdvisoriesPanel() {
                     marginBottom: 4,
                   }}
                 >
-                  <span
-                    className="pg-mono"
-                    style={{ fontWeight: 500, fontSize: 13, color: 'var(--fg-primary)' }}
-                  >
+                  <span className="font-mono text-sm" style={{ fontWeight: 500, fontSize: 13 }}>
                     {adv.packageName}
                   </span>
-                  <span className={`pg-badge ${SEVERITY_BADGE[adv.severity]}`}>{adv.severity}</span>
+                  <span
+                    className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${SEVERITY_BADGE[adv.severity]}`}
+                  >
+                    {adv.severity}
+                  </span>
                   {adv.cveId && (
-                    <span className="pg-badge pg-badge-default pg-mono">{adv.cveId}</span>
+                    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground font-mono text-sm">
+                      {adv.cveId}
+                    </span>
                   )}
                 </div>
-                <p style={{ fontSize: 12, color: 'var(--fg-secondary)', marginBottom: 4 }}>
-                  Installed:{' '}
-                  <span className="pg-mono" style={{ color: 'var(--fg-primary)' }}>
-                    {adv.installedVersion}
-                  </span>
+                <p style={{ fontSize: 12, marginBottom: 4 }}>
+                  Installed: <span className="font-mono text-sm">{adv.installedVersion}</span>
                   {' → '}
-                  Fix:{' '}
-                  <span className="pg-mono" style={{ color: 'var(--fg-success)' }}>
-                    {adv.fixedVersion}
-                  </span>
+                  Fix: <span className="font-mono text-sm">{adv.fixedVersion}</span>
                 </p>
-                <p style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{adv.description}</p>
+                <p style={{ fontSize: 13 }}>{adv.description}</p>
               </div>
             </div>
 
             <div
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}
             >
-              <span className={`pg-badge ${ACTION_BADGE[adv.recommendedAction]}`}>
+              <span
+                className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${ACTION_BADGE[adv.recommendedAction]}`}
+              >
                 {ACTION_LABEL[adv.recommendedAction]}
               </span>
-              <button className="pg-btn pg-btn-primary pg-btn-sm">Create Change Request</button>
+              <Button size="sm" type="button">
+                Create Change Request
+              </Button>
             </div>
           </div>
         ))}

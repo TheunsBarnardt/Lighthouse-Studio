@@ -8,6 +8,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
 import { authApi } from '@/lib/auth-client';
 
 const inputStyle: React.CSSProperties = {
@@ -16,8 +17,6 @@ const inputStyle: React.CSSProperties = {
   padding: '0 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
   boxSizing: 'border-box',
 };
@@ -26,7 +25,6 @@ const cardStyle: React.CSSProperties = {
   padding: 32,
   borderRadius: 8,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-surface)',
 };
 
 const MagicLinkSchema = z.object({ email: z.string().email() });
@@ -64,9 +62,7 @@ function MagicLinkPageInner() {
   if (token) {
     return (
       <div style={cardStyle}>
-        <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 12 }}>
-          {t('consumingTitle')}
-        </h1>
+        <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{t('consumingTitle')}</h1>
         {consumeError ? (
           <div
             style={{
@@ -82,7 +78,7 @@ function MagicLinkPageInner() {
             {consumeError}
           </div>
         ) : (
-          <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }} aria-live="polite">
+          <p style={{ fontSize: 13 }} aria-live="polite">
             Signing you in…
           </p>
         )}
@@ -93,17 +89,12 @@ function MagicLinkPageInner() {
   if (sent) {
     return (
       <div style={cardStyle}>
-        <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 12 }}>
-          {t('successTitle')}
-        </h1>
-        <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 20 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>{t('successTitle')}</h1>
+        <p style={{ fontSize: 13, marginBottom: 20 }}>
           {t('successMessage', { email: sentEmail })}
         </p>
         <p style={{ textAlign: 'center', fontSize: 13 }}>
-          <Link
-            href="/auth/sign-in"
-            style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}
-          >
+          <Link href="/auth/sign-in" style={{ textDecoration: 'none' }}>
             Back to sign in
           </Link>
         </p>
@@ -113,12 +104,8 @@ function MagicLinkPageInner() {
 
   return (
     <div style={cardStyle}>
-      <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 4 }}>
-        {t('requestTitle')}
-      </h1>
-      <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 20 }}>
-        {t('requestSubtitle')}
-      </p>
+      <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 4 }}>{t('requestTitle')}</h1>
+      <p style={{ fontSize: 13, marginBottom: 20 }}>{t('requestSubtitle')}</p>
 
       <form
         onSubmit={(e) => {
@@ -133,7 +120,6 @@ function MagicLinkPageInner() {
               display: 'block',
               fontSize: 13,
               fontWeight: 500,
-              color: 'var(--fg-primary)',
               marginBottom: 4,
             }}
           >
@@ -154,14 +140,9 @@ function MagicLinkPageInner() {
           )}
         </div>
 
-        <button
-          type="submit"
-          className="pg-btn pg-btn-primary"
-          style={{ width: '100%' }}
-          disabled={formState.isSubmitting}
-        >
+        <Button type="submit" style={{ width: '100%' }} disabled={formState.isSubmitting}>
           {formState.isSubmitting ? t('submitting') : t('submit')}
-        </button>
+        </Button>
       </form>
     </div>
   );

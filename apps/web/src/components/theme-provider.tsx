@@ -10,12 +10,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setMounted(true);
     const theme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', theme);
+    applyTheme(theme);
   }, []);
 
   if (!mounted) return <>{children}</>;
 
   return <>{children}</>;
+}
+
+function applyTheme(theme: string) {
+  const root = document.documentElement;
+  if (theme === 'dark') {
+    root.classList.add('dark');
+  } else {
+    root.classList.remove('dark');
+  }
+  root.setAttribute('data-theme', theme);
 }
 
 export function useTheme() {
@@ -25,14 +35,14 @@ export function useTheme() {
     const stored = localStorage.getItem('theme') as 'light' | 'dark' | null;
     if (stored) {
       setThemeState(stored);
-      document.documentElement.setAttribute('data-theme', stored);
+      applyTheme(stored);
     }
   }, []);
 
   const setTheme = (newTheme: 'light' | 'dark') => {
     setThemeState(newTheme);
     localStorage.setItem('theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
+    applyTheme(newTheme);
   };
 
   return { theme, setTheme };

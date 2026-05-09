@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 
+import { Button } from '@/components/ui/button';
+
 // Pipeline stepper — shared visual component used across all stage pages
 function PipelineStepper({ active }: { active: string }) {
   const steps = [
@@ -38,17 +40,17 @@ function PipelineStepper({ active }: { active: string }) {
   ];
 
   return (
-    <div className="pg-pipeline-stepper">
+    <div className="flex shrink-0 items-center overflow-x-auto border-b bg-card px-6 py-2.5">
       {steps.map((step, i) => (
         <span key={step.id} style={{ display: 'contents' }}>
           <Link
             href={step.href}
-            className={`pg-pipeline-step${step.id === active ? ' active' : step.status === 'complete' ? ' complete' : ''}`}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded transition-colors${step.id === active ? ' bg-primary/10 text-primary' : step.status === 'complete' ? ' text-muted-foreground hover:text-foreground' : ' text-muted-foreground/60'}`}
           >
-            <span className="step-dot" />
+            <span className="h-1.5 w-1.5 rounded-full bg-current opacity-60" />
             {step.label}
           </Link>
-          {i < steps.length - 1 && <span className="pg-pipeline-arrow">›</span>}
+          {i < steps.length - 1 && <span className="mx-0.5 text-sm text-muted-foreground">›</span>}
         </span>
       ))}
     </div>
@@ -149,30 +151,32 @@ function StageIndicator({ status, number }: { status: Stage['status']; number: n
     flexShrink: 0,
   };
   if (status === 'approved') {
-    return (
-      <div style={{ ...base, background: 'var(--bg-success-subtle)', color: 'var(--fg-success)' }}>
-        {number}
-      </div>
-    );
+    return <div style={{ ...base, background: 'var(--bg-success-subtle)' }}>{number}</div>;
   }
   if (status === 'in_review') {
-    return (
-      <div style={{ ...base, background: 'var(--bg-warning-subtle)', color: 'var(--fg-warning)' }}>
-        {number}
-      </div>
-    );
+    return <div style={{ ...base, background: 'var(--bg-warning-subtle)' }}>{number}</div>;
   }
-  return (
-    <div style={{ ...base, background: 'var(--bg-surface-3)', color: 'var(--fg-tertiary)' }}>
-      {number}
-    </div>
-  );
+  return <div style={{ ...base, background: 'var(--bg-surface-3)' }}>{number}</div>;
 }
 
 function StatusBadge({ status }: { status: Stage['status'] }) {
-  if (status === 'approved') return <span className="pg-badge pg-badge-success">Approved</span>;
-  if (status === 'in_review') return <span className="pg-badge pg-badge-warning">In review</span>;
-  return <span className="pg-badge pg-badge-default">Pending</span>;
+  if (status === 'approved')
+    return (
+      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+        Approved
+      </span>
+    );
+  if (status === 'in_review')
+    return (
+      <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+        In review
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+      Pending
+    </span>
+  );
 }
 
 export default function AiPipelineOverviewPage() {
@@ -181,39 +185,46 @@ export default function AiPipelineOverviewPage() {
   return (
     <div>
       <PipelineStepper active="intent" />
-      <div className="pg-page" style={{ maxWidth: 1280 }}>
-        <div className="pg-page-header">
+      <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+        <div className="mb-5 flex items-start justify-between gap-4">
           <div>
             <h1>Internal CRM</h1>
             <div className="subtitle">
               CRM to replace spreadsheet tracking for an 8-person sales team · Created Apr 15, 2026
             </div>
           </div>
-          <div className="pg-page-header-actions">
-            <button className="pg-btn pg-btn-secondary pg-btn-sm">Settings</button>
-            <Link href="/ai-pipeline/ui-generation" className="pg-btn pg-btn-primary pg-btn-sm">
+          <div className="flex shrink-0 items-center gap-2">
+            <Button variant="outline" size="sm" type="button">
+              Settings
+            </Button>
+            <Link
+              href="/ai-pipeline/ui-generation"
+              className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
               Continue at UI generation
             </Link>
           </div>
         </div>
 
-        <div className="pg-grid pg-grid-4 pg-mb-6">
+        <div className="grid grid-cols-4 gap-4 mb-6">
           {[
             { label: 'Stages complete', value: `${String(stagesComplete)} / 10` },
             { label: 'Total cost', value: '$22.99' },
             { label: 'Components', value: '14' },
             { label: 'Tests passing', value: '87 / 87' },
           ].map((stat) => (
-            <div key={stat.label} className="pg-stat-card">
-              <div className="pg-stat-label">{stat.label}</div>
-              <div className="pg-stat-value">{stat.value}</div>
+            <div key={stat.label} className="rounded-md border bg-card p-4">
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                {stat.label}
+              </div>
+              <div className="text-[22px] font-semibold tabular-nums">{stat.value}</div>
             </div>
           ))}
         </div>
 
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <span className="pg-card-title">Stage progress</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">Stage progress</span>
           </div>
           {STAGES.map((stage, i) => (
             <Link
@@ -231,12 +242,8 @@ export default function AiPipelineOverviewPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <StageIndicator status={stage.status} number={stage.number} />
                 <div>
-                  <div style={{ fontWeight: 500, fontSize: 13, color: 'var(--fg-primary)' }}>
-                    {stage.name}
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginTop: 2 }}>
-                    {stage.detail}
-                  </div>
+                  <div style={{ fontWeight: 500, fontSize: 13 }}>{stage.name}</div>
+                  <div style={{ fontSize: 12, marginTop: 2 }}>{stage.detail}</div>
                 </div>
               </div>
               <StatusBadge status={stage.status} />

@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 
 export default function MfaPage() {
@@ -52,9 +53,9 @@ export default function MfaPage() {
 
   if (recoveryCodes) {
     return (
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <h2 className="pg-card-title">{t('recoveryCodes')}</h2>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <h2 className="text-sm font-semibold">{t('recoveryCodes')}</h2>
         </div>
         <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div
@@ -63,18 +64,16 @@ export default function MfaPage() {
               borderRadius: '6px',
               border: '1px solid var(--border-default)',
               fontSize: '0.875rem',
-              color: 'var(--fg-secondary)',
             }}
           >
             {t('recoveryCodesInfo')}
           </div>
 
           <div
-            className="pg-mono"
+            className="font-mono text-sm"
             style={{
               borderRadius: '6px',
               border: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
               padding: '1rem',
               fontSize: '0.875rem',
               display: 'flex',
@@ -88,9 +87,9 @@ export default function MfaPage() {
           </div>
 
           <div>
-            <button type="button" className="pg-btn pg-btn-secondary" onClick={downloadCodes}>
+            <Button variant="outline" type="button" onClick={downloadCodes}>
               {t('downloadCodes')}
-            </button>
+            </Button>
           </div>
 
           <label
@@ -105,23 +104,20 @@ export default function MfaPage() {
               }}
               style={{ width: '1rem', height: '1rem', accentColor: 'var(--accent-primary)' }}
             />
-            <span style={{ fontSize: '0.875rem', color: 'var(--fg-primary)' }}>
-              {t('savedCodes')}
-            </span>
+            <span style={{ fontSize: '0.875rem' }}>{t('savedCodes')}</span>
           </label>
 
           {savedCodes && (
             <div>
-              <button
+              <Button
                 type="button"
-                className="pg-btn pg-btn-primary"
                 onClick={() => {
                   setRecoveryCodes(null);
                   setEnrolling(false);
                 }}
               >
                 Done
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -131,12 +127,12 @@ export default function MfaPage() {
 
   if (enrolling) {
     return (
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <h2 className="pg-card-title">{t('enrollTitle')}</h2>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <h2 className="text-sm font-semibold">{t('enrollTitle')}</h2>
         </div>
         <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <p style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)' }}>{t('enrollStep1')}</p>
+          <p style={{ fontSize: '0.875rem' }}>{t('enrollStep1')}</p>
 
           {/* QR code placeholder — real impl uses a QR library */}
           <div
@@ -149,9 +145,7 @@ export default function MfaPage() {
               width: '12rem',
               borderRadius: '8px',
               border: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
               fontSize: '0.75rem',
-              color: 'var(--fg-tertiary)',
               textAlign: 'center',
               gap: '0.25rem',
               padding: '0.75rem',
@@ -161,13 +155,10 @@ export default function MfaPage() {
             <span style={{ wordBreak: 'break-all' }}>{totpUri.slice(0, 40)}…</span>
           </div>
 
-          <p style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)' }}>{t('enrollStep2')}</p>
+          <p style={{ fontSize: '0.875rem' }}>{t('enrollStep2')}</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-            <label
-              htmlFor="mfa-code"
-              style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--fg-primary)' }}
-            >
+            <label htmlFor="mfa-code" style={{ fontSize: '0.8125rem', fontWeight: 500 }}>
               {t('enrollCodeLabel')}
             </label>
             <input
@@ -185,37 +176,32 @@ export default function MfaPage() {
                 padding: '0.4375rem 0.75rem',
                 border: '1px solid var(--border-default)',
                 borderRadius: '6px',
-                background: 'var(--bg-canvas)',
-                color: 'var(--fg-primary)',
                 fontSize: '0.875rem',
                 outline: 'none',
                 maxWidth: '12rem',
               }}
             />
-            {codeError && (
-              <span style={{ fontSize: '0.8125rem', color: 'var(--fg-danger)' }}>{codeError}</span>
-            )}
+            {codeError && <span style={{ fontSize: '0.8125rem' }}>{codeError}</span>}
           </div>
 
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button
+            <Button
               type="button"
-              className="pg-btn pg-btn-primary"
               onClick={() => {
                 void submitCode();
               }}
             >
               {t('enrollSubmit')}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
               type="button"
-              className="pg-btn pg-btn-secondary"
               onClick={() => {
                 setEnrolling(false);
               }}
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -223,9 +209,9 @@ export default function MfaPage() {
   }
 
   return (
-    <div className="pg-card">
-      <div className="pg-card-header">
-        <h2 className="pg-card-title">{t('title')}</h2>
+    <div className="rounded-md border bg-card text-card-foreground p-4">
+      <div className="mb-3 flex items-center justify-between border-b pb-3">
+        <h2 className="text-sm font-semibold">{t('title')}</h2>
       </div>
       <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div
@@ -234,7 +220,6 @@ export default function MfaPage() {
             borderRadius: '6px',
             border: '1px solid var(--border-default)',
             fontSize: '0.875rem',
-            color: 'var(--fg-secondary)',
           }}
         >
           {user?.mfaEnabled ? t('enabled') : t('disabled')}
@@ -242,23 +227,22 @@ export default function MfaPage() {
 
         {!user?.mfaEnabled && (
           <div>
-            <button type="button" className="pg-btn pg-btn-primary" onClick={startEnroll}>
+            <Button type="button" onClick={startEnroll}>
               {t('enable')}
-            </button>
+            </Button>
           </div>
         )}
         {user?.mfaEnabled && (
           <div>
-            <button
+            <Button
               type="button"
-              className="pg-btn pg-btn-primary"
               style={{ background: 'var(--fg-danger)', borderColor: 'var(--fg-danger)' }}
               onClick={() => {
                 /* TODO */
               }}
             >
               {t('disable')}
-            </button>
+            </Button>
           </div>
         )}
       </div>

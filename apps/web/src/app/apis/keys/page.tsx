@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 interface ApiKey {
   name: string;
   token: string;
@@ -107,81 +109,105 @@ const RECENT_EVENTS: RecentEvent[] = [
 ];
 
 function statusBadge(status: ApiKey['status']) {
-  if (status === 'live') return <span className="pg-badge pg-badge-success">Live</span>;
-  if (status === 'test') return <span className="pg-badge pg-badge-accent">Test</span>;
-  return <span className="pg-badge pg-badge-default">Expired</span>;
+  if (status === 'live')
+    return (
+      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+        Live
+      </span>
+    );
+  if (status === 'test')
+    return (
+      <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+        Test
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+      Expired
+    </span>
+  );
 }
 
 function scopeBadge(scope: string) {
   if (scope === 'service_role')
-    return <span className="pg-badge pg-badge-warning pg-mono">{scope}</span>;
-  return <span className="pg-badge pg-badge-default pg-mono">{scope}</span>;
+    return (
+      <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-mono text-sm">
+        {scope}
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground font-mono text-sm">
+      {scope}
+    </span>
+  );
 }
 
 function eventBadge(event: string, variant: string) {
   const cls =
     variant === 'success'
-      ? 'pg-badge pg-badge-success'
+      ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
       : variant === 'warning'
-        ? 'pg-badge pg-badge-warning'
-        : 'pg-badge pg-badge-default';
+        ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+        : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground';
   return <span className={cls}>{event}</span>;
 }
 
 const inlineCode = (text: string) => (
-  <span
-    className="pg-mono"
-    style={{ background: 'var(--bg-surface)', padding: '1px 5px', borderRadius: 3, fontSize: 12 }}
-  >
+  <span className="font-mono text-sm" style={{ padding: '1px 5px', borderRadius: 3, fontSize: 12 }}>
     {text}
   </span>
 );
 
 export default function ApiKeysPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            API Keys
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>API Keys</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Issue, scope, and rotate API keys · 5 keys · 4 active · 1 expired
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Audit log</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">+ New API key</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
+            Audit log
+          </Button>
+          <Button size="sm" type="button">
+            + New API key
+          </Button>
         </div>
       </div>
 
       <div
-        className="pg-card"
+        className="rounded-md border bg-card text-card-foreground p-4"
         style={{
           background: 'var(--bg-warning-subtle)',
           borderColor: 'var(--fg-warning)',
           marginBottom: 16,
         }}
       >
-        <div style={{ fontSize: 13, color: 'var(--fg-primary)' }}>
+        <div style={{ fontSize: 13 }}>
           <strong>API keys grant access to your data.</strong> Keys with the{' '}
           {inlineCode('service_role')} scope bypass all RLS policies — use them only on trusted
           servers, never in client code. Use {inlineCode('anon')} for browser/mobile clients.
         </div>
       </div>
 
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Active keys</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Active keys</div>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>Name</th>
                 <th>Token (masked)</th>
                 <th>Scope</th>
-                <th className="pg-tabular">Requests · 30d</th>
+                <th className="tabular-nums">Requests · 30d</th>
                 <th>Last used</th>
                 <th>Created by</th>
                 <th>Status</th>
@@ -192,20 +218,24 @@ export default function ApiKeysPage() {
               {KEYS.map((key) => (
                 <tr key={key.token}>
                   <td style={{ fontWeight: 500 }}>{key.name}</td>
-                  <td className="pg-mono" style={{ fontSize: 12 }}>
+                  <td className="font-mono text-sm" style={{ fontSize: 12 }}>
                     {key.token}
                   </td>
                   <td>{scopeBadge(key.scope)}</td>
-                  <td className="pg-tabular">{key.requests}</td>
-                  <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>{key.lastUsed}</td>
-                  <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
+                  <td className="tabular-nums">{key.requests}</td>
+                  <td style={{ fontSize: 12 }}>{key.lastUsed}</td>
+                  <td style={{ fontSize: 12 }}>
                     {key.createdBy} · {key.age}
                   </td>
                   <td>{statusBadge(key.status)}</td>
                   <td>
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button className="pg-btn pg-btn-ghost pg-btn-xs">Rotate</button>
-                      <button className="pg-btn pg-btn-ghost pg-btn-xs">Revoke</button>
+                      <Button className="" variant="ghost" type="button">
+                        Rotate
+                      </Button>
+                      <Button className="" variant="ghost" type="button">
+                        Revoke
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -215,35 +245,38 @@ export default function ApiKeysPage() {
         </div>
       </div>
 
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Recommended rotation policy</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Recommended rotation policy</div>
         </div>
-        <div className="pg-grid pg-grid-3">
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">Service role keys</span>
-            <span className="pg-inspector-val">Rotate every 90 days</span>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">Service role keys</span>
+            <span className="font-medium">Rotate every 90 days</span>
           </div>
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">Anon keys</span>
-            <span className="pg-inspector-val">Rotate every 180 days</span>
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">Anon keys</span>
+            <span className="font-medium">Rotate every 180 days</span>
           </div>
-          <div className="pg-inspector-row">
-            <span className="pg-inspector-key">Test keys</span>
-            <span className="pg-inspector-val">No rotation enforced</span>
+          <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
+            <span className="text-muted-foreground">Test keys</span>
+            <span className="font-medium">No rotation enforced</span>
           </div>
         </div>
-        <div style={{ fontSize: 12, color: 'var(--fg-tertiary)', marginTop: 12 }}>
+        <div style={{ fontSize: 12, marginTop: 12 }}>
           CRM Production · Write was rotated 14 days ago. Next reminder in 76 days.
         </div>
       </div>
 
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Recent key events</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Recent key events</div>
         </div>
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>When</th>
@@ -256,13 +289,13 @@ export default function ApiKeysPage() {
             <tbody>
               {RECENT_EVENTS.map((ev, i) => (
                 <tr key={i}>
-                  <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>{ev.when}</td>
+                  <td style={{ fontSize: 12 }}>{ev.when}</td>
                   <td>{eventBadge(ev.event, ev.eventBadge)}</td>
-                  <td className="pg-mono" style={{ fontSize: 12 }}>
+                  <td className="font-mono text-sm" style={{ fontSize: 12 }}>
                     {ev.key}
                   </td>
-                  <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>{ev.by}</td>
-                  <td className="pg-mono" style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
+                  <td style={{ fontSize: 12 }}>{ev.by}</td>
+                  <td className="font-mono text-sm" style={{ fontSize: 12 }}>
                     {ev.ip}
                   </td>
                 </tr>

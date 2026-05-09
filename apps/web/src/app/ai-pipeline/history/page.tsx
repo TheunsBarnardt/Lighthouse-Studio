@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface GenerationCall {
   id: string;
   stage: string;
@@ -116,12 +118,24 @@ const MOCK_CALLS: GenerationCall[] = [
 
 function outcomeBadge(outcome: GenerationCall['outcome']) {
   if (outcome === 'Approved' || outcome === 'Auto-merged') {
-    return <span className="pg-badge pg-badge-success">{outcome}</span>;
+    return (
+      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+        {outcome}
+      </span>
+    );
   }
   if (outcome === 'Rejected') {
-    return <span className="pg-badge pg-badge-danger">Rejected</span>;
+    return (
+      <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">
+        Rejected
+      </span>
+    );
   }
-  return <span className="pg-badge pg-badge-warning">Pending</span>;
+  return (
+    <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+      Pending
+    </span>
+  );
 }
 
 export default function GenerationHistoryPage() {
@@ -138,8 +152,8 @@ export default function GenerationHistoryPage() {
   });
 
   return (
-    <div className="pg-page" style={{ maxWidth: 1400 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1400 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1>Generation History</h1>
           <div className="subtitle">
@@ -147,9 +161,9 @@ export default function GenerationHistoryPage() {
             projects
           </div>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           <input
-            className="pg-btn pg-btn-secondary"
+            className="inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted"
             placeholder="Search generations..."
             style={{
               width: 240,
@@ -165,7 +179,7 @@ export default function GenerationHistoryPage() {
             }}
           />
           <select
-            className="pg-btn pg-btn-secondary pg-btn-sm"
+            className="inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-muted"
             value={stageFilter}
             onChange={(e) => {
               setStageFilter(e.target.value);
@@ -181,7 +195,7 @@ export default function GenerationHistoryPage() {
             <option value="Maintenance">Maintenance</option>
           </select>
           <select
-            className="pg-btn pg-btn-secondary pg-btn-sm"
+            className="inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-muted"
             value={outcomeFilter}
             onChange={(e) => {
               setOutcomeFilter(e.target.value);
@@ -194,46 +208,63 @@ export default function GenerationHistoryPage() {
             <option value="Auto-merged">Auto-merged</option>
             <option value="Pending">Pending</option>
           </select>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Export</button>
+          <Button variant="outline" size="sm" type="button">
+            Export
+          </Button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="pg-grid pg-grid-4 pg-mb-4">
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Total generations · 30d</div>
-          <div className="pg-stat-value">412</div>
-          <div className="pg-stat-delta">~14/day avg</div>
-        </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Approval rate</div>
-          <div className="pg-stat-value" style={{ color: 'var(--fg-success)' }}>
-            87%
+      <div className="grid grid-cols-4 gap-4 mb-4">
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Total generations · 30d
           </div>
-          <div className="pg-stat-delta">8% rejected · 5% pending</div>
+          <div className="text-[22px] font-semibold tabular-nums">412</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">~14/day avg</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Total cost · 30d</div>
-          <div className="pg-stat-value">$23.40</div>
-          <div className="pg-stat-delta">$0.057 avg per call</div>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Approval rate
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">87%</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">8% rejected · 5% pending</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Avg time-to-approve</div>
-          <div className="pg-stat-value">1h 47m</div>
-          <div className="pg-stat-delta pg-stat-up">−12m vs prior</div>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Total cost · 30d
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">$23.40</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">$0.057 avg per call</div>
+        </div>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Avg time-to-approve
+          </div>
+          <div className="text-[22px] font-semibold tabular-nums">1h 47m</div>
+          <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
+            −12m vs prior
+          </div>
         </div>
       </div>
 
       {/* Table */}
-      <div className="pg-card pg-mb-4" style={{ padding: 0, overflow: 'hidden' }}>
-        <div className="pg-card-header" style={{ padding: '12px 16px', borderRadius: 0 }}>
-          <span className="pg-card-title">Recent generations</span>
-          <span style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
-            Click any row to see prompt, output, and reasoning
-          </span>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4 mb-4"
+        style={{ padding: 0, overflow: 'hidden' }}
+      >
+        <div
+          className="mb-3 flex items-center justify-between border-b pb-3"
+          style={{ padding: '12px 16px', borderRadius: 0 }}
+        >
+          <span className="text-sm font-semibold">Recent generations</span>
+          <span style={{ fontSize: 12 }}>Click any row to see prompt, output, and reasoning</span>
         </div>
-        <div className="pg-table-wrap" style={{ border: 'none', borderRadius: 0 }}>
-          <table className="pg-data-table">
+        <div
+          className="overflow-hidden rounded-md border"
+          style={{ border: 'none', borderRadius: 0 }}
+        >
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>ID</th>
@@ -251,12 +282,8 @@ export default function GenerationHistoryPage() {
             <tbody>
               {filtered.map((call) => (
                 <tr key={call.id} style={{ cursor: 'pointer' }}>
-                  <td
-                    style={{ fontFamily: 'monospace', fontSize: 11, color: 'var(--fg-secondary)' }}
-                  >
-                    {call.id}
-                  </td>
-                  <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>{call.stage}</td>
+                  <td style={{ fontFamily: 'monospace', fontSize: 11 }}>{call.id}</td>
+                  <td style={{ fontSize: 12 }}>{call.stage}</td>
                   <td style={{ fontSize: 13 }}>{call.artifact}</td>
                   <td style={{ fontFamily: 'monospace', fontSize: 11 }}>{call.model}</td>
                   <td
@@ -274,9 +301,9 @@ export default function GenerationHistoryPage() {
                   >
                     ${call.cost.toFixed(3)}
                   </td>
-                  <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>{call.when}</td>
+                  <td style={{ fontSize: 12 }}>{call.when}</td>
                   <td>{outcomeBadge(call.outcome)}</td>
-                  <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>{call.by}</td>
+                  <td style={{ fontSize: 12 }}>{call.by}</td>
                 </tr>
               ))}
             </tbody>
@@ -285,14 +312,23 @@ export default function GenerationHistoryPage() {
       </div>
 
       {/* Bottom analytics */}
-      <div className="pg-grid" style={{ gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         {/* Token usage by model */}
-        <div className="pg-card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div className="pg-card-header" style={{ padding: '12px 16px', borderRadius: 0 }}>
-            <span className="pg-card-title">Token usage by model · 30d</span>
+        <div
+          className="rounded-md border bg-card text-card-foreground p-4"
+          style={{ padding: 0, overflow: 'hidden' }}
+        >
+          <div
+            className="mb-3 flex items-center justify-between border-b pb-3"
+            style={{ padding: '12px 16px', borderRadius: 0 }}
+          >
+            <span className="text-sm font-semibold">Token usage by model · 30d</span>
           </div>
-          <div className="pg-table-wrap" style={{ border: 'none', borderRadius: 0 }}>
-            <table className="pg-data-table">
+          <div
+            className="overflow-hidden rounded-md border"
+            style={{ border: 'none', borderRadius: 0 }}
+          >
+            <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
                   <th>Model</th>
@@ -330,25 +366,24 @@ export default function GenerationHistoryPage() {
         </div>
 
         {/* Outcomes */}
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <span className="pg-card-title">Outcomes</span>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <span className="text-sm font-semibold">Outcomes</span>
           </div>
-          <div className="pg-grid pg-grid-3" style={{ marginBottom: 16 }}>
+          <div className="grid grid-cols-3 gap-4" style={{ marginBottom: 16 }}>
             <div>
               <div
                 style={{
                   fontSize: 11,
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em',
-                  color: 'var(--fg-tertiary)',
                   marginBottom: 4,
                 }}
               >
                 APPROVED
               </div>
-              <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--fg-success)' }}>358</div>
-              <div style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>87%</div>
+              <div style={{ fontSize: 22, fontWeight: 600 }}>358</div>
+              <div style={{ fontSize: 12 }}>87%</div>
             </div>
             <div>
               <div
@@ -356,14 +391,13 @@ export default function GenerationHistoryPage() {
                   fontSize: 11,
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em',
-                  color: 'var(--fg-tertiary)',
                   marginBottom: 4,
                 }}
               >
                 REJECTED
               </div>
-              <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--fg-danger)' }}>33</div>
-              <div style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>8%</div>
+              <div style={{ fontSize: 22, fontWeight: 600 }}>33</div>
+              <div style={{ fontSize: 12 }}>8%</div>
             </div>
             <div>
               <div
@@ -371,17 +405,16 @@ export default function GenerationHistoryPage() {
                   fontSize: 11,
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em',
-                  color: 'var(--fg-tertiary)',
                   marginBottom: 4,
                 }}
               >
                 PENDING
               </div>
-              <div style={{ fontSize: 22, fontWeight: 600, color: 'var(--fg-warning)' }}>21</div>
-              <div style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>5%</div>
+              <div style={{ fontSize: 22, fontWeight: 600 }}>21</div>
+              <div style={{ fontSize: 12 }}>5%</div>
             </div>
           </div>
-          <p style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
+          <p style={{ fontSize: 12 }}>
             Rejected calls feed back as learning signal. The next generation in the same
             conversation incorporates rejection notes.
           </p>

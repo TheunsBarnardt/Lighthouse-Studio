@@ -3,6 +3,8 @@
 import { Download } from 'lucide-react';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { DocContent } from './components/DocContent';
 import { DocMetaPanel } from './components/DocMetaPanel';
 import { DocSearch } from './components/DocSearch';
@@ -117,7 +119,7 @@ export default function ProjectDocsPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div
           style={{
             display: 'flex',
@@ -132,7 +134,6 @@ export default function ProjectDocsPage() {
               style={{
                 fontSize: 14,
                 fontWeight: 600,
-                color: 'var(--fg-primary)',
                 margin: 0,
                 flexShrink: 0,
               }}
@@ -141,16 +142,18 @@ export default function ProjectDocsPage() {
             </h1>
             <DocSearch onNavigate={setActivePage} navItems={DEMO_NAV} />
           </div>
-          <div className="pg-page-header-actions">
-            <button
-              className="pg-btn pg-btn-secondary pg-btn-sm"
+          <div className="flex shrink-0 items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
               onClick={() => {
                 setShowExport(true);
               }}
             >
               <Download style={{ width: 14, height: 14, marginRight: 6 }} />
               Export Site
-            </button>
+            </Button>
           </div>
         </div>
       </div>

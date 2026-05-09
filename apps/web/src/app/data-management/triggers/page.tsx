@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 const TRIGGERS = [
   {
     name: 'on_user_created',
@@ -39,23 +41,19 @@ const TRIGGERS = [
 export default function DatabaseTriggersPage() {
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Triggers
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
-            {TRIGGERS.length} triggers
-          </div>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Triggers</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>{TRIGGERS.length} triggers</div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-primary pg-btn-sm" type="button">
+        <div className="flex shrink-0 items-center gap-2">
+          <Button size="sm" type="button">
             + New trigger
-          </button>
+          </Button>
         </div>
       </div>
-      <div className="pg-table-wrap">
-        <table className="pg-data-table">
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr>
               <th>Name</th>
@@ -69,22 +67,22 @@ export default function DatabaseTriggersPage() {
             {TRIGGERS.map((t) => (
               <tr key={t.name}>
                 <td>
-                  <span className="pg-mono" style={{ fontSize: 11 }}>
+                  <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                     {t.name}
                   </span>
                 </td>
                 <td>
-                  <span className="pg-mono" style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>
+                  <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                     {t.table}
                   </span>
                 </td>
-                <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>{t.event}</td>
+                <td style={{ fontSize: 12 }}>{t.event}</td>
                 <td>
-                  <span className="pg-mono" style={{ fontSize: 11 }}>
+                  <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                     {t.fn}
                   </span>
                 </td>
-                <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>{t.activation}</td>
+                <td style={{ fontSize: 12 }}>{t.activation}</td>
               </tr>
             ))}
           </tbody>

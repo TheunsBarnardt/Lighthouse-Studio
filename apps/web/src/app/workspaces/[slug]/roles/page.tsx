@@ -3,6 +3,8 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface Role {
   id: string;
   name: string;
@@ -33,36 +35,39 @@ export default function WorkspaceRolesPage() {
 
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Roles
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Roles</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Manage roles and permissions for this workspace.
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-primary pg-btn-sm">New role</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button size="sm" type="button">
+            New role
+          </Button>
         </div>
       </div>
 
       {loading && (
-        <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }} aria-live="polite">
+        <p style={{ fontSize: 13 }} aria-live="polite">
           Loading…
         </p>
       )}
 
       {!loading && roles.length === 0 && (
-        <div className="pg-card" style={{ padding: '32px', textAlign: 'center' }}>
-          <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }}>No roles defined.</p>
+        <div
+          className="rounded-md border bg-card text-card-foreground p-4"
+          style={{ padding: '32px', textAlign: 'center' }}
+        >
+          <p style={{ fontSize: 13 }}>No roles defined.</p>
         </div>
       )}
 
       {!loading && roles.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {roles.map((role) => (
-            <div key={role.id} className="pg-card">
+            <div key={role.id} className="rounded-md border bg-card text-card-foreground p-4">
               <div
                 style={{
                   display: 'flex',
@@ -72,22 +77,20 @@ export default function WorkspaceRolesPage() {
                 }}
               >
                 <div>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--fg-primary)' }}>
-                    {role.name}
-                  </span>
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>{role.name}</span>
                   {role.description && (
-                    <p style={{ marginTop: 2, fontSize: 13, color: 'var(--fg-secondary)' }}>
-                      {role.description}
-                    </p>
+                    <p style={{ marginTop: 2, fontSize: 13 }}>{role.description}</p>
                   )}
                 </div>
-                <span className="pg-badge pg-badge-default">{role.memberCount} members</span>
+                <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                  {role.memberCount} members
+                </span>
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                 {role.permissions.map((p) => (
                   <span
                     key={p}
-                    className="pg-badge pg-badge-default pg-mono"
+                    className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground font-mono text-sm"
                     style={{ fontSize: 10 }}
                   >
                     {p}

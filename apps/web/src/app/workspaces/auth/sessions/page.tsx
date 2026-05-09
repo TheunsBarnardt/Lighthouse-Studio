@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 interface WorkspaceSession {
   id: string;
   user: string;
@@ -75,23 +77,24 @@ export default function AuthSessionsPage() {
   }
 
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
       {/* Header */}
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1>Active Sessions</h1>
           <p className="subtitle">{sessions.length} active · 3 expired in last 24h</p>
         </div>
         {sessions.length > 0 && (
-          <div className="pg-page-header-actions">
-            <button
-              className="pg-btn pg-btn-sm"
+          <div className="flex shrink-0 items-center gap-2">
+            <Button
+              className=""
+              type="button"
               style={{ background: 'var(--fg-danger)', color: '#fff' }}
               disabled={revoking === 'all'}
               onClick={revokeAll}
             >
               {revoking === 'all' ? 'Revoking…' : 'Revoke all'}
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -104,14 +107,13 @@ export default function AuthSessionsPage() {
             padding: '48px 24px',
             textAlign: 'center',
             fontSize: 13,
-            color: 'var(--fg-secondary)',
           }}
         >
           No active sessions.
         </div>
       ) : (
-        <div className="pg-table-wrap">
-          <table className="pg-data-table">
+        <div className="overflow-hidden rounded-md border">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr>
                 <th>User</th>
@@ -126,32 +128,29 @@ export default function AuthSessionsPage() {
                 <tr key={session.id}>
                   <td>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-primary)' }}>
-                        {session.user}
-                      </div>
-                      <div style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
-                        {session.email}
-                      </div>
+                      <div style={{ fontSize: 13, fontWeight: 500 }}>{session.user}</div>
+                      <div style={{ fontSize: 12 }}>{session.email}</div>
                     </div>
                   </td>
-                  <td className="pg-tabular" style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
+                  <td className="tabular-nums" style={{ fontSize: 12 }}>
                     {session.started}
                   </td>
-                  <td className="pg-mono" style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
+                  <td className="font-mono text-sm" style={{ fontSize: 12 }}>
                     {session.ip}
                   </td>
-                  <td style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>{session.device}</td>
+                  <td style={{ fontSize: 13 }}>{session.device}</td>
                   <td style={{ textAlign: 'right' }}>
-                    <button
-                      className="pg-btn pg-btn-ghost pg-btn-xs"
-                      style={{ color: 'var(--fg-danger)' }}
+                    <Button
+                      className=""
+                      variant="ghost"
+                      type="button"
                       disabled={revoking === session.id}
                       onClick={() => {
                         revokeSession(session.id);
                       }}
                     >
                       {revoking === session.id ? 'Revoking…' : 'Revoke'}
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))}

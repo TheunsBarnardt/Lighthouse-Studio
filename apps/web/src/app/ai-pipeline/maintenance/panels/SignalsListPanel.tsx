@@ -3,6 +3,8 @@
 import { Bug, Zap, Package, MessageSquare, Plus } from 'lucide-react';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { CreateChangeRequestDialog } from '../dialogs/CreateChangeRequestDialog';
 
 type SignalSource = 'error' | 'perf' | 'user_report' | 'dependency_advisory' | 'feature_request';
@@ -21,18 +23,20 @@ interface Signal {
 }
 
 const SOURCE_ICON: Record<SignalSource, React.ReactNode> = {
-  error: <Bug style={{ width: 16, height: 16, color: 'var(--fg-danger)' }} />,
-  perf: <Zap style={{ width: 16, height: 16, color: 'var(--fg-warning)' }} />,
-  user_report: <MessageSquare style={{ width: 16, height: 16, color: 'var(--accent-primary)' }} />,
-  dependency_advisory: <Package style={{ width: 16, height: 16, color: 'var(--fg-secondary)' }} />,
-  feature_request: <Plus style={{ width: 16, height: 16, color: 'var(--fg-success)' }} />,
+  error: <Bug style={{ width: 16, height: 16 }} />,
+  perf: <Zap style={{ width: 16, height: 16 }} />,
+  user_report: <MessageSquare style={{ width: 16, height: 16 }} />,
+  dependency_advisory: <Package style={{ width: 16, height: 16 }} />,
+  feature_request: <Plus style={{ width: 16, height: 16 }} />,
 };
 
 const SEVERITY_BADGE: Record<Severity, string> = {
-  critical: 'pg-badge-danger',
-  high: 'pg-badge-danger',
-  medium: 'pg-badge-warning',
-  low: 'pg-badge-default',
+  critical:
+    'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive',
+  high: 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive',
+  medium:
+    'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  low: 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground',
 };
 
 const DEMO_SIGNALS: Signal[] = [
@@ -84,18 +88,17 @@ export function SignalsListPanel() {
   return (
     <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
-          Signals ({DEMO_SIGNALS.length})
-        </h2>
-        <button
-          className="pg-btn pg-btn-primary pg-btn-sm"
+        <h2 style={{ fontWeight: 600, fontSize: 14 }}>Signals ({DEMO_SIGNALS.length})</h2>
+        <Button
+          size="sm"
+          type="button"
           disabled={selectedSignals.size === 0}
           onClick={() => {
             setShowCreateRequest(true);
           }}
         >
           Create Change Request ({selectedSignals.size})
-        </button>
+        </Button>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -135,25 +138,26 @@ export function SignalsListPanel() {
                   }}
                 >
                   {SOURCE_ICON[signal.source]}
-                  <span className={`pg-badge ${SEVERITY_BADGE[signal.severity]}`}>
+                  <span
+                    className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${SEVERITY_BADGE[signal.severity]}`}
+                  >
                     {signal.severity}
                   </span>
                   {signal.stage && (
-                    <span className="pg-badge pg-badge-default">
+                    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                       {signal.stage.replace('_', ' ')}
                     </span>
                   )}
                   <span
-                    className={`pg-badge ${signal.status === 'new' ? 'pg-badge-danger' : 'pg-badge-default'}`}
+                    className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${signal.status === 'new' ? 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive' : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'}`}
                   >
                     {signal.status.replace('_', ' ')}
                   </span>
                 </div>
                 <p
-                  className="pg-mono"
+                  className="font-mono text-sm"
                   style={{
                     fontSize: 12,
-                    color: 'var(--fg-primary)',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -161,7 +165,7 @@ export function SignalsListPanel() {
                 >
                   {signal.message}
                 </p>
-                <p style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 4 }}>
+                <p style={{ fontSize: 11, marginTop: 4 }}>
                   {signal.occurrences} occurrence{signal.occurrences !== 1 ? 's' : ''} · first seen{' '}
                   {signal.firstSeen}
                 </p>

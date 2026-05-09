@@ -1,5 +1,7 @@
 import type React from 'react';
 
+import { Button } from '@/components/ui/button';
+
 function ScoreRing({ score }: { score: number }) {
   const C = 2 * Math.PI * 44;
   const offset = C - (C * score) / 100;
@@ -157,17 +159,15 @@ function auditIcon(status: AuditStatus) {
 
 export default function LighthousePage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Lighthouse / Performance
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Lighthouse / Performance</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Core Web Vitals · Last scan 12 minutes ago · Mobile · Slow 4G · 4× CPU throttle
           </div>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           <select
             style={{
               width: 180,
@@ -175,8 +175,6 @@ export default function LighthousePage() {
               padding: '0 8px',
               borderRadius: 4,
               border: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
               fontSize: 12,
             }}
           >
@@ -192,15 +190,15 @@ export default function LighthousePage() {
               padding: '0 8px',
               borderRadius: 4,
               border: '1px solid var(--border-default)',
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
               fontSize: 12,
             }}
           >
             <option>Mobile</option>
             <option>Desktop</option>
           </select>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Re-scan</button>
+          <Button size="sm" type="button">
+            Re-scan
+          </Button>
         </div>
       </div>
 
@@ -219,23 +217,34 @@ export default function LighthousePage() {
           { score: 100, label: 'Best Practices', sub: 'HTTPS, console, modern APIs' },
           { score: 78, label: 'SEO', sub: 'Crawlability, meta, structured data' },
         ].map((s) => (
-          <div key={s.label} className="pg-card" style={{ textAlign: 'center' }}>
+          <div
+            key={s.label}
+            className="rounded-md border bg-card text-card-foreground p-4"
+            style={{ textAlign: 'center' }}
+          >
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
               <ScoreRing score={s.score} />
             </div>
             <div style={{ fontWeight: 600, fontSize: 13 }}>{s.label}</div>
-            <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{s.sub}</div>
+            <div style={{ fontSize: 11 }}>{s.sub}</div>
           </div>
         ))}
       </div>
 
       {/* Core Web Vitals */}
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Core Web Vitals · field data (real users · last 28d)</div>
-          <span className="pg-badge pg-badge-success">Passing</span>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">
+            Core Web Vitals · field data (real users · last 28d)
+          </div>
+          <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+            Passing
+          </span>
         </div>
-        <div className="pg-grid pg-grid-3">
+        <div className="grid grid-cols-3 gap-4">
           {CWV.map((m) => {
             const c =
               m.status === 'good'
@@ -256,7 +265,6 @@ export default function LighthousePage() {
                       fontWeight: 500,
                       textTransform: 'uppercase',
                       letterSpacing: '0.04em',
-                      color: 'var(--fg-secondary)',
                     }}
                   >
                     {m.name}
@@ -273,9 +281,9 @@ export default function LighthousePage() {
                   >
                     {m.value}
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>target {m.target}</div>
+                  <div style={{ fontSize: 11 }}>target {m.target}</div>
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>{m.desc}</div>
+                <div style={{ fontSize: 11 }}>{m.desc}</div>
               </div>
             );
           })}
@@ -283,10 +291,15 @@ export default function LighthousePage() {
       </div>
 
       {/* Opportunities */}
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Opportunities</div>
-          <span className="pg-badge pg-badge-warning">3 found · ~1.4s savings</span>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Opportunities</div>
+          <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+            3 found · ~1.4s savings
+          </span>
         </div>
         {OPPORTUNITIES.map((o) => (
           <div
@@ -296,7 +309,6 @@ export default function LighthousePage() {
               alignItems: 'flex-start',
               gap: 12,
               padding: '12px 0',
-              borderBottom: '1px solid var(--border-default)',
             }}
           >
             <div
@@ -312,7 +324,6 @@ export default function LighthousePage() {
                 flexShrink: 0,
                 marginTop: 2,
                 background: 'var(--bg-warning-subtle)',
-                color: 'var(--fg-warning)',
               }}
             >
               !
@@ -326,29 +337,27 @@ export default function LighthousePage() {
                 }}
               >
                 <div style={{ fontWeight: 500, fontSize: 13 }}>{o.name}</div>
-                <div style={{ fontSize: 11, color: 'var(--fg-success)', fontWeight: 600 }}>
-                  Save {o.savings}
-                </div>
+                <div style={{ fontSize: 11, fontWeight: 600 }}>Save {o.savings}</div>
               </div>
-              <div style={{ fontSize: 11, color: 'var(--fg-secondary)', marginTop: 4 }}>
-                {o.desc}
-              </div>
-              <div
-                className="pg-mono"
-                style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 4 }}
-              >
+              <div style={{ fontSize: 11, marginTop: 4 }}>{o.desc}</div>
+              <div className="font-mono text-sm" style={{ fontSize: 11, marginTop: 4 }}>
                 {o.evidence}
               </div>
             </div>
-            <button className="pg-btn pg-btn-secondary pg-btn-sm">Open CR</button>
+            <Button variant="outline" size="sm" type="button">
+              Open CR
+            </Button>
           </div>
         ))}
       </div>
 
       {/* Diagnostics */}
-      <div className="pg-card" style={{ marginBottom: 16 }}>
-        <div className="pg-card-header">
-          <div className="pg-card-title">Diagnostics</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ marginBottom: 16 }}
+      >
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Diagnostics</div>
         </div>
         {DIAGNOSTICS.map((d) => {
           const ai = auditIcon(d.status);
@@ -360,7 +369,6 @@ export default function LighthousePage() {
                 alignItems: 'flex-start',
                 gap: 12,
                 padding: '12px 0',
-                borderBottom: '1px solid var(--border-default)',
               }}
             >
               <div
@@ -383,7 +391,7 @@ export default function LighthousePage() {
               </div>
               <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
                 <div style={{ fontWeight: 500, fontSize: 13 }}>{d.name}</div>
-                <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+                <div style={{ fontSize: 11 }}>
                   {d.value} · target {d.target}
                 </div>
               </div>
@@ -393,14 +401,13 @@ export default function LighthousePage() {
       </div>
 
       {/* Trend */}
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Trend · 30 days</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Trend · 30 days</div>
         </div>
         <div
           style={{
             height: 100,
-            background: 'var(--bg-canvas)',
             borderRadius: 4,
             padding: 12,
             display: 'flex',
@@ -426,7 +433,6 @@ export default function LighthousePage() {
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: 11,
-            color: 'var(--fg-tertiary)',
             marginTop: 8,
           }}
         >

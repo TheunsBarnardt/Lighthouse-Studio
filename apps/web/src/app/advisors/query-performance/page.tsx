@@ -34,33 +34,29 @@ const QUERIES = [
 export default function QueryPerformancePage() {
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Query Performance
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
-            Top queries by total time · last 7 days
-          </div>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Query Performance</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>Top queries by total time · last 7 days</div>
         </div>
       </div>
 
-      <div className="pg-table-wrap">
-        <table className="pg-data-table">
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr>
               <th>Query</th>
-              <th className="pg-tabular">Calls</th>
-              <th className="pg-tabular">Total</th>
-              <th className="pg-tabular">Mean</th>
-              <th className="pg-tabular">p95</th>
+              <th className="tabular-nums">Calls</th>
+              <th className="tabular-nums">Total</th>
+              <th className="tabular-nums">Mean</th>
+              <th className="tabular-nums">p95</th>
             </tr>
           </thead>
           <tbody>
             {QUERIES.map((q) => (
               <tr key={q.sql}>
                 <td
-                  className="pg-mono"
+                  className="font-mono text-sm"
                   style={{
                     fontSize: 11,
                     maxWidth: 400,
@@ -70,12 +66,10 @@ export default function QueryPerformancePage() {
                 >
                   {q.sql}
                 </td>
-                <td className="pg-tabular">{q.calls.toLocaleString()}</td>
-                <td className="pg-tabular">{q.total}</td>
-                <td className="pg-tabular">{q.mean}</td>
-                <td className="pg-tabular" style={{ color: 'var(--fg-warning)' }}>
-                  {q.p95}
-                </td>
+                <td className="tabular-nums">{q.calls.toLocaleString()}</td>
+                <td className="tabular-nums">{q.total}</td>
+                <td className="tabular-nums">{q.mean}</td>
+                <td className="tabular-nums">{q.p95}</td>
               </tr>
             ))}
           </tbody>

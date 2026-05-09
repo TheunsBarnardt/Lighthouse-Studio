@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 
 const EmailSchema = z.object({
@@ -45,14 +46,12 @@ export default function EmailPage() {
   }
 
   return (
-    <div className="pg-card">
-      <div className="pg-card-header">
-        <h2 className="pg-card-title">{t('title')}</h2>
+    <div className="rounded-md border bg-card text-card-foreground p-4">
+      <div className="mb-3 flex items-center justify-between border-b pb-3">
+        <h2 className="text-sm font-semibold">{t('title')}</h2>
       </div>
       <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <p style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)' }}>
-          {t('currentEmail', { email: user?.email ?? '—' })}
-        </p>
+        <p style={{ fontSize: '0.875rem' }}>{t('currentEmail', { email: user?.email ?? '—' })}</p>
 
         {pending && (
           <div
@@ -62,7 +61,6 @@ export default function EmailPage() {
               border: '1px solid var(--fg-success)',
               background: 'color-mix(in srgb, var(--fg-success) 8%, transparent)',
               fontSize: '0.875rem',
-              color: 'var(--fg-success)',
             }}
           >
             {t('pending', { email: pending })}
@@ -78,10 +76,7 @@ export default function EmailPage() {
           noValidate
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-            <label
-              htmlFor="newEmail"
-              style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--fg-primary)' }}
-            >
+            <label htmlFor="newEmail" style={{ fontSize: '0.8125rem', fontWeight: 500 }}>
               {t('newEmailLabel')}
             </label>
             <input
@@ -94,17 +89,13 @@ export default function EmailPage() {
                 padding: '0.4375rem 0.75rem',
                 border: '1px solid var(--border-default)',
                 borderRadius: '6px',
-                background: 'var(--bg-canvas)',
-                color: 'var(--fg-primary)',
                 fontSize: '0.875rem',
                 outline: 'none',
               }}
               {...form.register('newEmail')}
             />
             {errors.newEmail && (
-              <span style={{ fontSize: '0.8125rem', color: 'var(--fg-danger)' }}>
-                {errors.newEmail.message}
-              </span>
+              <span style={{ fontSize: '0.8125rem' }}>{errors.newEmail.message}</span>
             )}
           </div>
 
@@ -116,7 +107,6 @@ export default function EmailPage() {
                 border: '1px solid var(--fg-danger)',
                 background: 'color-mix(in srgb, var(--fg-danger) 8%, transparent)',
                 fontSize: '0.875rem',
-                color: 'var(--fg-danger)',
               }}
             >
               {error}
@@ -124,9 +114,9 @@ export default function EmailPage() {
           )}
 
           <div>
-            <button type="submit" className="pg-btn pg-btn-primary" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? t('submitting') : t('submit')}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

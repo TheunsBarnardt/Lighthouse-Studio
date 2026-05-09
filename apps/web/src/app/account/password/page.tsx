@@ -7,6 +7,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
+
 const ChangePasswordSchema = z
   .object({
     current: z.string().min(1, 'Current password is required'),
@@ -58,8 +60,6 @@ export default function PasswordPage() {
     padding: '0.4375rem 0.75rem',
     border: '1px solid var(--border-default)',
     borderRadius: '6px',
-    background: 'var(--bg-canvas)',
-    color: 'var(--fg-primary)',
     fontSize: '0.875rem',
     outline: 'none',
     width: '100%',
@@ -68,13 +68,12 @@ export default function PasswordPage() {
   const labelStyle = {
     fontSize: '0.8125rem',
     fontWeight: 500,
-    color: 'var(--fg-primary)',
   } as const;
 
   return (
-    <div className="pg-card">
-      <div className="pg-card-header">
-        <h2 className="pg-card-title">{t('title')}</h2>
+    <div className="rounded-md border bg-card text-card-foreground p-4">
+      <div className="mb-3 flex items-center justify-between border-b pb-3">
+        <h2 className="text-sm font-semibold">{t('title')}</h2>
       </div>
       <div style={{ padding: '1.25rem' }}>
         <form
@@ -99,9 +98,7 @@ export default function PasswordPage() {
               {...form.register('current')}
             />
             {errors.current && (
-              <span style={{ fontSize: '0.8125rem', color: 'var(--fg-danger)' }}>
-                {errors.current.message}
-              </span>
+              <span style={{ fontSize: '0.8125rem' }}>{errors.current.message}</span>
             )}
           </div>
 
@@ -119,9 +116,7 @@ export default function PasswordPage() {
               {...form.register('password')}
             />
             {errors.password && (
-              <span style={{ fontSize: '0.8125rem', color: 'var(--fg-danger)' }}>
-                {errors.password.message}
-              </span>
+              <span style={{ fontSize: '0.8125rem' }}>{errors.password.message}</span>
             )}
           </div>
 
@@ -139,9 +134,7 @@ export default function PasswordPage() {
               {...form.register('confirm')}
             />
             {errors.confirm && (
-              <span style={{ fontSize: '0.8125rem', color: 'var(--fg-danger)' }}>
-                {errors.confirm.message}
-              </span>
+              <span style={{ fontSize: '0.8125rem' }}>{errors.confirm.message}</span>
             )}
           </div>
 
@@ -153,7 +146,6 @@ export default function PasswordPage() {
                 border: '1px solid var(--fg-danger)',
                 background: 'color-mix(in srgb, var(--fg-danger) 8%, transparent)',
                 fontSize: '0.875rem',
-                color: 'var(--fg-danger)',
               }}
             >
               {error}
@@ -167,7 +159,6 @@ export default function PasswordPage() {
                 border: '1px solid var(--fg-success)',
                 background: 'color-mix(in srgb, var(--fg-success) 8%, transparent)',
                 fontSize: '0.875rem',
-                color: 'var(--fg-success)',
               }}
             >
               {t('saved')}
@@ -175,12 +166,12 @@ export default function PasswordPage() {
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button type="submit" className="pg-btn pg-btn-primary" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? t('saving') : t('save')}
-            </button>
+            </Button>
             <Link
               href="/auth/forgot-password"
-              style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)', textDecoration: 'none' }}
+              style={{ fontSize: '0.875rem', textDecoration: 'none' }}
             >
               {t('forgotCurrent')}
             </Link>

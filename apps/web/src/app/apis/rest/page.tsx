@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 
 interface Endpoint {
@@ -65,82 +67,85 @@ const ENDPOINT_GROUPS: EndpointGroup[] = [
 
 function methodBadgeClass(method: HttpMethod): string {
   const map: Record<HttpMethod, string> = {
-    GET: 'pg-badge pg-badge-success pg-mono',
-    POST: 'pg-badge pg-badge-accent pg-mono',
-    PATCH: 'pg-badge pg-badge-warning pg-mono',
-    DELETE: 'pg-badge pg-badge-danger pg-mono',
+    GET: 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 font-mono text-sm',
+    POST: 'inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary font-mono text-sm',
+    PATCH:
+      'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 font-mono text-sm',
+    DELETE:
+      'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive font-mono text-sm',
   };
   return map[method];
 }
 
 export default function RestApiPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            REST API
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>REST API</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Auto-generated from your schema · OpenAPI 3.1 · Versioned · 47 endpoints
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Download OpenAPI</button>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Postman collection</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Try in console</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
+            Download OpenAPI
+          </Button>
+          <Button variant="outline" size="sm" type="button">
+            Postman collection
+          </Button>
+          <Button size="sm" type="button">
+            Try in console
+          </Button>
         </div>
       </div>
 
-      <div className="pg-grid pg-grid-3" style={{ marginBottom: 16 }}>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Base URL</div>
+      <div className="grid grid-cols-3 gap-4" style={{ marginBottom: 16 }}>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Base URL</div>
           </div>
           <div
             style={{
               fontFamily: 'ui-monospace, monospace',
               fontSize: 11,
-              background: 'var(--bg-canvas)',
               border: '1px solid var(--border-default)',
               borderRadius: 4,
               padding: '6px 10px',
-              color: 'var(--fg-primary)',
             }}
           >
             https://api.acme.platform.local/rest/v1
           </div>
         </div>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Auth</div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Auth</div>
           </div>
-          <div style={{ fontSize: 13, color: 'var(--fg-primary)' }}>
-            Bearer JWT (recommended) or API key
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 8 }}>
-            JWT auto-issued by /auth/sign-in. API keys at{' '}
-            <span style={{ color: 'var(--accent-primary)' }}>API Keys</span>.
+          <div style={{ fontSize: 13 }}>Bearer JWT (recommended) or API key</div>
+          <div style={{ fontSize: 11, marginTop: 8 }}>
+            JWT auto-issued by /auth/sign-in. API keys at <span>API Keys</span>.
           </div>
         </div>
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Rate limits</div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Rate limits</div>
           </div>
-          <div style={{ fontSize: 13, color: 'var(--fg-primary)' }}>1,000 req/min per IP</div>
-          <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 8 }}>
-            10,000 req/min per authenticated user
-          </div>
+          <div style={{ fontSize: 13 }}>1,000 req/min per IP</div>
+          <div style={{ fontSize: 11, marginTop: 8 }}>10,000 req/min per authenticated user</div>
         </div>
       </div>
 
       {ENDPOINT_GROUPS.map(({ group, endpoints }) => (
-        <div key={group} className="pg-card" style={{ marginBottom: 16 }}>
-          <div className="pg-card-header">
-            <div className="pg-card-title">{group}</div>
+        <div
+          key={group}
+          className="rounded-md border bg-card text-card-foreground p-4"
+          style={{ marginBottom: 16 }}
+        >
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">{group}</div>
           </div>
-          <div className="pg-table-wrap">
-            <table className="pg-data-table">
+          <div className="overflow-hidden rounded-md border">
+            <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
                   <th style={{ width: 80 }}>Method</th>
@@ -156,13 +161,15 @@ export default function RestApiPage() {
                     <td>
                       <span className={methodBadgeClass(ep.method)}>{ep.method}</span>
                     </td>
-                    <td className="pg-mono" style={{ fontSize: 12 }}>
+                    <td className="font-mono text-sm" style={{ fontSize: 12 }}>
                       {ep.path}
                     </td>
                     <td style={{ fontSize: 13 }}>{ep.operation}</td>
-                    <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>{ep.notes}</td>
+                    <td style={{ fontSize: 12 }}>{ep.notes}</td>
                     <td>
-                      <button className="pg-btn pg-btn-ghost pg-btn-xs">Try it</button>
+                      <Button className="" variant="ghost" type="button">
+                        Try it
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -172,16 +179,15 @@ export default function RestApiPage() {
         </div>
       ))}
 
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Try it · GET /rest/v1/contacts</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Try it · GET /rest/v1/contacts</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div>
             <div
               style={{
                 fontSize: 11,
-                color: 'var(--fg-tertiary)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.04em',
                 fontWeight: 600,
@@ -194,11 +200,9 @@ export default function RestApiPage() {
               style={{
                 fontFamily: 'ui-monospace, monospace',
                 fontSize: 11,
-                background: 'var(--bg-canvas)',
                 border: '1px solid var(--border-default)',
                 borderRadius: 4,
                 padding: '10px 12px',
-                color: 'var(--fg-primary)',
                 margin: 0,
                 overflowX: 'auto',
               }}
@@ -212,7 +216,6 @@ export default function RestApiPage() {
             <div
               style={{
                 fontSize: 11,
-                color: 'var(--fg-tertiary)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.04em',
                 fontWeight: 600,
@@ -225,11 +228,9 @@ export default function RestApiPage() {
               style={{
                 fontFamily: 'ui-monospace, monospace',
                 fontSize: 11,
-                background: 'var(--bg-canvas)',
                 border: '1px solid var(--border-default)',
                 borderRadius: 4,
                 padding: '10px 12px',
-                color: 'var(--fg-primary)',
                 margin: 0,
                 overflowX: 'auto',
               }}

@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { PipelineStepper } from '../stepper';
 
 interface Environment {
@@ -132,35 +134,55 @@ export default function DeploymentPage() {
   const [aborted, setAborted] = useState(false);
 
   function envStatusBadge(status: Environment['status']) {
-    if (status === 'deploying') return <span className="pg-badge pg-badge-info">Deploying</span>;
-    if (status === 'failed') return <span className="pg-badge pg-badge-danger">Failed</span>;
-    return <span className="pg-badge pg-badge-success">Live</span>;
+    if (status === 'deploying')
+      return (
+        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+          Deploying
+        </span>
+      );
+    if (status === 'failed')
+      return (
+        <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">
+          Failed
+        </span>
+      );
+    return (
+      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+        Live
+      </span>
+    );
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <PipelineStepper active="deployment" />
 
-      <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-canvas)' }}>
-        <div className="pg-page" style={{ maxWidth: 1400 }}>
-          <div className="pg-page-header">
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1400 }}>
+          <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <h1 style={{ fontSize: 18 }}>Deployment · Continuous</h1>
               <div className="subtitle">
                 Multi-environment promotion · 47 deployments to date · 99.2% success rate
               </div>
             </div>
-            <div className="pg-page-header-actions">
-              <button className="pg-btn pg-btn-secondary pg-btn-sm">Settings</button>
-              <button className="pg-btn pg-btn-secondary pg-btn-sm">Audit log</button>
-              <button className="pg-btn pg-btn-primary pg-btn-sm">+ Deploy</button>
+            <div className="flex shrink-0 items-center gap-2">
+              <Button variant="outline" size="sm" type="button">
+                Settings
+              </Button>
+              <Button variant="outline" size="sm" type="button">
+                Audit log
+              </Button>
+              <Button size="sm" type="button">
+                + Deploy
+              </Button>
             </div>
           </div>
 
           {/* Environment cards */}
-          <div className="pg-grid pg-grid-3 pg-mb-4">
+          <div className="grid grid-cols-3 gap-4 mb-4">
             {ENVIRONMENTS.map((env) => (
-              <div key={env.env} className="pg-card">
+              <div key={env.env} className="rounded-md border bg-card text-card-foreground p-4">
                 <div
                   style={{
                     display: 'flex',
@@ -174,7 +196,6 @@ export default function DeploymentPage() {
                       fontSize: 11,
                       fontWeight: 600,
                       textTransform: 'uppercase',
-                      color: 'var(--fg-tertiary)',
                     }}
                   >
                     {env.env}
@@ -187,14 +208,11 @@ export default function DeploymentPage() {
                     fontFamily: 'monospace',
                     fontSize: 14,
                     marginBottom: 4,
-                    color: 'var(--fg-primary)',
                   }}
                 >
                   {env.version}
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginBottom: 8 }}>
-                  {env.url}
-                </div>
+                <div style={{ fontSize: 11, marginBottom: 8 }}>{env.url}</div>
                 <div
                   style={{
                     display: 'flex',
@@ -204,15 +222,19 @@ export default function DeploymentPage() {
                   }}
                 >
                   <div>
-                    <div style={{ color: 'var(--fg-tertiary)' }}>{env.updated}</div>
-                    <div style={{ color: 'var(--fg-secondary)' }}>
+                    <div>{env.updated}</div>
+                    <div>
                       {env.author} · <span style={{ fontFamily: 'monospace' }}>{env.commit}</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 4 }}>
-                    <button className="pg-btn pg-btn-ghost pg-btn-xs">Logs</button>
+                    <Button className="" variant="ghost" type="button">
+                      Logs
+                    </Button>
                     {env.env !== 'production' && (
-                      <button className="pg-btn pg-btn-secondary pg-btn-xs">Promote</button>
+                      <Button variant="outline" size="xs" type="button">
+                        Promote
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -221,17 +243,18 @@ export default function DeploymentPage() {
           </div>
 
           {/* In-flight + approvals */}
-          <div className="pg-grid pg-mb-4" style={{ gridTemplateColumns: '2fr 1fr', gap: 16 }}>
-            <div className="pg-card">
-              <div className="pg-card-header">
-                <span className="pg-card-title">In-flight: Production deployment</span>
-                <span className="pg-badge pg-badge-info">In progress · 47%</span>
+          <div className="grid gap-4 mb-4" style={{ gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+            <div className="rounded-md border bg-card text-card-foreground p-4">
+              <div className="mb-3 flex items-center justify-between border-b pb-3">
+                <span className="text-sm font-semibold">In-flight: Production deployment</span>
+                <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                  In progress · 47%
+                </span>
               </div>
               {/* Progress bar */}
               <div
                 style={{
                   height: 6,
-                  background: 'var(--bg-hover)',
                   borderRadius: 3,
                   overflow: 'hidden',
                   marginBottom: 16,
@@ -269,18 +292,13 @@ export default function DeploymentPage() {
                     }}
                   >
                     <span>{step.name}</span>
-                    {step.status === 'complete' && (
-                      <span style={{ color: 'var(--fg-success)', fontSize: 12 }}>✓</span>
-                    )}
-                    {step.status === 'active' && (
-                      <span style={{ color: 'var(--accent-primary)', fontSize: 12 }}>●</span>
-                    )}
+                    {step.status === 'complete' && <span style={{ fontSize: 12 }}>✓</span>}
+                    {step.status === 'active' && <span style={{ fontSize: 12 }}>●</span>}
                   </div>
                   {step.meta && (
                     <div
                       style={{
                         fontSize: 11,
-                        color: 'var(--fg-tertiary)',
                         marginTop: 2,
                         fontFamily: 'monospace',
                       }}
@@ -293,16 +311,18 @@ export default function DeploymentPage() {
 
               {!aborted && (
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
-                  <button className="pg-btn pg-btn-ghost pg-btn-sm">Pause</button>
-                  <button
+                  <Button variant="ghost" size="sm" type="button">
+                    Pause
+                  </Button>
+                  <Button
                     onClick={() => {
                       setAborted(true);
                     }}
-                    className="pg-btn pg-btn-sm"
+                    className=""
                     style={{ background: 'var(--fg-danger)', color: 'white', border: 'none' }}
                   >
                     Abort & rollback
-                  </button>
+                  </Button>
                 </div>
               )}
               {aborted && (
@@ -312,7 +332,6 @@ export default function DeploymentPage() {
                     background: 'var(--bg-danger-subtle)',
                     borderRadius: 'var(--shell-radius-sm)',
                     fontSize: 13,
-                    color: 'var(--fg-danger)',
                     marginTop: 12,
                   }}
                 >
@@ -323,11 +342,11 @@ export default function DeploymentPage() {
 
             <div>
               {/* Approvals */}
-              <div className="pg-card pg-mb-4">
-                <div className="pg-card-header">
-                  <span className="pg-card-title">Approvals required</span>
+              <div className="rounded-md border bg-card text-card-foreground p-4 mb-4">
+                <div className="mb-3 flex items-center justify-between border-b pb-3">
+                  <span className="text-sm font-semibold">Approvals required</span>
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 12 }}>
+                <div style={{ fontSize: 13, marginBottom: 12 }}>
                   2 of 2 approvers needed for prod deploys.
                 </div>
                 {[
@@ -338,22 +357,24 @@ export default function DeploymentPage() {
                     key={approver.initials}
                     style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}
                   >
-                    <div className="pg-avatar">{approver.initials}</div>
+                    <div className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary">
+                      {approver.initials}
+                    </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: 13 }}>{approver.name}</div>
-                      <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
-                        {approver.role}
-                      </div>
+                      <div style={{ fontSize: 11 }}>{approver.role}</div>
                     </div>
-                    <span className="pg-badge pg-badge-success">✓ Approved</span>
+                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                      ✓ Approved
+                    </span>
                   </div>
                 ))}
               </div>
 
               {/* Health */}
-              <div className="pg-card">
-                <div className="pg-card-header">
-                  <span className="pg-card-title">Health · last 7d</span>
+              <div className="rounded-md border bg-card text-card-foreground p-4">
+                <div className="mb-3 flex items-center justify-between border-b pb-3">
+                  <span className="text-sm font-semibold">Health · last 7d</span>
                 </div>
                 {[
                   ['Uptime', '99.97%', 'var(--fg-success)'],
@@ -361,8 +382,11 @@ export default function DeploymentPage() {
                   ['Avg deploy time', '2m 11s', 'var(--fg-primary)'],
                   ['Rollbacks', '0', 'var(--fg-primary)'],
                 ].map(([k, v, c]) => (
-                  <div key={k} className="pg-inspector-row">
-                    <span className="pg-inspector-key">{k}</span>
+                  <div
+                    key={k}
+                    className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+                  >
+                    <span className="text-muted-foreground">{k}</span>
                     <span style={{ color: c, fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
                       {v}
                     </span>
@@ -373,13 +397,24 @@ export default function DeploymentPage() {
           </div>
 
           {/* History table */}
-          <div className="pg-card pg-mb-4" style={{ padding: 0, overflow: 'hidden' }}>
-            <div className="pg-card-header" style={{ padding: '12px 16px', borderRadius: 0 }}>
-              <span className="pg-card-title">Deployment history</span>
-              <button className="pg-btn pg-btn-ghost pg-btn-sm">View all 47</button>
+          <div
+            className="rounded-md border bg-card text-card-foreground p-4 mb-4"
+            style={{ padding: 0, overflow: 'hidden' }}
+          >
+            <div
+              className="mb-3 flex items-center justify-between border-b pb-3"
+              style={{ padding: '12px 16px', borderRadius: 0 }}
+            >
+              <span className="text-sm font-semibold">Deployment history</span>
+              <Button variant="ghost" size="sm" type="button">
+                View all 47
+              </Button>
             </div>
-            <div className="pg-table-wrap" style={{ border: 'none', borderRadius: 0 }}>
-              <table className="pg-data-table">
+            <div
+              className="overflow-hidden rounded-md border"
+              style={{ border: 'none', borderRadius: 0 }}
+            >
+              <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr>
                     <th>Version</th>
@@ -398,25 +433,30 @@ export default function DeploymentPage() {
                     <tr key={i}>
                       <td style={{ fontFamily: 'monospace', fontSize: 11 }}>{item.version}</td>
                       <td>
-                        <span className="pg-badge pg-badge-default">{item.env}</span>
+                        <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                          {item.env}
+                        </span>
                       </td>
                       <td
                         style={{
                           fontFamily: 'monospace',
                           fontSize: 11,
-                          color: 'var(--fg-secondary)',
                         }}
                       >
                         {item.sha}
                       </td>
                       <td style={{ fontSize: 13 }}>{item.title}</td>
-                      <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>{item.author}</td>
-                      <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>{item.when}</td>
+                      <td style={{ fontSize: 12 }}>{item.author}</td>
+                      <td style={{ fontSize: 12 }}>{item.when}</td>
                       <td>
                         {item.status === 'success' ? (
-                          <span className="pg-badge pg-badge-success">Success</span>
+                          <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                            Success
+                          </span>
                         ) : (
-                          <span className="pg-badge pg-badge-warning">Rolled back</span>
+                          <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                            Rolled back
+                          </span>
                         )}
                       </td>
                       <td
@@ -429,7 +469,9 @@ export default function DeploymentPage() {
                         {item.duration}
                       </td>
                       <td>
-                        <button className="pg-btn pg-btn-ghost pg-btn-xs">Re-deploy</button>
+                        <Button className="" variant="ghost" type="button">
+                          Re-deploy
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -439,14 +481,13 @@ export default function DeploymentPage() {
           </div>
 
           {/* Frequency chart */}
-          <div className="pg-card">
-            <div className="pg-card-header">
-              <span className="pg-card-title">Deployment frequency · 30 days</span>
+          <div className="rounded-md border bg-card text-card-foreground p-4">
+            <div className="mb-3 flex items-center justify-between border-b pb-3">
+              <span className="text-sm font-semibold">Deployment frequency · 30 days</span>
             </div>
             <div
               style={{
                 height: 100,
-                background: 'var(--bg-canvas)',
                 borderRadius: 'var(--shell-radius-sm)',
                 padding: 12,
                 display: 'flex',
@@ -473,7 +514,6 @@ export default function DeploymentPage() {
                 display: 'flex',
                 justifyContent: 'space-between',
                 fontSize: 11,
-                color: 'var(--fg-tertiary)',
                 marginTop: 8,
               }}
             >

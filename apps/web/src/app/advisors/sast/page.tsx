@@ -1,5 +1,7 @@
 import type React from 'react';
 
+import { Button } from '@/components/ui/button';
+
 function AuditRow({
   status,
   name,
@@ -44,21 +46,20 @@ function AuditRow({
         alignItems: 'flex-start',
         gap: 12,
         padding: '12px 0',
-        borderBottom: '1px solid var(--border-default)',
       }}
     >
       <div style={iconStyle}>{status === 'pass' ? '✓' : status === 'fail' ? '✕' : '!'}</div>
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <div style={{ fontWeight: 500, fontSize: 13, color: 'var(--fg-primary)' }}>{name}</div>
-          {count && <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>{count}</div>}
+          <div style={{ fontWeight: 500, fontSize: 13 }}>{name}</div>
+          {count && <div style={{ fontSize: 11 }}>{count}</div>}
         </div>
-        {desc && (
-          <div style={{ fontSize: 11, color: 'var(--fg-secondary)', marginTop: 4 }}>{desc}</div>
-        )}
+        {desc && <div style={{ fontSize: 11, marginTop: 4 }}>{desc}</div>}
       </div>
       {action && status !== 'pass' && (
-        <button className="pg-btn pg-btn-secondary pg-btn-sm">{action}</button>
+        <Button variant="outline" size="sm" type="button">
+          {action}
+        </Button>
       )}
     </div>
   );
@@ -138,58 +139,60 @@ const TREND = [
 
 export default function SastPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      <div className="pg-page-header">
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            SAST · Static analysis
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>SAST · Static analysis</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             CodeQL + Semgrep + custom rules · Runs on every commit · Last run 12 minutes ago
           </div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">Rules</button>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm">SARIF export</button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Re-scan</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button variant="outline" size="sm" type="button">
+            Rules
+          </Button>
+          <Button variant="outline" size="sm" type="button">
+            SARIF export
+          </Button>
+          <Button size="sm" type="button">
+            Re-scan
+          </Button>
         </div>
       </div>
 
-      <div className="pg-grid pg-grid-4" style={{ marginBottom: 16 }}>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Files scanned</div>
-          <div className="pg-stat-value">142</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            42K LOC
+      <div className="grid grid-cols-4 gap-4" style={{ marginBottom: 16 }}>
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Files scanned
           </div>
+          <div className="text-[22px] font-semibold tabular-nums">142</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">42K LOC</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Rules active</div>
-          <div className="pg-stat-value">347</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            CodeQL + Semgrep + custom
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Rules active
           </div>
+          <div className="text-[22px] font-semibold tabular-nums">347</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">CodeQL + Semgrep + custom</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Open findings</div>
-          <div className="pg-stat-value" style={{ color: 'var(--fg-warning)' }}>
-            1
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Open findings
           </div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            1 medium
-          </div>
+          <div className="text-[22px] font-semibold tabular-nums">1</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">1 medium</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Critical / High</div>
-          <div className="pg-stat-value" style={{ color: 'var(--fg-success)' }}>
-            0
+        <div className="rounded-md border bg-card p-4">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+            Critical / High
           </div>
-          <div className="pg-stat-delta pg-stat-up">none open</div>
+          <div className="text-[22px] font-semibold tabular-nums">0</div>
+          <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">none open</div>
         </div>
       </div>
 
       <div
-        className="pg-card"
+        className="rounded-md border bg-card text-card-foreground p-4"
         style={{
           marginBottom: 16,
           background: 'var(--bg-info-subtle)',
@@ -199,16 +202,20 @@ export default function SastPage() {
         <div style={{ fontSize: 13 }}>
           <strong>Defense in depth.</strong> SAST analyses your source code without running it; DAST
           attacks the running app. Findings often correlate — the SQL injection found here (
-          <span className="pg-mono">/api/search</span>) is also flagged by the Pentest advisor as
-          PT-014.
+          <span className="font-mono text-sm">/api/search</span>) is also flagged by the Pentest
+          advisor as PT-014.
         </div>
       </div>
 
       {GROUPS.map((g) => (
-        <div className="pg-card" key={g.cat} style={{ marginBottom: 16 }}>
-          <div className="pg-card-header">
-            <div className="pg-card-title">{g.cat}</div>
-            <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+        <div
+          className="rounded-md border bg-card text-card-foreground p-4"
+          key={g.cat}
+          style={{ marginBottom: 16 }}
+        >
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">{g.cat}</div>
+            <div style={{ fontSize: 11 }}>
               {g.items.filter((i) => i.status === 'pass').length} of {g.items.length}
             </div>
           </div>
@@ -218,14 +225,13 @@ export default function SastPage() {
         </div>
       ))}
 
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Findings · 30 days</div>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div className="mb-3 flex items-center justify-between border-b pb-3">
+          <div className="text-sm font-semibold">Findings · 30 days</div>
         </div>
         <div
           style={{
             height: 100,
-            background: 'var(--bg-canvas)',
             borderRadius: 4,
             padding: 12,
             display: 'flex',
@@ -251,7 +257,6 @@ export default function SastPage() {
             display: 'flex',
             justifyContent: 'space-between',
             fontSize: 11,
-            color: 'var(--fg-tertiary)',
             marginTop: 8,
           }}
         >

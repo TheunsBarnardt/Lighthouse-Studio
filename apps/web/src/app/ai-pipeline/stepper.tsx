@@ -32,17 +32,19 @@ const STEPS = [
 
 export function PipelineStepper({ active }: { active: string }) {
   return (
-    <div className="pg-pipeline-stepper">
+    <div className="flex shrink-0 items-center overflow-x-auto border-b bg-card px-6 py-2.5">
       {STEPS.map((step, i) => (
         <span key={step.id} style={{ display: 'contents' }}>
           <Link
             href={step.href}
-            className={`pg-pipeline-step${step.id === active ? ' active' : step.status === 'complete' ? ' complete' : ''}`}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded transition-colors${step.id === active ? ' bg-primary/10 text-primary' : step.status === 'complete' ? ' text-muted-foreground hover:text-foreground' : ' text-muted-foreground/60'}`}
           >
-            <span className="step-dot" />
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${step.id === active ? 'bg-primary' : step.status === 'complete' ? 'bg-muted-foreground' : 'bg-muted-foreground/30'}`}
+            />
             {step.label}
           </Link>
-          {i < STEPS.length - 1 && <span className="pg-pipeline-arrow">›</span>}
+          {i < STEPS.length - 1 && <span className="mx-0.5 text-sm text-muted-foreground">›</span>}
         </span>
       ))}
     </div>

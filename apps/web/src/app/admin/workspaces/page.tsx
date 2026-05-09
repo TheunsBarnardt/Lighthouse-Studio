@@ -17,8 +17,6 @@ const inputStyle: React.CSSProperties = {
   padding: '0 12px',
   borderRadius: 4,
   border: '1px solid var(--border-default)',
-  background: 'var(--bg-canvas)',
-  color: 'var(--fg-primary)',
   fontSize: 13,
 };
 
@@ -48,16 +46,14 @@ export default function AdminWorkspacesPage() {
 
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            All workspaces
-          </h1>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>All workspaces</h1>
         </div>
       </div>
 
-      <div className="pg-card">
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-default)' }}>
+      <div className="rounded-md border bg-card text-card-foreground p-4">
+        <div style={{ padding: '12px 16px' }}>
           <input
             type="search"
             placeholder="Search by name or slug…"
@@ -76,7 +72,6 @@ export default function AdminWorkspacesPage() {
               padding: '48px 0',
               textAlign: 'center',
               fontSize: 13,
-              color: 'var(--fg-tertiary)',
             }}
             aria-live="polite"
           >
@@ -89,20 +84,23 @@ export default function AdminWorkspacesPage() {
               padding: '48px 0',
               textAlign: 'center',
               fontSize: 13,
-              color: 'var(--fg-tertiary)',
             }}
           >
             No workspaces found.
           </p>
         )}
         {!loading && filtered.length > 0 && (
-          <div className="pg-table-wrap" style={{ marginTop: 0 }}>
-            <table className="pg-data-table" role="grid" aria-label="All workspaces">
+          <div className="overflow-hidden rounded-md border" style={{ marginTop: 0 }}>
+            <table
+              className="w-full border-collapse text-sm"
+              role="grid"
+              aria-label="All workspaces"
+            >
               <thead>
                 <tr>
                   <th>Name</th>
                   <th>Slug</th>
-                  <th className="pg-tabular">Members</th>
+                  <th className="tabular-nums">Members</th>
                   <th>Created</th>
                 </tr>
               </thead>
@@ -114,22 +112,17 @@ export default function AdminWorkspacesPage() {
                         href={`/admin/workspaces/${ws.id}`}
                         style={{
                           fontWeight: 500,
-                          color: 'var(--accent-primary)',
                           textDecoration: 'none',
                         }}
                       >
                         {ws.name}
                       </Link>
                     </td>
-                    <td className="pg-mono" style={{ fontSize: 11, color: 'var(--fg-secondary)' }}>
+                    <td className="font-mono text-sm" style={{ fontSize: 11 }}>
                       {ws.slug}
                     </td>
-                    <td className="pg-tabular" style={{ color: 'var(--fg-secondary)' }}>
-                      {ws.memberCount}
-                    </td>
-                    <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
-                      {new Date(ws.createdAt).toLocaleDateString()}
-                    </td>
+                    <td className="tabular-nums">{ws.memberCount}</td>
+                    <td style={{ fontSize: 12 }}>{new Date(ws.createdAt).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>

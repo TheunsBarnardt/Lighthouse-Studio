@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+
 interface Props {
   targetEnvironment: string;
   onClose: () => void;
@@ -19,24 +21,29 @@ export function PromoteDialog({ targetEnvironment, onClose, onConfirm }: Props) 
         zIndex: 50,
       }}
     >
-      <div className="pg-card" style={{ width: '100%', maxWidth: 440, padding: 24 }}>
-        <div className="pg-card-header" style={{ marginBottom: 12 }}>
-          <div className="pg-card-title">Promote to {targetEnvironment}</div>
+      <div
+        className="rounded-md border bg-card text-card-foreground p-4"
+        style={{ width: '100%', maxWidth: 440, padding: 24 }}
+      >
+        <div
+          className="mb-3 flex items-center justify-between border-b pb-3"
+          style={{ marginBottom: 12 }}
+        >
+          <div className="text-sm font-semibold">Promote to {targetEnvironment}</div>
         </div>
-        <p style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 20 }}>
-          This will initiate a deployment to{' '}
-          <strong style={{ color: 'var(--fg-primary)' }}>{targetEnvironment}</strong>.
+        <p style={{ fontSize: 13, marginBottom: 20 }}>
+          This will initiate a deployment to <strong>{targetEnvironment}</strong>.
           {targetEnvironment === 'prod' &&
             ' Tests must pass and approvals from architect and workspace owner are required.'}
           {targetEnvironment === 'staging' && ' Tests will run before the deployment proceeds.'}
         </p>
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm" onClick={onClose}>
+          <Button variant="outline" size="sm" type="button" onClick={onClose}>
             Cancel
-          </button>
-          <button className="pg-btn pg-btn-primary pg-btn-sm" onClick={onConfirm}>
+          </Button>
+          <Button size="sm" type="button" onClick={onConfirm}>
             Promote to {targetEnvironment}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

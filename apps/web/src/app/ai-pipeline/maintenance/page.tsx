@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { PipelineStepper } from '../stepper';
 
 type SignalSeverity = 'high' | 'medium' | 'low';
@@ -133,15 +135,43 @@ const CHANGE_REQUESTS: ChangeRequest[] = [
 ];
 
 function severityBadge(severity: SignalSeverity) {
-  if (severity === 'high') return <span className="pg-badge pg-badge-danger">high</span>;
-  if (severity === 'medium') return <span className="pg-badge pg-badge-warning">medium</span>;
-  return <span className="pg-badge pg-badge-default">low</span>;
+  if (severity === 'high')
+    return (
+      <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">
+        high
+      </span>
+    );
+  if (severity === 'medium')
+    return (
+      <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+        medium
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+      low
+    </span>
+  );
 }
 
 function crStatusBadge(status: CRStatus) {
-  if (status === 'merged') return <span className="pg-badge pg-badge-success">Merged</span>;
-  if (status === 'in-progress') return <span className="pg-badge pg-badge-info">In flight</span>;
-  return <span className="pg-badge pg-badge-warning">Approval</span>;
+  if (status === 'merged')
+    return (
+      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+        Merged
+      </span>
+    );
+  if (status === 'in-progress')
+    return (
+      <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+        In flight
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+      Approval
+    </span>
+  );
 }
 
 export default function MaintenancePage() {
@@ -159,67 +189,89 @@ export default function MaintenancePage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <PipelineStepper active="maintenance" />
 
-      <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-canvas)' }}>
-        <div className="pg-page" style={{ maxWidth: 1400 }}>
-          <div className="pg-page-header">
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1400 }}>
+          <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <h1 style={{ fontSize: 18 }}>Maintenance · Continuous</h1>
               <div className="subtitle">
                 Production signals → change requests → re-deploy. The pipeline keeps running.
               </div>
             </div>
-            <div className="pg-page-header-actions">
-              <button className="pg-btn pg-btn-secondary pg-btn-sm">Settings</button>
-              <button className="pg-btn pg-btn-secondary pg-btn-sm">Export report</button>
-              <button
+            <div className="flex shrink-0 items-center gap-2">
+              <Button variant="outline" size="sm" type="button">
+                Settings
+              </Button>
+              <Button variant="outline" size="sm" type="button">
+                Export report
+              </Button>
+              <Button
                 onClick={() => {
                   setTriaging(true);
                 }}
                 disabled={triaging}
-                className="pg-btn pg-btn-primary pg-btn-sm"
+                className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 {triaging ? '● Triaging…' : '✦ AI triage'}
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="pg-grid pg-grid-4 pg-mb-4">
-            <div className="pg-stat-card">
-              <div className="pg-stat-label">Open signals</div>
-              <div className="pg-stat-value">{openSignals.length}</div>
-              <div className="pg-stat-delta pg-stat-up">3 new today</div>
+          <div className="grid grid-cols-4 gap-4 mb-4">
+            <div className="rounded-md border bg-card p-4">
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                Open signals
+              </div>
+              <div className="text-[22px] font-semibold tabular-nums">{openSignals.length}</div>
+              <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
+                3 new today
+              </div>
             </div>
-            <div className="pg-stat-card">
-              <div className="pg-stat-label">Change requests in flight</div>
-              <div className="pg-stat-value">2</div>
-              <div className="pg-stat-delta">1 awaiting approval</div>
+            <div className="rounded-md border bg-card p-4">
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                Change requests in flight
+              </div>
+              <div className="text-[22px] font-semibold tabular-nums">2</div>
+              <div className="mt-1 text-[11px] text-muted-foreground">1 awaiting approval</div>
             </div>
-            <div className="pg-stat-card">
-              <div className="pg-stat-label">MTTR · 30d</div>
-              <div className="pg-stat-value">3.4h</div>
-              <div className="pg-stat-delta pg-stat-up">−12% vs prior</div>
+            <div className="rounded-md border bg-card p-4">
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                MTTR · 30d
+              </div>
+              <div className="text-[22px] font-semibold tabular-nums">3.4h</div>
+              <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
+                −12% vs prior
+              </div>
             </div>
-            <div className="pg-stat-card">
-              <div className="pg-stat-label">AI fix rate</div>
-              <div className="pg-stat-value">89%</div>
-              <div className="pg-stat-delta">last 30 days</div>
+            <div className="rounded-md border bg-card p-4">
+              <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
+                AI fix rate
+              </div>
+              <div className="text-[22px] font-semibold tabular-nums">89%</div>
+              <div className="mt-1 text-[11px] text-muted-foreground">last 30 days</div>
             </div>
           </div>
 
           {/* Signals + CRs */}
-          <div className="pg-grid pg-mb-4" style={{ gridTemplateColumns: '2fr 1fr', gap: 16 }}>
+          <div className="grid gap-4 mb-4" style={{ gridTemplateColumns: '2fr 1fr', gap: 16 }}>
             {/* Open signals */}
-            <div className="pg-card" style={{ padding: 0, overflow: 'hidden' }}>
-              <div className="pg-card-header" style={{ padding: '12px 16px', borderRadius: 0 }}>
-                <span className="pg-card-title">Open signals</span>
+            <div
+              className="rounded-md border bg-card text-card-foreground p-4"
+              style={{ padding: 0, overflow: 'hidden' }}
+            >
+              <div
+                className="mb-3 flex items-center justify-between border-b pb-3"
+                style={{ padding: '12px 16px', borderRadius: 0 }}
+              >
+                <span className="text-sm font-semibold">Open signals</span>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <select
                     value={severityFilter}
                     onChange={(e) => {
                       setSeverityFilter(e.target.value);
                     }}
-                    className="pg-btn pg-btn-secondary pg-btn-xs"
+                    className="inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted"
                     style={{ cursor: 'pointer', fontFamily: 'inherit' }}
                   >
                     <option value="all">All severity</option>
@@ -229,8 +281,11 @@ export default function MaintenancePage() {
                   </select>
                 </div>
               </div>
-              <div className="pg-table-wrap" style={{ border: 'none', borderRadius: 0 }}>
-                <table className="pg-data-table">
+              <div
+                className="overflow-hidden rounded-md border"
+                style={{ border: 'none', borderRadius: 0 }}
+              >
+                <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr>
                       <th>ID</th>
@@ -249,18 +304,14 @@ export default function MaintenancePage() {
                         <td style={{ fontFamily: 'monospace', fontSize: 11 }}>{signal.id}</td>
                         <td style={{ fontSize: 13 }}>{signal.title}</td>
                         <td>{severityBadge(signal.severity)}</td>
-                        <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
-                          {signal.source}
-                        </td>
-                        <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
-                          {signal.evidence}
-                        </td>
-                        <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>{signal.when}</td>
-                        <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>
-                          {signal.owner}
-                        </td>
+                        <td style={{ fontSize: 12 }}>{signal.source}</td>
+                        <td style={{ fontSize: 12 }}>{signal.evidence}</td>
+                        <td style={{ fontSize: 12 }}>{signal.when}</td>
+                        <td style={{ fontSize: 12 }}>{signal.owner}</td>
                         <td>
-                          <button className="pg-btn pg-btn-secondary pg-btn-xs">Create CR</button>
+                          <Button variant="outline" size="xs" type="button">
+                            Create CR
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -271,9 +322,9 @@ export default function MaintenancePage() {
 
             <div>
               {/* Change requests */}
-              <div className="pg-card pg-mb-4">
-                <div className="pg-card-header">
-                  <span className="pg-card-title">Change requests</span>
+              <div className="rounded-md border bg-card text-card-foreground p-4 mb-4">
+                <div className="mb-3 flex items-center justify-between border-b pb-3">
+                  <span className="text-sm font-semibold">Change requests</span>
                 </div>
                 {CHANGE_REQUESTS.map((cr, i) => (
                   <div
@@ -293,7 +344,7 @@ export default function MaintenancePage() {
                         style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}
                       >
                         <span
-                          className="pg-badge pg-badge-accent"
+                          className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
                           style={{ fontFamily: 'monospace', fontSize: 9 }}
                         >
                           {cr.id}
@@ -310,7 +361,7 @@ export default function MaintenancePage() {
                           {cr.title}
                         </span>
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+                      <div style={{ fontSize: 11 }}>
                         {cr.scope} · {cr.by} · {cr.when}
                       </div>
                     </div>
@@ -320,9 +371,9 @@ export default function MaintenancePage() {
               </div>
 
               {/* Signal sources */}
-              <div className="pg-card">
-                <div className="pg-card-header">
-                  <span className="pg-card-title">Signal sources</span>
+              <div className="rounded-md border bg-card text-card-foreground p-4">
+                <div className="mb-3 flex items-center justify-between border-b pb-3">
+                  <span className="text-sm font-semibold">Signal sources</span>
                 </div>
                 {[
                   ['Error tracking', 'Sentry · live', 'var(--fg-success)'],
@@ -332,8 +383,11 @@ export default function MaintenancePage() {
                   ['Drift detection', 'on commit', 'var(--fg-success)'],
                   ['DB advisor', 'hourly', 'var(--fg-success)'],
                 ].map(([k, v, c]) => (
-                  <div key={k} className="pg-inspector-row">
-                    <span className="pg-inspector-key">{k}</span>
+                  <div
+                    key={k}
+                    className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
+                  >
+                    <span className="text-muted-foreground">{k}</span>
                     <span style={{ color: c, fontWeight: 500, fontSize: 13 }}>{v}</span>
                   </div>
                 ))}
@@ -342,12 +396,21 @@ export default function MaintenancePage() {
           </div>
 
           {/* Resolved */}
-          <div className="pg-card pg-mb-4" style={{ padding: 0, overflow: 'hidden' }}>
-            <div className="pg-card-header" style={{ padding: '12px 16px', borderRadius: 0 }}>
-              <span className="pg-card-title">Resolved · last 30 days</span>
+          <div
+            className="rounded-md border bg-card text-card-foreground p-4 mb-4"
+            style={{ padding: 0, overflow: 'hidden' }}
+          >
+            <div
+              className="mb-3 flex items-center justify-between border-b pb-3"
+              style={{ padding: '12px 16px', borderRadius: 0 }}
+            >
+              <span className="text-sm font-semibold">Resolved · last 30 days</span>
             </div>
-            <div className="pg-table-wrap" style={{ border: 'none', borderRadius: 0 }}>
-              <table className="pg-data-table">
+            <div
+              className="overflow-hidden rounded-md border"
+              style={{ border: 'none', borderRadius: 0 }}
+            >
+              <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr>
                     <th>ID</th>
@@ -363,8 +426,8 @@ export default function MaintenancePage() {
                       <td style={{ fontFamily: 'monospace', fontSize: 11 }}>{signal.id}</td>
                       <td style={{ fontSize: 13 }}>{signal.title}</td>
                       <td>{severityBadge(signal.severity)}</td>
-                      <td style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>{signal.owner}</td>
-                      <td style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>2h 14m</td>
+                      <td style={{ fontSize: 12 }}>{signal.owner}</td>
+                      <td style={{ fontSize: 12 }}>2h 14m</td>
                     </tr>
                   ))}
                 </tbody>
@@ -373,11 +436,11 @@ export default function MaintenancePage() {
           </div>
 
           {/* Outcomes */}
-          <div className="pg-card">
-            <div className="pg-card-header">
-              <span className="pg-card-title">Outcomes · last 30 days</span>
+          <div className="rounded-md border bg-card text-card-foreground p-4">
+            <div className="mb-3 flex items-center justify-between border-b pb-3">
+              <span className="text-sm font-semibold">Outcomes · last 30 days</span>
             </div>
-            <div className="pg-grid pg-grid-3">
+            <div className="grid grid-cols-3 gap-4">
               {[
                 {
                   label: 'RESOLVED',
@@ -395,7 +458,7 @@ export default function MaintenancePage() {
                   label: 'DUPLICATE / WONT FIX',
                   value: 7,
                   detail: 'closed without action',
-                  color: 'var(--fg-tertiary)',
+                  color: 'var(--fg-secondary)',
                 },
               ].map((item) => (
                 <div key={item.label}>
@@ -404,7 +467,6 @@ export default function MaintenancePage() {
                       fontSize: 11,
                       textTransform: 'uppercase',
                       letterSpacing: '0.04em',
-                      color: 'var(--fg-tertiary)',
                       marginBottom: 4,
                     }}
                   >
@@ -413,7 +475,7 @@ export default function MaintenancePage() {
                   <div style={{ fontSize: 22, fontWeight: 600, color: item.color }}>
                     {item.value}
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--fg-secondary)' }}>{item.detail}</div>
+                  <div style={{ fontSize: 12 }}>{item.detail}</div>
                 </div>
               ))}
             </div>

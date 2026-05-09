@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 
 const ProfileSchema = z.object({
@@ -57,9 +58,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="pg-card">
-      <div className="pg-card-header">
-        <h2 className="pg-card-title">{t('title')}</h2>
+    <div className="rounded-md border bg-card text-card-foreground p-4">
+      <div className="mb-3 flex items-center justify-between border-b pb-3">
+        <h2 className="text-sm font-semibold">{t('title')}</h2>
       </div>
       <div style={{ padding: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
@@ -104,15 +105,16 @@ export default function ProfilePage() {
                 }
               }}
             />
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               type="button"
-              className="pg-btn pg-btn-secondary pg-btn-sm"
               onClick={() => {
                 fileInputRef.current?.click();
               }}
             >
               {t('uploadAvatar')}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -125,10 +127,7 @@ export default function ProfilePage() {
           noValidate
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-            <label
-              htmlFor="displayName"
-              style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--fg-primary)' }}
-            >
+            <label htmlFor="displayName" style={{ fontSize: '0.8125rem', fontWeight: 500 }}>
               {t('displayNameLabel')}
             </label>
             <input
@@ -141,17 +140,13 @@ export default function ProfilePage() {
                 padding: '0.4375rem 0.75rem',
                 border: '1px solid var(--border-default)',
                 borderRadius: '6px',
-                background: 'var(--bg-canvas)',
-                color: 'var(--fg-primary)',
                 fontSize: '0.875rem',
                 outline: 'none',
               }}
               {...form.register('displayName')}
             />
             {errors.displayName && (
-              <span style={{ fontSize: '0.8125rem', color: 'var(--fg-danger)' }}>
-                {errors.displayName.message}
-              </span>
+              <span style={{ fontSize: '0.8125rem' }}>{errors.displayName.message}</span>
             )}
           </div>
 
@@ -161,14 +156,11 @@ export default function ProfilePage() {
                 marginBottom: '0.25rem',
                 fontSize: '0.8125rem',
                 fontWeight: 500,
-                color: 'var(--fg-primary)',
               }}
             >
               {t('emailLabel')}
             </p>
-            <p style={{ fontSize: '0.875rem', color: 'var(--fg-secondary)' }}>
-              {user?.email ?? '—'}
-            </p>
+            <p style={{ fontSize: '0.875rem' }}>{user?.email ?? '—'}</p>
           </div>
 
           {error && (
@@ -179,7 +171,6 @@ export default function ProfilePage() {
                 border: '1px solid var(--fg-danger)',
                 background: 'color-mix(in srgb, var(--fg-danger) 8%, transparent)',
                 fontSize: '0.875rem',
-                color: 'var(--fg-danger)',
               }}
             >
               {error}
@@ -193,7 +184,6 @@ export default function ProfilePage() {
                 border: '1px solid var(--fg-success)',
                 background: 'color-mix(in srgb, var(--fg-success) 8%, transparent)',
                 fontSize: '0.875rem',
-                color: 'var(--fg-success)',
               }}
             >
               {t('saved')}
@@ -201,9 +191,9 @@ export default function ProfilePage() {
           )}
 
           <div>
-            <button type="submit" className="pg-btn pg-btn-primary" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? t('saving') : t('save')}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

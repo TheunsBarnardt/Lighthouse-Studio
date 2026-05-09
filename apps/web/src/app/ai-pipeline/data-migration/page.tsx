@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { PipelineStepper } from '../stepper';
 
 type MigrationMode = 'skip' | 'configure';
@@ -14,9 +16,9 @@ export default function DataMigrationPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       <PipelineStepper active="data-migration" />
 
-      <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-canvas)' }}>
-        <div className="pg-page" style={{ maxWidth: 800 }}>
-          <div className="pg-page-header">
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 800 }}>
+          <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <h1>Data Migration</h1>
               <div className="subtitle">Optional stage · Skipped for greenfield projects</div>
@@ -25,44 +27,46 @@ export default function DataMigrationPage() {
 
           {mode === 'skip' && (
             <>
-              <div className="pg-card" style={{ textAlign: 'center', padding: 48 }}>
-                <div style={{ fontSize: 32, marginBottom: 16, color: 'var(--fg-tertiary)' }}>⊘</div>
+              <div
+                className="rounded-md border bg-card text-card-foreground p-4"
+                style={{ textAlign: 'center', padding: 48 }}
+              >
+                <div style={{ fontSize: 32, marginBottom: 16 }}>⊘</div>
                 <div
                   style={{
                     fontWeight: 600,
                     fontSize: 15,
                     marginBottom: 8,
-                    color: 'var(--fg-primary)',
                   }}
                 >
                   No migration needed
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginBottom: 24 }}>
+                <div style={{ fontSize: 13, marginBottom: 24 }}>
                   This is a new project with no existing data to migrate.
                 </div>
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-                  <button
+                  <Button
                     onClick={() => {
                       setMode('configure');
                     }}
-                    className="pg-btn pg-btn-secondary pg-btn-sm"
+                    className="inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-muted"
                   >
                     Configure migration anyway
-                  </button>
+                  </Button>
                   <Link
                     href="/ai-pipeline/ui-generation"
-                    className="pg-btn pg-btn-primary pg-btn-sm"
+                    className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                   >
                     Skip to UI generation →
                   </Link>
                 </div>
               </div>
 
-              <div className="pg-card pg-mt-4">
-                <div className="pg-card-header">
-                  <span className="pg-card-title">When to use this stage</span>
+              <div className="rounded-md border bg-card text-card-foreground p-4 mt-4">
+                <div className="mb-3 flex items-center justify-between border-b pb-3">
+                  <span className="text-sm font-semibold">When to use this stage</span>
                 </div>
-                <p style={{ fontSize: 13, color: 'var(--fg-secondary)', lineHeight: '20px' }}>
+                <p style={{ fontSize: 13, lineHeight: '20px' }}>
                   Use the data migration stage when bringing existing data into a new schema — for
                   example, migrating from a CSV export, a legacy SQL Server database, or a
                   spreadsheet. The platform generates schema-aware import scripts with column
@@ -74,13 +78,12 @@ export default function DataMigrationPage() {
                     style={{
                       fontSize: 12,
                       fontWeight: 600,
-                      color: 'var(--fg-secondary)',
                       marginBottom: 12,
                     }}
                   >
                     Supported sources
                   </div>
-                  <div className="pg-grid pg-grid-3">
+                  <div className="grid grid-cols-3 gap-4">
                     {[
                       { icon: '📄', label: 'CSV / Excel', desc: 'Spreadsheet exports' },
                       { icon: '🗄', label: 'SQL Server', desc: 'MSSQL direct connection' },
@@ -95,16 +98,11 @@ export default function DataMigrationPage() {
                           padding: 12,
                           border: '1px solid var(--border-default)',
                           borderRadius: 'var(--shell-radius-sm)',
-                          background: 'var(--bg-canvas)',
                         }}
                       >
                         <div style={{ fontSize: 18, marginBottom: 4 }}>{source.icon}</div>
-                        <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--fg-primary)' }}>
-                          {source.label}
-                        </div>
-                        <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
-                          {source.desc}
-                        </div>
+                        <div style={{ fontSize: 12, fontWeight: 500 }}>{source.label}</div>
+                        <div style={{ fontSize: 11 }}>{source.desc}</div>
                       </div>
                     ))}
                   </div>
@@ -114,17 +112,17 @@ export default function DataMigrationPage() {
           )}
 
           {mode === 'configure' && (
-            <div className="pg-card">
-              <div className="pg-card-header">
-                <span className="pg-card-title">Configure migration source</span>
-                <button
+            <div className="rounded-md border bg-card text-card-foreground p-4">
+              <div className="mb-3 flex items-center justify-between border-b pb-3">
+                <span className="text-sm font-semibold">Configure migration source</span>
+                <Button
                   onClick={() => {
                     setMode('skip');
                   }}
-                  className="pg-btn pg-btn-ghost pg-btn-sm"
+                  className=""
                 >
                   ← Back
-                </button>
+                </Button>
               </div>
               <div style={{ marginBottom: 16 }}>
                 <div
@@ -132,12 +130,11 @@ export default function DataMigrationPage() {
                     fontSize: 13,
                     fontWeight: 500,
                     marginBottom: 8,
-                    color: 'var(--fg-primary)',
                   }}
                 >
                   Source type
                 </div>
-                <div className="pg-grid pg-grid-3" style={{ gap: 8 }}>
+                <div className="grid grid-cols-3 gap-4" style={{ gap: 8 }}>
                   {[
                     { value: 'csv', label: 'CSV / Excel' },
                     { value: 'postgres', label: 'PostgreSQL' },
@@ -146,24 +143,23 @@ export default function DataMigrationPage() {
                     { value: 'airtable', label: 'Airtable' },
                     { value: 'salesforce', label: 'Salesforce' },
                   ].map((source) => (
-                    <button
+                    <Button
+                      variant="outline"
+                      type="button"
                       key={source.value}
-                      className="pg-btn pg-btn-secondary"
                       style={{ justifyContent: 'center', fontSize: 12 }}
                     >
                       {source.label}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
               <div
                 style={{
                   padding: 20,
-                  background: 'var(--bg-canvas)',
                   borderRadius: 'var(--shell-radius-md)',
                   border: '1px solid var(--border-default)',
                   textAlign: 'center',
-                  color: 'var(--fg-tertiary)',
                   fontSize: 13,
                 }}
               >

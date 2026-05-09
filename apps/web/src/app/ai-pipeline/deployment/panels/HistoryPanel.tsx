@@ -15,17 +15,21 @@ interface HistoryEntry {
 }
 
 const STATUS_ICON: Record<Status, React.ReactNode> = {
-  deployed: <CheckCircle2 style={{ width: 16, height: 16, color: 'var(--fg-success)' }} />,
-  failed: <XCircle style={{ width: 16, height: 16, color: 'var(--fg-danger)' }} />,
-  rolled_back: <RotateCcw style={{ width: 16, height: 16, color: 'var(--fg-warning)' }} />,
-  cancelled: <Clock style={{ width: 16, height: 16, color: 'var(--fg-tertiary)' }} />,
+  deployed: <CheckCircle2 style={{ width: 16, height: 16 }} />,
+  failed: <XCircle style={{ width: 16, height: 16 }} />,
+  rolled_back: <RotateCcw style={{ width: 16, height: 16 }} />,
+  cancelled: <Clock style={{ width: 16, height: 16 }} />,
 };
 
 const STATUS_BADGE: Record<Status, string> = {
-  deployed: 'pg-badge-success',
-  failed: 'pg-badge-danger',
-  rolled_back: 'pg-badge-warning',
-  cancelled: 'pg-badge-default',
+  deployed:
+    'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+  failed:
+    'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive',
+  rolled_back:
+    'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  cancelled:
+    'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground',
 };
 
 const DEMO_HISTORY: HistoryEntry[] = [
@@ -49,7 +53,6 @@ export function HistoryPanel() {
           alignItems: 'center',
           justifyContent: 'center',
           height: '100%',
-          color: 'var(--fg-tertiary)',
           fontSize: 13,
         }}
       >
@@ -60,11 +63,9 @@ export function HistoryPanel() {
 
   return (
     <div style={{ padding: 24 }}>
-      <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)', marginBottom: 16 }}>
-        Deployment History
-      </h2>
-      <div className="pg-table-wrap">
-        <table className="pg-data-table">
+      <h2 style={{ fontWeight: 600, fontSize: 14, marginBottom: 16 }}>Deployment History</h2>
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr>
               <th>Status</th>
@@ -81,20 +82,22 @@ export function HistoryPanel() {
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {STATUS_ICON[entry.status]}
-                    <span className={`pg-badge ${STATUS_BADGE[entry.status]}`}>
+                    <span
+                      className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${STATUS_BADGE[entry.status]}`}
+                    >
                       {entry.status.replace('_', ' ')}
                     </span>
                   </div>
                 </td>
                 <td style={{ textTransform: 'capitalize' }}>{entry.environment}</td>
                 <td>
-                  <span className="pg-mono" style={{ fontSize: 11 }}>
+                  <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                     {entry.version}
                   </span>
                 </td>
-                <td style={{ color: 'var(--fg-tertiary)' }}>{entry.startedAt}</td>
-                <td style={{ color: 'var(--fg-tertiary)' }}>{entry.durationMin}m</td>
-                <td style={{ color: 'var(--fg-tertiary)' }}>{entry.startedBy}</td>
+                <td>{entry.startedAt}</td>
+                <td>{entry.durationMin}m</td>
+                <td>{entry.startedBy}</td>
               </tr>
             ))}
           </tbody>

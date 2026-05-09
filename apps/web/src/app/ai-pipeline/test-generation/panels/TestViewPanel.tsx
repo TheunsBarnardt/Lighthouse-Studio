@@ -3,10 +3,14 @@
 import { Check, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { RegenerateTestDialog } from '../dialogs/RegenerateTestDialog';
 
 const DEMO_SOURCE = `import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AuthService } from '../auth.service';
+
+import { Button } from '@/components/ui/button';
 
 describe('AuthService.register', () => {
   let service: AuthService;
@@ -15,9 +19,9 @@ describe('AuthService.register', () => {
     service = new AuthService({
       users: {
         findByEmail: vi.fn().mockResolvedValue(null),
-        create: vi.fn().mockResolvedValue({ id: 'u-1', email: 'test@example.com' }),
+        create: vi.fn().mockResolvedValue({ id: 'u-1', email: 'test@example.com' })
       },
-      hasher: { hash: vi.fn().mockResolvedValue('$hashed') },
+      hasher: { hash: vi.fn().mockResolvedValue('$hashed') }
     });
   });
 
@@ -63,7 +67,6 @@ export function TestViewPanel({ testFileId }: Props) {
       <div
         style={{
           padding: '8px 16px',
-          borderBottom: '1px solid var(--border-default)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -71,10 +74,9 @@ export function TestViewPanel({ testFileId }: Props) {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span
-            className="pg-mono"
+            className="font-mono text-sm"
             style={{
               fontSize: 12,
-              color: 'var(--fg-tertiary)',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
@@ -83,30 +85,35 @@ export function TestViewPanel({ testFileId }: Props) {
           >
             src/__tests__/unit/tc-ac001-unit-1.test.ts
           </span>
-          <span className={`pg-badge ${approved ? 'pg-badge-success' : 'pg-badge-default'}`}>
+          <span
+            className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${approved ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'}`}
+          >
             {approved ? 'Approved' : 'Draft'}
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button
-            className="pg-btn pg-btn-secondary pg-btn-sm"
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
             onClick={() => {
               setShowRegenerate(true);
             }}
           >
             <RefreshCw style={{ width: 12, height: 12, marginRight: 6 }} />
             Regenerate
-          </button>
+          </Button>
           {!approved && (
-            <button
-              className="pg-btn pg-btn-primary pg-btn-sm"
+            <Button
+              size="sm"
+              type="button"
               onClick={() => {
                 setApproved(true);
               }}
             >
               <Check style={{ width: 12, height: 12, marginRight: 6 }} />
               Approve
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -116,13 +123,12 @@ export function TestViewPanel({ testFileId }: Props) {
         style={{
           display: 'flex',
           gap: 0,
-          borderBottom: '1px solid var(--border-default)',
           padding: '0 16px',
           marginTop: 8,
         }}
       >
         {(['source', 'reasoning'] as const).map((tab) => (
-          <button
+          <Button
             key={tab}
             onClick={() => {
               setActiveTab(tab);
@@ -141,19 +147,18 @@ export function TestViewPanel({ testFileId }: Props) {
             }}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          </button>
+          </Button>
         ))}
       </div>
 
       {activeTab === 'source' && (
         <div style={{ flex: 1, overflow: 'auto' }}>
           <pre
-            className="pg-mono"
+            className="font-mono text-sm"
             style={{
               padding: 16,
               fontSize: 12,
               lineHeight: 1.6,
-              color: 'var(--fg-primary)',
               whiteSpace: 'pre',
               overflowX: 'auto',
               margin: 0,
@@ -174,15 +179,12 @@ export function TestViewPanel({ testFileId }: Props) {
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
-                  color: 'var(--fg-tertiary)',
                   marginBottom: 4,
                 }}
               >
                 Why This Test Exists
               </p>
-              <p style={{ fontSize: 13, color: 'var(--fg-primary)' }}>
-                {DEMO_REASONING.whyThisTestExists}
-              </p>
+              <p style={{ fontSize: 13 }}>{DEMO_REASONING.whyThisTestExists}</p>
             </div>
             <div>
               <p
@@ -191,15 +193,12 @@ export function TestViewPanel({ testFileId }: Props) {
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
-                  color: 'var(--fg-tertiary)',
                   marginBottom: 4,
                 }}
               >
                 What It Verifies
               </p>
-              <p style={{ fontSize: 13, color: 'var(--fg-primary)' }}>
-                {DEMO_REASONING.whatItVerifies}
-              </p>
+              <p style={{ fontSize: 13 }}>{DEMO_REASONING.whatItVerifies}</p>
             </div>
             <div>
               <p
@@ -208,7 +207,6 @@ export function TestViewPanel({ testFileId }: Props) {
                   fontWeight: 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
-                  color: 'var(--fg-tertiary)',
                   marginBottom: 4,
                 }}
               >
@@ -224,11 +222,8 @@ export function TestViewPanel({ testFileId }: Props) {
                 }}
               >
                 {DEMO_REASONING.designDecisions.map((d, i) => (
-                  <li
-                    key={i}
-                    style={{ fontSize: 13, display: 'flex', gap: 8, color: 'var(--fg-primary)' }}
-                  >
-                    <span style={{ color: 'var(--fg-tertiary)', marginTop: 2 }}>•</span>
+                  <li key={i} style={{ fontSize: 13, display: 'flex', gap: 8 }}>
+                    <span style={{ marginTop: 2 }}>•</span>
                     <span>{d}</span>
                   </li>
                 ))}

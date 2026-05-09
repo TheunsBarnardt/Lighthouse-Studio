@@ -3,6 +3,8 @@
 import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 
+import { Button } from '@/components/ui/button';
+
 import { EngageStageDialog } from '../dialogs/EngageStageDialog';
 import { ResolveChangeRequestDialog } from '../dialogs/ResolveChangeRequestDialog';
 
@@ -21,10 +23,10 @@ interface ChangeRequest {
 }
 
 const PRIORITY_BADGE: Record<Priority, string> = {
-  p0: 'pg-badge-danger',
-  p1: 'pg-badge-warning',
-  p2: 'pg-badge-warning',
-  p3: 'pg-badge-default',
+  p0: 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive',
+  p1: 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  p2: 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  p3: 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground',
 };
 
 const DEMO_REQUESTS: ChangeRequest[] = [
@@ -58,9 +60,7 @@ export function ChangeRequestsPanel() {
 
   return (
     <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
-        Change Requests ({DEMO_REQUESTS.length})
-      </h2>
+      <h2 style={{ fontWeight: 600, fontSize: 14 }}>Change Requests ({DEMO_REQUESTS.length})</h2>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {DEMO_REQUESTS.map((cr) => (
@@ -93,40 +93,52 @@ export function ChangeRequestsPanel() {
                     flexWrap: 'wrap',
                   }}
                 >
-                  <span className={`pg-badge ${PRIORITY_BADGE[cr.priority]}`}>{cr.priority}</span>
-                  <span className="pg-badge pg-badge-default">{cr.status.replace('_', ' ')}</span>
-                  <span style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+                  <span
+                    className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${PRIORITY_BADGE[cr.priority]}`}
+                  >
+                    {cr.priority}
+                  </span>
+                  <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                    {cr.status.replace('_', ' ')}
+                  </span>
+                  <span style={{ fontSize: 11 }}>
                     {cr.signalCount} signal{cr.signalCount !== 1 ? 's' : ''} · {cr.createdAt}
                   </span>
                 </div>
-                <p style={{ fontSize: 13, color: 'var(--fg-primary)' }}>{cr.description}</p>
+                <p style={{ fontSize: 13 }}>{cr.description}</p>
               </div>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>Suggested stages:</span>
+              <span style={{ fontSize: 11 }}>Suggested stages:</span>
               {cr.suggestedStages.map((s) => (
-                <span key={s} className="pg-badge pg-badge-default">
+                <span
+                  key={s}
+                  className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                >
                   {s.replace('_', ' ')}
                 </span>
               ))}
               <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <button
-                  className="pg-btn pg-btn-secondary pg-btn-sm"
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
                   onClick={() => {
                     setResolveTarget(cr.id);
                   }}
                 >
                   Resolve
-                </button>
-                <button
-                  className="pg-btn pg-btn-primary pg-btn-sm"
+                </Button>
+                <Button
+                  size="sm"
+                  type="button"
                   onClick={() => {
                     setEngageTarget(cr.id);
                   }}
                 >
                   Engage Stage <ArrowRight style={{ width: 12, height: 12, marginLeft: 4 }} />
-                </button>
+                </Button>
               </div>
             </div>
           </div>

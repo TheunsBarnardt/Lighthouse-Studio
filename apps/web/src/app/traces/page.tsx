@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 // ---------------------------------------------------------------------------
 // Types & static data
 // ---------------------------------------------------------------------------
@@ -115,18 +117,16 @@ function durationColor(ms: number): string {
 
 export default function TracesPage() {
   return (
-    <div className="pg-page" style={{ maxWidth: 1400 }}>
+    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1400 }}>
       {/* Header */}
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Traces
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Traces</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             Distributed tracing · OpenTelemetry · 1.2M spans · last 24 hours
           </div>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           <input
             style={{
               width: 280,
@@ -135,8 +135,6 @@ export default function TracesPage() {
               fontSize: 13,
               border: '1px solid var(--border-default)',
               borderRadius: 4,
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
             }}
             placeholder="trace ID, endpoint, or filter..."
           />
@@ -148,30 +146,30 @@ export default function TracesPage() {
               fontSize: 13,
               border: '1px solid var(--border-default)',
               borderRadius: 4,
-              background: 'var(--bg-canvas)',
-              color: 'var(--fg-primary)',
             }}
           >
             <option>Last hour</option>
             <option>Last 24h</option>
           </select>
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Search</button>
+          <Button size="sm" type="button">
+            Search
+          </Button>
         </div>
       </div>
 
       {/* Content: trace list + flame graph */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 16 }}>
         {/* Recent traces */}
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Recent traces</div>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Recent traces</div>
           </div>
-          <div className="pg-table-wrap">
-            <table className="pg-data-table">
+          <div className="overflow-hidden rounded-md border">
+            <table className="w-full border-collapse text-sm">
               <thead>
                 <tr>
                   <th>Endpoint</th>
-                  <th className="pg-tabular" style={{ textAlign: 'right' }}>
+                  <th className="tabular-nums" style={{ textAlign: 'right' }}>
                     Duration
                   </th>
                   <th>Status</th>
@@ -181,18 +179,15 @@ export default function TracesPage() {
                 {TRACES.map((trace) => (
                   <tr key={trace.id} style={{ cursor: 'pointer' }}>
                     <td>
-                      <div
-                        className="pg-mono"
-                        style={{ fontSize: 11, fontWeight: 500, color: 'var(--fg-primary)' }}
-                      >
+                      <div className="font-mono text-sm" style={{ fontSize: 11, fontWeight: 500 }}>
                         {trace.endpoint}
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 2 }}>
+                      <div style={{ fontSize: 11, marginTop: 2 }}>
                         {trace.id} · {trace.spans} spans · {trace.when}
                       </div>
                     </td>
                     <td
-                      className="pg-tabular"
+                      className="tabular-nums"
                       style={{
                         textAlign: 'right',
                         fontSize: 12,
@@ -203,9 +198,13 @@ export default function TracesPage() {
                     </td>
                     <td>
                       {trace.status === 'success' ? (
-                        <span className="pg-badge pg-badge-success">OK</span>
+                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                          OK
+                        </span>
                       ) : (
-                        <span className="pg-badge pg-badge-danger">Error</span>
+                        <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive">
+                          Error
+                        </span>
                       )}
                     </td>
                   </tr>
@@ -216,10 +215,10 @@ export default function TracesPage() {
         </div>
 
         {/* Trace detail / flame graph */}
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Trace · trace_a3f291c</div>
-            <span style={{ fontSize: 12, color: 'var(--fg-tertiary)' }}>
+        <div className="rounded-md border bg-card text-card-foreground p-4">
+          <div className="mb-3 flex items-center justify-between border-b pb-3">
+            <div className="text-sm font-semibold">Trace · trace_a3f291c</div>
+            <span style={{ fontSize: 12 }}>
               POST /functions/v1/exportDealsCSV · 1,247ms · 8 spans
             </span>
           </div>
@@ -236,9 +235,7 @@ export default function TracesPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.04em',
-                color: 'var(--fg-tertiary)',
                 paddingBottom: 4,
-                borderBottom: '1px solid var(--border-default)',
                 marginBottom: 8,
               }}
             >
@@ -262,7 +259,7 @@ export default function TracesPage() {
                 }}
               >
                 <span
-                  className="pg-mono"
+                  className="font-mono text-sm"
                   style={{
                     color: i === 0 ? 'var(--fg-primary)' : 'var(--fg-secondary)',
                     fontWeight: i === 0 ? 600 : 400,
@@ -273,7 +270,6 @@ export default function TracesPage() {
                 <div
                   style={{
                     height: 16,
-                    background: 'var(--bg-canvas)',
                     borderRadius: 2,
                     position: 'relative',
                   }}
@@ -290,10 +286,7 @@ export default function TracesPage() {
                     }}
                   />
                 </div>
-                <span
-                  className="pg-tabular"
-                  style={{ textAlign: 'right', color: 'var(--fg-secondary)' }}
-                >
+                <span className="tabular-nums" style={{ textAlign: 'right' }}>
                   {span.duration}
                 </span>
               </div>
@@ -302,11 +295,10 @@ export default function TracesPage() {
 
           {/* Insights */}
           <div
-            className="pg-card"
+            className="rounded-md border bg-card text-card-foreground p-4"
             style={{
               margin: 16,
               marginTop: 12,
-              background: 'var(--bg-canvas)',
             }}
           >
             <div
@@ -315,13 +307,12 @@ export default function TracesPage() {
                 fontWeight: 600,
                 textTransform: 'uppercase',
                 letterSpacing: '0.04em',
-                color: 'var(--fg-tertiary)',
                 marginBottom: 8,
               }}
             >
               Insights
             </div>
-            <div style={{ fontSize: 13, color: 'var(--fg-primary)' }}>
+            <div style={{ fontSize: 13 }}>
               <strong>70% of total time spent in Backblaze B2 upload.</strong> Consider streaming
               the response instead of buffering. Could reduce p95 from 1.2s to ~400ms.
             </div>

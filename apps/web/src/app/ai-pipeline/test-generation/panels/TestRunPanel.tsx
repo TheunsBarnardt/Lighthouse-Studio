@@ -14,9 +14,9 @@ interface TestResult {
 }
 
 const STATUS_ICON: Record<RunStatus, React.ReactNode> = {
-  running: <Clock style={{ width: 16, height: 16, color: 'var(--fg-warning)' }} />,
-  completed: <CheckCircle2 style={{ width: 16, height: 16, color: 'var(--fg-success)' }} />,
-  failed: <XCircle style={{ width: 16, height: 16, color: 'var(--fg-danger)' }} />,
+  running: <Clock style={{ width: 16, height: 16 }} />,
+  completed: <CheckCircle2 style={{ width: 16, height: 16 }} />,
+  failed: <XCircle style={{ width: 16, height: 16 }} />,
 };
 
 const DEMO_RESULTS: TestResult[] = [
@@ -86,7 +86,7 @@ export function TestRunPanel() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: 24, gap: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         {STATUS_ICON[status]}
-        <h2 style={{ fontWeight: 600, fontSize: 14, color: 'var(--fg-primary)' }}>
+        <h2 style={{ fontWeight: 600, fontSize: 14 }}>
           {status === 'running'
             ? 'Running tests…'
             : status === 'completed'
@@ -94,7 +94,7 @@ export function TestRunPanel() {
               : 'Some tests failed'}
         </h2>
         <span
-          className={`pg-badge ${status === 'completed' ? 'pg-badge-success' : status === 'failed' ? 'pg-badge-danger' : 'pg-badge-default'}`}
+          className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${status === 'completed' ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : status === 'failed' ? 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive' : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'}`}
         >
           {status}
         </span>
@@ -131,8 +131,8 @@ export function TestRunPanel() {
             textAlign: 'center',
           }}
         >
-          <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--fg-success)' }}>{passed}</div>
-          <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>Passed</div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>{passed}</div>
+          <div style={{ fontSize: 11 }}>Passed</div>
         </div>
         <div
           style={{
@@ -142,8 +142,8 @@ export function TestRunPanel() {
             textAlign: 'center',
           }}
         >
-          <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--fg-danger)' }}>{failed}</div>
-          <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>Failed</div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>{failed}</div>
+          <div style={{ fontSize: 11 }}>Failed</div>
         </div>
         <div
           style={{
@@ -153,10 +153,8 @@ export function TestRunPanel() {
             textAlign: 'center',
           }}
         >
-          <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--fg-primary)' }}>
-            {visibleResults.length}
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>Total</div>
+          <div style={{ fontSize: 22, fontWeight: 700 }}>{visibleResults.length}</div>
+          <div style={{ fontSize: 11 }}>Total</div>
         </div>
       </div>
 
@@ -184,7 +182,6 @@ export function TestRunPanel() {
                 style={{
                   width: 16,
                   height: 16,
-                  color: 'var(--fg-success)',
                   marginTop: 2,
                   flexShrink: 0,
                 }}
@@ -194,7 +191,6 @@ export function TestRunPanel() {
                 style={{
                   width: 16,
                   height: 16,
-                  color: 'var(--fg-danger)',
                   marginTop: 2,
                   flexShrink: 0,
                 }}
@@ -204,7 +200,6 @@ export function TestRunPanel() {
                 style={{
                   width: 16,
                   height: 16,
-                  color: 'var(--fg-tertiary)',
                   marginTop: 2,
                   flexShrink: 0,
                 }}
@@ -217,19 +212,15 @@ export function TestRunPanel() {
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
-                  color: 'var(--fg-primary)',
                 }}
               >
                 {r.name}
               </div>
-              <div style={{ fontSize: 11, color: 'var(--fg-tertiary)' }}>
+              <div style={{ fontSize: 11 }}>
                 {r.filePath} · {r.durationMs}ms
               </div>
               {r.error && (
-                <div
-                  className="pg-mono"
-                  style={{ fontSize: 11, color: 'var(--fg-danger)', marginTop: 4 }}
-                >
+                <div className="font-mono text-sm" style={{ fontSize: 11, marginTop: 4 }}>
                   {r.error}
                 </div>
               )}

@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
+
 const ISSUES = [
   {
     sev: 'high',
@@ -21,22 +23,24 @@ const ISSUES = [
 export default function DbSecurityPage() {
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Security Advisor
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
-            3 issues · Last scan 12 min ago
-          </div>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Security Advisor</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>3 issues · Last scan 12 min ago</div>
         </div>
-        <div className="pg-page-header-actions">
-          <button className="pg-btn pg-btn-primary pg-btn-sm">Re-scan</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <Button size="sm" type="button">
+            Re-scan
+          </Button>
         </div>
       </div>
 
       {ISSUES.map((issue) => (
-        <div key={issue.title} className="pg-card" style={{ marginBottom: 12 }}>
+        <div
+          key={issue.title}
+          className="rounded-md border bg-card text-card-foreground p-4"
+          style={{ marginBottom: 12 }}
+        >
           <div
             style={{
               display: 'flex',
@@ -47,15 +51,17 @@ export default function DbSecurityPage() {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span
-                className={`pg-badge ${issue.sev === 'high' ? 'pg-badge-danger' : issue.sev === 'medium' ? 'pg-badge-warning' : 'pg-badge-default'}`}
+                className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${issue.sev === 'high' ? 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive' : issue.sev === 'medium' ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'}`}
               >
                 {issue.sev.toUpperCase()}
               </span>
               <strong style={{ fontSize: 13 }}>{issue.title}</strong>
             </div>
-            <button className="pg-btn pg-btn-secondary pg-btn-sm">Review</button>
+            <Button variant="outline" size="sm" type="button">
+              Review
+            </Button>
           </div>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>{issue.desc}</div>
+          <div style={{ fontSize: 13 }}>{issue.desc}</div>
         </div>
       ))}
     </div>

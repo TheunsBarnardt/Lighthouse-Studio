@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 // ---------------------------------------------------------------------------
 // Data
 // ---------------------------------------------------------------------------
@@ -117,16 +119,14 @@ export default function IntegrationsPage() {
         }}
       >
         <div>
-          <h1
-            style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 4 }}
-          >
-            Integrations
-          </h1>
-          <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>
+          <h1 style={{ fontSize: 18, fontWeight: 600, marginBottom: 4 }}>Integrations</h1>
+          <p style={{ fontSize: 13 }}>
             Connect external services · {connected.length} connected · {available.length} available
           </p>
         </div>
-        <button className="pg-btn pg-btn-secondary pg-btn-sm">Browse marketplace</button>
+        <Button variant="outline" size="sm" type="button">
+          Browse marketplace
+        </Button>
       </div>
 
       {/* Connected */}
@@ -139,14 +139,17 @@ export default function IntegrationsPage() {
               fontWeight: 600,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              color: 'var(--fg-tertiary)',
             }}
           >
             Connected
           </h2>
-          <div className="pg-grid pg-grid-3">
+          <div className="grid grid-cols-3 gap-4">
             {connected.map((i) => (
-              <div key={i.name} className="pg-card" style={{ padding: 16 }}>
+              <div
+                key={i.name}
+                className="rounded-md border bg-card text-card-foreground p-4"
+                style={{ padding: 16 }}
+              >
                 <div
                   style={{
                     marginBottom: 8,
@@ -158,25 +161,27 @@ export default function IntegrationsPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 20 }}>{i.logo}</span>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg-primary)' }}>
-                        {i.name}
-                      </div>
-                      <div style={{ fontSize: 10, color: 'var(--fg-tertiary)' }}>{i.category}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>{i.name}</div>
+                      <div style={{ fontSize: 10 }}>{i.category}</div>
                     </div>
                   </div>
-                  <span className="pg-badge pg-badge-success">Connected</span>
+                  <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                    Connected
+                  </span>
                 </div>
-                <p style={{ marginBottom: 12, fontSize: 12, color: 'var(--fg-secondary)' }}>
-                  {i.description}
-                </p>
+                <p style={{ marginBottom: 12, fontSize: 12 }}>{i.description}</p>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button className="pg-btn pg-btn-secondary pg-btn-sm">Configure</button>
-                  <button
-                    className="pg-btn pg-btn-ghost pg-btn-sm"
+                  <Button variant="outline" size="sm" type="button">
+                    Configure
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    type="button"
                     style={{ color: 'var(--fg-danger, #dc2626)' }}
                   >
                     Disconnect
-                  </button>
+                  </Button>
                 </div>
               </div>
             ))}
@@ -193,20 +198,17 @@ export default function IntegrationsPage() {
             fontWeight: 600,
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
-            color: 'var(--fg-tertiary)',
           }}
         >
           Available
         </h2>
-        <div className="pg-grid pg-grid-3">
+        <div className="grid grid-cols-3 gap-4">
           {available.map((i) => (
             <div
               key={i.name}
-              className="pg-card"
+              className="rounded-md border bg-card text-card-foreground p-4"
               style={{
                 padding: 16,
-                background: 'var(--bg-surface)',
-                borderColor: 'var(--border-default)',
               }}
             >
               <div
@@ -220,18 +222,18 @@ export default function IntegrationsPage() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 20, opacity: 0.6 }}>{i.logo}</span>
                   <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg-primary)' }}>
-                      {i.name}
-                    </div>
-                    <div style={{ fontSize: 10, color: 'var(--fg-tertiary)' }}>{i.category}</div>
+                    <div style={{ fontSize: 13, fontWeight: 600 }}>{i.name}</div>
+                    <div style={{ fontSize: 10 }}>{i.category}</div>
                   </div>
                 </div>
-                <span className="pg-badge pg-badge-default">Available</span>
+                <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                  Available
+                </span>
               </div>
-              <p style={{ marginBottom: 12, fontSize: 12, color: 'var(--fg-secondary)' }}>
-                {i.description}
-              </p>
-              <button className="pg-btn pg-btn-secondary pg-btn-sm">Connect</button>
+              <p style={{ marginBottom: 12, fontSize: 12 }}>{i.description}</p>
+              <Button variant="outline" size="sm" type="button">
+                Connect
+              </Button>
             </div>
           ))}
         </div>

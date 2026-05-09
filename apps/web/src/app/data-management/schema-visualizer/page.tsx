@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+
 // ---------------------------------------------------------------------------
 // Static SVG ER diagram
 // ---------------------------------------------------------------------------
@@ -350,22 +352,18 @@ function ErDiagram() {
 export default function SchemaVisualizerPage() {
   return (
     <div style={{ padding: '16px 24px' }}>
-      <div className="pg-page-header">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 18, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
-            Schema Visualizer
-          </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Schema Visualizer</h1>
+          <div style={{ fontSize: 13, marginTop: 4 }}>
             22 tables · public schema · PostgreSQL 16
           </div>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex shrink-0 items-center gap-2">
           <select
             style={{
               border: '1px solid var(--border-default)',
               borderRadius: 4,
-              background: 'var(--bg-surface)',
-              color: 'var(--fg-secondary)',
               fontSize: 12,
               padding: '3px 8px',
               height: 28,
@@ -373,15 +371,15 @@ export default function SchemaVisualizerPage() {
           >
             <option>schema: public</option>
           </select>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm" type="button">
+          <Button variant="outline" size="sm" type="button">
             Copy as SQL
-          </button>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm" type="button">
+          </Button>
+          <Button variant="outline" size="sm" type="button">
             Export SVG
-          </button>
-          <button className="pg-btn pg-btn-secondary pg-btn-sm" type="button">
+          </Button>
+          <Button variant="outline" size="sm" type="button">
             Auto layout
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -390,7 +388,6 @@ export default function SchemaVisualizerPage() {
           border: '1px solid var(--border-default)',
           borderRadius: 6,
           overflow: 'hidden',
-          background: 'var(--bg-surface)',
           padding: 24,
           marginBottom: 12,
         }}
@@ -404,7 +401,6 @@ export default function SchemaVisualizerPage() {
           gap: 16,
           padding: '8px 0',
           fontSize: 11,
-          color: 'var(--fg-tertiary)',
           justifyContent: 'center',
         }}
       >
@@ -412,9 +408,9 @@ export default function SchemaVisualizerPage() {
           <span style={{ color: 'oklch(0.65 0.16 75)' }}>●</span> Primary key
         </span>
         <span>
-          <span style={{ color: 'var(--accent-primary)' }}>- - -</span> Foreign key
+          <span>- - -</span> Foreign key
         </span>
-        <span style={{ color: 'var(--fg-tertiary)' }}>○ Nullable</span>
+        <span>○ Nullable</span>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
 import { AuthApiError, authApi } from '@/lib/auth-client';
 
@@ -75,8 +76,8 @@ function AcceptInvitationPageInner() {
 
   if (loading) {
     return (
-      <div className="pg-card" style={cardStyle}>
-        <p style={{ fontSize: 13, color: 'var(--fg-tertiary)' }} aria-live="polite">
+      <div className="rounded-md border bg-card text-card-foreground p-4" style={cardStyle}>
+        <p style={{ fontSize: 13 }} aria-live="polite">
           Validating invitation…
         </p>
       </div>
@@ -85,12 +86,15 @@ function AcceptInvitationPageInner() {
 
   if (success) {
     return (
-      <div className="pg-card" style={cardStyle}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 16 }}>
+      <div className="rounded-md border bg-card text-card-foreground p-4" style={cardStyle}>
+        <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>
           You've joined {success.workspaceName}!
         </h2>
         <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <Link href={`/workspaces/${success.workspaceSlug}`} className="pg-btn pg-btn-primary">
+          <Link
+            href={`/workspaces/${success.workspaceSlug}`}
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
             Go to workspace
           </Link>
         </div>
@@ -99,10 +103,8 @@ function AcceptInvitationPageInner() {
   }
 
   return (
-    <div className="pg-card" style={cardStyle}>
-      <h2 style={{ fontSize: 16, fontWeight: 600, color: 'var(--fg-primary)', marginBottom: 16 }}>
-        Workspace invitation
-      </h2>
+    <div className="rounded-md border bg-card text-card-foreground p-4" style={cardStyle}>
+      <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>Workspace invitation</h2>
 
       {error && (
         <div
@@ -113,7 +115,6 @@ function AcceptInvitationPageInner() {
             background: 'var(--bg-danger-subtle)',
             padding: '10px 12px',
             fontSize: 13,
-            color: 'var(--fg-danger)',
           }}
         >
           {error}
@@ -122,25 +123,25 @@ function AcceptInvitationPageInner() {
 
       {invitation && !error && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <p style={{ fontSize: 13, color: 'var(--fg-primary)' }}>
+          <p style={{ fontSize: 13 }}>
             You've been invited to join <strong>{invitation.workspaceName}</strong>.
           </p>
           {user ? (
-            <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>Signed in as {user.email}</p>
+            <p style={{ fontSize: 13 }}>Signed in as {user.email}</p>
           ) : (
-            <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>
+            <p style={{ fontSize: 13 }}>
               Sign in first to accept this invitation.{' '}
               <Link
                 href={`/auth/sign-in?returnTo=/auth/accept-invitation?token=${token}`}
-                style={{ color: 'var(--accent-primary)', textDecoration: 'none' }}
+                style={{ textDecoration: 'none' }}
               >
                 Sign in
               </Link>
             </p>
           )}
           {user && (
-            <button
-              className="pg-btn pg-btn-primary"
+            <Button
+              type="button"
               style={{ width: '100%' }}
               onClick={() => {
                 void handleAccept();
@@ -148,7 +149,7 @@ function AcceptInvitationPageInner() {
               disabled={accepting}
             >
               {accepting ? 'Accepting…' : 'Accept invitation'}
-            </button>
+            </Button>
           )}
         </div>
       )}
