@@ -1,224 +1,104 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
+import type { WorkspaceSummary } from '@/lib/api-client';
+
 import { Button } from '@/components/ui/button';
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface Workspace {
-  id: string;
-  slug: string;
-  name: string;
-  plan: string;
-  memberCount: number;
-  dbType: string;
-  createdAt: string;
-}
-
-// ---------------------------------------------------------------------------
-// Mock data (replaced by real API once available)
-// ---------------------------------------------------------------------------
-
-const MOCK_WORKSPACES: Workspace[] = [
-  {
-    id: 'ws_a1b2c3d4',
-    slug: 'acme-corp',
-    name: 'Acme Corporation',
-    plan: 'Enterprise',
-    memberCount: 6,
-    dbType: 'PostgreSQL',
-    createdAt: '2025-03-01T00:00:00Z',
-  },
-  {
-    id: 'ws_b2c3d4e5',
-    slug: 'acme-skunkworks',
-    name: 'Acme Skunkworks',
-    plan: 'Pro',
-    memberCount: 3,
-    dbType: 'MongoDB',
-    createdAt: '2025-07-15T00:00:00Z',
-  },
-];
-
-// ---------------------------------------------------------------------------
-// Skeleton
-// ---------------------------------------------------------------------------
+import { workspaceApi } from '@/lib/api-client';
 
 function WorkspacesSkeleton() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div className="flex flex-col gap-3">
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
-            borderRadius: '8px',
-            border: '1px solid var(--border)',
-            padding: 16,
-          }}
+          className="flex items-center gap-4 rounded-lg border border-border bg-card p-4 animate-pulse"
         >
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ height: 14, width: 192, borderRadius: 4, background: 'var(--muted)' }} />
-            <div style={{ height: 12, width: 128, borderRadius: 4, background: 'var(--muted)' }} />
+          <div className="h-10 w-10 rounded-md bg-muted flex-shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3.5 w-48 rounded bg-muted" />
+            <div className="h-3 w-32 rounded bg-muted" />
           </div>
-          <div style={{ height: 22, width: 72, borderRadius: 99, background: 'var(--muted)' }} />
-          <div style={{ height: 22, width: 88, borderRadius: 99, background: 'var(--muted)' }} />
-          <div style={{ height: 30, width: 56, borderRadius: 6, background: 'var(--muted)' }} />
+          <div className="h-8 w-16 rounded-md bg-muted" />
         </div>
       ))}
     </div>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
-
 export default function WorkspacesPage() {
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [workspaces, setWorkspaces] = useState<WorkspaceSummary[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetch('/api/v1/workspaces', { credentials: 'include' })
-      .then((r) => {
-        if (!r.ok) throw new Error('not ok');
-        return r.json() as Promise<{ items: Workspace[] }>;
-      })
-      .then((d) => {
+    void (async () => {
+      try {
+        const d = await workspaceApi.list();
         setWorkspaces(d.items);
-        return;
-      })
-      .catch(() => {
-        setWorkspaces(MOCK_WORKSPACES);
-      })
-      .finally(() => {
+      } catch {
+        setError('Failed to load workspaces.');
+      } finally {
         setLoading(false);
-      });
+      }
+    })();
   }, []);
 
   return (
-    <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
-      {/* Page header */}
+    <div className="mx-auto max-w-[1280px] p-6">
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1>Workspaces</h1>
-          <p className="subtitle">
+          <h1 className="text-xl font-semibold text-foreground">Workspaces</h1>
+          <p className="text-[13px] text-muted-foreground mt-1">
             {loading
-              ? 'Loadingâ€¦'
+              ? 'Loading…'
               : `${String(workspaces.length)} workspace${workspaces.length !== 1 ? 's' : ''}`}
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Button size="sm" type="button">
-            + New workspace
-          </Button>
-        </div>
+        <Link href="/">
+          <Button size="sm">+ New workspace</Button>
+        </Link>
       </div>
 
-      {/* List */}
       {loading ? (
         <WorkspacesSkeleton />
+      ) : error ? (
+        <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          {error}
+        </div>
       ) : workspaces.length === 0 ? (
-        <div
-          className="rounded-md border bg-card text-card-foreground p-4"
-          style={{ textAlign: 'center', padding: '48px 24px' }}
-        >
-          <p style={{ fontWeight: 500, marginBottom: 8 }}>No workspaces yet</p>
-          <p style={{ fontSize: 13, marginBottom: 16 }}>
+        <div className="rounded-md border border-border bg-card p-12 text-center">
+          <p className="font-medium text-foreground mb-1">No workspaces yet</p>
+          <p className="text-[13px] text-muted-foreground mb-4">
             Create your first workspace to get started.
           </p>
-          <Button size="sm" type="button">
-            + New workspace
-          </Button>
+          <Link href="/">
+            <Button size="sm">+ New workspace</Button>
+          </Link>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="flex flex-col gap-3">
           {workspaces.map((ws) => (
             <div
               key={ws.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 16,
-                borderRadius: '8px',
-                border: '1px solid var(--border)',
-                padding: 16,
-              }}
+              className="flex items-center gap-4 rounded-lg border border-border bg-card p-4"
             >
-              {/* Workspace avatar */}
-              <div
-                style={{
-                  display: 'flex',
-                  height: 40,
-                  width: 40,
-                  flexShrink: 0,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '6px',
-                  background: 'var(--primary)',
-                  color: '#fff',
-                  fontSize: 13,
-                  fontWeight: 700,
-                }}
-                aria-hidden="true"
-              >
+              <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center text-[13px] font-bold text-white flex-shrink-0">
                 {ws.name.slice(0, 2).toUpperCase()}
               </div>
-
-              {/* Name + meta */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p
-                  style={{
-                    fontSize: 13,
-                    fontWeight: 600,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    margin: 0,
-                  }}
-                >
-                  {ws.name}
-                </p>
-                <p
-                  style={{
-                    marginTop: 2,
-                    fontSize: 12,
-                    margin: '2px 0 0',
-                  }}
-                >
-                  {String(ws.memberCount)} member{ws.memberCount !== 1 ? 's' : ''} Â·{' '}
-                  <span className="font-mono text-sm">{ws.slug}</span>
-                </p>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-semibold text-foreground truncate">{ws.name}</p>
+                <p className="text-[12px] text-muted-foreground mt-0.5 font-mono">{ws.slug}</p>
               </div>
-
-              {/* Plan badge */}
-              <span
-                className={
-                  ws.plan === 'Enterprise'
-                    ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                    : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'
-                }
-              >
-                {ws.plan}
-              </span>
-
-              {/* DB type badge */}
-              <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
-                {ws.dbType}
-              </span>
-
-              {/* Open button */}
-              <Link
-                href={`/workspaces/${ws.slug}/members`}
-                className="inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-sm font-medium hover:bg-muted"
-              >
-                Open
+              <p className="text-[12px] text-muted-foreground flex-shrink-0">
+                {new Date(ws.createdAt).toLocaleDateString()}
+              </p>
+              <Link href="/">
+                <Button variant="outline" size="sm">
+                  Open
+                </Button>
               </Link>
             </div>
           ))}

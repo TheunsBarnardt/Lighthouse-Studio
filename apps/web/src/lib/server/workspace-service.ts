@@ -5,9 +5,10 @@ import {
   createInMemoryAudit,
   createInMemoryAuthz,
   createInMemoryLogger,
-  createInMemoryRepo,
 } from '@platform/core/testing';
 import { uuidv7 } from 'uuidv7';
+
+import { createFileRepo } from './file-repo';
 
 type MemberEntity = {
   id: string;
@@ -20,9 +21,12 @@ type MemberEntity = {
   version: number;
 };
 
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument --
+   file-repo satisfies RepositoryPort structurally but the web app cannot import the unbuilt
+   ports-persistence package, so we cast to any and suppress the downstream unsafe-* rules. */
 function buildBundle() {
-  const workspaces = createInMemoryRepo<Workspace>();
-  const members = createInMemoryRepo<MemberEntity>();
+  const workspaces = createFileRepo<Workspace>('workspaces') as any;
+  const members = createFileRepo<MemberEntity>('workspace-members') as any;
   return {
     service: new WorkspaceService(
       createInMemoryAuthz(),
@@ -35,6 +39,7 @@ function buildBundle() {
     members,
   };
 }
+/* eslint-enable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument */
 
 type WorkspaceBundle = ReturnType<typeof buildBundle>;
 
@@ -49,7 +54,9 @@ function getBundle(): WorkspaceBundle {
 }
 
 export function getWorkspaceRepos() {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { workspaces, members } = getBundle();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   return { workspaces, members };
 }
 
@@ -58,8 +65,10 @@ export function getWorkspaceService(): WorkspaceService {
 }
 
 export async function createOwnerMembership(workspaceId: string, userId: string): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const { members } = getBundle();
   const now = new Date().toISOString();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   await members.create({
     id: uuidv7(),
     workspaceId,

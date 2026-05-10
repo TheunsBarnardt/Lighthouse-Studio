@@ -48,6 +48,9 @@ ehthumbs.db
 *.tmp
 *.temp
 
+# Local dev data store (file-backed repos for workspace/member persistence)
+.lighthouse-data/
+
 # Private Claude memory (not for sharing)
 .claude/memory-private/
 

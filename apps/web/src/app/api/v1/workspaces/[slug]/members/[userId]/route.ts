@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
 import { getUserDirectory } from '@/lib/server/auth-service';
+import { memberEventBus } from '@/lib/server/member-event-bus';
 import { requestContextFromSession } from '@/lib/server/session';
 
 export async function GET(
@@ -79,6 +80,13 @@ export async function PATCH(
     }
   }
 
+  memberEventBus.publish({
+    type: 'member.role_changed',
+    workspaceId: slug,
+    userId,
+    payload: body,
+  });
+
   return NextResponse.json({ message: 'Member updated.' });
 }
 
@@ -103,6 +111,8 @@ export async function DELETE(
       { status: 500 },
     );
   }
+
+  memberEventBus.publish({ type: 'member.removed', workspaceId: slug, userId, payload: {} });
 
   return NextResponse.json({ message: 'Member removed.' });
 }

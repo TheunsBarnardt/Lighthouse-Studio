@@ -203,7 +203,7 @@ export interface ConversationSummary {
   content: {
     briefDraft: { title?: string };
     messages: { content: string }[];
-    totalCostUsd: number;
+    totalCostUsd: number | null;
   };
 }
 
@@ -216,6 +216,12 @@ export const workspaceApi = {
     return request<WorkspaceSummary>('/api/v1/workspaces', {
       method: 'POST',
       body: JSON.stringify(input),
+    });
+  },
+
+  delete(id: string): Promise<undefined> {
+    return request<undefined>(`/api/v1/workspaces/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
     });
   },
 };

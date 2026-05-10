@@ -70,23 +70,23 @@ function Dialog({
       }}
     >
       {/* Overlay */}
-      <div className="absolute inset-0" style={{ background: 'var(--bg-overlay)' }} aria-hidden="true" />
+      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
 
       {/* Panel */}
       <div
         className={cn('relative z-50 w-full rounded-xl shadow-xl', sizes[size], className)}
         style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border-default)',
-          color: 'var(--fg-primary)',
+          background: 'var(--card)',
+          border: '1px solid var(--border)',
+          color: 'var(--card-foreground)',
         }}
       >
         {(title ?? description) && (
-          <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border-default)' }}>
+          <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border)' }}>
             {title && (
               <h2
                 id="dialog-title"
-                style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--fg-primary)' }}
+                style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--foreground)' }}
               >
                 {title}
               </h2>
@@ -94,7 +94,7 @@ function Dialog({
             {description && (
               <p
                 id="dialog-description"
-                style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--fg-secondary)' }}
+                style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--muted-foreground)' }}
               >
                 {description}
               </p>
@@ -119,7 +119,7 @@ function DialogFooter({ children, className }: DialogFooterProps) {
       style={{
         marginTop: 24,
         paddingTop: 16,
-        borderTop: '1px solid var(--border-default)',
+        borderTop: '1px solid var(--border)',
       }}
     >
       {children}
@@ -139,7 +139,7 @@ function DialogTitle({ children, className }: { children: ReactNode; className?:
   return (
     <h2
       className={cn('text-base font-semibold leading-none', className)}
-      style={{ color: 'var(--fg-primary)' }}
+      style={{ color: 'var(--foreground)' }}
     >
       {children}
     </h2>
@@ -148,7 +148,7 @@ function DialogTitle({ children, className }: { children: ReactNode; className?:
 
 function DialogDescription({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <p className={cn('text-sm', className)} style={{ color: 'var(--fg-secondary)' }}>
+    <p className={cn('text-sm', className)} style={{ color: 'var(--muted-foreground)' }}>
       {children}
     </p>
   );

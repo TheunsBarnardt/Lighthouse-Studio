@@ -91,6 +91,9 @@ function SignInPageInner() {
         padding: 32,
         borderRadius: 8,
         border: '1px solid var(--border)',
+        background: 'var(--card)',
+        color: 'var(--card-foreground)',
+        boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
       }}
     >
       <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 4 }}>{t('title')}</h1>

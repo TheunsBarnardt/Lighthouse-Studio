@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { okResponse } from '@/lib/server/api-helpers';
+import { memberEventBus } from '@/lib/server/member-event-bus';
 import { requestContextFromSession } from '@/lib/server/session';
 
 const InviteSchema = z.object({
@@ -18,7 +19,10 @@ export async function GET(
   const { slug } = await params;
   const ctx = await requestContextFromSession(slug, request);
   if (!ctx) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated.', statusCode: 401 }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated.', statusCode: 401 },
+      { status: 401 },
+    );
   }
 
   // TODO: use MemberService.listMembers via composition root
@@ -33,19 +37,36 @@ export async function POST(
   const { slug } = await params;
   const ctx = await requestContextFromSession(slug, request);
   if (!ctx) {
-    return NextResponse.json({ code: 'UNAUTHORIZED', message: 'Not authenticated.', statusCode: 401 }, { status: 401 });
+    return NextResponse.json(
+      { code: 'UNAUTHORIZED', message: 'Not authenticated.', statusCode: 401 },
+      { status: 401 },
+    );
   }
 
   let body: unknown;
-  try { body = await request.json(); } catch {
-    return NextResponse.json({ code: 'VALIDATION', message: 'Invalid JSON', statusCode: 400 }, { status: 400 });
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { code: 'VALIDATION', message: 'Invalid JSON', statusCode: 400 },
+      { status: 400 },
+    );
   }
 
   const parsed = InviteSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ code: 'VALIDATION', message: 'Invalid input', statusCode: 400 }, { status: 400 });
+    return NextResponse.json(
+      { code: 'VALIDATION', message: 'Invalid input', statusCode: 400 },
+      { status: 400 },
+    );
   }
 
   // TODO: send invitation via InvitationService
+  memberEventBus.publish({
+    type: 'member.added',
+    workspaceId: slug,
+    payload: { email: parsed.data.email, roleIds: parsed.data.roleIds },
+  });
+
   return okResponse({ message: `Invitation sent to ${parsed.data.email}` }, 201);
 }
