@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -11,7 +11,7 @@ import { authApi } from '@/lib/auth-client';
 const cardStyle: React.CSSProperties = {
   padding: 32,
   borderRadius: 8,
-  border: '1px solid var(--border-default)',
+  border: '1px solid var(--border)',
 };
 
 function VerifyEmailPageInner() {
@@ -49,7 +49,7 @@ function VerifyEmailPageInner() {
 
       {status === 'verifying' && (
         <p style={{ fontSize: 13 }} aria-live="polite">
-          Verifying…
+          Verifyingâ€¦
         </p>
       )}
 
@@ -71,10 +71,10 @@ function VerifyEmailPageInner() {
           style={{
             padding: '8px 12px',
             borderRadius: 4,
-            border: '1px solid var(--fg-danger, #dc2626)',
+            border: '1px solid var(--destructive, #dc2626)',
             background: 'oklch(0.97 0.02 25)',
             fontSize: 13,
-            color: 'var(--fg-danger, #dc2626)',
+            color: 'var(--destructive, #dc2626)',
           }}
           aria-live="polite"
         >

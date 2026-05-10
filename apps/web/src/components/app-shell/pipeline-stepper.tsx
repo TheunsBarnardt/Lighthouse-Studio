@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 
@@ -30,8 +30,8 @@ export function PipelineStepper({ activeStage }: PipelineStepperProps) {
       className="flex items-center gap-1 overflow-x-auto px-4 py-0 border-b"
       style={{
         height: '44px',
-        borderColor: 'var(--border-default, #e5e7eb)',
-        background: 'var(--bg-surface, #fff)',
+        borderColor: 'var(--border, #e5e7eb)',
+        background: 'var(--card, #fff)',
         flexShrink: 0,
       }}
     >
@@ -43,22 +43,22 @@ export function PipelineStepper({ activeStage }: PipelineStepperProps) {
             {i > 0 && (
               <span
                 className="text-[10px] select-none"
-                style={{ color: 'var(--fg-tertiary, #9ca3af)' }}
+                style={{ color: 'var(--muted-foreground, #9ca3af)' }}
                 aria-hidden="true"
               >
-                ›
+                â€º
               </span>
             )}
             <Link
               href={stage.href}
               className="flex items-center gap-1.5 rounded px-2 py-1 text-[11px] no-underline whitespace-nowrap transition-colors hover:no-underline"
               style={{
-                background: isActive ? 'var(--bg-selected, #e8edfd)' : 'transparent',
+                background: isActive ? 'var(--accent, #e8edfd)' : 'transparent',
                 color: isActive
-                  ? 'var(--accent-primary, #3b6cf4)'
+                  ? 'var(--primary, #3b6cf4)'
                   : isComplete
-                    ? 'var(--fg-success, #16a34a)'
-                    : 'var(--fg-secondary, #6b7280)',
+                    ? 'oklch(0.45 0.15 145)'
+                    : 'var(--muted-foreground, #6b7280)',
                 fontWeight: isActive ? 500 : 400,
               }}
             >

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -64,15 +64,15 @@ const MOCK_RESULTS = [
 ];
 
 // CSS var aliases
-const border = 'var(--border-default)';
-const bgSurface = 'var(--bg-surface)';
-const bgCanvas = 'var(--bg-canvas)';
-const bgSurface3 = 'var(--bg-surface-3)';
-const fgPrimary = 'var(--fg-primary)';
-const fgSecondary = 'var(--fg-secondary)';
-const fgTertiary = 'var(--fg-tertiary)';
-const accentPrimary = 'var(--accent-primary)';
-const accentSubtle = 'var(--accent-primary-subtle)';
+const border = 'var(--border)';
+const bgSurface = 'var(--card)';
+const bgCanvas = 'var(--background)';
+const bgSurface3 = 'var(--muted)';
+const fgPrimary = 'var(--foreground)';
+const fgSecondary = 'var(--muted-foreground)';
+const fgTertiary = 'var(--muted-foreground)';
+const accentPrimary = 'var(--primary)';
+const accentSubtle = 'var(--primary)';
 
 export default function SqlEditorPage() {
   const [activeQuery, setActiveQuery] = useState<string>('q1');
@@ -132,7 +132,7 @@ export default function SqlEditorPage() {
                 pointerEvents: 'none',
               }}
             >
-              ⌕
+              âŒ•
             </span>
             <input
               placeholder="Search queries..."
@@ -277,7 +277,7 @@ export default function SqlEditorPage() {
                   textAlign: 'left',
                 }}
               >
-                <span>{label === 'Templates' ? '▤' : '⚡'}</span>
+                <span>{label === 'Templates' ? 'â–¤' : 'âš¡'}</span>
                 <span>{label}</span>
               </button>
             ))}
@@ -350,10 +350,10 @@ export default function SqlEditorPage() {
                   borderBottom: isActive ? `2px solid ${accentPrimary}` : '2px solid transparent',
                 }}
               >
-                <span style={{ fontSize: 11, color: fgTertiary }}>▶</span>
+                <span style={{ fontSize: 11, color: fgTertiary }}>â–¶</span>
                 <span>{q.name}</span>
                 <span style={{ marginLeft: 2, color: fgTertiary, fontSize: 11, padding: '0 2px' }}>
-                  ✕
+                  âœ•
                 </span>
               </button>
             );
@@ -459,7 +459,7 @@ export default function SqlEditorPage() {
               </span>
               {runTime && results && (
                 <span style={{ fontSize: 12, color: fgTertiary }}>
-                  {results.length} rows · {runTime}
+                  {results.length} rows Â· {runTime}
                 </span>
               )}
               <button
@@ -474,12 +474,12 @@ export default function SqlEditorPage() {
                   fontWeight: 500,
                   border: 'none',
                   borderRadius: 4,
-                  background: isRunning ? 'var(--fg-disabled)' : accentPrimary,
-                  color: 'var(--accent-primary-fg)',
+                  background: isRunning ? 'var(--muted-foreground)' : accentPrimary,
+                  color: 'var(--primary-foreground)',
                   cursor: isRunning ? 'not-allowed' : 'pointer',
                 }}
               >
-                {isRunning ? 'Running…' : 'Run'}
+                {isRunning ? 'Runningâ€¦' : 'Run'}
                 <kbd
                   style={{
                     background: 'oklch(0 0 0 / 0.2)',
@@ -491,7 +491,7 @@ export default function SqlEditorPage() {
                     fontFamily: 'inherit',
                   }}
                 >
-                  Ctrl ↵
+                  Ctrl â†µ
                 </kbd>
               </button>
             </div>

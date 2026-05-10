@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -20,7 +20,7 @@ const INITIAL_SESSIONS: WorkspaceSession[] = [
     email: 'joana@acme.com',
     started: '2026-05-08 08:14',
     ip: '102.165.2.41',
-    device: 'Chrome 132 · macOS',
+    device: 'Chrome 132 Â· macOS',
   },
   {
     id: '2',
@@ -28,7 +28,7 @@ const INITIAL_SESSIONS: WorkspaceSession[] = [
     email: 'marcus@acme.com',
     started: '2026-05-08 09:02',
     ip: '102.165.2.45',
-    device: 'Firefox 122 · Linux',
+    device: 'Firefox 122 Â· Linux',
   },
   {
     id: '3',
@@ -36,15 +36,15 @@ const INITIAL_SESSIONS: WorkspaceSession[] = [
     email: 'priya@acme.com',
     started: '2026-05-08 10:34',
     ip: '102.165.2.49',
-    device: 'Safari 18 · iOS',
+    device: 'Safari 18 Â· iOS',
   },
   {
     id: '4',
-    user: 'Tom Müller',
+    user: 'Tom MÃ¼ller',
     email: 'tom@acme.com',
     started: '2026-05-08 11:12',
     ip: '102.165.2.52',
-    device: 'Chrome 132 · Windows',
+    device: 'Chrome 132 Â· Windows',
   },
   {
     id: '5',
@@ -52,7 +52,7 @@ const INITIAL_SESSIONS: WorkspaceSession[] = [
     email: 'sara@acme.com',
     started: '2026-05-08 13:48',
     ip: '102.165.2.58',
-    device: 'Edge 122 · Windows',
+    device: 'Edge 122 Â· Windows',
   },
 ];
 
@@ -82,18 +82,18 @@ export default function AuthSessionsPage() {
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1>Active Sessions</h1>
-          <p className="subtitle">{sessions.length} active · 3 expired in last 24h</p>
+          <p className="subtitle">{sessions.length} active Â· 3 expired in last 24h</p>
         </div>
         {sessions.length > 0 && (
           <div className="flex shrink-0 items-center gap-2">
             <Button
               className=""
               type="button"
-              style={{ background: 'var(--fg-danger)', color: '#fff' }}
+              style={{ background: 'var(--destructive)', color: '#fff' }}
               disabled={revoking === 'all'}
               onClick={revokeAll}
             >
-              {revoking === 'all' ? 'Revoking…' : 'Revoke all'}
+              {revoking === 'all' ? 'Revokingâ€¦' : 'Revoke all'}
             </Button>
           </div>
         )}
@@ -102,8 +102,8 @@ export default function AuthSessionsPage() {
       {sessions.length === 0 ? (
         <div
           style={{
-            borderRadius: 'var(--shell-radius-lg)',
-            border: '1px solid var(--border-default)',
+            borderRadius: '8px',
+            border: '1px solid var(--border)',
             padding: '48px 24px',
             textAlign: 'center',
             fontSize: 13,
@@ -149,7 +149,7 @@ export default function AuthSessionsPage() {
                         revokeSession(session.id);
                       }}
                     >
-                      {revoking === session.id ? 'Revoking…' : 'Revoke'}
+                      {revoking === session.id ? 'Revokingâ€¦' : 'Revoke'}
                     </Button>
                   </td>
                 </tr>

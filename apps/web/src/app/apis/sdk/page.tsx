@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 const QUICK_START_TS = `import { createClient } from '@acme/platform-js';
 
@@ -7,7 +7,7 @@ const platform = createClient({
   apiKey: process.env.PLATFORM_API_KEY
 });
 
-// List deals — type-safe, filter inferred from schema
+// List deals â€” type-safe, filter inferred from schema
 const { data: deals, error } = await platform
   .from('deals')
   .select('id, title, amount, owner(name)')
@@ -43,7 +43,7 @@ const codeBlockStyle: React.CSSProperties = {
   fontFamily: 'ui-monospace, monospace',
   fontSize: 12,
   lineHeight: 1.6,
-  border: '1px solid var(--border-default)',
+  border: '1px solid var(--border)',
   borderRadius: 4,
   padding: '12px',
   margin: 0,
@@ -58,7 +58,7 @@ export default function SdkPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Client SDKs</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Type-safe client libraries auto-generated from your schema · Updated when schema changes
+            Type-safe client libraries auto-generated from your schema Â· Updated when schema changes
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -74,12 +74,12 @@ export default function SdkPage() {
       <div className="grid grid-cols-4 gap-4" style={{ marginBottom: 16 }}>
         <div className="rounded-md border bg-card text-card-foreground p-4">
           <div style={{ fontWeight: 600, marginBottom: 4 }}>JavaScript / TypeScript</div>
-          <div style={{ fontSize: 12, marginBottom: 8 }}>@acme/platform-js · v0.1.3</div>
+          <div style={{ fontSize: 12, marginBottom: 8 }}>@acme/platform-js Â· v0.1.3</div>
           <pre style={{ ...codeBlockStyle, fontSize: 11 }}>npm i @acme/platform-js</pre>
         </div>
         <div className="rounded-md border bg-card text-card-foreground p-4">
           <div style={{ fontWeight: 600, marginBottom: 4 }}>Python</div>
-          <div style={{ fontSize: 12, marginBottom: 8 }}>acme-platform · v0.1.3</div>
+          <div style={{ fontSize: 12, marginBottom: 8 }}>acme-platform Â· v0.1.3</div>
           <pre style={{ ...codeBlockStyle, fontSize: 11 }}>pip install acme-platform</pre>
         </div>
         <div className="rounded-md border bg-card text-card-foreground p-4">
@@ -109,8 +109,8 @@ export default function SdkPage() {
               type="button"
               key={tab}
               style={{
-                background: i === 0 ? 'var(--accent-primary)' : 'transparent',
-                color: i === 0 ? '#fff' : 'var(--fg-secondary)',
+                background: i === 0 ? 'var(--primary)' : 'transparent',
+                color: i === 0 ? '#fff' : 'var(--muted-foreground)',
                 borderRadius: 3,
               }}
             >

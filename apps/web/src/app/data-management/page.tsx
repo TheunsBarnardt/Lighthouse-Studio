@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -193,16 +193,16 @@ function DataGrid({ tableName }: { tableName: string }) {
         }}
       >
         <thead>
-          <tr style={{ borderBottom: '1px solid var(--border-default)' }}>
+          <tr style={{ borderBottom: '1px solid var(--border)' }}>
             <th
               style={{
                 width: 32,
                 padding: '0 8px',
                 position: 'sticky',
                 left: 0,
-                background: 'var(--bg-surface)',
+                background: 'var(--card)',
                 zIndex: 3,
-                borderRight: '1px solid var(--border-default)',
+                borderRight: '1px solid var(--border)',
               }}
             >
               <input type="checkbox" style={{ margin: 0 }} aria-label="Select all" />
@@ -214,35 +214,35 @@ function DataGrid({ tableName }: { tableName: string }) {
                   padding: '6px 10px',
                   textAlign: 'left',
                   fontWeight: 500,
-                  color: 'var(--fg-secondary)',
-                  borderRight: '1px solid var(--border-default)',
+                  color: 'var(--muted-foreground)',
+                  borderRight: '1px solid var(--border)',
                   whiteSpace: 'nowrap',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                   {col.pk && (
                     <span title="Primary key" style={{ fontSize: 11 }}>
-                      🔑
+                      ðŸ”‘
                     </span>
                   )}
                   {col.fk && (
                     <span title="Foreign key" style={{ fontSize: 11 }}>
-                      ⛓
+                      â›“
                     </span>
                   )}
-                  <span style={{ color: 'var(--fg-primary)' }}>{col.name}</span>
+                  <span style={{ color: 'var(--foreground)' }}>{col.name}</span>
                   <span
                     style={{
                       fontSize: 10,
-                      color: 'var(--fg-tertiary)',
-                      background: 'var(--bg-surface-3)',
+                      color: 'var(--muted-foreground)',
+                      background: 'var(--muted)',
                       borderRadius: 3,
                       padding: '0 4px',
                     }}
                   >
                     {col.type}
                   </span>
-                  <span style={{ color: 'var(--fg-tertiary)', fontSize: 10 }}>▾</span>
+                  <span style={{ color: 'var(--muted-foreground)', fontSize: 10 }}>â–¾</span>
                 </div>
               </th>
             ))}
@@ -252,7 +252,7 @@ function DataGrid({ tableName }: { tableName: string }) {
           {schema.rows.map((row, ri) => (
             <tr
               key={ri}
-              style={{ borderBottom: '1px solid var(--border-default)' }}
+              style={{ borderBottom: '1px solid var(--border)' }}
               className="te-row"
             >
               <td
@@ -260,9 +260,9 @@ function DataGrid({ tableName }: { tableName: string }) {
                   padding: '0 8px',
                   position: 'sticky',
                   left: 0,
-                  background: 'var(--bg-surface)',
+                  background: 'var(--card)',
                   zIndex: 1,
-                  borderRight: '1px solid var(--border-default)',
+                  borderRight: '1px solid var(--border)',
                 }}
               >
                 <input
@@ -281,8 +281,8 @@ function DataGrid({ tableName }: { tableName: string }) {
                       padding: '5px 10px',
                       fontFamily: isUuid ? 'var(--font-geist-mono, monospace)' : undefined,
                       fontSize: isUuid ? 11 : 12,
-                      color: isUuid ? 'var(--fg-tertiary)' : 'var(--fg-primary)',
-                      borderRight: '1px solid var(--border-default)',
+                      color: isUuid ? 'var(--muted-foreground)' : 'var(--foreground)',
+                      borderRight: '1px solid var(--border)',
                       maxWidth: 240,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -347,14 +347,14 @@ function TableEditorInner() {
   const activeMeta = MOCK_TABLES.find((t) => t.name === activeTable);
 
   // Shared border / bg tokens used inline
-  const border = 'var(--border-default)';
-  const bgSurface = 'var(--bg-surface)';
-  const bgCanvas = 'var(--bg-canvas)';
-  const fgPrimary = 'var(--fg-primary)';
-  const fgSecondary = 'var(--fg-secondary)';
-  const fgTertiary = 'var(--fg-tertiary)';
-  const accentPrimary = 'var(--accent-primary)';
-  const accentSubtle = 'var(--accent-primary-subtle)';
+  const border = 'var(--border)';
+  const bgSurface = 'var(--card)';
+  const bgCanvas = 'var(--background)';
+  const fgPrimary = 'var(--foreground)';
+  const fgSecondary = 'var(--muted-foreground)';
+  const fgTertiary = 'var(--muted-foreground)';
+  const accentPrimary = 'var(--primary)';
+  const accentSubtle = 'var(--primary)';
 
   return (
     <div
@@ -404,7 +404,7 @@ function TableEditorInner() {
                 borderBottom: isActive ? `2px solid ${accentPrimary}` : '2px solid transparent',
               }}
             >
-              <span style={{ fontSize: 11, color: fgTertiary }}>▦</span>
+              <span style={{ fontSize: 11, color: fgTertiary }}>â–¦</span>
               <span>
                 <span style={{ color: fgTertiary }}>public.</span>
                 <strong>{t}</strong>
@@ -423,7 +423,7 @@ function TableEditorInner() {
                 }}
                 aria-label={`Close ${t} tab`}
               >
-                ✕
+                âœ•
               </span>
             </button>
           );
@@ -468,7 +468,7 @@ function TableEditorInner() {
               flexShrink: 0,
             }}
           >
-            <span style={{ color: fgTertiary, fontSize: 14 }}>⌕</span>
+            <span style={{ color: fgTertiary, fontSize: 14 }}>âŒ•</span>
             <input
               placeholder="Filter by id, name, email... or ask AI"
               style={{
@@ -496,25 +496,25 @@ function TableEditorInner() {
             }}
           >
             <ActionBtn>
-              <span style={{ fontSize: 11 }}>⇅</span> Sorted by 1 rule
+              <span style={{ fontSize: 11 }}>â‡…</span> Sorted by 1 rule
             </ActionBtn>
             <ActionBtn danger>
-              <span style={{ fontSize: 11 }}>●</span> RLS disabled
+              <span style={{ fontSize: 11 }}>â—</span> RLS disabled
             </ActionBtn>
             <ActionBtn warning>
-              <span style={{ fontSize: 11 }}>⚡</span> Index Advisor
+              <span style={{ fontSize: 11 }}>âš¡</span> Index Advisor
             </ActionBtn>
             <ActionBtn>
-              <span style={{ fontSize: 11 }}>⟳</span> Enable Realtime
+              <span style={{ fontSize: 11 }}>âŸ³</span> Enable Realtime
             </ActionBtn>
             <ActionBtn>
               <span style={{ color: fgTertiary, fontSize: 11 }}>Role:</span>
               <strong style={{ marginLeft: 3, fontSize: 11 }}>postgres</strong>
-              <span style={{ fontSize: 9, marginLeft: 3, color: fgTertiary }}>▼</span>
+              <span style={{ fontSize: 9, marginLeft: 3, color: fgTertiary }}>â–¼</span>
             </ActionBtn>
             <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-              <ActionBtn title="Refresh">↻</ActionBtn>
-              <ActionBtn title="View options">▦</ActionBtn>
+              <ActionBtn title="Refresh">â†»</ActionBtn>
+              <ActionBtn title="View options">â–¦</ActionBtn>
               <ActionBtn success>
                 <span>+</span> Insert
               </ActionBtn>
@@ -624,14 +624,14 @@ function TableEditorInner() {
             fontSize: 13,
           }}
         >
-          <span style={{ fontSize: 28, marginBottom: 8 }}>▦</span>
+          <span style={{ fontSize: 28, marginBottom: 8 }}>â–¦</span>
           <p>Open a table from the left panel to get started.</p>
         </div>
       )}
 
       <style>{`
         .te-row:hover td {
-          background: var(--bg-hover) !important;
+          background: var(--muted) !important;
         }
       `}</style>
     </div>
@@ -664,8 +664,8 @@ function ActionBtn({
   title?: string;
 }) {
   let bg = 'transparent';
-  let color = 'var(--fg-secondary)';
-  let border = '1px solid var(--border-default)';
+  let color = 'var(--muted-foreground)';
+  let border = '1px solid var(--border)';
 
   if (danger) {
     bg = 'oklch(0.96 0.04 25)';
@@ -676,8 +676,8 @@ function ActionBtn({
     color = 'oklch(0.45 0.14 75)';
     border = '1px solid oklch(0.45 0.14 75 / 0.3)';
   } else if (success) {
-    bg = 'var(--accent-primary)';
-    color = 'var(--accent-primary-fg)';
+    bg = 'var(--primary)';
+    color = 'var(--primary-foreground)';
     border = 'none';
   }
 

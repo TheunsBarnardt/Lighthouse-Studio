@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -42,7 +42,7 @@ const COVERAGE: CoverageItem[] = [
 const RECENT_RUNS: TestRun[] = [
   {
     id: 'test_run_127',
-    trigger: 'PR #243 · main',
+    trigger: 'PR #243 Â· main',
     status: 'passed',
     duration: '2m 14s',
     when: '12 min ago',
@@ -52,7 +52,7 @@ const RECENT_RUNS: TestRun[] = [
   },
   {
     id: 'test_run_126',
-    trigger: 'main · auto',
+    trigger: 'main Â· auto',
     status: 'passed',
     duration: '2m 09s',
     when: '47 min ago',
@@ -62,7 +62,7 @@ const RECENT_RUNS: TestRun[] = [
   },
   {
     id: 'test_run_125',
-    trigger: 'manual · Joana',
+    trigger: 'manual Â· Joana',
     status: 'failed',
     duration: '1m 38s',
     when: '2 hours ago',
@@ -72,7 +72,7 @@ const RECENT_RUNS: TestRun[] = [
   },
   {
     id: 'test_run_124',
-    trigger: 'PR #242 · feature/outlook-sync',
+    trigger: 'PR #242 Â· feature/outlook-sync',
     status: 'passed',
     duration: '2m 22s',
     when: '4 hours ago',
@@ -82,7 +82,7 @@ const RECENT_RUNS: TestRun[] = [
   },
   {
     id: 'test_run_123',
-    trigger: 'main · scheduled (nightly)',
+    trigger: 'main Â· scheduled (nightly)',
     status: 'passed',
     duration: '2m 31s',
     when: 'Yesterday 02:00',
@@ -94,19 +94,19 @@ const RECENT_RUNS: TestRun[] = [
 
 const FLAKY_TESTS: FlakyTest[] = [
   {
-    name: 'DealKanbanPage › drag-and-drop reorders cards',
+    name: 'DealKanbanPage â€º drag-and-drop reorders cards',
     failures: 3,
     window: 'last 14 days',
     cause: 'race condition on drag end',
   },
   {
-    name: 'outlookCalendarSync › retries on 429',
+    name: 'outlookCalendarSync â€º retries on 429',
     failures: 2,
     window: 'last 7 days',
     cause: 'token refresh timing',
   },
   {
-    name: 'ContactsTable › virtualised scroll',
+    name: 'ContactsTable â€º virtualised scroll',
     failures: 1,
     window: 'last 30 days',
     cause: 'flaky once',
@@ -129,7 +129,7 @@ export default function TestGenerationPage() {
         <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1400 }}>
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
-              <h1 style={{ fontSize: 18 }}>Tests · Continuous</h1>
+              <h1 style={{ fontSize: 18 }}>Tests Â· Continuous</h1>
               <div className="subtitle">
                 Tests run on every change. AC coverage stays in sync with the PRD as it evolves.
                 Last update 12 min ago.
@@ -149,7 +149,7 @@ export default function TestGenerationPage() {
                 disabled={runningTest}
                 className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
-                {runningTest ? '● Running…' : '▶ Run all'}
+                {runningTest ? 'â— Runningâ€¦' : 'â–¶ Run all'}
               </Button>
             </div>
           </div>
@@ -162,12 +162,12 @@ export default function TestGenerationPage() {
               </div>
               <div className="text-[22px] font-semibold tabular-nums">87</div>
               <div className="mt-1 text-[11px] text-muted-foreground">
-                42 unit · 28 component · 11 int · 6 e2e
+                42 unit Â· 28 component Â· 11 int Â· 6 e2e
               </div>
             </div>
             <div className="rounded-md border bg-card p-4">
               <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-                Pass rate · 30d
+                Pass rate Â· 30d
               </div>
               <div className="text-[22px] font-semibold tabular-nums">98.4%</div>
               <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
@@ -185,11 +185,11 @@ export default function TestGenerationPage() {
             </div>
             <div className="rounded-md border bg-card p-4">
               <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-                Flake rate · 30d
+                Flake rate Â· 30d
               </div>
               <div className="text-[22px] font-semibold tabular-nums">0.7%</div>
               <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
-                −0.3% vs prior
+                âˆ’0.3% vs prior
               </div>
             </div>
           </div>
@@ -206,7 +206,7 @@ export default function TestGenerationPage() {
                 style={{ padding: '12px 16px', borderRadius: 0 }}
               >
                 <span className="text-sm font-semibold">Recent runs</span>
-                <span style={{ fontSize: 12 }}>Auto-runs on push · PR · nightly</span>
+                <span style={{ fontSize: 12 }}>Auto-runs on push Â· PR Â· nightly</span>
               </div>
               <div
                 className="overflow-hidden rounded-md border"
@@ -306,14 +306,14 @@ export default function TestGenerationPage() {
                           className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                           style={{ fontSize: 9 }}
                         >
-                          ✓
+                          âœ“
                         </span>
                       ) : (
                         <span
                           className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                           style={{ fontSize: 9 }}
                         >
-                          ⚠
+                          âš 
                         </span>
                       )}
                     </div>
@@ -330,10 +330,10 @@ export default function TestGenerationPage() {
                   <span className="text-sm font-semibold">Active gates</span>
                 </div>
                 {[
-                  ['On push to main', 'Enabled', 'var(--fg-success)'],
-                  ['On PR open/update', 'Enabled', 'var(--fg-success)'],
-                  ['Nightly e2e', '02:00 UTC', 'var(--fg-primary)'],
-                  ['Pre-deploy gate', 'Required', 'var(--fg-success)'],
+                  ['On push to main', 'Enabled', 'oklch(0.40 0.14 145)'],
+                  ['On PR open/update', 'Enabled', 'oklch(0.40 0.14 145)'],
+                  ['Nightly e2e', '02:00 UTC', 'var(--foreground)'],
+                  ['Pre-deploy gate', 'Required', 'oklch(0.40 0.14 145)'],
                 ].map(([k, v, c]) => (
                   <div
                     key={k}
@@ -356,7 +356,7 @@ export default function TestGenerationPage() {
               className="mb-3 flex items-center justify-between border-b pb-3"
               style={{ padding: '12px 16px', borderRadius: 0 }}
             >
-              <span className="text-sm font-semibold">Flaky tests · last 30 days</span>
+              <span className="text-sm font-semibold">Flaky tests Â· last 30 days</span>
               <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
                 3 flagged
               </span>
@@ -397,12 +397,12 @@ export default function TestGenerationPage() {
           {/* Coverage trend */}
           <div className="rounded-md border bg-card text-card-foreground p-4">
             <div className="mb-3 flex items-center justify-between border-b pb-3">
-              <span className="text-sm font-semibold">Coverage trend · 30 days</span>
+              <span className="text-sm font-semibold">Coverage trend Â· 30 days</span>
             </div>
             <div
               style={{
                 height: 120,
-                borderRadius: 'var(--shell-radius-sm)',
+                borderRadius: '4px',
                 padding: 12,
                 display: 'flex',
                 alignItems: 'flex-end',
@@ -415,7 +415,7 @@ export default function TestGenerationPage() {
                   style={{
                     flex: 1,
                     height: `${String((v - 80) * 5)}%`,
-                    background: 'var(--accent-primary)',
+                    background: 'var(--primary)',
                     borderRadius: '2px 2px 0 0',
                     opacity: 0.85,
                   }}
@@ -432,7 +432,7 @@ export default function TestGenerationPage() {
               }}
             >
               <span>30 days ago</span>
-              <span>Today · 98%</span>
+              <span>Today Â· 98%</span>
             </div>
           </div>
         </div>

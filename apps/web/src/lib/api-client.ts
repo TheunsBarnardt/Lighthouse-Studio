@@ -69,7 +69,11 @@ async function request<T>(
         statusCode: response.status,
       };
     }
-    throw new ApiClientError(apiError);
+    const err = new ApiClientError(apiError);
+    if (response.status === 401 && typeof window !== 'undefined') {
+      window.location.href = `/auth/sign-in?next=${encodeURIComponent(window.location.pathname)}`;
+    }
+    throw err;
   }
 
   if (response.status === 204) {
@@ -182,5 +186,60 @@ export const schemaApi = {
       method: 'POST',
       body: JSON.stringify({ templateId, ...input }),
     });
+  },
+};
+
+export interface WorkspaceSummary {
+  id: string;
+  name: string;
+  slug: string;
+  createdAt: string;
+}
+
+export interface ConversationSummary {
+  id: string;
+  status: string;
+  createdAt: string;
+  content: {
+    briefDraft: { title?: string };
+    messages: { content: string }[];
+    totalCostUsd: number;
+  };
+}
+
+export const workspaceApi = {
+  list(): Promise<{ items: WorkspaceSummary[] }> {
+    return request<{ items: WorkspaceSummary[] }>('/api/v1/workspaces');
+  },
+
+  create(input: { name: string; slug: string }): Promise<WorkspaceSummary> {
+    return request<WorkspaceSummary>('/api/v1/workspaces', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    });
+  },
+};
+
+export const conversationApi = {
+  list(
+    workspaceId: string,
+    opts?: { limit?: number; cursor?: string },
+  ): Promise<{ items: ConversationSummary[] }> {
+    const params = new URLSearchParams({ workspaceId });
+    if (opts?.limit) params.set('limit', String(opts.limit));
+    if (opts?.cursor) params.set('cursor', opts.cursor);
+    return request<{ items: ConversationSummary[] }>(
+      `/api/v1/ai/intent-capture/conversations?${params.toString()}`,
+    );
+  },
+
+  start(workspaceId: string, templateId?: string): Promise<ConversationSummary> {
+    return request<ConversationSummary>(
+      `/api/v1/ai/intent-capture/conversations?workspaceId=${workspaceId}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ templateId }),
+      },
+    );
   },
 };

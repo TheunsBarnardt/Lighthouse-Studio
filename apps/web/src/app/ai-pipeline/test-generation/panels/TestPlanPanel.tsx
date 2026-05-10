@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -117,7 +117,7 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
             }}
             disabled={isGenerating}
           >
-            {isGenerating ? 'Generating…' : 'Generate Test Plan'}
+            {isGenerating ? 'Generatingâ€¦' : 'Generate Test Plan'}
           </Button>
         </div>
       </div>
@@ -148,9 +148,9 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
                   fontSize: 11,
                   padding: '2px 8px',
                   borderRadius: 12,
-                  border: '1px solid var(--border-default)',
-                  background: filter === f ? 'var(--accent-primary)' : 'transparent',
-                  color: filter === f ? '#fff' : 'var(--fg-secondary)',
+                  border: '1px solid var(--border)',
+                  background: filter === f ? 'var(--primary)' : 'transparent',
+                  color: filter === f ? '#fff' : 'var(--muted-foreground)',
                   cursor: 'pointer',
                 }}
               >
@@ -168,7 +168,7 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
             onPlanReady();
           }}
         >
-          Approve &amp; Generate Suite →
+          Approve &amp; Generate Suite â†’
         </Button>
       </div>
 
@@ -191,7 +191,7 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
               gap: 12,
               padding: 12,
               borderRadius: 6,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
             }}
           >
             <span
@@ -234,8 +234,8 @@ export function TestPlanPanel({ onPlanReady: onPlanReadyProp }: Props) {
                   gap: 12,
                   padding: 12,
                   borderRadius: 6,
-                  border: '1px solid var(--fg-warning)',
-                  background: 'color-mix(in srgb, var(--fg-warning) 8%, transparent)',
+                  border: '1px solid oklch(0.45 0.14 75)',
+                  background: 'color-mix(in srgb, oklch(0.45 0.14 75) 8%, transparent)',
                 }}
               >
                 <span

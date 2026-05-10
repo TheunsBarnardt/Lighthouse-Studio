@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { TrendingUp, TrendingDown, Minus, CheckCircle2, XCircle } from 'lucide-react';
 
@@ -71,7 +71,7 @@ export function OutcomeTrackingPanel() {
           <div
             key={outcome.id}
             style={{
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 6,
               padding: 16,
               display: 'flex',
@@ -152,15 +152,15 @@ export function OutcomeTrackingPanel() {
                           {metric.before}
                           {metric.unit}
                         </span>
-                        {' → '}
+                        {' â†’ '}
                         <span
                           style={{
                             color:
                               metric.trend === 'improved'
-                                ? 'var(--fg-success)'
+                                ? 'oklch(0.40 0.14 145)'
                                 : metric.trend === 'degraded'
-                                  ? 'var(--fg-danger)'
-                                  : 'var(--fg-primary)',
+                                  ? 'var(--destructive)'
+                                  : 'var(--foreground)',
                           }}
                         >
                           {metric.after}

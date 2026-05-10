@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -37,13 +37,13 @@ interface LogLine {
 function kindBadgeStyle(kind: string): React.CSSProperties {
   const map: Record<string, React.CSSProperties> = {
     postgres: {
-      border: '1px solid var(--accent-primary)',
+      border: '1px solid var(--primary)',
     },
     mssql: {
-      border: '1px solid var(--fg-warning)',
+      border: '1px solid oklch(0.45 0.14 75)',
     },
     mongo: {
-      border: '1px solid var(--fg-success)',
+      border: '1px solid oklch(0.40 0.14 145)',
     },
   };
   return map[kind] ?? {};
@@ -111,7 +111,7 @@ export default function AdminUpgradePage() {
   async function runDryRun() {
     setPhase('dry-run');
     setLog([]);
-    addLog('Starting pre-flight dry run…');
+    addLog('Starting pre-flight dry runâ€¦');
     try {
       const r = await fetch('/api/v1/admin/upgrade', {
         method: 'POST',
@@ -130,7 +130,7 @@ export default function AdminUpgradePage() {
 
   async function runUpgrade() {
     setPhase('running');
-    addLog('Triggering upgrade…');
+    addLog('Triggering upgradeâ€¦');
     try {
       const r = await fetch('/api/v1/admin/upgrade', {
         method: 'POST',
@@ -144,7 +144,7 @@ export default function AdminUpgradePage() {
         setPhase('error');
         return;
       }
-      addLog(data.message ?? 'Upgrade started. Waiting for completion…');
+      addLog(data.message ?? 'Upgrade started. Waiting for completionâ€¦');
       await loadStatus();
     } catch (e) {
       addLog(`Upgrade failed: ${String(e)}`, 'error');
@@ -189,7 +189,7 @@ export default function AdminUpgradePage() {
               void runUpgrade();
             }}
           >
-            {busy ? 'Upgrading…' : 'Run upgrade'}
+            {busy ? 'Upgradingâ€¦' : 'Run upgrade'}
           </Button>
         </div>
       </div>
@@ -211,7 +211,7 @@ export default function AdminUpgradePage() {
             }}
             aria-live="polite"
           >
-            Loading…
+            Loadingâ€¦
           </p>
         )}
         {!loading && (!status || status.dbs.length === 0) && (
@@ -271,7 +271,7 @@ export default function AdminUpgradePage() {
                       {db.appliedAt ? (
                         new Date(db.appliedAt).toLocaleString()
                       ) : (
-                        <span style={{ fontStyle: 'italic' }}>—</span>
+                        <span style={{ fontStyle: 'italic' }}>â€”</span>
                       )}
                     </td>
                     <td>
@@ -315,7 +315,7 @@ export default function AdminUpgradePage() {
                     width: 8,
                     height: 8,
                     borderRadius: '50%',
-                    background: 'var(--fg-warning)',
+                    background: 'oklch(0.45 0.14 75)',
                   }}
                   aria-hidden="true"
                 />
@@ -328,7 +328,7 @@ export default function AdminUpgradePage() {
               height: 160,
               overflowY: 'auto',
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               padding: '8px 12px',
               fontFamily: 'monospace',
               fontSize: 11,
@@ -343,10 +343,10 @@ export default function AdminUpgradePage() {
                 style={{
                   color:
                     line.type === 'error'
-                      ? 'var(--fg-danger)'
+                      ? 'var(--destructive)'
                       : line.type === 'success'
-                        ? 'var(--fg-success)'
-                        : 'var(--fg-primary)',
+                        ? 'oklch(0.40 0.14 145)'
+                        : 'var(--foreground)',
                 }}
               >
                 <span style={{ marginRight: 8 }}>[{line.ts}]</span>
@@ -400,7 +400,7 @@ export default function AdminUpgradePage() {
                     </td>
                     <td className="font-mono text-sm" style={{ fontSize: 11 }}>
                       {entry.schemaMigrationHighWater ?? (
-                        <span style={{ fontStyle: 'italic' }}>—</span>
+                        <span style={{ fontStyle: 'italic' }}>â€”</span>
                       )}
                     </td>
                   </tr>

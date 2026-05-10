@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -63,7 +63,7 @@ export function RegenerateTestDialog({ testFileId: _testFileId, onClose: onClose
                 width: '100%',
                 padding: '6px 8px',
                 borderRadius: 4,
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
                 fontSize: 12,
                 resize: 'none',
                 boxSizing: 'border-box',
@@ -96,7 +96,7 @@ export function RegenerateTestDialog({ testFileId: _testFileId, onClose: onClose
             }}
             disabled={isRegenerating}
           >
-            {isRegenerating ? 'Regenerating…' : 'Regenerate'}
+            {isRegenerating ? 'Regeneratingâ€¦' : 'Regenerate'}
           </Button>
         </div>
       </div>

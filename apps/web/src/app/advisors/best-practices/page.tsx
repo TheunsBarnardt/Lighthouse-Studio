@@ -1,4 +1,4 @@
-import type React from 'react';
+﻿import type React from 'react';
 
 import { Button } from '@/components/ui/button';
 
@@ -6,7 +6,7 @@ function ScoreRing({ score }: { score: number }) {
   const C = 2 * Math.PI * 44;
   const offset = C - (C * score) / 100;
   const color =
-    score >= 90 ? 'var(--fg-success)' : score >= 50 ? 'var(--fg-warning)' : 'var(--fg-danger)';
+    score >= 90 ? 'oklch(0.40 0.14 145)' : score >= 50 ? 'oklch(0.45 0.14 75)' : 'var(--destructive)';
   return (
     <div style={{ width: 96, height: 96, position: 'relative', flexShrink: 0 }}>
       <svg
@@ -15,7 +15,7 @@ function ScoreRing({ score }: { score: number }) {
       >
         <circle
           fill="none"
-          stroke="var(--bg-hover, #e5e7eb)"
+          stroke="var(--muted, #e5e7eb)"
           strokeWidth={8}
           cx={50}
           cy={50}
@@ -60,7 +60,7 @@ const GROUPS = [
       { name: "No mixed content (HTTPS pages don't load HTTP resources)", desc: undefined },
       {
         name: 'Has a Content Security Policy',
-        desc: 'CSP header detected · strict-dynamic with nonces',
+        desc: 'CSP header detected Â· strict-dynamic with nonces',
       },
       { name: 'Has a strong HSTS policy', desc: 'max-age=31536000; includeSubDomains; preload' },
     ],
@@ -103,7 +103,7 @@ export default function BestPracticesPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Best Practices</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            HTTPS, modern APIs, console hygiene · Last scan 12 minutes ago
+            HTTPS, modern APIs, console hygiene Â· Last scan 12 minutes ago
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -130,7 +130,7 @@ export default function BestPracticesPage() {
             Best Practices score
           </div>
           <div style={{ fontWeight: 600, fontSize: 16, marginTop: 4 }}>
-            Excellent — all checks passing
+            Excellent â€” all checks passing
           </div>
           <div style={{ fontSize: 13, marginTop: 4 }}>
             {passCount} of {passCount} checks passed.
@@ -172,10 +172,10 @@ export default function BestPracticesPage() {
                   fontWeight: 700,
                   flexShrink: 0,
                   marginTop: 2,
-                  background: 'var(--bg-success-subtle)',
+                  background: 'oklch(0.96 0.04 145)',
                 }}
               >
-                ✓
+                âœ“
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 500, fontSize: 13 }}>{item.name}</div>

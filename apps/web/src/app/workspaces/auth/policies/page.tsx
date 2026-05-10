@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -11,12 +11,12 @@ interface Policy {
 }
 
 const POLICIES: Policy[] = [
-  { key: 'Require MFA', value: 'Enabled · all roles', highlight: 'success' },
+  { key: 'Require MFA', value: 'Enabled Â· all roles', highlight: 'success' },
   { key: 'Password min length', value: '12 characters' },
   { key: 'Password complexity', value: 'Mixed case + number + symbol' },
   { key: 'Session lifetime', value: '8 hours' },
   { key: 'Idle timeout', value: '30 minutes' },
-  { key: 'Max failed attempts', value: '5 · then account lock' },
+  { key: 'Max failed attempts', value: '5 Â· then account lock' },
   { key: 'Account lock duration', value: '15 minutes' },
   { key: 'SSO enforcement', value: 'Entra ID users must use SSO' },
 ];
@@ -79,9 +79,9 @@ export default function AuthPoliciesPage() {
           style={{
             marginBottom: 16,
             padding: '10px 14px',
-            borderRadius: 'var(--shell-radius-md)',
+            borderRadius: '6px',
             background: 'var(--muted)',
-            border: '1px solid var(--border-default)',
+            border: '1px solid var(--border)',
             fontSize: 13,
           }}
         >

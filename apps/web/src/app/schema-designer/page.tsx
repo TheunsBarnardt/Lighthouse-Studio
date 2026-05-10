@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -92,11 +92,11 @@ const PAGES = ['dashboard', 'deals', 'landing', 'sign-in'] as const;
 type PageId = (typeof PAGES)[number];
 
 const BLOCKS = [
-  'Hero · Centered',
-  'CTA · Band',
-  'Features · Grid',
-  'Table · Sortable',
-  'Stats · Grid',
+  'Hero Â· Centered',
+  'CTA Â· Band',
+  'Features Â· Grid',
+  'Table Â· Sortable',
+  'Stats Â· Grid',
   'YouTube embed',
   'Stripe checkout',
   'AI Chat widget',
@@ -109,8 +109,8 @@ const modeTabStyle = (active: boolean): React.CSSProperties => ({
   borderRadius: 4,
   fontSize: 12,
   fontWeight: 500,
-  background: active ? 'var(--accent-primary)' : 'transparent',
-  color: active ? '#fff' : 'var(--fg-secondary)',
+  background: active ? 'var(--primary)' : 'transparent',
+  color: active ? '#fff' : 'var(--muted-foreground)',
   border: 'none',
   cursor: 'pointer',
   transition: 'all 0.15s',
@@ -123,8 +123,8 @@ const pageTabStyle = (active: boolean): React.CSSProperties => ({
   padding: '6px 12px',
   borderRadius: 4,
   fontSize: 12,
-  background: active ? 'var(--border-default)' : 'transparent',
-  color: active ? 'var(--fg-primary)' : 'var(--fg-secondary)',
+  background: active ? 'var(--border)' : 'transparent',
+  color: active ? 'var(--foreground)' : 'var(--muted-foreground)',
   fontWeight: active ? 500 : 400,
   border: 'none',
   cursor: 'pointer',
@@ -152,7 +152,7 @@ export default function SchemaDesignerPage() {
             display: 'flex',
             gap: 2,
             borderRadius: 6,
-            border: '1px solid var(--border-default)',
+            border: '1px solid var(--border)',
             padding: 2,
           }}
         >
@@ -185,7 +185,7 @@ export default function SchemaDesignerPage() {
                   }}
                   style={pageTabStyle(activePage === p)}
                 >
-                  <span style={{ fontSize: 10, opacity: 0.6 }}>▤</span>
+                  <span style={{ fontSize: 10, opacity: 0.6 }}>â–¤</span>
                   {p}
                   {(p === 'dashboard' || p === 'deals') && (
                     <span
@@ -205,7 +205,7 @@ export default function SchemaDesignerPage() {
                 display: 'flex',
                 gap: 2,
                 borderRadius: 6,
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
                 padding: 2,
               }}
             >
@@ -239,7 +239,7 @@ export default function SchemaDesignerPage() {
               Open in Designer
             </Button>
             <Button size="sm" type="button" style={{ fontSize: 12 }}>
-              Approve &amp; apply →
+              Approve &amp; apply â†’
             </Button>
           </div>
         )}
@@ -253,7 +253,7 @@ export default function SchemaDesignerPage() {
               position: 'relative',
               flex: 1,
               overflow: 'auto',
-              background: 'color-mix(in srgb, var(--border-default) 30%, var(--bg-canvas))',
+              background: 'color-mix(in srgb, var(--border) 30%, var(--background))',
               minHeight: 500,
             }}
           >
@@ -271,10 +271,10 @@ export default function SchemaDesignerPage() {
                     width: 220,
                     cursor: 'pointer',
                     borderRadius: 6,
-                    border: `1px solid ${selectedTable === table.name ? 'var(--accent-primary)' : 'var(--border-default)'}`,
+                    border: `1px solid ${selectedTable === table.name ? 'var(--primary)' : 'var(--border)'}`,
                     boxShadow:
                       selectedTable === table.name
-                        ? '0 0 0 2px var(--accent-primary)'
+                        ? '0 0 0 2px var(--primary)'
                         : '0 1px 3px rgba(0,0,0,0.08)',
                     overflow: 'hidden',
                   }}
@@ -286,9 +286,9 @@ export default function SchemaDesignerPage() {
                       fontWeight: 600,
                       background:
                         selectedTable === table.name
-                          ? 'var(--accent-primary)'
-                          : 'var(--border-default)',
-                      color: selectedTable === table.name ? '#fff' : 'var(--fg-primary)',
+                          ? 'var(--primary)'
+                          : 'var(--border)',
+                      color: selectedTable === table.name ? '#fff' : 'var(--foreground)',
                     }}
                   >
                     {table.name}
@@ -301,15 +301,15 @@ export default function SchemaDesignerPage() {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         borderTop:
-                          '1px solid color-mix(in srgb, var(--border-default) 60%, transparent)',
+                          '1px solid color-mix(in srgb, var(--border) 60%, transparent)',
                         padding: '4px 12px',
                       }}
                     >
                       <span style={{ fontSize: 12 }}>
                         {col.role === 'pk' && (
-                          <span style={{ marginRight: 4, color: '#f59e0b' }}>🔑</span>
+                          <span style={{ marginRight: 4, color: '#f59e0b' }}>ðŸ”‘</span>
                         )}
-                        {col.role === 'fk' && <span style={{ marginRight: 4 }}>⛓</span>}
+                        {col.role === 'fk' && <span style={{ marginRight: 4 }}>â›“</span>}
                         {col.name}
                       </span>
                       <span className="font-mono text-sm" style={{ fontSize: 10 }}>
@@ -328,7 +328,7 @@ export default function SchemaDesignerPage() {
               width: 288,
               flexShrink: 0,
               overflowY: 'auto',
-              borderLeft: '1px solid var(--border-default)',
+              borderLeft: '1px solid var(--border)',
               padding: 16,
             }}
           >
@@ -371,9 +371,9 @@ export default function SchemaDesignerPage() {
                         alignItems: 'center',
                         justifyContent: 'space-between',
                         borderRadius: 4,
-                        border: '1px solid var(--border-default)',
+                        border: '1px solid var(--border)',
                         background:
-                          'color-mix(in srgb, var(--border-default) 30%, var(--bg-canvas))',
+                          'color-mix(in srgb, var(--border) 30%, var(--background))',
                         padding: '4px 8px',
                         marginBottom: 6,
                       }}
@@ -407,7 +407,7 @@ export default function SchemaDesignerPage() {
               </>
             ) : (
               <div style={{ padding: '32px 0', textAlign: 'center' }}>
-                <p style={{ fontSize: 24, opacity: 0.3, marginBottom: 8 }}>◰</p>
+                <p style={{ fontSize: 24, opacity: 0.3, marginBottom: 8 }}>â—°</p>
                 <p style={{ fontSize: 13, margin: 0 }}>Select a table to edit</p>
               </div>
             )}
@@ -422,7 +422,7 @@ export default function SchemaDesignerPage() {
               width: 224,
               flexShrink: 0,
               overflowY: 'auto',
-              borderRight: '1px solid var(--border-default)',
+              borderRight: '1px solid var(--border)',
             }}
           >
             <div style={{ padding: 12 }}>
@@ -430,8 +430,8 @@ export default function SchemaDesignerPage() {
                 style={{
                   width: '100%',
                   borderRadius: 4,
-                  border: '1px solid var(--border-default)',
-                  background: 'color-mix(in srgb, var(--border-default) 30%, var(--bg-canvas))',
+                  border: '1px solid var(--border)',
+                  background: 'color-mix(in srgb, var(--border) 30%, var(--background))',
                   padding: '4px 8px',
                   fontSize: 12,
                   marginBottom: 12,
@@ -461,7 +461,7 @@ export default function SchemaDesignerPage() {
                       gap: 8,
                       cursor: 'grab',
                       borderRadius: 4,
-                      border: '1px dashed var(--border-default)',
+                      border: '1px dashed var(--border)',
                       padding: '6px 8px',
                       fontSize: 12,
                     }}
@@ -475,7 +475,7 @@ export default function SchemaDesignerPage() {
                         alignItems: 'center',
                         justifyContent: 'center',
                         borderRadius: 4,
-                        background: 'var(--border-default)',
+                        background: 'var(--border)',
                         fontSize: 10,
                         fontWeight: 600,
                       }}
@@ -494,7 +494,7 @@ export default function SchemaDesignerPage() {
             style={{
               flex: 1,
               overflow: 'auto',
-              background: 'color-mix(in srgb, var(--border-default) 30%, var(--bg-canvas))',
+              background: 'color-mix(in srgb, var(--border) 30%, var(--background))',
               display: 'flex',
               justifyContent: 'center',
               padding: 24,
@@ -503,7 +503,7 @@ export default function SchemaDesignerPage() {
             <div
               style={{
                 borderRadius: 8,
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
                 boxShadow: '0 2px 16px rgba(0,0,0,0.12)',
                 width: viewport === 'desktop' ? 1024 : viewport === 'tablet' ? 768 : 375,
                 minHeight: 600,
@@ -527,7 +527,7 @@ export default function SchemaDesignerPage() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: 4,
-                    background: 'var(--accent-primary)',
+                    background: 'var(--primary)',
                     fontSize: 12,
                     fontWeight: 700,
                     color: '#fff',
@@ -544,8 +544,8 @@ export default function SchemaDesignerPage() {
                         fontSize: 12,
                         color:
                           activePage === nav.toLowerCase()
-                            ? 'var(--fg-primary)'
-                            : 'var(--fg-tertiary)',
+                            ? 'var(--foreground)'
+                            : 'var(--muted-foreground)',
                         fontWeight: activePage === nav.toLowerCase() ? 600 : 400,
                       }}
                     >
@@ -572,7 +572,7 @@ export default function SchemaDesignerPage() {
                           key={stat}
                           style={{
                             borderRadius: 8,
-                            border: '1px solid var(--border-default)',
+                            border: '1px solid var(--border)',
                             padding: 12,
                           }}
                         >
@@ -604,7 +604,7 @@ export default function SchemaDesignerPage() {
                     <div
                       style={{
                         borderRadius: 8,
-                        border: '1px solid var(--border-default)',
+                        border: '1px solid var(--border)',
                         padding: 16,
                       }}
                     >
@@ -645,7 +645,7 @@ export default function SchemaDesignerPage() {
                   <div
                     style={{
                       borderRadius: 8,
-                      border: '1px solid var(--border-default)',
+                      border: '1px solid var(--border)',
                       padding: 16,
                     }}
                   >
@@ -674,7 +674,7 @@ export default function SchemaDesignerPage() {
                       Sales pipeline you can trust
                     </p>
                     <p style={{ fontSize: 13, marginBottom: 16 }}>
-                      Built on Acme platform · self-hosted · GDPR-compliant.
+                      Built on Acme platform Â· self-hosted Â· GDPR-compliant.
                     </p>
                     <Button type="button">Sign in</Button>
                   </div>
@@ -685,7 +685,7 @@ export default function SchemaDesignerPage() {
                       maxWidth: 360,
                       margin: '0 auto',
                       borderRadius: 8,
-                      border: '1px solid var(--border-default)',
+                      border: '1px solid var(--border)',
                       padding: 24,
                     }}
                   >
@@ -703,7 +703,7 @@ export default function SchemaDesignerPage() {
                       style={{
                         width: '100%',
                         borderRadius: 4,
-                        border: '1px solid var(--border-default)',
+                        border: '1px solid var(--border)',
                         padding: '8px 12px',
                         fontSize: 13,
                         marginBottom: 12,
@@ -715,7 +715,7 @@ export default function SchemaDesignerPage() {
                       style={{
                         width: '100%',
                         borderRadius: 4,
-                        border: '1px solid var(--border-default)',
+                        border: '1px solid var(--border)',
                         padding: '8px 12px',
                         fontSize: 13,
                         marginBottom: 16,
@@ -739,7 +739,7 @@ export default function SchemaDesignerPage() {
               width: 256,
               flexShrink: 0,
               overflowY: 'auto',
-              borderLeft: '1px solid var(--border-default)',
+              borderLeft: '1px solid var(--border)',
               padding: 16,
             }}
           >
@@ -793,7 +793,7 @@ export default function SchemaDesignerPage() {
               style={{
                 width: '100%',
                 borderRadius: 4,
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
                 padding: '6px 8px',
                 fontSize: 13,
               }}

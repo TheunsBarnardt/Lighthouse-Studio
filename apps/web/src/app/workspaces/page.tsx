@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -58,8 +58,8 @@ function WorkspacesSkeleton() {
             display: 'flex',
             alignItems: 'center',
             gap: 16,
-            borderRadius: 'var(--shell-radius-lg)',
-            border: '1px solid var(--border-default)',
+            borderRadius: '8px',
+            border: '1px solid var(--border)',
             padding: 16,
           }}
         >
@@ -110,7 +110,7 @@ export default function WorkspacesPage() {
           <h1>Workspaces</h1>
           <p className="subtitle">
             {loading
-              ? 'Loading…'
+              ? 'Loadingâ€¦'
               : `${String(workspaces.length)} workspace${workspaces.length !== 1 ? 's' : ''}`}
           </p>
         </div>
@@ -146,8 +146,8 @@ export default function WorkspacesPage() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 16,
-                borderRadius: 'var(--shell-radius-lg)',
-                border: '1px solid var(--border-default)',
+                borderRadius: '8px',
+                border: '1px solid var(--border)',
                 padding: 16,
               }}
             >
@@ -160,8 +160,8 @@ export default function WorkspacesPage() {
                   flexShrink: 0,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  borderRadius: 'var(--shell-radius-md)',
-                  background: 'var(--accent-primary)',
+                  borderRadius: '6px',
+                  background: 'var(--primary)',
                   color: '#fff',
                   fontSize: 13,
                   fontWeight: 700,
@@ -192,7 +192,7 @@ export default function WorkspacesPage() {
                     margin: '2px 0 0',
                   }}
                 >
-                  {String(ws.memberCount)} member{ws.memberCount !== 1 ? 's' : ''} ·{' '}
+                  {String(ws.memberCount)} member{ws.memberCount !== 1 ? 's' : ''} Â·{' '}
                   <span className="font-mono text-sm">{ws.slug}</span>
                 </p>
               </div>

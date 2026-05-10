@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 interface ApiKey {
   name: string;
@@ -13,8 +13,8 @@ interface ApiKey {
 
 const KEYS: ApiKey[] = [
   {
-    name: 'CRM Production · Read',
-    token: 'pk_live_a1b2_•••',
+    name: 'CRM Production Â· Read',
+    token: 'pk_live_a1b2_â€¢â€¢â€¢',
     scope: 'service_role',
     requests: '142,847',
     lastUsed: '2 min ago',
@@ -23,8 +23,8 @@ const KEYS: ApiKey[] = [
     status: 'live',
   },
   {
-    name: 'CRM Production · Write',
-    token: 'pk_live_3c4d_•••',
+    name: 'CRM Production Â· Write',
+    token: 'pk_live_3c4d_â€¢â€¢â€¢',
     scope: 'service_role',
     requests: '8,124',
     lastUsed: '12 min ago',
@@ -34,17 +34,17 @@ const KEYS: ApiKey[] = [
   },
   {
     name: 'Mobile App',
-    token: 'pk_live_5e6f_•••',
+    token: 'pk_live_5e6f_â€¢â€¢â€¢',
     scope: 'anon',
     requests: '47,321',
     lastUsed: '4 hours ago',
-    createdBy: 'Tom Müller',
+    createdBy: 'Tom MÃ¼ller',
     age: '7 days ago',
     status: 'live',
   },
   {
     name: 'CI / Testing',
-    token: 'pk_test_7g8h_•••',
+    token: 'pk_test_7g8h_â€¢â€¢â€¢',
     scope: 'service_role',
     requests: '1,247',
     lastUsed: 'Yesterday',
@@ -54,11 +54,11 @@ const KEYS: ApiKey[] = [
   },
   {
     name: 'Legacy import job',
-    token: 'pk_test_9i0j_•••',
+    token: 'pk_test_9i0j_â€¢â€¢â€¢',
     scope: 'service_role',
     requests: '0',
     lastUsed: 'Never',
-    createdBy: 'Tom Müller',
+    createdBy: 'Tom MÃ¼ller',
     age: '47 days ago',
     status: 'expired',
   },
@@ -78,7 +78,7 @@ const RECENT_EVENTS: RecentEvent[] = [
     when: '14 days ago',
     event: 'Created',
     eventBadge: 'success',
-    key: 'CRM Production · Write',
+    key: 'CRM Production Â· Write',
     by: 'Joana de Klerk',
     ip: '102.65.x.x',
   },
@@ -86,7 +86,7 @@ const RECENT_EVENTS: RecentEvent[] = [
     when: '14 days ago',
     event: 'Rotated',
     eventBadge: 'warning',
-    key: 'CRM Production · Write',
+    key: 'CRM Production Â· Write',
     by: 'Joana de Klerk',
     ip: '102.65.x.x',
   },
@@ -104,7 +104,7 @@ const RECENT_EVENTS: RecentEvent[] = [
     eventBadge: 'default',
     key: 'Legacy import job',
     by: 'system',
-    ip: '—',
+    ip: 'â€”',
   },
 ];
 
@@ -165,7 +165,7 @@ export default function ApiKeysPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>API Keys</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Issue, scope, and rotate API keys · 5 keys · 4 active · 1 expired
+            Issue, scope, and rotate API keys Â· 5 keys Â· 4 active Â· 1 expired
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -181,14 +181,14 @@ export default function ApiKeysPage() {
       <div
         className="rounded-md border bg-card text-card-foreground p-4"
         style={{
-          background: 'var(--bg-warning-subtle)',
-          borderColor: 'var(--fg-warning)',
+          background: 'oklch(0.97 0.05 75)',
+          borderColor: 'oklch(0.45 0.14 75)',
           marginBottom: 16,
         }}
       >
         <div style={{ fontSize: 13 }}>
           <strong>API keys grant access to your data.</strong> Keys with the{' '}
-          {inlineCode('service_role')} scope bypass all RLS policies — use them only on trusted
+          {inlineCode('service_role')} scope bypass all RLS policies â€” use them only on trusted
           servers, never in client code. Use {inlineCode('anon')} for browser/mobile clients.
         </div>
       </div>
@@ -207,7 +207,7 @@ export default function ApiKeysPage() {
                 <th>Name</th>
                 <th>Token (masked)</th>
                 <th>Scope</th>
-                <th className="tabular-nums">Requests · 30d</th>
+                <th className="tabular-nums">Requests Â· 30d</th>
                 <th>Last used</th>
                 <th>Created by</th>
                 <th>Status</th>
@@ -225,7 +225,7 @@ export default function ApiKeysPage() {
                   <td className="tabular-nums">{key.requests}</td>
                   <td style={{ fontSize: 12 }}>{key.lastUsed}</td>
                   <td style={{ fontSize: 12 }}>
-                    {key.createdBy} · {key.age}
+                    {key.createdBy} Â· {key.age}
                   </td>
                   <td>{statusBadge(key.status)}</td>
                   <td>
@@ -267,7 +267,7 @@ export default function ApiKeysPage() {
           </div>
         </div>
         <div style={{ fontSize: 12, marginTop: 12 }}>
-          CRM Production · Write was rotated 14 days ago. Next reminder in 76 days.
+          CRM Production Â· Write was rotated 14 days ago. Next reminder in 76 days.
         </div>
       </div>
 

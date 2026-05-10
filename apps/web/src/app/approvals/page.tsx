@@ -1,11 +1,11 @@
-'use client';
+﻿'use client';
 
 import { Button } from '@/components/ui/button';
 
 const PENDING = [
   {
     id: 'AP-247',
-    stage: 'Stage 9 · Production deploy',
+    stage: 'Stage 9 Â· Production deploy',
     project: 'Internal Sales CRM',
     requester: 'Marcus Acker',
     requested: '12 min ago',
@@ -13,11 +13,11 @@ const PENDING = [
     approved: 1,
     total: 2,
     urgent: true,
-    summary: 'v0.1.3 → production. 14 components, 7 functions, 3 schema migrations. Tests passing.',
+    summary: 'v0.1.3 â†’ production. 14 components, 7 functions, 3 schema migrations. Tests passing.',
   },
   {
     id: 'AP-246',
-    stage: 'Stage 7 · Code generation',
+    stage: 'Stage 7 Â· Code generation',
     project: 'Internal Sales CRM',
     requester: 'AI',
     requested: '47 min ago',
@@ -30,7 +30,7 @@ const PENDING = [
   },
   {
     id: 'AP-245',
-    stage: 'Stage 6 · UI generation',
+    stage: 'Stage 6 Â· UI generation',
     project: 'Marketing Blog',
     requester: 'AI',
     requested: '2 hours ago',
@@ -42,7 +42,7 @@ const PENDING = [
   },
   {
     id: 'AP-244',
-    stage: 'Stage 2 · PRD section',
+    stage: 'Stage 2 Â· PRD section',
     project: 'Internal Sales CRM',
     requester: 'Joana de Klerk',
     requested: '4 hours ago',
@@ -50,14 +50,14 @@ const PENDING = [
     approved: 0,
     total: 1,
     urgent: false,
-    summary: 'Functional Requirements section · 12 FRs · 3 traced to intent.',
+    summary: 'Functional Requirements section Â· 12 FRs Â· 3 traced to intent.',
   },
 ];
 
 const APPROVED = [
   {
     id: 'AP-243',
-    what: 'Stage 4 · Schema synthesis',
+    what: 'Stage 4 Â· Schema synthesis',
     project: 'Internal Sales CRM',
     by: 'Marcus, Joana',
     when: '5h ago',
@@ -65,7 +65,7 @@ const APPROVED = [
   },
   {
     id: 'AP-242',
-    what: 'Stage 3 · Design tokens',
+    what: 'Stage 3 Â· Design tokens',
     project: 'Internal Sales CRM',
     by: 'Joana',
     when: '7h ago',
@@ -73,7 +73,7 @@ const APPROVED = [
   },
   {
     id: 'AP-241',
-    what: 'Stage 9 · Staging deploy',
+    what: 'Stage 9 Â· Staging deploy',
     project: 'Marketing Blog',
     by: 'Sara, Tom',
     when: 'Yesterday',
@@ -81,7 +81,7 @@ const APPROVED = [
   },
   {
     id: 'AP-240',
-    what: 'Stage 7 · Code generation',
+    what: 'Stage 7 Â· Code generation',
     project: 'Internal Sales CRM',
     by: 'Marcus, Tom',
     when: 'Yesterday',
@@ -96,7 +96,7 @@ export default function ApprovalsPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Approvals</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Single inbox of pending approvals across all projects · 4 pending · 2 awaiting you
+            Single inbox of pending approvals across all projects Â· 4 pending Â· 2 awaiting you
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -124,14 +124,14 @@ export default function ApprovalsPage() {
         </div>
         <div className="rounded-md border bg-card p-4">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-            Approved · 7d
+            Approved Â· 7d
           </div>
           <div className="text-[22px] font-semibold tabular-nums">23</div>
           <div className="mt-1 text-[11px] text-muted-foreground">avg time-to-approve 1h 47m</div>
         </div>
         <div className="rounded-md border bg-card p-4">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-            Rejected · 7d
+            Rejected Â· 7d
           </div>
           <div className="text-[22px] font-semibold tabular-nums">2</div>
           <div className="mt-1 text-[11px] text-muted-foreground">all returned for changes</div>
@@ -145,7 +145,7 @@ export default function ApprovalsPage() {
           className="rounded-md border bg-card text-card-foreground p-4"
           style={{
             marginBottom: 12,
-            borderColor: a.urgent ? 'var(--fg-warning)' : undefined,
+            borderColor: a.urgent ? 'oklch(0.45 0.14 75)' : undefined,
           }}
         >
           <div
@@ -192,11 +192,11 @@ export default function ApprovalsPage() {
             }}
           >
             <span>Requested by {a.requester}</span>
-            <span>·</span>
+            <span>Â·</span>
             <span>{a.requested}</span>
-            <span>·</span>
+            <span>Â·</span>
             <span>
-              Mode: <span className="font-mono text-sm">{a.mode}</span> · {a.approved} of {a.total}{' '}
+              Mode: <span className="font-mono text-sm">{a.mode}</span> Â· {a.approved} of {a.total}{' '}
               approved
             </span>
           </div>
@@ -206,7 +206,7 @@ export default function ApprovalsPage() {
       {/* Recently approved table */}
       <div className="rounded-md border bg-card text-card-foreground p-4" style={{ marginTop: 16 }}>
         <div className="mb-3 flex items-center justify-between border-b pb-3">
-          <div className="text-sm font-semibold">Recently approved · 7 days</div>
+          <div className="text-sm font-semibold">Recently approved Â· 7 days</div>
         </div>
         <div className="overflow-hidden rounded-md border">
           <table className="w-full border-collapse text-sm">

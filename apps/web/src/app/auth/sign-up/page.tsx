@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -19,7 +19,7 @@ const inputStyle: React.CSSProperties = {
   height: 36,
   padding: '0 12px',
   borderRadius: 4,
-  border: '1px solid var(--border-default)',
+  border: '1px solid var(--border)',
   fontSize: 13,
   boxSizing: 'border-box',
 };
@@ -35,7 +35,7 @@ const fieldStyle: React.CSSProperties = { marginBottom: 14 };
 
 const errorStyle: React.CSSProperties = {
   fontSize: 12,
-  color: 'var(--fg-danger, #dc2626)',
+  color: 'var(--destructive, #dc2626)',
   marginTop: 3,
 };
 
@@ -101,7 +101,7 @@ export default function SignUpPage() {
         style={{
           padding: 32,
           borderRadius: 8,
-          border: '1px solid var(--border-default)',
+          border: '1px solid var(--border)',
         }}
       >
         <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 12 }}>Check your email</h1>
@@ -120,7 +120,7 @@ export default function SignUpPage() {
       style={{
         padding: 32,
         borderRadius: 8,
-        border: '1px solid var(--border-default)',
+        border: '1px solid var(--border)',
       }}
     >
       <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 20 }}>{t('title')}</h1>
@@ -215,10 +215,10 @@ export default function SignUpPage() {
               marginBottom: 12,
               padding: '8px 12px',
               borderRadius: 4,
-              border: '1px solid var(--fg-danger, #dc2626)',
+              border: '1px solid var(--destructive, #dc2626)',
               background: 'oklch(0.97 0.02 25)',
               fontSize: 13,
-              color: 'var(--fg-danger, #dc2626)',
+              color: 'var(--destructive, #dc2626)',
             }}
             aria-live="polite"
           >

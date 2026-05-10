@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 
@@ -49,7 +49,7 @@ export default function AdminAuditPage() {
         >
           <input
             type="search"
-            placeholder="Filter by event type…"
+            placeholder="Filter by event typeâ€¦"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -58,7 +58,7 @@ export default function AdminAuditPage() {
             style={{
               width: '100%',
               padding: '0.4375rem 0.75rem',
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: '6px',
               fontSize: '0.875rem',
               outline: 'none',
@@ -75,7 +75,7 @@ export default function AdminAuditPage() {
               }}
               aria-live="polite"
             >
-              Loading…
+              Loadingâ€¦
             </p>
           )}
           {!loading && events.length === 0 && (
@@ -112,7 +112,7 @@ export default function AdminAuditPage() {
                         </span>
                       </td>
                       <td>{ev.actorEmail ?? ev.actorId}</td>
-                      <td>{ev.workspaceId ?? '—'}</td>
+                      <td>{ev.workspaceId ?? 'â€”'}</td>
                       <td>{new Date(ev.createdAt).toLocaleString()}</td>
                     </tr>
                   ))}

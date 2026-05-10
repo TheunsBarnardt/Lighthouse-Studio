@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { CheckCircle2, XCircle } from 'lucide-react';
 
@@ -9,10 +9,10 @@ interface Rule {
 
 const RULES: Rule[] = [
   { label: 'At least 8 characters', test: (v) => v.length >= 8 },
-  { label: 'Uppercase letter (A–Z)', test: (v) => /[A-Z]/.test(v) },
-  { label: 'Lowercase letter (a–z)', test: (v) => /[a-z]/.test(v) },
-  { label: 'Number (0–9)', test: (v) => /[0-9]/.test(v) },
-  { label: 'Special character (!@#…)', test: (v) => /[^A-Za-z0-9]/.test(v) },
+  { label: 'Uppercase letter (Aâ€“Z)', test: (v) => /[A-Z]/.test(v) },
+  { label: 'Lowercase letter (aâ€“z)', test: (v) => /[a-z]/.test(v) },
+  { label: 'Number (0â€“9)', test: (v) => /[0-9]/.test(v) },
+  { label: 'Special character (!@#â€¦)', test: (v) => /[^A-Za-z0-9]/.test(v) },
 ];
 
 interface PasswordRulesProps {
@@ -43,7 +43,7 @@ export function PasswordRules({ value }: PasswordRulesProps) {
               alignItems: 'center',
               gap: 6,
               fontSize: 11,
-              color: passing ? 'var(--fg-success, #16a34a)' : 'var(--fg-danger, #dc2626)',
+              color: passing ? 'oklch(0.45 0.15 145)' : 'var(--destructive, #dc2626)',
             }}
           >
             {passing ? (

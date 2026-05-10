@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -62,9 +62,9 @@ const COMPONENT_GROUPS: ComponentGroup[] = [
 
 function statusDot(status: ComponentStatus) {
   const colors: Record<ComponentStatus, string> = {
-    approved: 'var(--fg-success)',
-    in_review: 'var(--fg-warning)',
-    pending: 'var(--border-emphasis)',
+    approved: 'oklch(0.40 0.14 145)',
+    in_review: 'oklch(0.45 0.14 75)',
+    pending: 'var(--border)',
   };
   return (
     <span
@@ -109,7 +109,7 @@ function KanbanPreview() {
           <div style={{ fontSize: 20, fontWeight: 600, color: 'oklch(0.20 0.01 145)' }}>
             Deal Pipeline
           </div>
-          <div style={{ fontSize: 12, color: 'oklch(0.50 0.005 145)' }}>14 active · $387,420</div>
+          <div style={{ fontSize: 12, color: 'oklch(0.50 0.005 145)' }}>14 active Â· $387,420</div>
         </div>
         <Button
           style={{
@@ -247,13 +247,13 @@ export default function UiGenerationPage() {
         {/* Left: component tree */}
         <div
           style={{
-            borderRight: '1px solid var(--border-default)',
+            borderRight: '1px solid var(--border)',
             overflowY: 'auto',
             padding: 12,
           }}
         >
           <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>Generated components</div>
-          <div style={{ fontSize: 11, marginBottom: 12 }}>14 · Permission-aware · WCAG AA</div>
+          <div style={{ fontSize: 11, marginBottom: 12 }}>14 Â· Permission-aware Â· WCAG AA</div>
           {COMPONENT_GROUPS.map((group) => (
             <div key={group.label}>
               <div
@@ -284,14 +284,14 @@ export default function UiGenerationPage() {
                       width: '100%',
                       textAlign: 'left',
                       padding: '4px 8px',
-                      borderRadius: 'var(--shell-radius-sm)',
+                      borderRadius: '4px',
                       marginBottom: 1,
                       background:
-                        item.name === selectedComponent ? 'var(--bg-selected)' : 'transparent',
+                        item.name === selectedComponent ? 'var(--accent)' : 'transparent',
                       color:
                         item.name === selectedComponent
-                          ? 'var(--accent-primary)'
-                          : 'var(--fg-secondary)',
+                          ? 'var(--primary)'
+                          : 'var(--muted-foreground)',
                       border: 'none',
                       cursor: 'pointer',
                       fontFamily: 'monospace',
@@ -333,7 +333,7 @@ export default function UiGenerationPage() {
               <div>
                 <h1 style={{ fontSize: 18 }}>{selectedComponent}</h1>
                 <div style={{ fontSize: 12 }}>
-                  142 lines · React + Tailwind · 0 lint errors · 0 a11y failures
+                  142 lines Â· React + Tailwind Â· 0 lint errors Â· 0 a11y failures
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -346,7 +346,7 @@ export default function UiGenerationPage() {
                   onClick={handleApprove}
                   disabled={approvedSet.has(selectedComponent)}
                 >
-                  {approvedSet.has(selectedComponent) ? '✓ Approved' : 'Approve'}
+                  {approvedSet.has(selectedComponent) ? 'âœ“ Approved' : 'Approve'}
                 </Button>
               </div>
             </div>
@@ -364,10 +364,10 @@ export default function UiGenerationPage() {
                     background: 'transparent',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
-                    color: activeTab === tab ? 'var(--accent-primary)' : 'var(--fg-secondary)',
+                    color: activeTab === tab ? 'var(--primary)' : 'var(--muted-foreground)',
                     borderBottom:
                       activeTab === tab
-                        ? '2px solid var(--accent-primary)'
+                        ? '2px solid var(--primary)'
                         : '2px solid transparent',
                     fontWeight: activeTab === tab ? 500 : 400,
                   }}
@@ -423,8 +423,8 @@ export default function UiGenerationPage() {
                   style={{
                     flex: 1,
                     background: 'var(--muted)',
-                    border: '1px solid var(--border-default)',
-                    borderRadius: 'var(--shell-radius-sm)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '4px',
                     padding: '4px 12px',
                     fontFamily: 'monospace',
                     fontSize: 11,
@@ -432,7 +432,7 @@ export default function UiGenerationPage() {
                 >
                   app.acme.example.com/deals
                 </div>
-                <span>Mock · 14 deals</span>
+                <span>Mock Â· 14 deals</span>
               </div>
               <KanbanPreview />
             </div>
@@ -447,8 +447,8 @@ export default function UiGenerationPage() {
                   lineHeight: '18px',
                   margin: 0,
                   padding: 16,
-                  borderRadius: 'var(--shell-radius-md)',
-                  border: '1px solid var(--border-default)',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border)',
                   overflow: 'auto',
                 }}
               >
@@ -477,7 +477,7 @@ export default function UiGenerationPage() {
         {/* Right: inspector */}
         <div
           style={{
-            borderLeft: '1px solid var(--border-default)',
+            borderLeft: '1px solid var(--border)',
             overflowY: 'auto',
             padding: 16,
           }}
@@ -517,10 +517,10 @@ export default function UiGenerationPage() {
               QUALITY
             </div>
             {[
-              ['TypeScript', '✓', 'var(--fg-success)'],
-              ['ESLint', '✓', 'var(--fg-success)'],
-              ['axe-core', '✓ AA', 'var(--fg-success)'],
-              ['Mobile', '✓', 'var(--fg-success)'],
+              ['TypeScript', 'âœ“', 'oklch(0.40 0.14 145)'],
+              ['ESLint', 'âœ“', 'oklch(0.40 0.14 145)'],
+              ['axe-core', 'âœ“ AA', 'oklch(0.40 0.14 145)'],
+              ['Mobile', 'âœ“', 'oklch(0.40 0.14 145)'],
             ].map(([k, v, c]) => (
               <div
                 key={k}
@@ -619,7 +619,7 @@ export default function UiGenerationPage() {
               <div
                 style={{
                   height: '100%',
-                  background: 'var(--accent-primary)',
+                  background: 'var(--primary)',
                   width: `${String((approvedCount / totalComponents) * 100)}%`,
                   borderRadius: 2,
                 }}

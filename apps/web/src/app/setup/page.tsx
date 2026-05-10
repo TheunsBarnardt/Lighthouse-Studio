@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -28,7 +28,7 @@ const inputStyle: React.CSSProperties = {
   height: 36,
   padding: '0 12px',
   borderRadius: 4,
-  border: '1px solid var(--border-default)',
+  border: '1px solid var(--border)',
   fontSize: 13,
 };
 
@@ -127,7 +127,7 @@ export default function SetupPage() {
             style={{
               width: '60%',
               height: '100%',
-              background: 'var(--accent-primary)',
+              background: 'var(--primary)',
               borderRadius: 2,
             }}
           />
@@ -269,7 +269,7 @@ export default function SetupPage() {
                 role="alert"
                 style={{
                   borderRadius: 4,
-                  background: 'var(--bg-danger-subtle)',
+                  background: 'oklch(0.96 0.04 25)',
                   padding: '10px 12px',
                   fontSize: 13,
                 }}

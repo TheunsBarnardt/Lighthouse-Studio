@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -52,7 +52,7 @@ function OAuthCallbackPageInner() {
           role="alert"
           style={{
             borderRadius: 4,
-            background: 'var(--bg-danger-subtle)',
+            background: 'oklch(0.96 0.04 25)',
             padding: '10px 12px',
             fontSize: 13,
           }}
@@ -61,7 +61,7 @@ function OAuthCallbackPageInner() {
         </div>
       ) : (
         <p style={{ fontSize: 13 }} aria-live="polite">
-          {t('title')}…
+          {t('title')}â€¦
         </p>
       )}
     </div>

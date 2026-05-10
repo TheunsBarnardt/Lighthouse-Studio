@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -36,7 +36,7 @@ const SIGNALS: Signal[] = [
     id: 'SIG-127',
     title: 'TypeError in DealKanbanPage',
     severity: 'high',
-    source: 'Stage 6 · UI',
+    source: 'Stage 6 Â· UI',
     evidence: '14 occurrences',
     when: '47 min ago',
     status: 'open',
@@ -46,7 +46,7 @@ const SIGNALS: Signal[] = [
     id: 'SIG-126',
     title: 'Slow query: contacts list',
     severity: 'medium',
-    source: 'Stage 4 · Schema',
+    source: 'Stage 4 Â· Schema',
     evidence: 'p95 1.8s',
     when: '2 hours ago',
     status: 'in-flight',
@@ -56,11 +56,11 @@ const SIGNALS: Signal[] = [
     id: 'SIG-125',
     title: 'User report: cannot save deal',
     severity: 'high',
-    source: 'Stage 6 · UI',
+    source: 'Stage 6 Â· UI',
     evidence: '3 reports',
     when: '1 hour ago',
     status: 'open',
-    owner: '—',
+    owner: 'â€”',
   },
   {
     id: 'SIG-124',
@@ -76,17 +76,17 @@ const SIGNALS: Signal[] = [
     id: 'SIG-123',
     title: 'a11y: contrast on warning chip',
     severity: 'low',
-    source: 'Stage 3 · Tokens',
+    source: 'Stage 3 Â· Tokens',
     evidence: 'lighthouse',
     when: '1 day ago',
     status: 'open',
-    owner: '—',
+    owner: 'â€”',
   },
   {
     id: 'SIG-122',
     title: 'Bundle size +14% on last deploy',
     severity: 'low',
-    source: 'Stage 9 · Deploy',
+    source: 'Stage 9 Â· Deploy',
     evidence: 'auto-detected',
     when: '2 days ago',
     status: 'resolved',
@@ -94,9 +94,9 @@ const SIGNALS: Signal[] = [
   },
   {
     id: 'SIG-121',
-    title: 'PRD ↔ schema drift: missing field',
+    title: 'PRD â†” schema drift: missing field',
     severity: 'medium',
-    source: 'Stage 4 · Schema',
+    source: 'Stage 4 Â· Schema',
     evidence: 'auto-detected',
     when: '3 days ago',
     status: 'resolved',
@@ -109,8 +109,8 @@ const CHANGE_REQUESTS: ChangeRequest[] = [
     id: 'CR-42',
     title: 'Fix Kanban drag race condition',
     status: 'in-progress',
-    scope: 'Stage 6 → 8',
-    by: 'Tom Müller',
+    scope: 'Stage 6 â†’ 8',
+    by: 'Tom MÃ¼ller',
     etl: '2h',
     when: '47 min ago',
   },
@@ -193,9 +193,9 @@ export default function MaintenancePage() {
         <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1400 }}>
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
-              <h1 style={{ fontSize: 18 }}>Maintenance · Continuous</h1>
+              <h1 style={{ fontSize: 18 }}>Maintenance Â· Continuous</h1>
               <div className="subtitle">
-                Production signals → change requests → re-deploy. The pipeline keeps running.
+                Production signals â†’ change requests â†’ re-deploy. The pipeline keeps running.
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -212,7 +212,7 @@ export default function MaintenancePage() {
                 disabled={triaging}
                 className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
-                {triaging ? '● Triaging…' : '✦ AI triage'}
+                {triaging ? 'â— Triagingâ€¦' : 'âœ¦ AI triage'}
               </Button>
             </div>
           </div>
@@ -237,11 +237,11 @@ export default function MaintenancePage() {
             </div>
             <div className="rounded-md border bg-card p-4">
               <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-                MTTR · 30d
+                MTTR Â· 30d
               </div>
               <div className="text-[22px] font-semibold tabular-nums">3.4h</div>
               <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
-                −12% vs prior
+                âˆ’12% vs prior
               </div>
             </div>
             <div className="rounded-md border bg-card p-4">
@@ -336,7 +336,7 @@ export default function MaintenancePage() {
                       paddingBottom: 12,
                       marginBottom: i < CHANGE_REQUESTS.length - 1 ? 12 : 0,
                       borderBottom:
-                        i < CHANGE_REQUESTS.length - 1 ? '1px solid var(--border-default)' : 'none',
+                        i < CHANGE_REQUESTS.length - 1 ? '1px solid var(--border)' : 'none',
                     }}
                   >
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -362,7 +362,7 @@ export default function MaintenancePage() {
                         </span>
                       </div>
                       <div style={{ fontSize: 11 }}>
-                        {cr.scope} · {cr.by} · {cr.when}
+                        {cr.scope} Â· {cr.by} Â· {cr.when}
                       </div>
                     </div>
                     {crStatusBadge(cr.status)}
@@ -376,12 +376,12 @@ export default function MaintenancePage() {
                   <span className="text-sm font-semibold">Signal sources</span>
                 </div>
                 {[
-                  ['Error tracking', 'Sentry · live', 'var(--fg-success)'],
-                  ['User reports', '3 open', 'var(--fg-primary)'],
-                  ['CVE feed', 'GHSA · live', 'var(--fg-success)'],
-                  ['Lighthouse', 'daily', 'var(--fg-success)'],
-                  ['Drift detection', 'on commit', 'var(--fg-success)'],
-                  ['DB advisor', 'hourly', 'var(--fg-success)'],
+                  ['Error tracking', 'Sentry Â· live', 'oklch(0.40 0.14 145)'],
+                  ['User reports', '3 open', 'var(--foreground)'],
+                  ['CVE feed', 'GHSA Â· live', 'oklch(0.40 0.14 145)'],
+                  ['Lighthouse', 'daily', 'oklch(0.40 0.14 145)'],
+                  ['Drift detection', 'on commit', 'oklch(0.40 0.14 145)'],
+                  ['DB advisor', 'hourly', 'oklch(0.40 0.14 145)'],
                 ].map(([k, v, c]) => (
                   <div
                     key={k}
@@ -404,7 +404,7 @@ export default function MaintenancePage() {
               className="mb-3 flex items-center justify-between border-b pb-3"
               style={{ padding: '12px 16px', borderRadius: 0 }}
             >
-              <span className="text-sm font-semibold">Resolved · last 30 days</span>
+              <span className="text-sm font-semibold">Resolved Â· last 30 days</span>
             </div>
             <div
               className="overflow-hidden rounded-md border"
@@ -438,27 +438,27 @@ export default function MaintenancePage() {
           {/* Outcomes */}
           <div className="rounded-md border bg-card text-card-foreground p-4">
             <div className="mb-3 flex items-center justify-between border-b pb-3">
-              <span className="text-sm font-semibold">Outcomes · last 30 days</span>
+              <span className="text-sm font-semibold">Outcomes Â· last 30 days</span>
             </div>
             <div className="grid grid-cols-3 gap-4">
               {[
                 {
                   label: 'RESOLVED',
                   value: 31,
-                  detail: '22 by AI · 9 by humans',
-                  color: 'var(--fg-success)',
+                  detail: '22 by AI Â· 9 by humans',
+                  color: 'oklch(0.40 0.14 145)',
                 },
                 {
                   label: 'DEFERRED',
                   value: 4,
                   detail: 'awaiting product input',
-                  color: 'var(--fg-warning)',
+                  color: 'oklch(0.45 0.14 75)',
                 },
                 {
                   label: 'DUPLICATE / WONT FIX',
                   value: 7,
                   detail: 'closed without action',
-                  color: 'var(--fg-secondary)',
+                  color: 'var(--muted-foreground)',
                 },
               ].map((item) => (
                 <div key={item.label}>

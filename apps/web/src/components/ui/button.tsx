@@ -19,6 +19,7 @@ const variants = {
 } as const;
 
 const sizes = {
+  xs: 'h-6 px-2 text-[11px] rounded',
   sm: 'h-8 px-3 text-xs rounded-md',
   md: 'h-9 px-4 text-sm rounded-md',
   lg: 'h-10 px-6 text-base rounded-lg',

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -16,7 +16,7 @@ const inputStyle: React.CSSProperties = {
   height: 36,
   padding: '0 12px',
   borderRadius: 4,
-  border: '1px solid var(--border-default)',
+  border: '1px solid var(--border)',
   fontSize: 13,
 };
 
@@ -56,7 +56,7 @@ export default function AdminWorkspacesPage() {
         <div style={{ padding: '12px 16px' }}>
           <input
             type="search"
-            placeholder="Search by name or slug…"
+            placeholder="Search by name or slugâ€¦"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -75,7 +75,7 @@ export default function AdminWorkspacesPage() {
             }}
             aria-live="polite"
           >
-            Loading…
+            Loadingâ€¦
           </p>
         )}
         {!loading && filtered.length === 0 && (

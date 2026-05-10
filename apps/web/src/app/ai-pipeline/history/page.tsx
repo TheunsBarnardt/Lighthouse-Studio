@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -20,7 +20,7 @@ interface GenerationCall {
 const MOCK_CALLS: GenerationCall[] = [
   {
     id: 'gen_a3f291c',
-    stage: 'Stage 6 · UI gen',
+    stage: 'Stage 6 Â· UI gen',
     artifact: 'DealKanbanPage',
     model: 'opus-4.7',
     inputTokens: 18412,
@@ -32,7 +32,7 @@ const MOCK_CALLS: GenerationCall[] = [
   },
   {
     id: 'gen_b8e147a',
-    stage: 'Stage 7 · Code gen',
+    stage: 'Stage 7 Â· Code gen',
     artifact: 'updateDealStage function',
     model: 'sonnet-4.6',
     inputTokens: 8421,
@@ -40,12 +40,12 @@ const MOCK_CALLS: GenerationCall[] = [
     cost: 0.038,
     when: '47 min ago',
     outcome: 'Approved',
-    by: 'Tom Müller',
+    by: 'Tom MÃ¼ller',
   },
   {
     id: 'gen_4d92e3c',
-    stage: 'Stage 4 · Schema synthesis',
-    artifact: 'Initial schema · 21 tables',
+    stage: 'Stage 4 Â· Schema synthesis',
+    artifact: 'Initial schema Â· 21 tables',
     model: 'sonnet-4.6',
     inputTokens: 12047,
     outputTokens: 8924,
@@ -56,7 +56,7 @@ const MOCK_CALLS: GenerationCall[] = [
   },
   {
     id: 'gen_7c2f9eb',
-    stage: 'Stage 6 · UI gen',
+    stage: 'Stage 6 Â· UI gen',
     artifact: 'ContactsTable v2',
     model: 'opus-4.7',
     inputTokens: 14782,
@@ -68,7 +68,7 @@ const MOCK_CALLS: GenerationCall[] = [
   },
   {
     id: 'gen_2a14d6e',
-    stage: 'Stage 6 · UI gen',
+    stage: 'Stage 6 Â· UI gen',
     artifact: 'ContactsTable v3',
     model: 'opus-4.7',
     inputTokens: 19204,
@@ -80,7 +80,7 @@ const MOCK_CALLS: GenerationCall[] = [
   },
   {
     id: 'gen_5b29f8d',
-    stage: 'Stage 2 · PRD',
+    stage: 'Stage 2 Â· PRD',
     artifact: 'FR-1 through FR-5 expansion',
     model: 'sonnet-4.6',
     inputTokens: 4287,
@@ -92,7 +92,7 @@ const MOCK_CALLS: GenerationCall[] = [
   },
   {
     id: 'gen_8f37a2e',
-    stage: 'Stage 10 · Maintenance',
+    stage: 'Stage 10 Â· Maintenance',
     artifact: 'Auto-fix CR for SIG-122',
     model: 'sonnet-4.6',
     inputTokens: 3142,
@@ -104,7 +104,7 @@ const MOCK_CALLS: GenerationCall[] = [
   },
   {
     id: 'gen_1e84b6c',
-    stage: 'Stage 3 · Tokens',
+    stage: 'Stage 3 Â· Tokens',
     artifact: 'Brand-derived tokens v2',
     model: 'sonnet-4.6',
     inputTokens: 2147,
@@ -157,7 +157,7 @@ export default function GenerationHistoryPage() {
         <div>
           <h1>Generation History</h1>
           <div className="subtitle">
-            Every AI call · prompts · outputs · cost · approval · 412 generations across all
+            Every AI call Â· prompts Â· outputs Â· cost Â· approval Â· 412 generations across all
             projects
           </div>
         </div>
@@ -167,8 +167,8 @@ export default function GenerationHistoryPage() {
             placeholder="Search generations..."
             style={{
               width: 240,
-              background: 'var(--bg-input)',
-              border: '1px solid var(--border-default)',
+              background: 'var(--background)',
+              border: '1px solid var(--border)',
               cursor: 'text',
               fontFamily: 'inherit',
               fontSize: 12,
@@ -218,7 +218,7 @@ export default function GenerationHistoryPage() {
       <div className="grid grid-cols-4 gap-4 mb-4">
         <div className="rounded-md border bg-card p-4">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-            Total generations · 30d
+            Total generations Â· 30d
           </div>
           <div className="text-[22px] font-semibold tabular-nums">412</div>
           <div className="mt-1 text-[11px] text-muted-foreground">~14/day avg</div>
@@ -228,11 +228,11 @@ export default function GenerationHistoryPage() {
             Approval rate
           </div>
           <div className="text-[22px] font-semibold tabular-nums">87%</div>
-          <div className="mt-1 text-[11px] text-muted-foreground">8% rejected · 5% pending</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">8% rejected Â· 5% pending</div>
         </div>
         <div className="rounded-md border bg-card p-4">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-            Total cost · 30d
+            Total cost Â· 30d
           </div>
           <div className="text-[22px] font-semibold tabular-nums">$23.40</div>
           <div className="mt-1 text-[11px] text-muted-foreground">$0.057 avg per call</div>
@@ -243,7 +243,7 @@ export default function GenerationHistoryPage() {
           </div>
           <div className="text-[22px] font-semibold tabular-nums">1h 47m</div>
           <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
-            −12m vs prior
+            âˆ’12m vs prior
           </div>
         </div>
       </div>
@@ -322,7 +322,7 @@ export default function GenerationHistoryPage() {
             className="mb-3 flex items-center justify-between border-b pb-3"
             style={{ padding: '12px 16px', borderRadius: 0 }}
           >
-            <span className="text-sm font-semibold">Token usage by model · 30d</span>
+            <span className="text-sm font-semibold">Token usage by model Â· 30d</span>
           </div>
           <div
             className="overflow-hidden rounded-md border"

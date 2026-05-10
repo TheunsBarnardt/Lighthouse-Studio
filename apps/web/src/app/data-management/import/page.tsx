@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
@@ -16,7 +16,7 @@ const inputStyle = {
   height: 36,
   padding: '0 12px',
   borderRadius: 4,
-  border: '1px solid var(--border-default)',
+  border: '1px solid var(--border)',
   fontSize: 13,
 };
 
@@ -39,7 +39,7 @@ export default function ImportSchemaPage() {
         setPreview({ name: parsed.name ?? 'Unknown', tables: parsed.tables?.length ?? 0 });
         setParseError(null);
       } catch {
-        setParseError('Invalid JSON — could not parse the file.');
+        setParseError('Invalid JSON â€” could not parse the file.');
         setPreview(null);
       }
     };
@@ -88,7 +88,7 @@ export default function ImportSchemaPage() {
               alignItems: 'center',
               justifyContent: 'center',
               borderRadius: 6,
-              border: '2px dashed var(--border-default)',
+              border: '2px dashed var(--border)',
               padding: '32px 0',
               cursor: 'pointer',
               transition: 'border-color 150ms',
@@ -142,7 +142,7 @@ export default function ImportSchemaPage() {
               width: '100%',
               padding: '8px 12px',
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: 11,
               fontFamily: 'monospace',
               resize: 'vertical',
@@ -186,7 +186,7 @@ export default function ImportSchemaPage() {
             style={{ padding: '10px 16px' }}
           >
             <span style={{ fontWeight: 500, fontSize: 13 }}>{preview.name}</span>
-            <span style={{ marginLeft: 8, fontSize: 13 }}>· {preview.tables} tables</span>
+            <span style={{ marginLeft: 8, fontSize: 13 }}>Â· {preview.tables} tables</span>
           </div>
         )}
 
@@ -195,7 +195,7 @@ export default function ImportSchemaPage() {
           <p
             style={{
               borderRadius: 4,
-              background: 'var(--bg-danger-subtle)',
+              background: 'oklch(0.96 0.04 25)',
               padding: '10px 12px',
               fontSize: 13,
             }}
@@ -209,7 +209,7 @@ export default function ImportSchemaPage() {
           <p
             style={{
               borderRadius: 4,
-              background: 'var(--bg-danger-subtle)',
+              background: 'oklch(0.96 0.04 25)',
               padding: '10px 12px',
               fontSize: 13,
             }}
@@ -235,7 +235,7 @@ export default function ImportSchemaPage() {
             onClick={handleImport}
             disabled={!jsonContent || !!parseError || importSchema.isPending}
           >
-            {importSchema.isPending ? 'Importing…' : 'Import Schema'}
+            {importSchema.isPending ? 'Importingâ€¦' : 'Import Schema'}
           </Button>
         </div>
       </div>

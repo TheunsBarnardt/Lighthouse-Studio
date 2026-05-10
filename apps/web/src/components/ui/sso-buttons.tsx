@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import type { JSX } from 'react';
 
@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { authApi } from '@/lib/auth-client';
 
-// ─── Provider SVG icons ───────────────────────────────────────────────────────
+// â”€â”€â”€ Provider SVG icons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function GoogleIcon() {
   return (
@@ -51,7 +51,7 @@ function MicrosoftIcon() {
   );
 }
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type ProviderId = 'google' | 'github' | 'microsoft';
 
@@ -67,7 +67,7 @@ const ALL_PROVIDERS: ProviderConfig[] = [
   { id: 'microsoft', label: 'Microsoft', Icon: MicrosoftIcon },
 ];
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 interface SsoButtonsProps {
   returnTo?: string;
@@ -90,12 +90,12 @@ export function SsoButtons({ returnTo = '/' }: SsoButtonsProps) {
     })();
   }, []);
 
-  // Still loading — render nothing to avoid layout shift
+  // Still loading â€” render nothing to avoid layout shift
   if (!enabled) return null;
 
   const active = ALL_PROVIDERS.filter((p) => enabled[p.id]);
 
-  // No providers configured — hide the section entirely
+  // No providers configured â€” hide the section entirely
   if (active.length === 0) return null;
 
   async function handleSso(provider: ProviderId) {
@@ -113,7 +113,7 @@ export function SsoButtons({ returnTo = '/' }: SsoButtonsProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16 }}>
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-        <div style={{ flex: 1, height: 1, background: 'var(--border-default)' }} />
+        <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
         <span
           style={{
             padding: '0 8px',
@@ -124,7 +124,7 @@ export function SsoButtons({ returnTo = '/' }: SsoButtonsProps) {
         >
           or continue with
         </span>
-        <div style={{ flex: 1, height: 1, background: 'var(--border-default)' }} />
+        <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
       </div>
 
       <div
@@ -154,7 +154,7 @@ export function SsoButtons({ returnTo = '/' }: SsoButtonsProps) {
 
       {error && (
         <p
-          style={{ textAlign: 'center', fontSize: 12, color: 'var(--fg-danger, #dc2626)' }}
+          style={{ textAlign: 'center', fontSize: 12, color: 'var(--destructive, #dc2626)' }}
           aria-live="polite"
         >
           {error}

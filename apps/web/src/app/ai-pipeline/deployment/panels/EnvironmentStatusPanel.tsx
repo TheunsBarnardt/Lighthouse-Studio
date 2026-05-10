@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { CheckCircle2, Clock, XCircle, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
@@ -74,7 +74,7 @@ export function EnvironmentStatusPanel({ onDeploy: onDeployProp }: Props) {
               )}
               <div
                 style={{
-                  border: '1px solid var(--border-default)',
+                  border: '1px solid var(--border)',
                   borderRadius: 6,
                   padding: 16,
                   display: 'flex',
@@ -104,7 +104,7 @@ export function EnvironmentStatusPanel({ onDeploy: onDeployProp }: Props) {
                   </span>
                   {env.version && (
                     <span style={{ fontSize: 11, marginLeft: 8 }}>
-                      {env.version} · {env.deployedAt}
+                      {env.version} Â· {env.deployedAt}
                     </span>
                   )}
                 </div>
@@ -133,7 +133,7 @@ export function EnvironmentStatusPanel({ onDeploy: onDeployProp }: Props) {
                           setPromoteTarget(environments[i + 1]?.name ?? '');
                         }}
                       >
-                        Promote →
+                        Promote â†’
                       </Button>
                     )}
                   {env.status === 'deployed' && (

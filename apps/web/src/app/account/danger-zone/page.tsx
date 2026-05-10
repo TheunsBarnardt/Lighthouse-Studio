@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -40,7 +40,7 @@ export default function DangerZonePage() {
   return (
     <div
       className="rounded-md border bg-card text-card-foreground p-4"
-      style={{ borderColor: 'color-mix(in srgb, var(--fg-danger) 30%, transparent)' }}
+      style={{ borderColor: 'color-mix(in srgb, var(--destructive) 30%, transparent)' }}
     >
       <div className="mb-3 flex items-center justify-between border-b pb-3">
         <h2 className="text-sm font-semibold">{t('title')}</h2>
@@ -93,7 +93,7 @@ export default function DangerZonePage() {
               marginBottom: '0.75rem',
               padding: '0.75rem 1rem',
               borderRadius: '6px',
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: '0.875rem',
             }}
           >
@@ -115,7 +115,7 @@ export default function DangerZonePage() {
               aria-required
               style={{
                 padding: '0.4375rem 0.75rem',
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
                 borderRadius: '6px',
                 fontSize: '0.875rem',
                 outline: 'none',
@@ -129,8 +129,8 @@ export default function DangerZonePage() {
                 marginTop: '0.5rem',
                 padding: '0.75rem 1rem',
                 borderRadius: '6px',
-                border: '1px solid var(--fg-danger)',
-                background: 'color-mix(in srgb, var(--fg-danger) 8%, transparent)',
+                border: '1px solid var(--destructive)',
+                background: 'color-mix(in srgb, var(--destructive) 8%, transparent)',
                 fontSize: '0.875rem',
               }}
             >
@@ -142,8 +142,8 @@ export default function DangerZonePage() {
             type="button"
             style={{
               marginTop: '1rem',
-              background: canDelete && !deleting ? 'var(--fg-danger)' : undefined,
-              borderColor: canDelete && !deleting ? 'var(--fg-danger)' : undefined,
+              background: canDelete && !deleting ? 'var(--destructive)' : undefined,
+              borderColor: canDelete && !deleting ? 'var(--destructive)' : undefined,
               opacity: !canDelete || deleting ? 0.5 : 1,
               cursor: !canDelete || deleting ? 'not-allowed' : 'pointer',
             }}
@@ -152,7 +152,7 @@ export default function DangerZonePage() {
               void handleDelete();
             }}
           >
-            {deleting ? 'Deleting…' : t('deleteConfirm')}
+            {deleting ? 'Deletingâ€¦' : t('deleteConfirm')}
           </Button>
         </div>
       </div>

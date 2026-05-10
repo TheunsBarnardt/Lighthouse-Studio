@@ -1,4 +1,4 @@
-import type React from 'react';
+﻿import type React from 'react';
 
 import { Button } from '@/components/ui/button';
 
@@ -28,16 +28,16 @@ function AuditRow({
     marginTop: 2,
     background:
       status === 'pass'
-        ? 'var(--bg-success-subtle)'
+        ? 'oklch(0.96 0.04 145)'
         : status === 'fail'
-          ? 'var(--bg-danger-subtle)'
-          : 'var(--bg-warning-subtle)',
+          ? 'oklch(0.96 0.04 25)'
+          : 'oklch(0.97 0.05 75)',
     color:
       status === 'pass'
-        ? 'var(--fg-success)'
+        ? 'oklch(0.40 0.14 145)'
         : status === 'fail'
-          ? 'var(--fg-danger)'
-          : 'var(--fg-warning)',
+          ? 'var(--destructive)'
+          : 'oklch(0.45 0.14 75)',
   };
   return (
     <div
@@ -48,7 +48,7 @@ function AuditRow({
         padding: '12px 0',
       }}
     >
-      <div style={iconStyle}>{status === 'pass' ? '✓' : status === 'fail' ? '✕' : '!'}</div>
+      <div style={iconStyle}>{status === 'pass' ? 'âœ“' : status === 'fail' ? 'âœ•' : '!'}</div>
       <div style={{ flex: 1 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           <div style={{ fontWeight: 500, fontSize: 13 }}>{name}</div>
@@ -102,8 +102,8 @@ const GROUPS = [
       {
         name: 'No SQL string concatenation',
         status: 'warn' as const,
-        count: '1 finding · /api/search ORDER BY clause',
-        desc: 'Identified by SAST · also flagged by DAST as PT-014. Use a whitelist of valid sort columns.',
+        count: '1 finding Â· /api/search ORDER BY clause',
+        desc: 'Identified by SAST Â· also flagged by DAST as PT-014. Use a whitelist of valid sort columns.',
       },
       {
         name: 'No XSS sinks (innerHTML, dangerouslySetInnerHTML)',
@@ -142,9 +142,9 @@ export default function SastPage() {
     <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>SAST · Static analysis</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>SAST Â· Static analysis</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            CodeQL + Semgrep + custom rules · Runs on every commit · Last run 12 minutes ago
+            CodeQL + Semgrep + custom rules Â· Runs on every commit Â· Last run 12 minutes ago
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -195,13 +195,13 @@ export default function SastPage() {
         className="rounded-md border bg-card text-card-foreground p-4"
         style={{
           marginBottom: 16,
-          background: 'var(--bg-info-subtle)',
-          borderColor: 'var(--accent-primary)',
+          background: 'oklch(0.96 0.04 230)',
+          borderColor: 'var(--primary)',
         }}
       >
         <div style={{ fontSize: 13 }}>
           <strong>Defense in depth.</strong> SAST analyses your source code without running it; DAST
-          attacks the running app. Findings often correlate — the SQL injection found here (
+          attacks the running app. Findings often correlate â€” the SQL injection found here (
           <span className="font-mono text-sm">/api/search</span>) is also flagged by the Pentest
           advisor as PT-014.
         </div>
@@ -227,7 +227,7 @@ export default function SastPage() {
 
       <div className="rounded-md border bg-card text-card-foreground p-4">
         <div className="mb-3 flex items-center justify-between border-b pb-3">
-          <div className="text-sm font-semibold">Findings · 30 days</div>
+          <div className="text-sm font-semibold">Findings Â· 30 days</div>
         </div>
         <div
           style={{
@@ -245,7 +245,7 @@ export default function SastPage() {
               style={{
                 flex: 1,
                 height: `${String(v * 22)}%`,
-                background: v >= 3 ? 'var(--fg-warning)' : 'var(--fg-success)',
+                background: v >= 3 ? 'oklch(0.45 0.14 75)' : 'oklch(0.40 0.14 145)',
                 borderRadius: '2px 2px 0 0',
                 opacity: 0.85,
               }}
@@ -260,8 +260,8 @@ export default function SastPage() {
             marginTop: 8,
           }}
         >
-          <span>30 days ago · 3 open</span>
-          <span>Today · 1 open</span>
+          <span>30 days ago Â· 3 open</span>
+          <span>Today Â· 1 open</span>
         </div>
       </div>
     </div>

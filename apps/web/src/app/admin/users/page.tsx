@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
@@ -58,7 +58,7 @@ export default function AdminUsersPage() {
         >
           <input
             type="search"
-            placeholder="Search by name or email…"
+            placeholder="Search by name or emailâ€¦"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
@@ -67,7 +67,7 @@ export default function AdminUsersPage() {
             style={{
               width: '100%',
               padding: '0.4375rem 0.75rem',
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: '6px',
               fontSize: '0.875rem',
               outline: 'none',
@@ -84,7 +84,7 @@ export default function AdminUsersPage() {
               }}
               aria-live="polite"
             >
-              Loading…
+              Loadingâ€¦
             </p>
           )}
           {!loading && users.length === 0 && (

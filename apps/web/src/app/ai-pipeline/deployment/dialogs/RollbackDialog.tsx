@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
@@ -52,8 +52,8 @@ export function RollbackDialog({ deploymentId: _deploymentId, onClose }: Props) 
               gap: 8,
               padding: 12,
               borderRadius: 6,
-              border: '1px solid var(--fg-warning)',
-              background: 'color-mix(in srgb, var(--fg-warning) 8%, transparent)',
+              border: '1px solid oklch(0.45 0.14 75)',
+              background: 'color-mix(in srgb, oklch(0.45 0.14 75) 8%, transparent)',
             }}
           >
             <AlertTriangle
@@ -76,9 +76,9 @@ export function RollbackDialog({ deploymentId: _deploymentId, onClose }: Props) 
                   padding: 0,
                 }}
               >
-                <li>• UI bundle to previous version</li>
-                <li>• Server functions to previous version</li>
-                <li>• Schema migrations (if reversible)</li>
+                <li>â€¢ UI bundle to previous version</li>
+                <li>â€¢ Server functions to previous version</li>
+                <li>â€¢ Schema migrations (if reversible)</li>
               </ul>
             </div>
           </div>
@@ -99,7 +99,7 @@ export function RollbackDialog({ deploymentId: _deploymentId, onClose }: Props) 
                 width: '100%',
                 padding: '6px 8px',
                 borderRadius: 4,
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
                 fontSize: 12,
                 resize: 'none',
                 boxSizing: 'border-box',
@@ -125,9 +125,9 @@ export function RollbackDialog({ deploymentId: _deploymentId, onClose }: Props) 
               void handleRollback();
             }}
             disabled={isRollingBack}
-            style={{ background: 'var(--fg-danger)', borderColor: 'var(--fg-danger)' }}
+            style={{ background: 'var(--destructive)', borderColor: 'var(--destructive)' }}
           >
-            {isRollingBack ? 'Rolling back…' : 'Initiate Rollback'}
+            {isRollingBack ? 'Rolling backâ€¦' : 'Initiate Rollback'}
           </Button>
         </div>
       </div>

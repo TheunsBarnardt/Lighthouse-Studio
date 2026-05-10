@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -83,9 +83,9 @@ const REQUIREMENTS: Requirement[] = [
 ];
 
 function sectionDotColor(status: SectionStatus): string {
-  if (status === 'approved') return 'var(--fg-success)';
-  if (status === 'in_review') return 'var(--fg-warning)';
-  return 'var(--border-emphasis)';
+  if (status === 'approved') return 'oklch(0.40 0.14 145)';
+  if (status === 'in_review') return 'oklch(0.45 0.14 75)';
+  return 'var(--border)';
 }
 
 function priorityBadge(priority: Requirement['priority']) {
@@ -127,7 +127,7 @@ export default function PrdGenerationPage() {
         {/* Left: section list */}
         <div
           style={{
-            borderRight: '1px solid var(--border-default)',
+            borderRight: '1px solid var(--border)',
             overflowY: 'auto',
             padding: 12,
           }}
@@ -146,10 +146,10 @@ export default function PrdGenerationPage() {
                 width: '100%',
                 textAlign: 'left',
                 padding: '6px 10px',
-                borderRadius: 'var(--shell-radius-sm)',
+                borderRadius: '4px',
                 marginBottom: 2,
-                background: i === activeSection ? 'var(--bg-selected)' : 'transparent',
-                color: i === activeSection ? 'var(--accent-primary)' : 'var(--fg-secondary)',
+                background: i === activeSection ? 'var(--accent)' : 'transparent',
+                color: i === activeSection ? 'var(--primary)' : 'var(--muted-foreground)',
                 border: 'none',
                 cursor: 'pointer',
                 fontFamily: 'inherit',
@@ -176,7 +176,7 @@ export default function PrdGenerationPage() {
           <div className="mb-5 flex items-start justify-between gap-4" style={{ marginBottom: 16 }}>
             <div>
               <h1 style={{ fontSize: 18 }}>5. Functional Requirements</h1>
-              <div className="subtitle">12 requirements · 3 traced to intent · In Review</div>
+              <div className="subtitle">12 requirements Â· 3 traced to intent Â· In Review</div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <Button variant="outline" size="sm" type="button">
@@ -231,8 +231,8 @@ export default function PrdGenerationPage() {
                     <div
                       key={i}
                       style={{
-                        background: 'var(--bg-surface-3)',
-                        borderRadius: 'var(--shell-radius-sm)',
+                        background: 'var(--muted)',
+                        borderRadius: '4px',
                         padding: '8px 12px',
                         fontSize: 11,
                         fontFamily: 'monospace',
@@ -261,7 +261,7 @@ export default function PrdGenerationPage() {
         {/* Right: inspector */}
         <div
           style={{
-            borderLeft: '1px solid var(--border-default)',
+            borderLeft: '1px solid var(--border)',
             overflowY: 'auto',
             padding: 16,
           }}
@@ -322,7 +322,7 @@ export default function PrdGenerationPage() {
                   </div>
                   {approver.approved ? (
                     <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                      ✓
+                      âœ“
                     </span>
                   ) : (
                     <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
@@ -379,8 +379,8 @@ export default function PrdGenerationPage() {
               QUALITY SIGNALS
             </div>
             {[
-              ['Coverage of intent', '100%', 'var(--fg-success)'],
-              ['Cross-section consistency', 'No conflicts', 'var(--fg-success)'],
+              ['Coverage of intent', '100%', 'oklch(0.40 0.14 145)'],
+              ['Cross-section consistency', 'No conflicts', 'oklch(0.40 0.14 145)'],
             ].map(([key, val, color]) => (
               <div
                 key={key}

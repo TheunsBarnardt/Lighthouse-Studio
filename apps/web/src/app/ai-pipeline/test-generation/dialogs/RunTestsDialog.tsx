@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -83,7 +83,7 @@ export function RunTestsDialog({ onClose: onCloseProp, onStarted: onStartedProp 
                   gap: 12,
                   padding: 12,
                   borderRadius: 6,
-                  border: '1px solid var(--border-default)',
+                  border: '1px solid var(--border)',
                   cursor: 'pointer',
                 }}
                 onClick={() => {
@@ -132,7 +132,7 @@ export function RunTestsDialog({ onClose: onCloseProp, onStarted: onStartedProp 
                   height: 28,
                   padding: '0 8px',
                   borderRadius: 4,
-                  border: '1px solid var(--border-default)',
+                  border: '1px solid var(--border)',
                   fontSize: 12,
                 }}
               />

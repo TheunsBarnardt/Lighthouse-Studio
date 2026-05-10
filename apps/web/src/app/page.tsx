@@ -2,11 +2,8 @@
 
 import Link from 'next/link';
 
+import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/auth-context';
-
-// ---------------------------------------------------------------------------
-// Types & static data
-// ---------------------------------------------------------------------------
 
 interface Project {
   id: string;
@@ -37,11 +34,26 @@ const PROJECTS: Project[] = [
 ];
 
 const STATUS_BADGE: Record<Project['status'], { cls: string; label: string }> = {
-  active: { cls: 'pg-badge pg-badge-info', label: 'In Progress' },
-  live: { cls: 'pg-badge pg-badge-success', label: 'Live' },
-  in_review: { cls: 'pg-badge pg-badge-warning', label: 'In Review' },
-  pending: { cls: 'pg-badge pg-badge-default', label: 'Pending' },
-  failed: { cls: 'pg-badge pg-badge-danger', label: 'Failed' },
+  active: {
+    cls: 'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400',
+    label: 'In Progress',
+  },
+  live: {
+    cls: 'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+    label: 'Live',
+  },
+  in_review: {
+    cls: 'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400',
+    label: 'In Review',
+  },
+  pending: {
+    cls: 'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground',
+    label: 'Pending',
+  },
+  failed: {
+    cls: 'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-destructive/10 text-destructive',
+    label: 'Failed',
+  },
 };
 
 const RECENT_ACTIVITY = [
@@ -71,106 +83,84 @@ const QUICK_START = [
   },
 ];
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
-
 export default function HomePage() {
   const { user } = useAuth();
   const firstName = user?.displayName?.split(' ')[0] ?? null;
 
   return (
-    <div className="pg-page" style={{ maxWidth: 1280 }}>
-      {/* Page header */}
-      <div className="pg-page-header">
+    <div className="max-w-[1280px] mx-auto p-6">
+      <div className="flex items-start justify-between mb-5 gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--fg-primary)', margin: 0 }}>
+          <h1 className="text-xl font-semibold text-foreground m-0">
             Welcome back{firstName ? `, ${firstName}` : ''}
           </h1>
-          <div style={{ fontSize: 13, color: 'var(--fg-secondary)', marginTop: 4 }}>
+          <div className="text-[13px] text-muted-foreground mt-1">
             Workspace: Acme Corporation · Database: PostgreSQL
           </div>
         </div>
-        <div className="pg-page-header-actions">
+        <div className="flex gap-2 items-center flex-shrink-0">
           <Link href="/workspaces">
-            <button className="pg-btn pg-btn-secondary pg-btn-sm">Switch workspace</button>
+            <Button variant="outline" size="sm">Switch workspace</Button>
           </Link>
           <Link href="/ai-pipeline/intent-capture">
-            <button className="pg-btn pg-btn-primary pg-btn-sm">+ New project</button>
+            <Button size="sm">+ New project</Button>
           </Link>
         </div>
       </div>
 
-      {/* Stats row */}
-      <div className="pg-grid pg-grid-4" style={{ marginBottom: 24 }}>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Active projects</div>
-          <div className="pg-stat-value">{PROJECTS.length}</div>
-          <div className="pg-stat-delta pg-stat-up">+1 this month</div>
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="bg-card border border-border rounded-md px-4 py-3.5">
+          <div className="text-[11px] uppercase tracking-[0.04em] text-muted-foreground mb-1.5 font-semibold">Active projects</div>
+          <div className="text-[22px] font-semibold tabular-nums text-foreground">{PROJECTS.length}</div>
+          <div className="text-[11px] mt-1 text-emerald-600 dark:text-emerald-400">+1 this month</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">Database tables</div>
-          <div className="pg-stat-value">21</div>
-          <div className="pg-stat-delta pg-stat-up">+4 this week</div>
+        <div className="bg-card border border-border rounded-md px-4 py-3.5">
+          <div className="text-[11px] uppercase tracking-[0.04em] text-muted-foreground mb-1.5 font-semibold">Database tables</div>
+          <div className="text-[22px] font-semibold tabular-nums text-foreground">21</div>
+          <div className="text-[11px] mt-1 text-emerald-600 dark:text-emerald-400">+4 this week</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">API requests · 24h</div>
-          <div className="pg-stat-value">142,503</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            p95 87ms
-          </div>
+        <div className="bg-card border border-border rounded-md px-4 py-3.5">
+          <div className="text-[11px] uppercase tracking-[0.04em] text-muted-foreground mb-1.5 font-semibold">API requests · 24h</div>
+          <div className="text-[22px] font-semibold tabular-nums text-foreground">142,503</div>
+          <div className="text-[11px] mt-1 text-muted-foreground">p95 87ms</div>
         </div>
-        <div className="pg-stat-card">
-          <div className="pg-stat-label">AI spend · month</div>
-          <div className="pg-stat-value">$23.40</div>
-          <div className="pg-stat-delta" style={{ color: 'var(--fg-secondary)' }}>
-            of $50 budget
-          </div>
+        <div className="bg-card border border-border rounded-md px-4 py-3.5">
+          <div className="text-[11px] uppercase tracking-[0.04em] text-muted-foreground mb-1.5 font-semibold">AI spend · month</div>
+          <div className="text-[22px] font-semibold tabular-nums text-foreground">$23.40</div>
+          <div className="text-[11px] mt-1 text-muted-foreground">of $50 budget</div>
         </div>
       </div>
 
-      {/* Recent projects + Activity */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 16 }}>
-        {/* Recent projects */}
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Recent projects</div>
+      <div className="grid grid-cols-[2fr_1fr] gap-4 mb-4">
+        <div className="bg-card border border-border rounded-md p-4">
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
+            <div className="font-semibold text-sm text-foreground">Recent projects</div>
             <Link href="/ai-pipeline">
-              <button className="pg-btn pg-btn-ghost pg-btn-sm">View all</button>
+              <Button variant="ghost" size="sm">View all</Button>
             </Link>
           </div>
-          <div className="pg-table-wrap">
-            <table className="pg-data-table">
+          <div className="bg-card border border-border rounded-md overflow-hidden">
+            <table className="w-full border-collapse">
               <tbody>
                 {PROJECTS.map((p) => {
                   const s = STATUS_BADGE[p.status];
                   return (
-                    <tr key={p.id} style={{ cursor: 'pointer' }}>
-                      <td>
+                    <tr key={p.id} className="cursor-pointer hover:bg-muted border-b border-border last:border-0">
+                      <td className="h-10 px-3 align-middle">
                         <Link
                           href={`/ai-pipeline/${p.stage}`}
-                          style={{
-                            fontWeight: 600,
-                            color: 'var(--fg-primary)',
-                            textDecoration: 'none',
-                          }}
+                          className="font-semibold text-foreground no-underline"
                         >
                           {p.name}
                         </Link>
                       </td>
-                      <td>
+                      <td className="h-10 px-3 align-middle">
                         <span className={s.cls}>{s.label}</span>
                       </td>
-                      <td
-                        className="pg-tabular"
-                        style={{ fontSize: 12, color: 'var(--fg-secondary)' }}
-                      >
+                      <td className="h-10 px-3 align-middle tabular-nums text-xs text-muted-foreground">
                         {p.created}
                       </td>
-                      <td
-                        className="pg-tabular"
-                        style={{ fontSize: 12, color: 'var(--fg-secondary)' }}
-                      >
+                      <td className="h-10 px-3 align-middle tabular-nums text-xs text-muted-foreground">
                         ${p.cost.toFixed(2)}
                       </td>
                     </tr>
@@ -181,44 +171,36 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Recent activity */}
-        <div className="pg-card">
-          <div className="pg-card-header">
-            <div className="pg-card-title">Recent activity</div>
+        <div className="bg-card border border-border rounded-md p-4">
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
+            <div className="font-semibold text-sm text-foreground">Recent activity</div>
           </div>
-          <div style={{ padding: '0 16px 16px', fontSize: 13 }}>
+          <div className="px-4 pb-4 text-[13px]">
             {RECENT_ACTIVITY.map((a, i) => (
-              <div key={i} style={{ marginBottom: 16 }}>
-                <div style={{ fontWeight: 500, color: 'var(--fg-primary)' }}>{a.title}</div>
-                <div style={{ fontSize: 11, color: 'var(--fg-tertiary)', marginTop: 2 }}>
-                  {a.detail}
-                </div>
+              <div key={i} className="mb-4">
+                <div className="font-medium text-foreground">{a.title}</div>
+                <div className="text-[11px] text-muted-foreground mt-0.5">{a.detail}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Quick start */}
-      <div className="pg-card">
-        <div className="pg-card-header">
-          <div className="pg-card-title">Quick start</div>
+      <div className="bg-card border border-border rounded-md p-4">
+        <div className="flex items-center justify-between mb-3 pb-3 border-b border-border">
+          <div className="font-semibold text-sm text-foreground">Quick start</div>
         </div>
-        <div className="pg-grid pg-grid-3" style={{ padding: '0 16px 16px' }}>
+        <div className="grid grid-cols-3 gap-4 px-4 pb-4">
           {QUICK_START.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              style={{ textDecoration: 'none', color: 'inherit' }}
+              className="no-underline text-inherit"
             >
-              <div className="pg-card" style={{ cursor: 'pointer' }}>
-                <div style={{ fontSize: 18, color: 'var(--accent-primary)' }}>{item.icon}</div>
-                <div style={{ fontWeight: 600, marginTop: 8, color: 'var(--fg-primary)' }}>
-                  {item.label}
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--fg-secondary)', marginTop: 2 }}>
-                  {item.description}
-                </div>
+              <div className="bg-card border border-border rounded-md p-4 cursor-pointer">
+                <div className="text-lg text-primary">{item.icon}</div>
+                <div className="font-semibold mt-2 text-foreground">{item.label}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>
               </div>
             </Link>
           ))}

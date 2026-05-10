@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -40,7 +40,7 @@ const ENVIRONMENTS: Environment[] = [
     version: 'v0.1.3',
     updated: '5 min ago',
     url: 'dev.acme.example.com',
-    author: 'Tom Müller',
+    author: 'Tom MÃ¼ller',
     commit: 'a3f291c',
   },
   {
@@ -66,8 +66,8 @@ const ENVIRONMENTS: Environment[] = [
 const DEPLOY_STEPS: DeployStep[] = [
   { name: 'Pre-flight check', status: 'complete', meta: '8s' },
   { name: 'Run tests', status: 'complete', meta: '2m 14s' },
-  { name: 'Apply schema migrations', status: 'complete', meta: '1.2s · 3 applied' },
-  { name: 'Deploy server functions', status: 'active', meta: 'In progress · 4 of 7' },
+  { name: 'Apply schema migrations', status: 'complete', meta: '1.2s Â· 3 applied' },
+  { name: 'Deploy server functions', status: 'active', meta: 'In progress Â· 4 of 7' },
   { name: 'Deploy UI bundle', status: 'pending' },
   { name: 'Health check', status: 'pending' },
   { name: 'Promote', status: 'pending' },
@@ -79,7 +79,7 @@ const HISTORY: DeployHistoryItem[] = [
     env: 'dev',
     sha: 'a3f291c',
     title: 'Fix Kanban drag race',
-    author: 'Tom Müller',
+    author: 'Tom MÃ¼ller',
     when: '5 min ago',
     status: 'success',
     duration: '47s',
@@ -161,9 +161,9 @@ export default function DeploymentPage() {
         <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1400 }}>
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
-              <h1 style={{ fontSize: 18 }}>Deployment · Continuous</h1>
+              <h1 style={{ fontSize: 18 }}>Deployment Â· Continuous</h1>
               <div className="subtitle">
-                Multi-environment promotion · 47 deployments to date · 99.2% success rate
+                Multi-environment promotion Â· 47 deployments to date Â· 99.2% success rate
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -224,7 +224,7 @@ export default function DeploymentPage() {
                   <div>
                     <div>{env.updated}</div>
                     <div>
-                      {env.author} · <span style={{ fontFamily: 'monospace' }}>{env.commit}</span>
+                      {env.author} Â· <span style={{ fontFamily: 'monospace' }}>{env.commit}</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 4 }}>
@@ -248,7 +248,7 @@ export default function DeploymentPage() {
               <div className="mb-3 flex items-center justify-between border-b pb-3">
                 <span className="text-sm font-semibold">In-flight: Production deployment</span>
                 <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                  In progress · 47%
+                  In progress Â· 47%
                 </span>
               </div>
               {/* Progress bar */}
@@ -263,7 +263,7 @@ export default function DeploymentPage() {
                 <div
                   style={{
                     height: '100%',
-                    background: 'var(--accent-primary)',
+                    background: 'var(--primary)',
                     width: '47%',
                     borderRadius: 3,
                   }}
@@ -275,11 +275,11 @@ export default function DeploymentPage() {
                   key={step.name}
                   style={{
                     padding: '10px 12px',
-                    borderLeft: `2px solid ${step.status === 'complete' ? 'var(--fg-success)' : step.status === 'active' ? 'var(--accent-primary)' : 'var(--border-default)'}`,
+                    borderLeft: `2px solid ${step.status === 'complete' ? 'oklch(0.40 0.14 145)' : step.status === 'active' ? 'var(--primary)' : 'var(--border)'}`,
                     marginBottom: 8,
                     paddingLeft: 16,
-                    background: step.status === 'active' ? 'var(--bg-info-subtle)' : 'transparent',
-                    borderRadius: '0 var(--shell-radius-sm) var(--shell-radius-sm) 0',
+                    background: step.status === 'active' ? 'oklch(0.96 0.04 230)' : 'transparent',
+                    borderRadius: '0 4px 4px 0',
                   }}
                 >
                   <div
@@ -292,8 +292,8 @@ export default function DeploymentPage() {
                     }}
                   >
                     <span>{step.name}</span>
-                    {step.status === 'complete' && <span style={{ fontSize: 12 }}>✓</span>}
-                    {step.status === 'active' && <span style={{ fontSize: 12 }}>●</span>}
+                    {step.status === 'complete' && <span style={{ fontSize: 12 }}>âœ“</span>}
+                    {step.status === 'active' && <span style={{ fontSize: 12 }}>â—</span>}
                   </div>
                   {step.meta && (
                     <div
@@ -319,7 +319,7 @@ export default function DeploymentPage() {
                       setAborted(true);
                     }}
                     className=""
-                    style={{ background: 'var(--fg-danger)', color: 'white', border: 'none' }}
+                    style={{ background: 'var(--destructive)', color: 'white', border: 'none' }}
                   >
                     Abort & rollback
                   </Button>
@@ -329,13 +329,13 @@ export default function DeploymentPage() {
                 <div
                   style={{
                     padding: 12,
-                    background: 'var(--bg-danger-subtle)',
-                    borderRadius: 'var(--shell-radius-sm)',
+                    background: 'oklch(0.96 0.04 25)',
+                    borderRadius: '4px',
                     fontSize: 13,
                     marginTop: 12,
                   }}
                 >
-                  Deployment aborted. Rolling back…
+                  Deployment aborted. Rolling backâ€¦
                 </div>
               )}
             </div>
@@ -365,7 +365,7 @@ export default function DeploymentPage() {
                       <div style={{ fontSize: 11 }}>{approver.role}</div>
                     </div>
                     <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                      ✓ Approved
+                      âœ“ Approved
                     </span>
                   </div>
                 ))}
@@ -374,13 +374,13 @@ export default function DeploymentPage() {
               {/* Health */}
               <div className="rounded-md border bg-card text-card-foreground p-4">
                 <div className="mb-3 flex items-center justify-between border-b pb-3">
-                  <span className="text-sm font-semibold">Health · last 7d</span>
+                  <span className="text-sm font-semibold">Health Â· last 7d</span>
                 </div>
                 {[
-                  ['Uptime', '99.97%', 'var(--fg-success)'],
-                  ['Failed deploys', '1 of 47', 'var(--fg-primary)'],
-                  ['Avg deploy time', '2m 11s', 'var(--fg-primary)'],
-                  ['Rollbacks', '0', 'var(--fg-primary)'],
+                  ['Uptime', '99.97%', 'oklch(0.40 0.14 145)'],
+                  ['Failed deploys', '1 of 47', 'var(--foreground)'],
+                  ['Avg deploy time', '2m 11s', 'var(--foreground)'],
+                  ['Rollbacks', '0', 'var(--foreground)'],
                 ].map(([k, v, c]) => (
                   <div
                     key={k}
@@ -483,12 +483,12 @@ export default function DeploymentPage() {
           {/* Frequency chart */}
           <div className="rounded-md border bg-card text-card-foreground p-4">
             <div className="mb-3 flex items-center justify-between border-b pb-3">
-              <span className="text-sm font-semibold">Deployment frequency · 30 days</span>
+              <span className="text-sm font-semibold">Deployment frequency Â· 30 days</span>
             </div>
             <div
               style={{
                 height: 100,
-                borderRadius: 'var(--shell-radius-sm)',
+                borderRadius: '4px',
                 padding: 12,
                 display: 'flex',
                 alignItems: 'flex-end',
@@ -501,7 +501,7 @@ export default function DeploymentPage() {
                   style={{
                     flex: 1,
                     height: `${String(v * 14)}%`,
-                    background: 'var(--accent-primary)',
+                    background: 'var(--primary)',
                     borderRadius: '2px 2px 0 0',
                     opacity: 0.5 + v / 12,
                   }}
@@ -518,7 +518,7 @@ export default function DeploymentPage() {
               }}
             >
               <span>30 days ago</span>
-              <span>Today · ~3.4/day avg</span>
+              <span>Today Â· ~3.4/day avg</span>
             </div>
           </div>
         </div>

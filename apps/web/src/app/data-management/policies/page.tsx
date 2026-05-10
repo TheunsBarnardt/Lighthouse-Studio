@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 export default function DatabasePoliciesPage() {
   return (
@@ -23,12 +23,12 @@ export default function DatabasePoliciesPage() {
           padding: '10px 14px',
           borderRadius: 6,
           border: '1px solid oklch(0.45 0.14 75 / 0.4)',
-          background: 'var(--bg-warning-subtle)',
+          background: 'oklch(0.97 0.05 75)',
           marginBottom: 24,
           fontSize: 13,
         }}
       >
-        <span style={{ fontSize: 15, flexShrink: 0, marginTop: 1 }}>⚠</span>
+        <span style={{ fontSize: 15, flexShrink: 0, marginTop: 1 }}>âš </span>
         <p style={{ margin: 0 }}>
           <strong>22 tables have RLS disabled.</strong> Service-layer authorization is in place;
           DB-level RLS is recommended as defense in depth. Enable it per-table to restrict direct
@@ -41,7 +41,7 @@ export default function DatabasePoliciesPage() {
           textAlign: 'center',
           padding: '48px 24px',
           fontSize: 13,
-          border: '1px dashed var(--border-default)',
+          border: '1px dashed var(--border)',
           borderRadius: 8,
         }}
       >

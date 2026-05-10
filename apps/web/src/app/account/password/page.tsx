@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -58,7 +58,7 @@ export default function PasswordPage() {
 
   const fieldStyle = {
     padding: '0.4375rem 0.75rem',
-    border: '1px solid var(--border-default)',
+    border: '1px solid var(--border)',
     borderRadius: '6px',
     fontSize: '0.875rem',
     outline: 'none',
@@ -143,8 +143,8 @@ export default function PasswordPage() {
               style={{
                 padding: '0.75rem 1rem',
                 borderRadius: '6px',
-                border: '1px solid var(--fg-danger)',
-                background: 'color-mix(in srgb, var(--fg-danger) 8%, transparent)',
+                border: '1px solid var(--destructive)',
+                background: 'color-mix(in srgb, var(--destructive) 8%, transparent)',
                 fontSize: '0.875rem',
               }}
             >
@@ -156,8 +156,8 @@ export default function PasswordPage() {
               style={{
                 padding: '0.75rem 1rem',
                 borderRadius: '6px',
-                border: '1px solid var(--fg-success)',
-                background: 'color-mix(in srgb, var(--fg-success) 8%, transparent)',
+                border: '1px solid oklch(0.40 0.14 145)',
+                background: 'color-mix(in srgb, oklch(0.40 0.14 145) 8%, transparent)',
                 fontSize: '0.875rem',
               }}
             >

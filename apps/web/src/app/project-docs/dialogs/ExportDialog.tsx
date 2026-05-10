@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Loader2, Download, CheckCircle2, X } from 'lucide-react';
 import { useState } from 'react';
@@ -13,7 +13,7 @@ const inputStyle: React.CSSProperties = {
   height: 36,
   padding: '0 12px',
   borderRadius: 4,
-  border: '1px solid var(--border-default)',
+  border: '1px solid var(--border)',
   fontSize: 13,
   fontFamily: 'var(--font-mono, monospace)',
   width: '100%',
@@ -121,7 +121,7 @@ export function ExportDialog({ onClose }: Props) {
               <div
                 style={{
                   borderRadius: 6,
-                  background: 'var(--border-default)',
+                  background: 'var(--border)',
                   padding: 12,
                   fontSize: 12,
                 }}
@@ -196,7 +196,7 @@ export function ExportDialog({ onClose }: Props) {
             />
             <div style={{ textAlign: 'center' }}>
               <p style={{ fontWeight: 500, margin: 0, marginBottom: 4 }}>
-                Generating documentation site…
+                Generating documentation siteâ€¦
               </p>
               <p style={{ fontSize: 13, margin: 0 }}>
                 Building MDX pages, search index, and scaffold
@@ -231,7 +231,7 @@ export function ExportDialog({ onClose }: Props) {
                   <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground font-mono text-sm">
                     {version}
                   </span>
-                  {' · '}~18 MB · fumadocs + Next.js
+                  {' Â· '}~18 MB Â· fumadocs + Next.js
                 </p>
               </div>
             </div>

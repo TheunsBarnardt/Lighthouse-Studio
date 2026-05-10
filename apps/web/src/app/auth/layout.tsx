@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+﻿import type { ReactNode } from 'react';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -9,13 +9,13 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'var(--bg-canvas)',
+        background: 'var(--background)',
         padding: '48px 16px',
       }}
     >
       <div style={{ width: '100%', maxWidth: 380 }}>
         <div style={{ marginBottom: 32, display: 'flex', justifyContent: 'center' }}>
-          <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--accent-primary)' }}>
+          <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--primary)' }}>
             Lighthouse Studio
           </span>
         </div>

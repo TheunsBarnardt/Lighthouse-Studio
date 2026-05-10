@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -125,10 +125,10 @@ export async function updateDealStage(input: Input, ctx: FunctionContext) {
 
 function statusDot(status: FnStatus) {
   const colors: Record<FnStatus, string> = {
-    approved: 'var(--fg-success)',
-    validated: 'var(--accent-primary)',
-    draft: 'var(--border-emphasis)',
-    rejected: 'var(--fg-danger)',
+    approved: 'oklch(0.40 0.14 145)',
+    validated: 'var(--primary)',
+    draft: 'var(--border)',
+    rejected: 'var(--destructive)',
   };
   return (
     <span
@@ -180,13 +180,13 @@ export default function CodeGenerationPage() {
         {/* Left: function list */}
         <div
           style={{
-            borderRight: '1px solid var(--border-default)',
+            borderRight: '1px solid var(--border)',
             overflowY: 'auto',
             padding: 12,
           }}
         >
           <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>Server functions</div>
-          <div style={{ fontSize: 11, marginBottom: 12 }}>7 functions · 2 integrations</div>
+          <div style={{ fontSize: 11, marginBottom: 12 }}>7 functions Â· 2 integrations</div>
           {FUNCTION_GROUPS.map((group) => (
             <div key={group.label}>
               <div
@@ -215,11 +215,11 @@ export default function CodeGenerationPage() {
                       width: '100%',
                       textAlign: 'left',
                       padding: '4px 8px',
-                      borderRadius: 'var(--shell-radius-sm)',
+                      borderRadius: '4px',
                       marginBottom: 1,
-                      background: fn.id === selectedFn.id ? 'var(--bg-selected)' : 'transparent',
+                      background: fn.id === selectedFn.id ? 'var(--accent)' : 'transparent',
                       color:
-                        fn.id === selectedFn.id ? 'var(--accent-primary)' : 'var(--fg-secondary)',
+                        fn.id === selectedFn.id ? 'var(--primary)' : 'var(--muted-foreground)',
                       border: 'none',
                       cursor: 'pointer',
                       fontFamily: 'monospace',
@@ -252,7 +252,7 @@ export default function CodeGenerationPage() {
               <div
                 style={{
                   height: '100%',
-                  background: 'var(--fg-success)',
+                  background: 'oklch(0.40 0.14 145)',
                   width: `${String((approvedCount / totalFns) * 100)}%`,
                 }}
               />
@@ -285,7 +285,7 @@ export default function CodeGenerationPage() {
               <div>
                 <h1 style={{ fontSize: 18, fontFamily: 'monospace' }}>{selectedFn.name}</h1>
                 <div style={{ fontSize: 12 }}>
-                  {selectedFn.trigger.toUpperCase()} ·{' '}
+                  {selectedFn.trigger.toUpperCase()} Â·{' '}
                   {selectedFn.trigger === 'http'
                     ? 'POST /deals/:id/stage'
                     : selectedFn.trigger === 'schedule'
@@ -293,7 +293,7 @@ export default function CodeGenerationPage() {
                       : selectedFn.trigger === 'event'
                         ? 'on deal.stage.changed'
                         : 'Outlook Calendar API'}{' '}
-                  · Sandboxed
+                  Â· Sandboxed
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
@@ -306,7 +306,7 @@ export default function CodeGenerationPage() {
                   onClick={handleApprove}
                   disabled={approvedSet.has(selectedFn.id)}
                 >
-                  {approvedSet.has(selectedFn.id) ? '✓ Approved' : 'Approve'}
+                  {approvedSet.has(selectedFn.id) ? 'âœ“ Approved' : 'Approve'}
                 </Button>
               </div>
             </div>
@@ -324,10 +324,10 @@ export default function CodeGenerationPage() {
                     background: 'transparent',
                     cursor: 'pointer',
                     fontFamily: 'inherit',
-                    color: activeTab === tab ? 'var(--accent-primary)' : 'var(--fg-secondary)',
+                    color: activeTab === tab ? 'var(--primary)' : 'var(--muted-foreground)',
                     borderBottom:
                       activeTab === tab
-                        ? '2px solid var(--accent-primary)'
+                        ? '2px solid var(--primary)'
                         : '2px solid transparent',
                     fontWeight: activeTab === tab ? 500 : 400,
                   }}
@@ -351,8 +351,8 @@ export default function CodeGenerationPage() {
                   lineHeight: '20px',
                   margin: 0,
                   padding: 16,
-                  borderRadius: 'var(--shell-radius-md)',
-                  border: '1px solid var(--border-default)',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border)',
                 }}
               >
                 {FUNCTION_CODE}
@@ -366,8 +366,8 @@ export default function CodeGenerationPage() {
                   lineHeight: '20px',
                   margin: 0,
                   padding: 16,
-                  borderRadius: 'var(--shell-radius-md)',
-                  border: '1px solid var(--border-default)',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border)',
                 }}
               >
                 {`{
@@ -386,13 +386,13 @@ export default function CodeGenerationPage() {
                   <span className="text-sm font-semibold">Static analysis results</span>
                 </div>
                 {[
-                  ['eval / Function()', '✓ None', true],
-                  ['child_process', '✓ None', true],
-                  ['fs/net direct', '✓ None', true],
-                  ['Sandbox escape patterns', '✓ None', true],
+                  ['eval / Function()', 'âœ“ None', true],
+                  ['child_process', 'âœ“ None', true],
+                  ['fs/net direct', 'âœ“ None', true],
+                  ['Sandbox escape patterns', 'âœ“ None', true],
                   [
                     'Network allowlist violations',
-                    selectedFn.staticAnalysis ? '✓ None' : '⚠ Detected',
+                    selectedFn.staticAnalysis ? 'âœ“ None' : 'âš  Detected',
                     selectedFn.staticAnalysis,
                   ],
                 ].map(([k, v, pass]) => (
@@ -403,7 +403,7 @@ export default function CodeGenerationPage() {
                     <span className="text-muted-foreground">{k as string}</span>
                     <span
                       style={{
-                        color: pass ? 'var(--fg-success)' : 'var(--fg-warning)',
+                        color: pass ? 'oklch(0.40 0.14 145)' : 'oklch(0.45 0.14 75)',
                         fontWeight: 500,
                         fontSize: 13,
                       }}
@@ -431,7 +431,7 @@ export default function CodeGenerationPage() {
         {/* Right: inspector */}
         <div
           style={{
-            borderLeft: '1px solid var(--border-default)',
+            borderLeft: '1px solid var(--border)',
             overflowY: 'auto',
             padding: 16,
           }}
@@ -473,9 +473,9 @@ export default function CodeGenerationPage() {
             </div>
             {(
               [
-                ['eval / Function()', '✓ None', 'var(--fg-success)'],
-                ['child_process', '✓ None', 'var(--fg-success)'],
-                ['fs/net direct', '✓ None', 'var(--fg-success)'],
+                ['eval / Function()', 'âœ“ None', 'oklch(0.40 0.14 145)'],
+                ['child_process', 'âœ“ None', 'oklch(0.40 0.14 145)'],
+                ['fs/net direct', 'âœ“ None', 'oklch(0.40 0.14 145)'],
               ] as [string, string, string][]
             ).map(([k, v, c]) => (
               <div
@@ -545,7 +545,7 @@ export default function CodeGenerationPage() {
                 >
                   {p}
                 </span>
-                <span style={{ fontWeight: 500 }}>✓</span>
+                <span style={{ fontWeight: 500 }}>âœ“</span>
               </div>
             ))}
           </div>

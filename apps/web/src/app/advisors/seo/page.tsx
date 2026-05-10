@@ -1,4 +1,4 @@
-import type React from 'react';
+﻿import type React from 'react';
 
 import { Button } from '@/components/ui/button';
 
@@ -6,7 +6,7 @@ function ScoreRing({ score }: { score: number }) {
   const C = 2 * Math.PI * 44;
   const offset = C - (C * score) / 100;
   const color =
-    score >= 90 ? 'var(--fg-success)' : score >= 50 ? 'var(--fg-warning)' : 'var(--fg-danger)';
+    score >= 90 ? 'oklch(0.40 0.14 145)' : score >= 50 ? 'oklch(0.45 0.14 75)' : 'var(--destructive)';
   return (
     <div style={{ width: 96, height: 96, position: 'relative', flexShrink: 0 }}>
       <svg
@@ -15,7 +15,7 @@ function ScoreRing({ score }: { score: number }) {
       >
         <circle
           fill="none"
-          stroke="var(--bg-hover, #e5e7eb)"
+          stroke="var(--muted, #e5e7eb)"
           strokeWidth={8}
           cx={50}
           cy={50}
@@ -78,16 +78,16 @@ function AuditRow({
     marginTop: 2,
     background:
       status === 'pass'
-        ? 'var(--bg-success-subtle)'
+        ? 'oklch(0.96 0.04 145)'
         : status === 'fail'
-          ? 'var(--bg-danger-subtle)'
-          : 'var(--bg-warning-subtle)',
+          ? 'oklch(0.96 0.04 25)'
+          : 'oklch(0.97 0.05 75)',
     color:
       status === 'pass'
-        ? 'var(--fg-success)'
+        ? 'oklch(0.40 0.14 145)'
         : status === 'fail'
-          ? 'var(--fg-danger)'
-          : 'var(--fg-warning)',
+          ? 'var(--destructive)'
+          : 'oklch(0.45 0.14 75)',
   };
   return (
     <div
@@ -98,7 +98,7 @@ function AuditRow({
         padding: '12px 0',
       }}
     >
-      <div style={iconStyle}>{status === 'pass' ? '✓' : status === 'fail' ? '✕' : '!'}</div>
+      <div style={iconStyle}>{status === 'pass' ? 'âœ“' : status === 'fail' ? 'âœ•' : '!'}</div>
       <div style={{ flex: 1 }}>
         <div style={{ fontWeight: 500, fontSize: 13 }}>{name}</div>
         <div style={{ fontSize: 11, marginTop: 4 }}>{desc}</div>
@@ -119,12 +119,12 @@ const AUDITS = [
       {
         name: 'Page has a robots.txt',
         status: 'pass' as AuditStatus,
-        desc: 'Detected at /robots.txt · valid syntax',
+        desc: 'Detected at /robots.txt Â· valid syntax',
       },
       {
         name: 'Page has a sitemap.xml',
         status: 'pass' as AuditStatus,
-        desc: 'Detected · 47 URLs · last updated 2 hours ago',
+        desc: 'Detected Â· 47 URLs Â· last updated 2 hours ago',
       },
       {
         name: 'No noindex meta on indexable pages',
@@ -190,7 +190,7 @@ const AUDITS = [
       {
         name: 'Hreflang tags for multilingual',
         status: 'pass' as AuditStatus,
-        desc: 'Single language site · not applicable',
+        desc: 'Single language site Â· not applicable',
       },
     ],
   },
@@ -202,11 +202,11 @@ const warnCount = allItems.filter((i) => i.status === 'warn').length;
 const failCount = allItems.filter((i) => i.status === 'fail').length;
 
 const PER_PAGE = [
-  { url: '/', score: 92, title: '✓', meta: '✓', sd: '✓ JSON-LD' },
-  { url: '/deals', score: 84, title: '✓', meta: '— missing', sd: '— missing' },
-  { url: '/contacts', score: 88, title: '✓ (62 chars)', meta: '✓', sd: '— missing' },
-  { url: '/dashboard', score: 71, title: '— too long', meta: '— missing', sd: '— missing' },
-  { url: '/sign-in', score: 95, title: '✓', meta: '✓', sd: '✓ JSON-LD' },
+  { url: '/', score: 92, title: 'âœ“', meta: 'âœ“', sd: 'âœ“ JSON-LD' },
+  { url: '/deals', score: 84, title: 'âœ“', meta: 'â€” missing', sd: 'â€” missing' },
+  { url: '/contacts', score: 88, title: 'âœ“ (62 chars)', meta: 'âœ“', sd: 'â€” missing' },
+  { url: '/dashboard', score: 71, title: 'â€” too long', meta: 'â€” missing', sd: 'â€” missing' },
+  { url: '/sign-in', score: 95, title: 'âœ“', meta: 'âœ“', sd: 'âœ“ JSON-LD' },
 ];
 
 export default function SeoPage() {
@@ -216,7 +216,7 @@ export default function SeoPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>SEO Advisor</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Search engine optimisation audit · Last scan 12 minutes ago · 47 pages crawled
+            Search engine optimisation audit Â· Last scan 12 minutes ago Â· 47 pages crawled
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -226,7 +226,7 @@ export default function SeoPage() {
               height: 28,
               padding: '0 8px',
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: 12,
             }}
           >
@@ -261,7 +261,7 @@ export default function SeoPage() {
             Overall SEO score
           </div>
           <div style={{ fontWeight: 600, fontSize: 16, marginTop: 4 }}>
-            Needs attention — fix the 4 failed audits to reach 90+
+            Needs attention â€” fix the 4 failed audits to reach 90+
           </div>
           <div style={{ fontSize: 13, marginTop: 4 }}>
             Scoring weighted toward crawlability and meta tags. Structured data and breadcrumbs
@@ -321,10 +321,10 @@ export default function SeoPage() {
               {PER_PAGE.map((p) => {
                 const c =
                   p.score >= 90
-                    ? 'var(--fg-success)'
+                    ? 'oklch(0.40 0.14 145)'
                     : p.score >= 70
-                      ? 'var(--fg-warning)'
-                      : 'var(--fg-danger)';
+                      ? 'oklch(0.45 0.14 75)'
+                      : 'var(--destructive)';
                 return (
                   <tr key={p.url}>
                     <td className="font-mono text-sm" style={{ fontSize: 11 }}>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Check, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
@@ -140,9 +140,9 @@ export function TestViewPanel({ testFileId }: Props) {
               border: 'none',
               background: 'transparent',
               cursor: 'pointer',
-              color: activeTab === tab ? 'var(--accent-primary)' : 'var(--fg-secondary)',
+              color: activeTab === tab ? 'var(--primary)' : 'var(--muted-foreground)',
               borderBottom:
-                activeTab === tab ? '2px solid var(--accent-primary)' : '2px solid transparent',
+                activeTab === tab ? '2px solid var(--primary)' : '2px solid transparent',
               marginBottom: -1,
             }}
           >
@@ -223,7 +223,7 @@ export function TestViewPanel({ testFileId }: Props) {
               >
                 {DEMO_REASONING.designDecisions.map((d, i) => (
                   <li key={i} style={{ fontSize: 13, display: 'flex', gap: 8 }}>
-                    <span style={{ marginTop: 2 }}>•</span>
+                    <span style={{ marginTop: 2 }}>â€¢</span>
                     <span>{d}</span>
                   </li>
                 ))}

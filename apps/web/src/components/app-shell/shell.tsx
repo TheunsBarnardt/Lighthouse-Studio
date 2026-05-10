@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import type { ReactNode } from 'react';
 
@@ -51,8 +51,8 @@ export function AppShell({ children }: AppShellProps) {
         gridTemplateAreas: contextNav
           ? '"topbar topbar topbar" "iconnav contextnav main"'
           : '"topbar topbar" "iconnav main"',
-        background: 'var(--bg-canvas, #f9f9f9)',
-        color: 'var(--fg-primary, #1a1a2e)',
+        background: 'var(--background, #f9f9f9)',
+        color: 'var(--foreground, #1a1a2e)',
         fontSize: '13px',
       }}
     >

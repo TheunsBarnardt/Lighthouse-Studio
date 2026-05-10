@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { CheckCircle2, XCircle, Clock, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -88,7 +88,7 @@ export function TestRunPanel() {
         {STATUS_ICON[status]}
         <h2 style={{ fontWeight: 600, fontSize: 14 }}>
           {status === 'running'
-            ? 'Running tests…'
+            ? 'Running testsâ€¦'
             : status === 'completed'
               ? 'All tests passed'
               : 'Some tests failed'}
@@ -104,7 +104,7 @@ export function TestRunPanel() {
         <div
           style={{
             height: 6,
-            background: 'var(--border-default)',
+            background: 'var(--border)',
             borderRadius: 4,
             overflow: 'hidden',
           }}
@@ -112,7 +112,7 @@ export function TestRunPanel() {
           <div
             style={{
               height: '100%',
-              background: 'var(--accent-primary)',
+              background: 'var(--primary)',
               transition: 'width 0.3s',
               width: `${String(progress)}%`,
             }}
@@ -125,7 +125,7 @@ export function TestRunPanel() {
       >
         <div
           style={{
-            border: '1px solid var(--border-default)',
+            border: '1px solid var(--border)',
             borderRadius: 6,
             padding: 12,
             textAlign: 'center',
@@ -136,7 +136,7 @@ export function TestRunPanel() {
         </div>
         <div
           style={{
-            border: '1px solid var(--border-default)',
+            border: '1px solid var(--border)',
             borderRadius: 6,
             padding: 12,
             textAlign: 'center',
@@ -147,7 +147,7 @@ export function TestRunPanel() {
         </div>
         <div
           style={{
-            border: '1px solid var(--border-default)',
+            border: '1px solid var(--border)',
             borderRadius: 6,
             padding: 12,
             textAlign: 'center',
@@ -170,10 +170,10 @@ export function TestRunPanel() {
               borderRadius: 6,
               fontSize: 13,
               border:
-                r.status === 'failed' ? '1px solid var(--fg-danger)' : '1px solid transparent',
+                r.status === 'failed' ? '1px solid var(--destructive)' : '1px solid transparent',
               background:
                 r.status === 'failed'
-                  ? 'color-mix(in srgb, var(--fg-danger) 6%, transparent)'
+                  ? 'color-mix(in srgb, var(--destructive) 6%, transparent)'
                   : 'transparent',
             }}
           >
@@ -217,7 +217,7 @@ export function TestRunPanel() {
                 {r.name}
               </div>
               <div style={{ fontSize: 11 }}>
-                {r.filePath} · {r.durationMs}ms
+                {r.filePath} Â· {r.durationMs}ms
               </div>
               {r.error && (
                 <div className="font-mono text-sm" style={{ fontSize: 11, marginTop: 4 }}>

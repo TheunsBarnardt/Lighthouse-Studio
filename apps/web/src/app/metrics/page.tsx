@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 import { Button } from '@/components/ui/button';
 
-// Simple SVG sparkline chart — no external deps
+// Simple SVG sparkline chart â€” no external deps
 function MetricChart({
   values,
   color,
@@ -45,16 +45,16 @@ function MetricChart({
             <stop offset="100%" stopColor={color} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <line stroke="var(--border-default)" strokeWidth={0.5} x1={0} y1={0} x2={W} y2={0} />
+        <line stroke="var(--border)" strokeWidth={0.5} x1={0} y1={0} x2={W} y2={0} />
         <line
-          stroke="var(--border-default)"
+          stroke="var(--border)"
           strokeWidth={0.5}
           x1={0}
           y1={H / 2}
           x2={W}
           y2={H / 2}
         />
-        <line stroke="var(--border-default)" strokeWidth={0.5} x1={0} y1={H} x2={W} y2={H} />
+        <line stroke="var(--border)" strokeWidth={0.5} x1={0} y1={H} x2={W} y2={H} />
         <polygon points={area} fill={`url(#${gradId})`} />
         <polyline points={points} fill="none" stroke={color} strokeWidth={1.5} />
       </svg>
@@ -92,7 +92,7 @@ export default function MetricsPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Metrics</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Time-series telemetry · OpenTelemetry · Last 60 minutes · Refresh in 30s
+            Time-series telemetry Â· OpenTelemetry Â· Last 60 minutes Â· Refresh in 30s
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -102,7 +102,7 @@ export default function MetricsPage() {
               height: 28,
               padding: '0 8px',
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: 12,
             }}
           >
@@ -117,7 +117,7 @@ export default function MetricsPage() {
               height: 28,
               padding: '0 8px',
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: 12,
             }}
           >
@@ -177,7 +177,7 @@ export default function MetricsPage() {
         </div>
         <div className="rounded-md border bg-card text-card-foreground p-4">
           <div className="mb-3 flex items-center justify-between border-b pb-3">
-            <div className="text-sm font-semibold">p95 latency · ms</div>
+            <div className="text-sm font-semibold">p95 latency Â· ms</div>
           </div>
           <MetricChart values={latencyData} color="oklch(0.55 0.16 145)" />
         </div>
@@ -189,20 +189,20 @@ export default function MetricsPage() {
       >
         <div className="rounded-md border bg-card text-card-foreground p-4">
           <div className="mb-3 flex items-center justify-between border-b pb-3">
-            <div className="text-sm font-semibold">Error rate · %</div>
+            <div className="text-sm font-semibold">Error rate Â· %</div>
             <span style={{ fontSize: 11 }}>2 spikes today</span>
           </div>
           <MetricChart values={errorData} color="oklch(0.55 0.18 25)" />
         </div>
         <div className="rounded-md border bg-card text-card-foreground p-4">
           <div className="mb-3 flex items-center justify-between border-b pb-3">
-            <div className="text-sm font-semibold">CPU · %</div>
+            <div className="text-sm font-semibold">CPU Â· %</div>
           </div>
           <MetricChart values={cpuData} color="oklch(0.55 0.16 75)" />
         </div>
         <div className="rounded-md border bg-card text-card-foreground p-4">
           <div className="mb-3 flex items-center justify-between border-b pb-3">
-            <div className="text-sm font-semibold">Memory · %</div>
+            <div className="text-sm font-semibold">Memory Â· %</div>
           </div>
           <MetricChart values={memData} color="oklch(0.50 0.18 285)" />
         </div>
@@ -212,11 +212,11 @@ export default function MetricsPage() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div className="rounded-md border bg-card text-card-foreground p-4">
           <div className="mb-3 flex items-center justify-between border-b pb-3">
-            <div className="text-sm font-semibold">Database connections · active</div>
+            <div className="text-sm font-semibold">Database connections Â· active</div>
           </div>
           <MetricChart values={dbConnData} color="oklch(0.50 0.20 250)" max={30} />
           <div style={{ fontSize: 11, marginTop: 8 }}>
-            Pool max: 25 · current: {lastDb} · idle: 6
+            Pool max: 25 Â· current: {lastDb} Â· idle: 6
           </div>
         </div>
         <div className="rounded-md border bg-card text-card-foreground p-4">

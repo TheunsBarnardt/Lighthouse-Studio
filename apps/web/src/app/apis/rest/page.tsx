@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 
@@ -84,7 +84,7 @@ export default function RestApiPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>REST API</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Auto-generated from your schema · OpenAPI 3.1 · Versioned · 47 endpoints
+            Auto-generated from your schema Â· OpenAPI 3.1 Â· Versioned Â· 47 endpoints
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -109,7 +109,7 @@ export default function RestApiPage() {
             style={{
               fontFamily: 'ui-monospace, monospace',
               fontSize: 11,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
               padding: '6px 10px',
             }}
@@ -181,7 +181,7 @@ export default function RestApiPage() {
 
       <div className="rounded-md border bg-card text-card-foreground p-4">
         <div className="mb-3 flex items-center justify-between border-b pb-3">
-          <div className="text-sm font-semibold">Try it · GET /rest/v1/contacts</div>
+          <div className="text-sm font-semibold">Try it Â· GET /rest/v1/contacts</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <div>
@@ -200,7 +200,7 @@ export default function RestApiPage() {
               style={{
                 fontFamily: 'ui-monospace, monospace',
                 fontSize: 11,
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
                 borderRadius: 4,
                 padding: '10px 12px',
                 margin: 0,
@@ -222,13 +222,13 @@ export default function RestApiPage() {
                 marginBottom: 8,
               }}
             >
-              Response · 200 OK
+              Response Â· 200 OK
             </div>
             <pre
               style={{
                 fontFamily: 'ui-monospace, monospace',
                 fontSize: 11,
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
                 borderRadius: 4,
                 padding: '10px 12px',
                 margin: 0,

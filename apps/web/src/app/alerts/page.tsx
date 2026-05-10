@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Button } from '@/components/ui/button';
 
@@ -9,7 +9,7 @@ const FIRING = [
     title: 'Error rate above threshold',
     desc: 'Error rate has been > 1% for 5 minutes',
     when: '47 min ago',
-    metric: 'Error rate · /functions/v1/syncCalendarEvent',
+    metric: 'Error rate Â· /functions/v1/syncCalendarEvent',
     isCritical: true,
   },
   {
@@ -52,7 +52,7 @@ const RULES = [
     name: 'Failed deploys',
     type: 'count over 1h',
     threshold: '1',
-    channels: 'Email · Slack #ops-alerts, PagerDuty',
+    channels: 'Email Â· Slack #ops-alerts, PagerDuty',
     enabled: true,
     triggered: 0,
   },
@@ -68,7 +68,7 @@ const RULES = [
     name: 'CVE high severity detected',
     type: 'event',
     threshold: 'high+',
-    channels: 'Email · Slack',
+    channels: 'Email Â· Slack',
     enabled: true,
     triggered: 0,
   },
@@ -104,16 +104,16 @@ const HISTORY = [
     alert: 'Error rate above threshold',
     severity: 'high',
     status: 'firing',
-    resolved: '—',
-    ttr: '—',
+    resolved: 'â€”',
+    ttr: 'â€”',
   },
   {
     when: '12 min ago',
     alert: 'DB pool nearly full',
     severity: 'medium',
     status: 'firing',
-    resolved: '—',
-    ttr: '—',
+    resolved: 'â€”',
+    ttr: 'â€”',
   },
   {
     when: 'Yesterday',
@@ -148,7 +148,7 @@ export default function AlertsPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Alerts</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            2 currently firing · 9 rules configured · 17 alerts in last 30 days
+            2 currently firing Â· 9 rules configured Â· 17 alerts in last 30 days
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -169,8 +169,8 @@ export default function AlertsPage() {
         className="rounded-md border bg-card text-card-foreground p-4"
         style={{
           marginBottom: 16,
-          background: 'var(--bg-danger-subtle)',
-          borderColor: 'var(--fg-danger)',
+          background: 'oklch(0.96 0.04 25)',
+          borderColor: 'var(--destructive)',
         }}
       >
         <div className="mb-3 flex items-center justify-between border-b pb-3">
@@ -211,7 +211,7 @@ export default function AlertsPage() {
             </div>
             <div style={{ fontSize: 13, marginBottom: 4 }}>{alert.desc}</div>
             <div style={{ fontSize: 11 }}>
-              Firing since {alert.when} · Metric:{' '}
+              Firing since {alert.when} Â· Metric:{' '}
               <span className="font-mono text-sm">{alert.metric}</span>
             </div>
           </div>
@@ -235,7 +235,7 @@ export default function AlertsPage() {
                 <th className="tabular-nums">Threshold</th>
                 <th>Channels</th>
                 <th>Status</th>
-                <th className="tabular-nums">Triggered · 30d</th>
+                <th className="tabular-nums">Triggered Â· 30d</th>
                 <th></th>
               </tr>
             </thead>
@@ -261,7 +261,7 @@ export default function AlertsPage() {
                   </td>
                   <td
                     className="tabular-nums"
-                    style={{ color: rule.triggered > 5 ? 'var(--fg-warning)' : undefined }}
+                    style={{ color: rule.triggered > 5 ? 'oklch(0.45 0.14 75)' : undefined }}
                   >
                     {rule.triggered}
                   </td>
@@ -288,14 +288,14 @@ export default function AlertsPage() {
         <div className="grid grid-cols-3 gap-4" style={{ padding: '0 0 4px' }}>
           <div>
             <div style={{ fontWeight: 500, fontSize: 13, marginBottom: 4 }}>Slack</div>
-            <div style={{ fontSize: 11, marginBottom: 6 }}>#ops-alerts · #sec-alerts</div>
+            <div style={{ fontSize: 11, marginBottom: 6 }}>#ops-alerts Â· #sec-alerts</div>
             <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
               Connected
             </span>
           </div>
           <div>
             <div style={{ fontWeight: 500, fontSize: 13, marginBottom: 4 }}>Email</div>
-            <div style={{ fontSize: 11, marginBottom: 6 }}>ops@acme.com · oncall@acme.com</div>
+            <div style={{ fontSize: 11, marginBottom: 6 }}>ops@acme.com Â· oncall@acme.com</div>
             <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
               Connected
             </span>
@@ -313,7 +313,7 @@ export default function AlertsPage() {
       {/* Recent alerts */}
       <div className="rounded-md border bg-card text-card-foreground p-4">
         <div className="mb-3 flex items-center justify-between border-b pb-3">
-          <div className="text-sm font-semibold">Recent alerts · last 7 days</div>
+          <div className="text-sm font-semibold">Recent alerts Â· last 7 days</div>
         </div>
         <div className="overflow-hidden rounded-md border">
           <table className="w-full border-collapse text-sm">

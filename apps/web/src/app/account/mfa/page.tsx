@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -62,7 +62,7 @@ export default function MfaPage() {
             style={{
               padding: '0.75rem 1rem',
               borderRadius: '6px',
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: '0.875rem',
             }}
           >
@@ -73,7 +73,7 @@ export default function MfaPage() {
             className="font-mono text-sm"
             style={{
               borderRadius: '6px',
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               padding: '1rem',
               fontSize: '0.875rem',
               display: 'flex',
@@ -102,7 +102,7 @@ export default function MfaPage() {
               onChange={(e) => {
                 setSavedCodes(e.target.checked);
               }}
-              style={{ width: '1rem', height: '1rem', accentColor: 'var(--accent-primary)' }}
+              style={{ width: '1rem', height: '1rem', accentColor: 'var(--primary)' }}
             />
             <span style={{ fontSize: '0.875rem' }}>{t('savedCodes')}</span>
           </label>
@@ -134,7 +134,7 @@ export default function MfaPage() {
         <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <p style={{ fontSize: '0.875rem' }}>{t('enrollStep1')}</p>
 
-          {/* QR code placeholder — real impl uses a QR library */}
+          {/* QR code placeholder â€” real impl uses a QR library */}
           <div
             style={{
               display: 'flex',
@@ -144,7 +144,7 @@ export default function MfaPage() {
               height: '12rem',
               width: '12rem',
               borderRadius: '8px',
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: '0.75rem',
               textAlign: 'center',
               gap: '0.25rem',
@@ -152,7 +152,7 @@ export default function MfaPage() {
             }}
           >
             <span>QR code for authenticator</span>
-            <span style={{ wordBreak: 'break-all' }}>{totpUri.slice(0, 40)}…</span>
+            <span style={{ wordBreak: 'break-all' }}>{totpUri.slice(0, 40)}â€¦</span>
           </div>
 
           <p style={{ fontSize: '0.875rem' }}>{t('enrollStep2')}</p>
@@ -174,7 +174,7 @@ export default function MfaPage() {
               aria-required
               style={{
                 padding: '0.4375rem 0.75rem',
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
                 borderRadius: '6px',
                 fontSize: '0.875rem',
                 outline: 'none',
@@ -218,7 +218,7 @@ export default function MfaPage() {
           style={{
             padding: '0.75rem 1rem',
             borderRadius: '6px',
-            border: '1px solid var(--border-default)',
+            border: '1px solid var(--border)',
             fontSize: '0.875rem',
           }}
         >
@@ -236,7 +236,7 @@ export default function MfaPage() {
           <div>
             <Button
               type="button"
-              style={{ background: 'var(--fg-danger)', borderColor: 'var(--fg-danger)' }}
+              style={{ background: 'var(--destructive)', borderColor: 'var(--destructive)' }}
               onClick={() => {
                 /* TODO */
               }}

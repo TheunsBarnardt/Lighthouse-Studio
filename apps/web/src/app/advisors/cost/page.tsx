@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import { Button } from '@/components/ui/button';
 
 const OPPORTUNITIES = [
   {
-    name: 'AI tokens · Stage 6 (UI gen)',
+    name: 'AI tokens Â· Stage 6 (UI gen)',
     savings: '$8.40/mo',
     desc: 'Switch DealKanbanPage to cached prompt template (similar to ContactsTable). Same quality, ~62% fewer input tokens.',
     effort: 'medium',
@@ -40,17 +40,17 @@ const BREAKDOWN = [
     name: 'AI tokens',
     amt: 23.4,
     pct: 47.5,
-    detail: 'Anthropic Claude · Sonnet 4.6 · Opus 4.7 (Stage 6 only)',
+    detail: 'Anthropic Claude Â· Sonnet 4.6 Â· Opus 4.7 (Stage 6 only)',
   },
   {
     name: 'Database (compute)',
     amt: 12.2,
     pct: 24.7,
-    detail: 'PostgreSQL · 4 vCPU · 8 GB · 100 GB SSD',
+    detail: 'PostgreSQL Â· 4 vCPU Â· 8 GB Â· 100 GB SSD',
   },
   { name: 'Database (storage)', amt: 4.8, pct: 9.7, detail: '38 GB used of 100 GB' },
-  { name: 'Edge functions', amt: 3.4, pct: 6.9, detail: '142K invocations · avg 87ms' },
-  { name: 'Storage', amt: 2.8, pct: 5.7, detail: '1.2 GB · Backblaze B2' },
+  { name: 'Edge functions', amt: 3.4, pct: 6.9, detail: '142K invocations Â· avg 87ms' },
+  { name: 'Storage', amt: 2.8, pct: 5.7, detail: '1.2 GB Â· Backblaze B2' },
   { name: 'Realtime', amt: 1.4, pct: 2.8, detail: '147 concurrent connections' },
   { name: 'Logs & monitoring', amt: 1.2, pct: 2.4, detail: '7-day retention' },
 ];
@@ -68,7 +68,7 @@ export default function CostPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Cost optimisation</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Spend across all sources · ${total.toFixed(2)} / mo current · ${(total - 23).toFixed(2)}{' '}
+            Spend across all sources Â· ${total.toFixed(2)} / mo current Â· ${(total - 23).toFixed(2)}{' '}
             / mo achievable
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function CostPage() {
               height: 28,
               padding: '0 8px',
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: 12,
             }}
           >
@@ -171,7 +171,7 @@ export default function CostPage() {
                           style={{
                             height: '100%',
                             width: `${String(b.pct)}%`,
-                            background: 'var(--accent-primary)',
+                            background: 'var(--primary)',
                             borderRadius: 2,
                           }}
                         />
@@ -219,7 +219,7 @@ export default function CostPage() {
                 fontWeight: 700,
                 flexShrink: 0,
                 marginTop: 2,
-                background: 'var(--bg-warning-subtle)',
+                background: 'oklch(0.97 0.05 75)',
               }}
             >
               $
@@ -242,7 +242,7 @@ export default function CostPage() {
       {/* Trend chart */}
       <div className="rounded-md border bg-card text-card-foreground p-4">
         <div className="mb-3 flex items-center justify-between border-b pb-3">
-          <div className="text-sm font-semibold">Cost trend · 90 days</div>
+          <div className="text-sm font-semibold">Cost trend Â· 90 days</div>
         </div>
         <div
           style={{
@@ -261,7 +261,7 @@ export default function CostPage() {
               style={{
                 flex: 1,
                 height: `${String((v - 20) * 3)}%`,
-                background: 'var(--accent-primary)',
+                background: 'var(--primary)',
                 borderRadius: '2px 2px 0 0',
                 opacity: 0.85,
               }}
@@ -276,8 +276,8 @@ export default function CostPage() {
             marginTop: 8,
           }}
         >
-          <span>90 days ago · $28</span>
-          <span>Today · ${total.toFixed(0)}</span>
+          <span>90 days ago Â· $28</span>
+          <span>Today Â· ${total.toFixed(0)}</span>
         </div>
       </div>
     </div>

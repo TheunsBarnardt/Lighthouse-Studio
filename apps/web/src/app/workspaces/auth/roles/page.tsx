@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -65,7 +65,7 @@ export default function AuthRolesPage() {
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1>Roles &amp; Permissions</h1>
-          <p className="subtitle">{ROLES.length} roles · 142 permissions defined</p>
+          <p className="subtitle">{ROLES.length} roles Â· 142 permissions defined</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <Button size="sm" type="button">
@@ -84,8 +84,8 @@ export default function AuthRolesPage() {
               cursor: 'pointer',
               ...(selected === role.name
                 ? {
-                    borderColor: 'var(--accent-primary)',
-                    boxShadow: '0 0 0 2px var(--accent-primary)',
+                    borderColor: 'var(--primary)',
+                    boxShadow: '0 0 0 2px var(--primary)',
                   }
                 : {}),
             }}

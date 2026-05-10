@@ -69,29 +69,39 @@ function Dialog({
         if (e.target === overlayRef.current) handleClose();
       }}
     >
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" aria-hidden="true" />
+      {/* Overlay */}
+      <div className="absolute inset-0" style={{ background: 'var(--bg-overlay)' }} aria-hidden="true" />
+
+      {/* Panel */}
       <div
-        className={cn(
-          'relative z-50 w-full rounded-xl border bg-card shadow-xl',
-          sizes[size],
-          className,
-        )}
+        className={cn('relative z-50 w-full rounded-xl shadow-xl', sizes[size], className)}
+        style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-default)',
+          color: 'var(--fg-primary)',
+        }}
       >
         {(title ?? description) && (
-          <div className="border-b px-6 py-4">
+          <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--border-default)' }}>
             {title && (
-              <h2 id="dialog-title" className="text-lg font-semibold">
+              <h2
+                id="dialog-title"
+                style={{ margin: 0, fontSize: 16, fontWeight: 600, color: 'var(--fg-primary)' }}
+              >
                 {title}
               </h2>
             )}
             {description && (
-              <p id="dialog-description" className="mt-1 text-sm text-muted-foreground">
+              <p
+                id="dialog-description"
+                style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--fg-secondary)' }}
+              >
                 {description}
               </p>
             )}
           </div>
         )}
-        <div className="p-6">{children}</div>
+        <div style={{ padding: 24 }}>{children}</div>
       </div>
     </div>
   );
@@ -104,15 +114,21 @@ export interface DialogFooterProps {
 
 function DialogFooter({ children, className }: DialogFooterProps) {
   return (
-    <div className={cn('flex justify-end gap-3 border-t px-6 py-4 -mx-6 -mb-6 mt-6', className)}>
+    <div
+      className={cn('flex justify-end gap-3', className)}
+      style={{
+        marginTop: 24,
+        paddingTop: 16,
+        borderTop: '1px solid var(--border-default)',
+      }}
+    >
       {children}
     </div>
   );
 }
 
-// shadcn/ui-compatible sub-components
 function DialogContent({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn('p-6', className)}>{children}</div>;
+  return <div className={cn('', className)}>{children}</div>;
 }
 
 function DialogHeader({ children, className }: { children: ReactNode; className?: string }) {
@@ -120,11 +136,22 @@ function DialogHeader({ children, className }: { children: ReactNode; className?
 }
 
 function DialogTitle({ children, className }: { children: ReactNode; className?: string }) {
-  return <h2 className={cn('text-lg font-semibold leading-none tracking-tight', className)}>{children}</h2>;
+  return (
+    <h2
+      className={cn('text-base font-semibold leading-none', className)}
+      style={{ color: 'var(--fg-primary)' }}
+    >
+      {children}
+    </h2>
+  );
 }
 
 function DialogDescription({ children, className }: { children: ReactNode; className?: string }) {
-  return <p className={cn('text-sm text-muted-foreground', className)}>{children}</p>;
+  return (
+    <p className={cn('text-sm', className)} style={{ color: 'var(--fg-secondary)' }}>
+      {children}
+    </p>
+  );
 }
 
 function DialogTrigger({ children }: { children: ReactNode }) {
@@ -132,7 +159,20 @@ function DialogTrigger({ children }: { children: ReactNode }) {
 }
 
 function DialogClose({ children, className }: { children?: ReactNode; className?: string }) {
-  return <button type="button" className={cn('', className)}>{children}</button>;
+  return (
+    <button type="button" className={cn('', className)}>
+      {children}
+    </button>
+  );
 }
 
-export { Dialog, DialogFooter, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogClose };
+export {
+  Dialog,
+  DialogFooter,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+  DialogClose,
+};

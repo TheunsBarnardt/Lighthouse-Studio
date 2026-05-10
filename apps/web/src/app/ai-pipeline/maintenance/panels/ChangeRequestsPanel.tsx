@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
@@ -33,7 +33,7 @@ const DEMO_REQUESTS: ChangeRequest[] = [
   {
     id: 'cr-1',
     description:
-      'ContactsList component throws null error when contact has no assigned owner — missing null check in the generated component',
+      'ContactsList component throws null error when contact has no assigned owner â€” missing null check in the generated component',
     status: 'open',
     priority: 'p1',
     severity: 'high',
@@ -44,7 +44,7 @@ const DEMO_REQUESTS: ChangeRequest[] = [
   {
     id: 'cr-2',
     description:
-      'Export CSV feature missing notes column in output — appears to be a scope gap in the original generation',
+      'Export CSV feature missing notes column in output â€” appears to be a scope gap in the original generation',
     status: 'open',
     priority: 'p3',
     severity: 'low',
@@ -67,7 +67,7 @@ export function ChangeRequestsPanel() {
           <div
             key={cr.id}
             style={{
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 6,
               padding: 16,
               display: 'flex',
@@ -102,7 +102,7 @@ export function ChangeRequestsPanel() {
                     {cr.status.replace('_', ' ')}
                   </span>
                   <span style={{ fontSize: 11 }}>
-                    {cr.signalCount} signal{cr.signalCount !== 1 ? 's' : ''} · {cr.createdAt}
+                    {cr.signalCount} signal{cr.signalCount !== 1 ? 's' : ''} Â· {cr.createdAt}
                   </span>
                 </div>
                 <p style={{ fontSize: 13 }}>{cr.description}</p>

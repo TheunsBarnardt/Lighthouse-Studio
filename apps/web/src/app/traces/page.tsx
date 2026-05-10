@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 // ---------------------------------------------------------------------------
 // Types & static data
@@ -75,39 +75,39 @@ const SPANS: SpanDef[] = [
     colorType: 'fn',
     duration: '1,247ms',
   },
-  { name: '└ auth.verify_jwt', indent: 1, left: 0, width: 1.2, colorType: 'api', duration: '15ms' },
-  { name: '└ db.query', indent: 1, left: 1.5, width: 18, colorType: 'db', duration: '224ms' },
+  { name: 'â”” auth.verify_jwt', indent: 1, left: 0, width: 1.2, colorType: 'api', duration: '15ms' },
+  { name: 'â”” db.query', indent: 1, left: 1.5, width: 18, colorType: 'db', duration: '224ms' },
   {
-    name: '  └ pg.select deals',
+    name: '  â”” pg.select deals',
     indent: 2,
     left: 1.5,
     width: 18,
     colorType: 'db',
     duration: '218ms',
   },
-  { name: '└ csv.serialize', indent: 1, left: 20, width: 8, colorType: 'fn', duration: '94ms' },
-  { name: '└ storage.upload', indent: 1, left: 28, width: 70, colorType: 'ext', duration: '874ms' },
+  { name: 'â”” csv.serialize', indent: 1, left: 20, width: 8, colorType: 'fn', duration: '94ms' },
+  { name: 'â”” storage.upload', indent: 1, left: 28, width: 70, colorType: 'ext', duration: '874ms' },
   {
-    name: '  └ b2.put_object',
+    name: '  â”” b2.put_object',
     indent: 2,
     left: 28,
     width: 68,
     colorType: 'ext',
     duration: '847ms',
   },
-  { name: '└ storage.sign_url', indent: 1, left: 98, width: 2, colorType: 'api', duration: '28ms' },
+  { name: 'â”” storage.sign_url', indent: 1, left: 98, width: 2, colorType: 'api', duration: '28ms' },
 ];
 
 const SPAN_COLORS: Record<SpanDef['colorType'], string> = {
-  api: 'var(--accent-primary)',
+  api: 'var(--primary)',
   db: 'oklch(0.55 0.16 145)',
   fn: 'oklch(0.55 0.16 75)',
   ext: 'oklch(0.55 0.18 25)',
 };
 
 function durationColor(ms: number): string {
-  if (ms > 5000) return 'var(--fg-danger)';
-  if (ms > 1000) return 'var(--fg-warning)';
+  if (ms > 5000) return 'var(--destructive)';
+  if (ms > 1000) return 'oklch(0.45 0.14 75)';
   return '';
 }
 
@@ -123,7 +123,7 @@ export default function TracesPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Traces</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Distributed tracing · OpenTelemetry · 1.2M spans · last 24 hours
+            Distributed tracing Â· OpenTelemetry Â· 1.2M spans Â· last 24 hours
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -133,7 +133,7 @@ export default function TracesPage() {
               height: 28,
               padding: '0 8px',
               fontSize: 13,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
             }}
             placeholder="trace ID, endpoint, or filter..."
@@ -144,7 +144,7 @@ export default function TracesPage() {
               height: 28,
               padding: '0 8px',
               fontSize: 13,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
             }}
           >
@@ -183,7 +183,7 @@ export default function TracesPage() {
                         {trace.endpoint}
                       </div>
                       <div style={{ fontSize: 11, marginTop: 2 }}>
-                        {trace.id} · {trace.spans} spans · {trace.when}
+                        {trace.id} Â· {trace.spans} spans Â· {trace.when}
                       </div>
                     </td>
                     <td
@@ -191,7 +191,7 @@ export default function TracesPage() {
                       style={{
                         textAlign: 'right',
                         fontSize: 12,
-                        color: durationColor(trace.duration) || 'var(--fg-secondary)',
+                        color: durationColor(trace.duration) || 'var(--muted-foreground)',
                       }}
                     >
                       {trace.duration.toLocaleString()}ms
@@ -217,9 +217,9 @@ export default function TracesPage() {
         {/* Trace detail / flame graph */}
         <div className="rounded-md border bg-card text-card-foreground p-4">
           <div className="mb-3 flex items-center justify-between border-b pb-3">
-            <div className="text-sm font-semibold">Trace · trace_a3f291c</div>
+            <div className="text-sm font-semibold">Trace Â· trace_a3f291c</div>
             <span style={{ fontSize: 12 }}>
-              POST /functions/v1/exportDealsCSV · 1,247ms · 8 spans
+              POST /functions/v1/exportDealsCSV Â· 1,247ms Â· 8 spans
             </span>
           </div>
 
@@ -261,7 +261,7 @@ export default function TracesPage() {
                 <span
                   className="font-mono text-sm"
                   style={{
-                    color: i === 0 ? 'var(--fg-primary)' : 'var(--fg-secondary)',
+                    color: i === 0 ? 'var(--foreground)' : 'var(--muted-foreground)',
                     fontWeight: i === 0 ? 600 : 400,
                   }}
                 >

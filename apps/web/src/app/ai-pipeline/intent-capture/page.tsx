@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -29,7 +29,7 @@ interface BriefField {
 const INITIAL_MESSAGES: Message[] = [
   {
     role: 'ai',
-    text: "Welcome — let's capture what you want to build. To start, can you describe in your own words what this tool needs to do, and who it's for?",
+    text: "Welcome â€” let's capture what you want to build. To start, can you describe in your own words what this tool needs to do, and who it's for?",
     reasoning: 'Why this question',
   },
   {
@@ -43,7 +43,7 @@ const INITIAL_MESSAGES: Message[] = [
   },
   {
     role: 'user',
-    text: 'Stages: lead, qualified, proposal sent, negotiation, won, lost. Reps see all deals. Need email and calendar — Microsoft 365.',
+    text: 'Stages: lead, qualified, proposal sent, negotiation, won, lost. Reps see all deals. Need email and calendar â€” Microsoft 365.',
   },
   {
     role: 'ai',
@@ -108,23 +108,23 @@ const BRIEF_FIELDS: BriefField[] = [
 
 function statusDotStyle(status: BriefStatus): React.CSSProperties {
   const colors: Record<BriefStatus, string> = {
-    confident: 'var(--fg-success)',
-    tentative: 'var(--fg-warning)',
-    empty: 'var(--border-emphasis)',
+    confident: 'oklch(0.40 0.14 145)',
+    tentative: 'oklch(0.45 0.14 75)',
+    empty: 'var(--border)',
   };
   return { width: 8, height: 8, borderRadius: '50%', background: colors[status], flexShrink: 0 };
 }
 
 function briefSectionStyle(status: BriefStatus): React.CSSProperties {
   const styles: Record<BriefStatus, React.CSSProperties> = {
-    confident: { borderColor: 'var(--fg-success)', background: 'var(--bg-success-subtle)' },
-    tentative: { borderColor: 'var(--fg-warning)', background: 'var(--bg-warning-subtle)' },
+    confident: { borderColor: 'oklch(0.40 0.14 145)', background: 'oklch(0.96 0.04 145)' },
+    tentative: { borderColor: 'oklch(0.45 0.14 75)', background: 'oklch(0.97 0.05 75)' },
     empty: { opacity: 0.5 },
   };
   return {
     padding: '10px 12px',
-    border: '1px solid var(--border-default)',
-    borderRadius: 'var(--shell-radius-md)',
+    border: '1px solid var(--border)',
+    borderRadius: '6px',
     marginBottom: 8,
     ...styles[status],
   };
@@ -178,7 +178,7 @@ export default function IntentCapturePage() {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            borderRight: '1px solid var(--border-default)',
+            borderRight: '1px solid var(--border)',
             overflow: 'hidden',
           }}
         >
@@ -215,10 +215,10 @@ export default function IntentCapturePage() {
                 <div
                   style={{
                     padding: '12px 16px',
-                    borderRadius: 'var(--shell-radius-md)',
+                    borderRadius: '6px',
                     background:
-                      msg.role === 'user' ? 'var(--accent-primary-subtle)' : 'var(--bg-surface)',
-                    border: `1px solid ${msg.role === 'user' ? 'var(--accent-primary-subtle)' : 'var(--border-default)'}`,
+                      msg.role === 'user' ? 'var(--primary)' : 'var(--card)',
+                    border: `1px solid ${msg.role === 'user' ? 'var(--primary)' : 'var(--border)'}`,
                     fontSize: 14,
                     lineHeight: '22px',
                     whiteSpace: 'pre-wrap',
@@ -234,7 +234,7 @@ export default function IntentCapturePage() {
                       cursor: 'pointer',
                     }}
                   >
-                    ▸ {msg.reasoning}
+                    â–¸ {msg.reasoning}
                   </div>
                 )}
               </div>
@@ -261,12 +261,12 @@ export default function IntentCapturePage() {
               style={{
                 flex: 1,
                 resize: 'none',
-                border: '1px solid var(--border-default)',
-                borderRadius: 'var(--shell-radius-sm)',
+                border: '1px solid var(--border)',
+                borderRadius: '4px',
                 padding: '8px 10px',
                 fontSize: 13,
                 lineHeight: '20px',
-                background: 'var(--bg-input)',
+                background: 'var(--background)',
                 fontFamily: 'inherit',
                 outline: 'none',
                 minHeight: 36,
@@ -293,7 +293,7 @@ export default function IntentCapturePage() {
               href="/ai-pipeline/prd-generation"
               className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Generate brief →
+              Generate brief â†’
             </Link>
           </div>
           <div style={{ fontSize: 12, marginBottom: 16 }}>Updates as we talk.</div>
@@ -339,7 +339,7 @@ export default function IntentCapturePage() {
               className="inline-flex items-center justify-center rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted"
               style={{ width: '100%', justifyContent: 'center', fontSize: 12 }}
             >
-              {isCreating ? 'Starting…' : '+ New conversation'}
+              {isCreating ? 'Startingâ€¦' : '+ New conversation'}
             </Button>
           </div>
         </div>

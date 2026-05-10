@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 interface IncomingEndpoint {
   id: string;
@@ -81,9 +81,9 @@ const RECENT_EVENTS: RecentEvent[] = [
 ];
 
 const SECRETS = [
-  { source: 'Stripe', secret: 'whsec_•••a3f2' },
-  { source: 'Outlook', secret: 'whsec_•••8e14' },
-  { source: 'GitHub', secret: 'whsec_•••b821' },
+  { source: 'Stripe', secret: 'whsec_â€¢â€¢â€¢a3f2' },
+  { source: 'Outlook', secret: 'whsec_â€¢â€¢â€¢8e14' },
+  { source: 'GitHub', secret: 'whsec_â€¢â€¢â€¢b821' },
 ];
 
 export default function IncomingWebhooksPage() {
@@ -91,9 +91,9 @@ export default function IncomingWebhooksPage() {
     <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Webhooks · Incoming</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Webhooks Â· Incoming</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Receive events from external systems · 3 endpoints · 63 events / day average
+            Receive events from external systems Â· 3 endpoints Â· 63 events / day average
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -116,7 +116,7 @@ export default function IncomingWebhooksPage() {
         </div>
         <div className="rounded-md border bg-card p-4">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-            Events · 30d
+            Events Â· 30d
           </div>
           <div className="text-[22px] font-semibold tabular-nums">1,892</div>
           <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
@@ -154,7 +154,7 @@ export default function IncomingWebhooksPage() {
                 <th>Source</th>
                 <th>URL</th>
                 <th>Triggers</th>
-                <th className="tabular-nums">Events · 30d</th>
+                <th className="tabular-nums">Events Â· 30d</th>
                 <th>Status</th>
                 <th></th>
               </tr>
@@ -220,7 +220,7 @@ export default function IncomingWebhooksPage() {
               style={{
                 fontFamily: 'ui-monospace, monospace',
                 fontSize: 11,
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
                 borderRadius: 4,
                 padding: '6px 10px',
                 margin: 0,

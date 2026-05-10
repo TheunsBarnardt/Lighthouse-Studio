@@ -1,19 +1,19 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 // ---------------------------------------------------------------------------
 // Static data
 // ---------------------------------------------------------------------------
 
 const STAGE_COSTS = [
-  { stage: 'Stage 1 · Intent', cost: 0.4, calls: 12, avg: '$0.033 avg' },
-  { stage: 'Stage 2 · PRD', cost: 1.8, calls: 47, avg: '$0.038 avg' },
-  { stage: 'Stage 3 · Design tokens', cost: 0.8, calls: 23, avg: '$0.035 avg' },
-  { stage: 'Stage 4 · Schema synthesis', cost: 1.2, calls: 34, avg: '$0.035 avg' },
-  { stage: 'Stage 6 · UI generation', cost: 12.4, calls: 142, avg: '$0.087 avg · Opus 4.7' },
-  { stage: 'Stage 7 · Code generation', cost: 4.2, calls: 87, avg: '$0.048 avg' },
-  { stage: 'Stage 8 · Tests', cost: 1.4, calls: 47, avg: '$0.030 avg' },
-  { stage: 'Stage 9 · Deployment', cost: 0.6, calls: 47, avg: '$0.013 avg · pre-flight check' },
-  { stage: 'Stage 10 · Maintenance', cost: 0.6, calls: 18, avg: '$0.033 avg · auto-triage' },
+  { stage: 'Stage 1 Â· Intent', cost: 0.4, calls: 12, avg: '$0.033 avg' },
+  { stage: 'Stage 2 Â· PRD', cost: 1.8, calls: 47, avg: '$0.038 avg' },
+  { stage: 'Stage 3 Â· Design tokens', cost: 0.8, calls: 23, avg: '$0.035 avg' },
+  { stage: 'Stage 4 Â· Schema synthesis', cost: 1.2, calls: 34, avg: '$0.035 avg' },
+  { stage: 'Stage 6 Â· UI generation', cost: 12.4, calls: 142, avg: '$0.087 avg Â· Opus 4.7' },
+  { stage: 'Stage 7 Â· Code generation', cost: 4.2, calls: 87, avg: '$0.048 avg' },
+  { stage: 'Stage 8 Â· Tests', cost: 1.4, calls: 47, avg: '$0.030 avg' },
+  { stage: 'Stage 9 Â· Deployment', cost: 0.6, calls: 47, avg: '$0.013 avg Â· pre-flight check' },
+  { stage: 'Stage 10 Â· Maintenance', cost: 0.6, calls: 18, avg: '$0.033 avg Â· auto-triage' },
 ];
 
 const PROJECTS = [
@@ -22,11 +22,11 @@ const PROJECTS = [
 ];
 
 const SOURCES = [
-  { source: 'AI · Anthropic Claude', cost: 23.4, pct: 47.5, trend: '+12%' },
-  { source: 'AI · OpenAI (fallback)', cost: 2.8, pct: 5.7, trend: '+3%' },
-  { source: 'Infrastructure · Compute', cost: 14.2, pct: 28.8, trend: 'stable' },
-  { source: 'Storage · Files + Backups', cost: 5.3, pct: 10.8, trend: 'stable' },
-  { source: 'Bandwidth · Egress', cost: 3.6, pct: 7.3, trend: '+8%' },
+  { source: 'AI Â· Anthropic Claude', cost: 23.4, pct: 47.5, trend: '+12%' },
+  { source: 'AI Â· OpenAI (fallback)', cost: 2.8, pct: 5.7, trend: '+3%' },
+  { source: 'Infrastructure Â· Compute', cost: 14.2, pct: 28.8, trend: 'stable' },
+  { source: 'Storage Â· Files + Backups', cost: 5.3, pct: 10.8, trend: 'stable' },
+  { source: 'Bandwidth Â· Egress', cost: 3.6, pct: 7.3, trend: '+8%' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -39,7 +39,7 @@ function MiniBar({ pct, warn }: { pct: number; warn?: boolean }) {
       style={{
         height: 6,
         borderRadius: 3,
-        background: 'var(--bg-surface-3)',
+        background: 'var(--muted)',
         overflow: 'hidden',
         width: 120,
         flexShrink: 0,
@@ -50,7 +50,7 @@ function MiniBar({ pct, warn }: { pct: number; warn?: boolean }) {
           height: '100%',
           width: `${String(pct)}%`,
           borderRadius: 3,
-          background: warn ? 'var(--fg-warning, #d97706)' : 'var(--accent-primary, #3b6cf4)',
+          background: warn ? 'oklch(0.55 0.15 75)' : 'var(--primary, #3b6cf4)',
         }}
       />
     </div>
@@ -123,14 +123,14 @@ export default function CostDashboardPage() {
         <div>
           <h1 style={{ fontSize: 18, fontWeight: 600, marginBottom: 4 }}>Cost &amp; Usage</h1>
           <p style={{ fontSize: 13 }}>
-            Spend across all sources · This month: $49.30 / $50 budget · Forecast: $54.20
+            Spend across all sources Â· This month: $49.30 / $50 budget Â· Forecast: $54.20
           </p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <select
             style={{
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: 13,
               padding: '4px 8px',
             }}
@@ -147,7 +147,7 @@ export default function CostDashboardPage() {
             Set budget
           </Button>
           <Button size="sm" type="button">
-            Optimisation →
+            Optimisation â†’
           </Button>
         </div>
       </div>
@@ -163,7 +163,7 @@ export default function CostDashboardPage() {
             warn: true,
           },
           { label: 'vs prior month', value: '+12%', delta: '$5.40 increase', warn: false },
-          { label: 'Top driver', value: 'AI', delta: '$23.40 · 47.5%', warn: false },
+          { label: 'Top driver', value: 'AI', delta: '$23.40 Â· 47.5%', warn: false },
         ].map((s) => (
           <div key={s.label} className="rounded-md border bg-card p-4">
             <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
@@ -171,13 +171,13 @@ export default function CostDashboardPage() {
             </div>
             <div
               className="text-[22px] font-semibold tabular-nums tabular-nums"
-              style={{ color: s.warn ? 'var(--fg-warning, #d97706)' : undefined }}
+              style={{ color: s.warn ? 'oklch(0.55 0.15 75)' : undefined }}
             >
               {s.value}
             </div>
             <div
               className="mt-1 text-[11px] text-muted-foreground"
-              style={{ color: s.warn ? 'var(--fg-warning, #d97706)' : undefined }}
+              style={{ color: s.warn ? 'oklch(0.55 0.15 75)' : undefined }}
             >
               {s.delta}
             </div>
@@ -195,7 +195,7 @@ export default function CostDashboardPage() {
           style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
         >
           <span className="text-sm font-semibold" style={{ fontSize: 13 }}>
-            Spend trend · 90 days
+            Spend trend Â· 90 days
           </span>
           <div
             style={{
@@ -267,7 +267,7 @@ export default function CostDashboardPage() {
                   alignItems: 'center',
                   gap: 12,
                   padding: '10px 16px',
-                  borderTop: idx === 0 ? undefined : '1px solid var(--border-default)',
+                  borderTop: idx === 0 ? undefined : '1px solid var(--border)',
                 }}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -316,13 +316,13 @@ export default function CostDashboardPage() {
                   alignItems: 'center',
                   gap: 12,
                   padding: '12px 16px',
-                  borderTop: idx === 0 ? undefined : '1px solid var(--border-default)',
+                  borderTop: idx === 0 ? undefined : '1px solid var(--border)',
                 }}
               >
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 500 }}>{p.name}</div>
                   <div style={{ fontSize: 11 }}>
-                    {p.calls} AI calls · {p.pct}% of total
+                    {p.calls} AI calls Â· {p.pct}% of total
                   </div>
                 </div>
                 <MiniBar pct={p.pct} />
@@ -384,7 +384,7 @@ export default function CostDashboardPage() {
                             height: 4,
                             borderRadius: 2,
                             width: Math.max(pct * 1.2, 4),
-                            background: 'var(--accent-primary)',
+                            background: 'var(--primary)',
                             maxWidth: 80,
                           }}
                         />
@@ -405,13 +405,13 @@ export default function CostDashboardPage() {
       <div
         style={{
           borderRadius: 6,
-          border: '1px solid var(--fg-warning, #d97706)',
+          border: '1px solid oklch(0.55 0.15 75)',
           background: 'oklch(0.97 0.03 75)',
           padding: 16,
         }}
       >
-        <p style={{ fontSize: 13, fontWeight: 500, color: 'var(--fg-warning, #b45309)' }}>
-          ⚠ Budget alert: forecast exceeds monthly budget by $4.20
+        <p style={{ fontSize: 13, fontWeight: 500, color: 'oklch(0.55 0.15 75)' }}>
+          âš  Budget alert: forecast exceeds monthly budget by $4.20
         </p>
         <p style={{ marginTop: 4, fontSize: 12 }}>
           UI generation (Stage 6) is the top driver. Consider switching to a less expensive model

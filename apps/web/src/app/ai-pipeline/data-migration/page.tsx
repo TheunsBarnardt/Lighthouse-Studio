@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useState } from 'react';
@@ -21,7 +21,7 @@ export default function DataMigrationPage() {
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <h1>Data Migration</h1>
-              <div className="subtitle">Optional stage · Skipped for greenfield projects</div>
+              <div className="subtitle">Optional stage Â· Skipped for greenfield projects</div>
             </div>
           </div>
 
@@ -31,7 +31,7 @@ export default function DataMigrationPage() {
                 className="rounded-md border bg-card text-card-foreground p-4"
                 style={{ textAlign: 'center', padding: 48 }}
               >
-                <div style={{ fontSize: 32, marginBottom: 16 }}>⊘</div>
+                <div style={{ fontSize: 32, marginBottom: 16 }}>âŠ˜</div>
                 <div
                   style={{
                     fontWeight: 600,
@@ -57,7 +57,7 @@ export default function DataMigrationPage() {
                     href="/ai-pipeline/ui-generation"
                     className="inline-flex items-center justify-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                   >
-                    Skip to UI generation →
+                    Skip to UI generation â†’
                   </Link>
                 </div>
               </div>
@@ -67,7 +67,7 @@ export default function DataMigrationPage() {
                   <span className="text-sm font-semibold">When to use this stage</span>
                 </div>
                 <p style={{ fontSize: 13, lineHeight: '20px' }}>
-                  Use the data migration stage when bringing existing data into a new schema — for
+                  Use the data migration stage when bringing existing data into a new schema â€” for
                   example, migrating from a CSV export, a legacy SQL Server database, or a
                   spreadsheet. The platform generates schema-aware import scripts with column
                   mapping, PII handling, and dry-run validation before applying.
@@ -85,19 +85,19 @@ export default function DataMigrationPage() {
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     {[
-                      { icon: '📄', label: 'CSV / Excel', desc: 'Spreadsheet exports' },
-                      { icon: '🗄', label: 'SQL Server', desc: 'MSSQL direct connection' },
-                      { icon: '🐘', label: 'PostgreSQL', desc: 'Existing Postgres DB' },
-                      { icon: '🍃', label: 'MongoDB', desc: 'Document collections' },
-                      { icon: '☁', label: 'Airtable', desc: 'Base export via API' },
-                      { icon: '📊', label: 'Salesforce', desc: 'Object export via API' },
+                      { icon: 'ðŸ“„', label: 'CSV / Excel', desc: 'Spreadsheet exports' },
+                      { icon: 'ðŸ—„', label: 'SQL Server', desc: 'MSSQL direct connection' },
+                      { icon: 'ðŸ˜', label: 'PostgreSQL', desc: 'Existing Postgres DB' },
+                      { icon: 'ðŸƒ', label: 'MongoDB', desc: 'Document collections' },
+                      { icon: 'â˜', label: 'Airtable', desc: 'Base export via API' },
+                      { icon: 'ðŸ“Š', label: 'Salesforce', desc: 'Object export via API' },
                     ].map((source) => (
                       <div
                         key={source.label}
                         style={{
                           padding: 12,
-                          border: '1px solid var(--border-default)',
-                          borderRadius: 'var(--shell-radius-sm)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '4px',
                         }}
                       >
                         <div style={{ fontSize: 18, marginBottom: 4 }}>{source.icon}</div>
@@ -121,7 +121,7 @@ export default function DataMigrationPage() {
                   }}
                   className=""
                 >
-                  ← Back
+                  â† Back
                 </Button>
               </div>
               <div style={{ marginBottom: 16 }}>
@@ -157,8 +157,8 @@ export default function DataMigrationPage() {
               <div
                 style={{
                   padding: 20,
-                  borderRadius: 'var(--shell-radius-md)',
-                  border: '1px solid var(--border-default)',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border)',
                   textAlign: 'center',
                   fontSize: 13,
                 }}

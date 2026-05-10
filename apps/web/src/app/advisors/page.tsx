@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 
@@ -20,7 +20,7 @@ const GROUPS = [
         status: 'good',
         finding: '3 opportunities',
         href: '/advisors/lighthouse',
-        desc: 'LCP 1.8s · CLS 0.04 · INP 187ms',
+        desc: 'LCP 1.8s Â· CLS 0.04 Â· INP 187ms',
       },
       {
         title: 'Accessibility',
@@ -28,7 +28,7 @@ const GROUPS = [
         status: 'good',
         finding: '2 issues',
         href: '/advisors/a11y',
-        desc: 'WCAG 2.1 AA · 2 contrast warnings',
+        desc: 'WCAG 2.1 AA Â· 2 contrast warnings',
       },
       {
         title: 'Best Practices',
@@ -36,7 +36,7 @@ const GROUPS = [
         status: 'good',
         finding: '0 issues',
         href: '/advisors/best-practices',
-        desc: 'HTTPS · no console errors · modern APIs',
+        desc: 'HTTPS Â· no console errors Â· modern APIs',
       },
     ],
   },
@@ -49,7 +49,7 @@ const GROUPS = [
         status: 'attention',
         finding: '4 vulns',
         href: '/advisors/cve',
-        desc: '1 high · 2 medium · 1 low across 412 deps',
+        desc: '1 high Â· 2 medium Â· 1 low across 412 deps',
       },
       {
         title: 'Pentest / DAST',
@@ -57,7 +57,7 @@ const GROUPS = [
         status: 'good',
         finding: '0 high',
         href: '/advisors/pentest',
-        desc: 'OWASP Top 10 · last scan 4 days ago',
+        desc: 'OWASP Top 10 Â· last scan 4 days ago',
       },
       {
         title: 'SAST / Static analysis',
@@ -127,13 +127,13 @@ function statusLabel(status: string) {
   if (status === 'good') return 'Good';
   if (status === 'medium') return 'Watch';
   if (status === 'attention') return 'Attention';
-  return '—';
+  return 'â€”';
 }
 
 function scoreColor(status: string) {
-  if (status === 'good') return 'var(--fg-success)';
-  if (status === 'medium') return 'var(--fg-warning)';
-  return 'var(--fg-danger)';
+  if (status === 'good') return 'oklch(0.40 0.14 145)';
+  if (status === 'medium') return 'oklch(0.45 0.14 75)';
+  return 'var(--destructive)';
 }
 
 export default function AdvisorsPage() {
@@ -143,7 +143,7 @@ export default function AdvisorsPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Advisors</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Quality, security, performance, cost — across the entire platform. Last full scan 12
+            Quality, security, performance, cost â€” across the entire platform. Last full scan 12
             minutes ago.
           </div>
         </div>
@@ -155,7 +155,7 @@ export default function AdvisorsPage() {
             Schedule scan
           </Button>
           <Button size="sm" type="button">
-            ▶ Re-scan all
+            â–¶ Re-scan all
           </Button>
         </div>
       </div>
@@ -176,14 +176,14 @@ export default function AdvisorsPage() {
             Open security issues
           </div>
           <div className="text-[22px] font-semibold tabular-nums">7</div>
-          <div className="mt-1 text-[11px] text-muted-foreground">1 high · 4 medium · 2 low</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">1 high Â· 4 medium Â· 2 low</div>
         </div>
         <div className="rounded-md border bg-card p-4">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
             DB advisories
           </div>
           <div className="text-[22px] font-semibold tabular-nums">10</div>
-          <div className="mt-1 text-[11px] text-muted-foreground">3 sec · 7 perf</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">3 sec Â· 7 perf</div>
         </div>
         <div className="rounded-md border bg-card p-4">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
@@ -228,7 +228,7 @@ export default function AdvisorsPage() {
                   className="rounded-md border bg-card text-card-foreground p-4"
                   style={{ cursor: 'pointer', transition: 'border-color 100ms' }}
                   onMouseOver={(e) => {
-                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--accent-primary)';
+                    (e.currentTarget as HTMLElement).style.borderColor = 'var(--primary)';
                   }}
                   onMouseOut={(e) => {
                     (e.currentTarget as HTMLElement).style.borderColor = '';

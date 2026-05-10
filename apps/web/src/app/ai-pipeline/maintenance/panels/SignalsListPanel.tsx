@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Bug, Zap, Package, MessageSquare, Plus } from 'lucide-react';
 import { useState } from 'react';
@@ -107,13 +107,13 @@ export function SignalsListPanel() {
             key={signal.id}
             style={{
               border: selectedSignals.has(signal.id)
-                ? '1px solid var(--accent-primary)'
-                : '1px solid var(--border-default)',
+                ? '1px solid var(--primary)'
+                : '1px solid var(--border)',
               borderRadius: 6,
               padding: 16,
               cursor: 'pointer',
               background: selectedSignals.has(signal.id)
-                ? 'color-mix(in srgb, var(--accent-primary) 5%, transparent)'
+                ? 'color-mix(in srgb, var(--primary) 5%, transparent)'
                 : 'transparent',
             }}
             onClick={() => {
@@ -166,7 +166,7 @@ export function SignalsListPanel() {
                   {signal.message}
                 </p>
                 <p style={{ fontSize: 11, marginTop: 4 }}>
-                  {signal.occurrences} occurrence{signal.occurrences !== 1 ? 's' : ''} · first seen{' '}
+                  {signal.occurrences} occurrence{signal.occurrences !== 1 ? 's' : ''} Â· first seen{' '}
                   {signal.firstSeen}
                 </p>
               </div>

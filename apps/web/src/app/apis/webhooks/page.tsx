@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 interface Webhook {
   id: string;
@@ -14,8 +14,8 @@ interface Webhook {
 const WEBHOOKS: Webhook[] = [
   {
     id: 'hook_4d92e3',
-    name: 'Slack notifications · #sales',
-    url: 'https://hooks.slack.com/services/T0•••/B0•••',
+    name: 'Slack notifications Â· #sales',
+    url: 'https://hooks.slack.com/services/T0â€¢â€¢â€¢/B0â€¢â€¢â€¢',
     events: '3 events',
     status: 'enabled',
     successRate: '99.7%',
@@ -34,7 +34,7 @@ const WEBHOOKS: Webhook[] = [
   },
   {
     id: 'hook_a3f291',
-    name: 'Customer.io · audience updates',
+    name: 'Customer.io Â· audience updates',
     url: 'https://track.customer.io/api/v1/customers/{id}',
     events: '2 events',
     status: 'enabled',
@@ -48,7 +48,7 @@ const WEBHOOKS: Webhook[] = [
     url: 'https://accounting.acme.local/webhook',
     events: '1 event',
     status: 'paused',
-    successRate: '—',
+    successRate: 'â€”',
     lastDelivery: 'Yesterday',
     total: 12,
   },
@@ -153,9 +153,9 @@ export default function WebhooksPage() {
     <div className="mx-auto max-w-[1440px] p-6" style={{ maxWidth: 1280 }}>
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Webhooks · Outgoing</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Webhooks Â· Outgoing</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Notify external systems on data changes · 5 hooks · 4 active · 1 paused
+            Notify external systems on data changes Â· 5 hooks Â· 4 active Â· 1 paused
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -181,7 +181,7 @@ export default function WebhooksPage() {
         </div>
         <div className="rounded-md border bg-card p-4">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-            Deliveries · 30d
+            Deliveries Â· 30d
           </div>
           <div className="text-[22px] font-semibold tabular-nums">2,295</div>
           <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
@@ -207,8 +207,8 @@ export default function WebhooksPage() {
       <div
         className="rounded-md border bg-card text-card-foreground p-4"
         style={{
-          background: 'var(--bg-danger-subtle)',
-          borderColor: 'var(--fg-danger)',
+          background: 'oklch(0.96 0.04 25)',
+          borderColor: 'var(--destructive)',
           marginBottom: 16,
         }}
       >
@@ -216,7 +216,7 @@ export default function WebhooksPage() {
           <div>
             <div style={{ fontWeight: 600, marginBottom: 4 }}>Legacy CRM bridge is failing</div>
             <div style={{ fontSize: 13 }}>
-              12.4% success rate over the last 24 hours · 41 of 47 deliveries returned 503. Endpoint
+              12.4% success rate over the last 24 hours Â· 41 of 47 deliveries returned 503. Endpoint
               may be down.
             </div>
           </div>
@@ -247,7 +247,7 @@ export default function WebhooksPage() {
                 <th>URL</th>
                 <th>Events</th>
                 <th>Status</th>
-                <th>Success · 24h</th>
+                <th>Success Â· 24h</th>
                 <th>Last delivery</th>
                 <th className="tabular-nums">Total</th>
                 <th></th>
@@ -280,7 +280,7 @@ export default function WebhooksPage() {
                       className="tabular-nums"
                       style={{
                         fontSize: 12,
-                        color: !isNaN(rateNum) && rateNum < 90 ? 'var(--fg-danger)' : undefined,
+                        color: !isNaN(rateNum) && rateNum < 90 ? 'var(--destructive)' : undefined,
                       }}
                     >
                       {hook.successRate}
@@ -306,7 +306,7 @@ export default function WebhooksPage() {
       >
         <div className="mb-3 flex items-center justify-between border-b pb-3">
           <div className="text-sm font-semibold">Recent deliveries</div>
-          <div style={{ fontSize: 12 }}>Last 50 events · all hooks</div>
+          <div style={{ fontSize: 12 }}>Last 50 events Â· all hooks</div>
         </div>
         <div className="overflow-hidden rounded-md border">
           <table className="w-full border-collapse text-sm">

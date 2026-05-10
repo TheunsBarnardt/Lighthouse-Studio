@@ -1,12 +1,12 @@
-'use client';
+﻿'use client';
 
 import { Button } from '@/components/ui/button';
 
 const SERVICES = [
-  { name: 'API · REST', uptime: '99.97%', outages: [3] },
-  { name: 'API · GraphQL', uptime: '99.99%', outages: [] },
-  { name: 'Database · primary', uptime: '100%', outages: [] },
-  { name: 'Database · read replica', uptime: '99.92%', outages: [12, 47] },
+  { name: 'API Â· REST', uptime: '99.97%', outages: [3] },
+  { name: 'API Â· GraphQL', uptime: '99.99%', outages: [] },
+  { name: 'Database Â· primary', uptime: '100%', outages: [] },
+  { name: 'Database Â· read replica', uptime: '99.92%', outages: [12, 47] },
   { name: 'Edge functions', uptime: '99.94%', outages: [22] },
   { name: 'Storage', uptime: '100%', outages: [] },
   { name: 'Realtime', uptime: '99.98%', outages: [3] },
@@ -16,7 +16,7 @@ const SERVICES = [
 const INCIDENTS = [
   {
     when: '3 days ago',
-    service: 'API · REST',
+    service: 'API Â· REST',
     type: 'degraded',
     duration: '14m',
     impact: 'Elevated latency on /functions/v1/*',
@@ -24,7 +24,7 @@ const INCIDENTS = [
   },
   {
     when: '14 days ago',
-    service: 'DB · read replica',
+    service: 'DB Â· read replica',
     type: 'degraded',
     duration: '8m',
     impact: 'Replica lag spike',
@@ -40,7 +40,7 @@ const INCIDENTS = [
   },
   {
     when: '47 days ago',
-    service: 'DB · read replica',
+    service: 'DB Â· read replica',
     type: 'degraded',
     duration: '11m',
     impact: 'High connection pool usage',
@@ -65,10 +65,10 @@ function UptimeBar({ outages }: { outages: number[] }) {
               minWidth: 2,
               borderRadius: 1,
               background: isOutage
-                ? 'var(--fg-danger)'
+                ? 'var(--destructive)'
                 : isDegraded
-                  ? 'var(--fg-warning)'
-                  : 'var(--fg-success)',
+                  ? 'oklch(0.45 0.14 75)'
+                  : 'oklch(0.40 0.14 145)',
               cursor: 'pointer',
             }}
           />
@@ -85,7 +85,7 @@ export default function UptimePage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Uptime / Status</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            All systems operational · Last incident 3 days ago · Public status:
+            All systems operational Â· Last incident 3 days ago Â· Public status:
             status.acme.platform.local
           </div>
         </div>
@@ -107,8 +107,8 @@ export default function UptimePage() {
         className="rounded-md border bg-card text-card-foreground p-4"
         style={{
           marginBottom: 16,
-          background: 'var(--bg-success-subtle)',
-          borderColor: 'var(--fg-success)',
+          background: 'oklch(0.96 0.04 145)',
+          borderColor: 'oklch(0.40 0.14 145)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -117,7 +117,7 @@ export default function UptimePage() {
               style={{
                 width: 12,
                 height: 12,
-                background: 'var(--fg-success)',
+                background: 'oklch(0.40 0.14 145)',
                 borderRadius: '50%',
                 flexShrink: 0,
               }}
@@ -125,7 +125,7 @@ export default function UptimePage() {
             <div>
               <div style={{ fontWeight: 600 }}>All systems operational</div>
               <div style={{ fontSize: 13 }}>
-                8 of 8 services responding normally · last check 30 seconds ago
+                8 of 8 services responding normally Â· last check 30 seconds ago
               </div>
             </div>
           </div>
@@ -153,7 +153,7 @@ export default function UptimePage() {
         </div>
         <div className="rounded-md border bg-card p-4">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
-            Total downtime · 90d
+            Total downtime Â· 90d
           </div>
           <div className="text-[22px] font-semibold tabular-nums">37m</div>
           <div className="mt-1 text-[11px] text-muted-foreground">3 incidents</div>
@@ -164,7 +164,7 @@ export default function UptimePage() {
           </div>
           <div className="text-[22px] font-semibold tabular-nums">12m</div>
           <div className="mt-1 text-[11px] text-muted-foreground text-emerald-600">
-            −4m vs prior
+            âˆ’4m vs prior
           </div>
         </div>
       </div>
@@ -178,14 +178,14 @@ export default function UptimePage() {
           className="mb-3 flex items-center justify-between border-b pb-3"
           style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         >
-          <div className="text-sm font-semibold">Service status · last 90 days</div>
+          <div className="text-sm font-semibold">Service status Â· last 90 days</div>
           <div style={{ display: 'flex', gap: 12, fontSize: 11 }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
               <span
                 style={{
                   width: 8,
                   height: 8,
-                  background: 'var(--fg-success)',
+                  background: 'oklch(0.40 0.14 145)',
                   borderRadius: 1,
                   display: 'inline-block',
                 }}
@@ -197,7 +197,7 @@ export default function UptimePage() {
                 style={{
                   width: 8,
                   height: 8,
-                  background: 'var(--fg-warning)',
+                  background: 'oklch(0.45 0.14 75)',
                   borderRadius: 1,
                   display: 'inline-block',
                 }}
@@ -209,7 +209,7 @@ export default function UptimePage() {
                 style={{
                   width: 8,
                   height: 8,
-                  background: 'var(--fg-danger)',
+                  background: 'var(--destructive)',
                   borderRadius: 1,
                   display: 'inline-block',
                 }}

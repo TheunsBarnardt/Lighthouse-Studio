@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { ArrowRight } from 'lucide-react';
 import { useState } from 'react';
@@ -83,7 +83,7 @@ export function EngageStageDialog({ requestId: _requestId, onClose }: Props) {
                     gap: 12,
                     padding: 8,
                     borderRadius: 4,
-                    border: '1px solid var(--border-default)',
+                    border: '1px solid var(--border)',
                     cursor: 'pointer',
                   }}
                 >
@@ -139,7 +139,7 @@ export function EngageStageDialog({ requestId: _requestId, onClose }: Props) {
             style={{ display: 'flex', alignItems: 'center', gap: 4 }}
           >
             {loading ? (
-              'Engaging…'
+              'Engagingâ€¦'
             ) : (
               <>
                 Engage {selectedStages.size} stage{selectedStages.size !== 1 ? 's' : ''}{' '}

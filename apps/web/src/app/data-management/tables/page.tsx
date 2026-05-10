@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 const TABLES = [
   { name: 'contacts', cols: 8, rows: '1,247', size: '4.2 MB' },
@@ -17,12 +17,12 @@ export default function DatabaseTablesPage() {
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Database Tables</h1>
-          <div style={{ fontSize: 13, marginTop: 4 }}>{TABLES.length} tables · public schema</div>
+          <div style={{ fontSize: 13, marginTop: 4 }}>{TABLES.length} tables Â· public schema</div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <select
             style={{
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
               fontSize: 12,
               padding: '3px 8px',
@@ -34,7 +34,7 @@ export default function DatabaseTablesPage() {
           <input
             placeholder="Search for a table"
             style={{
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
               fontSize: 12,
               padding: '3px 8px',
@@ -65,14 +65,14 @@ export default function DatabaseTablesPage() {
               <tr key={t.name} style={{ cursor: 'pointer' }}>
                 <td>
                   <span className="font-mono text-sm" style={{ fontSize: 12 }}>
-                    <span style={{ marginRight: 6 }}>▦</span>
+                    <span style={{ marginRight: 6 }}>â–¦</span>
                     {t.name}
                   </span>
                 </td>
                 <td className="tabular-nums">{t.cols}</td>
                 <td className="tabular-nums">{t.rows}</td>
                 <td className="tabular-nums">{t.size}</td>
-                <td style={{ fontSize: 12 }}>✕ Disabled</td>
+                <td style={{ fontSize: 12 }}>âœ• Disabled</td>
                 <td>
                   <Button variant="outline" size="xs" type="button">
                     View columns

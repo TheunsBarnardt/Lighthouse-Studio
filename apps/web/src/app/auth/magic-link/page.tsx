@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -16,7 +16,7 @@ const inputStyle: React.CSSProperties = {
   height: 36,
   padding: '0 12px',
   borderRadius: 4,
-  border: '1px solid var(--border-default)',
+  border: '1px solid var(--border)',
   fontSize: 13,
   boxSizing: 'border-box',
 };
@@ -24,7 +24,7 @@ const inputStyle: React.CSSProperties = {
 const cardStyle: React.CSSProperties = {
   padding: 32,
   borderRadius: 8,
-  border: '1px solid var(--border-default)',
+  border: '1px solid var(--border)',
 };
 
 const MagicLinkSchema = z.object({ email: z.string().email() });
@@ -68,10 +68,10 @@ function MagicLinkPageInner() {
             style={{
               padding: '8px 12px',
               borderRadius: 4,
-              border: '1px solid var(--fg-danger, #dc2626)',
+              border: '1px solid var(--destructive, #dc2626)',
               background: 'oklch(0.97 0.02 25)',
               fontSize: 13,
-              color: 'var(--fg-danger, #dc2626)',
+              color: 'var(--destructive, #dc2626)',
             }}
             aria-live="polite"
           >
@@ -79,7 +79,7 @@ function MagicLinkPageInner() {
           </div>
         ) : (
           <p style={{ fontSize: 13 }} aria-live="polite">
-            Signing you in…
+            Signing you inâ€¦
           </p>
         )}
       </div>
@@ -134,7 +134,7 @@ function MagicLinkPageInner() {
             {...form.register('email')}
           />
           {formState.errors.email && (
-            <p style={{ fontSize: 12, color: 'var(--fg-danger, #dc2626)', marginTop: 3 }}>
+            <p style={{ fontSize: 12, color: 'var(--destructive, #dc2626)', marginTop: 3 }}>
               {String(formState.errors.email.message)}
             </p>
           )}

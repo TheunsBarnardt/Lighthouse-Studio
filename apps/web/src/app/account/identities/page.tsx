@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 
@@ -47,7 +47,7 @@ export default function IdentitiesPage() {
                 justifyContent: 'space-between',
                 padding: '0.75rem',
                 borderRadius: '6px',
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
               }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.125rem' }}>
@@ -116,7 +116,7 @@ export default function IdentitiesPage() {
               marginTop: '1rem',
               padding: '0.75rem 1rem',
               borderRadius: '6px',
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: '0.875rem',
             }}
           >

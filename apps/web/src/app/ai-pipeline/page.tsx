@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 
-// Pipeline stepper — shared visual component used across all stage pages
+// Pipeline stepper â€” shared visual component used across all stage pages
 function PipelineStepper({ active }: { active: string }) {
   const steps = [
     { id: 'intent', label: 'Intent', href: '/ai-pipeline/intent-capture', status: 'complete' },
@@ -50,7 +50,7 @@ function PipelineStepper({ active }: { active: string }) {
             <span className="h-1.5 w-1.5 rounded-full bg-current opacity-60" />
             {step.label}
           </Link>
-          {i < steps.length - 1 && <span className="mx-0.5 text-sm text-muted-foreground">›</span>}
+          {i < steps.length - 1 && <span className="mx-0.5 text-sm text-muted-foreground">â€º</span>}
         </span>
       ))}
     </div>
@@ -70,49 +70,49 @@ const STAGES: Stage[] = [
     number: 1,
     name: 'Intent capture',
     status: 'approved',
-    detail: '5 turns · $0.34 · Approved by Joana',
+    detail: '5 turns Â· $0.34 Â· Approved by Joana',
     href: '/ai-pipeline/intent-capture',
   },
   {
     number: 2,
     name: 'Requirements (PRD)',
     status: 'approved',
-    detail: '10 sections · $2.10 · Approved by Marcus',
+    detail: '10 sections Â· $2.10 Â· Approved by Marcus',
     href: '/ai-pipeline/prd-generation',
   },
   {
     number: 3,
     name: 'Design tokens',
     status: 'approved',
-    detail: 'Light + dark · WCAG AA · $0.85',
+    detail: 'Light + dark Â· WCAG AA Â· $0.85',
     href: '/ai-pipeline/design-tokens',
   },
   {
     number: 4,
     name: 'Schema synthesis',
     status: 'approved',
-    detail: '8 tables · 47 columns · 12 PII flags · $1.20',
+    detail: '8 tables Â· 47 columns Â· 12 PII flags Â· $1.20',
     href: '/ai-pipeline/schema-synthesis',
   },
   {
     number: 5,
     name: 'Data migration',
     status: 'pending',
-    detail: 'Greenfield project — no migration needed',
+    detail: 'Greenfield project â€” no migration needed',
     href: '/ai-pipeline/data-migration',
   },
   {
     number: 6,
     name: 'UI generation',
     status: 'in_review',
-    detail: '14 components · 4 awaiting review · $18.50',
+    detail: '14 components Â· 4 awaiting review Â· $18.50',
     href: '/ai-pipeline/ui-generation',
   },
   {
     number: 7,
     name: 'Code generation',
     status: 'pending',
-    detail: '7 functions inventoried · 0 generated',
+    detail: '7 functions inventoried Â· 0 generated',
     href: '/ai-pipeline/code-generation',
   },
   {
@@ -151,12 +151,12 @@ function StageIndicator({ status, number }: { status: Stage['status']; number: n
     flexShrink: 0,
   };
   if (status === 'approved') {
-    return <div style={{ ...base, background: 'var(--bg-success-subtle)' }}>{number}</div>;
+    return <div style={{ ...base, background: 'oklch(0.96 0.04 145)' }}>{number}</div>;
   }
   if (status === 'in_review') {
-    return <div style={{ ...base, background: 'var(--bg-warning-subtle)' }}>{number}</div>;
+    return <div style={{ ...base, background: 'oklch(0.97 0.05 75)' }}>{number}</div>;
   }
-  return <div style={{ ...base, background: 'var(--bg-surface-3)' }}>{number}</div>;
+  return <div style={{ ...base, background: 'var(--muted)' }}>{number}</div>;
 }
 
 function StatusBadge({ status }: { status: Stage['status'] }) {
@@ -190,7 +190,7 @@ export default function AiPipelineOverviewPage() {
           <div>
             <h1>Internal CRM</h1>
             <div className="subtitle">
-              CRM to replace spreadsheet tracking for an 8-person sales team · Created Apr 15, 2026
+              CRM to replace spreadsheet tracking for an 8-person sales team Â· Created Apr 15, 2026
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-2">
@@ -235,7 +235,7 @@ export default function AiPipelineOverviewPage() {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '12px 0',
-                borderBottom: i < STAGES.length - 1 ? '1px solid var(--border-default)' : 'none',
+                borderBottom: i < STAGES.length - 1 ? '1px solid var(--border)' : 'none',
                 textDecoration: 'none',
               }}
             >

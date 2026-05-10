@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Button } from '@/components/ui/button';
 
@@ -29,7 +29,7 @@ const VULNS = [
     desc: 'follow-redirects leaks the proxy authorization header on cross-origin redirects.',
     exploitable: false,
     age: '5 days ago',
-    via: 'transitive · axios → follow-redirects',
+    via: 'transitive Â· axios â†’ follow-redirects',
   },
   {
     id: 'GHSA-c2qf-rxjj-qqgw',
@@ -43,7 +43,7 @@ const VULNS = [
     desc: 'Improper Input Validation in follow-redirects.',
     exploitable: false,
     age: '1 week ago',
-    via: 'transitive · axios → follow-redirects',
+    via: 'transitive Â· axios â†’ follow-redirects',
   },
   {
     id: 'GHSA-cwfw-4gq5-mrqx',
@@ -75,7 +75,7 @@ export default function CvePage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>CVE / Dependencies</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Continuous vulnerability monitoring · GHSA · NVD · OSV.dev · Last scan 2 minutes ago
+            Continuous vulnerability monitoring Â· GHSA Â· NVD Â· OSV.dev Â· Last scan 2 minutes ago
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -104,14 +104,14 @@ export default function CvePage() {
             High
           </div>
           <div className="text-[22px] font-semibold tabular-nums">1</div>
-          <div className="mt-1 text-[11px] text-muted-foreground">CVSS ≥ 7.0</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">CVSS â‰¥ 7.0</div>
         </div>
         <div className="rounded-md border bg-card p-4">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
             Medium
           </div>
           <div className="text-[22px] font-semibold tabular-nums">2</div>
-          <div className="mt-1 text-[11px] text-muted-foreground">4.0–6.9</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">4.0â€“6.9</div>
         </div>
         <div className="rounded-md border bg-card p-4">
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
@@ -128,8 +128,8 @@ export default function CvePage() {
         className="rounded-md border bg-card text-card-foreground p-4"
         style={{
           marginBottom: 16,
-          background: 'var(--bg-danger-subtle)',
-          borderColor: 'var(--fg-danger)',
+          background: 'oklch(0.96 0.04 25)',
+          borderColor: 'var(--destructive)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -144,7 +144,7 @@ export default function CvePage() {
             </div>
           </div>
           <Button size="sm" type="button">
-            ✦ Auto-create CR
+            âœ¦ Auto-create CR
           </Button>
         </div>
       </div>
@@ -170,7 +170,7 @@ export default function CvePage() {
                 <span
                   className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${v.severity === 'high' ? 'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive' : v.severity === 'medium' ? 'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'}`}
                 >
-                  {v.severity.toUpperCase()} · CVSS {v.cvss}
+                  {v.severity.toUpperCase()} Â· CVSS {v.cvss}
                 </span>
                 <span className="font-mono text-sm" style={{ fontSize: 11 }}>
                   {v.id}
@@ -221,11 +221,11 @@ export default function CvePage() {
             </div>
             <div style={{ display: 'flex', gap: 8, fontSize: 11 }}>
               {v.exploitable ? (
-                <span>⚠ Reachable in our code</span>
+                <span>âš  Reachable in our code</span>
               ) : (
                 <span>Not reachable in our code</span>
               )}
-              <span>·</span>
+              <span>Â·</span>
               <span>Detected {v.age}</span>
             </div>
           </div>

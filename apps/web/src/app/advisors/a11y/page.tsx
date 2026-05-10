@@ -1,4 +1,4 @@
-import type React from 'react';
+﻿import type React from 'react';
 
 import { Button } from '@/components/ui/button';
 
@@ -6,7 +6,7 @@ function ScoreRing({ score }: { score: number }) {
   const C = 2 * Math.PI * 44;
   const offset = C - (C * score) / 100;
   const color =
-    score >= 90 ? 'var(--fg-success)' : score >= 50 ? 'var(--fg-warning)' : 'var(--fg-danger)';
+    score >= 90 ? 'oklch(0.40 0.14 145)' : score >= 50 ? 'oklch(0.45 0.14 75)' : 'var(--destructive)';
   return (
     <div style={{ width: 96, height: 96, position: 'relative', flexShrink: 0 }}>
       <svg
@@ -15,7 +15,7 @@ function ScoreRing({ score }: { score: number }) {
       >
         <circle
           fill="none"
-          stroke="var(--bg-hover, #e5e7eb)"
+          stroke="var(--muted, #e5e7eb)"
           strokeWidth={8}
           cx={50}
           cy={50}
@@ -79,7 +79,7 @@ const GROUPS = [
       {
         name: 'Background and foreground have sufficient contrast',
         status: 'warn' as AuditStatus,
-        desc: 'Warning chip text fails AA on light theme · ratio 4.2 : 1 (need 4.5)',
+        desc: 'Warning chip text fails AA on light theme Â· ratio 4.2 : 1 (need 4.5)',
       },
       { name: 'Text on images is legible', status: 'pass' as AuditStatus },
     ],
@@ -124,7 +124,7 @@ export default function A11yPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Accessibility Advisor</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            WCAG 2.1 Level AA · axe-core + Lighthouse · Last scan 12 minutes ago
+            WCAG 2.1 Level AA Â· axe-core + Lighthouse Â· Last scan 12 minutes ago
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -134,7 +134,7 @@ export default function A11yPage() {
               height: 28,
               padding: '0 8px',
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: 12,
             }}
           >
@@ -166,7 +166,7 @@ export default function A11yPage() {
             Accessibility score
           </div>
           <div style={{ fontWeight: 600, fontSize: 16, marginTop: 4 }}>
-            Almost perfect — 2 contrast warnings to fix
+            Almost perfect â€” 2 contrast warnings to fix
           </div>
           <div style={{ fontSize: 13, marginTop: 4 }}>
             Score based on axe-core automated checks. Manual testing recommended for complete
@@ -191,11 +191,11 @@ export default function A11yPage() {
         className="rounded-md border bg-card text-card-foreground p-4"
         style={{
           marginBottom: 16,
-          background: 'var(--bg-warning-subtle)',
-          borderColor: 'var(--fg-warning)',
+          background: 'oklch(0.97 0.05 75)',
+          borderColor: 'oklch(0.45 0.14 75)',
         }}
       >
-        <div style={{ fontWeight: 600, marginBottom: 8 }}>Top finding · contrast</div>
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>Top finding Â· contrast</div>
         <div style={{ fontSize: 13, marginBottom: 12 }}>
           Warning chip text on warning background fails WCAG AA on light theme. Contrast ratio{' '}
           <strong>4.2 : 1</strong>, requires <strong>4.5 : 1</strong> for normal text.
@@ -228,16 +228,16 @@ export default function A11yPage() {
           {g.items.map((item) => {
             const iconBg =
               item.status === 'pass'
-                ? 'var(--bg-success-subtle)'
+                ? 'oklch(0.96 0.04 145)'
                 : item.status === 'fail'
-                  ? 'var(--bg-danger-subtle)'
-                  : 'var(--bg-warning-subtle)';
+                  ? 'oklch(0.96 0.04 25)'
+                  : 'oklch(0.97 0.05 75)';
             const iconColor =
               item.status === 'pass'
-                ? 'var(--fg-success)'
+                ? 'oklch(0.40 0.14 145)'
                 : item.status === 'fail'
-                  ? 'var(--fg-danger)'
-                  : 'var(--fg-warning)';
+                  ? 'var(--destructive)'
+                  : 'oklch(0.45 0.14 75)';
             return (
               <div
                 key={item.name}
@@ -264,7 +264,7 @@ export default function A11yPage() {
                     color: iconColor,
                   }}
                 >
-                  {item.status === 'pass' ? '✓' : item.status === 'fail' ? '✕' : '!'}
+                  {item.status === 'pass' ? 'âœ“' : item.status === 'fail' ? 'âœ•' : '!'}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>

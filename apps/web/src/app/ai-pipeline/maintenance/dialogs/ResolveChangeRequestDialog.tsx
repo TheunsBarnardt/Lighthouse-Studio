@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -81,11 +81,11 @@ export function ResolveChangeRequestDialog({ requestId: _requestId, onClose }: P
                     borderRadius: 6,
                     border:
                       resolution === res.value
-                        ? '1px solid var(--accent-primary)'
-                        : '1px solid var(--border-default)',
+                        ? '1px solid var(--primary)'
+                        : '1px solid var(--border)',
                     background:
                       resolution === res.value
-                        ? 'color-mix(in srgb, var(--accent-primary) 5%, transparent)'
+                        ? 'color-mix(in srgb, var(--primary) 5%, transparent)'
                         : 'transparent',
                     cursor: 'pointer',
                   }}
@@ -116,13 +116,13 @@ export function ResolveChangeRequestDialog({ requestId: _requestId, onClose }: P
                 width: '100%',
                 padding: '6px 8px',
                 borderRadius: 4,
-                border: '1px solid var(--border-default)',
+                border: '1px solid var(--border)',
                 fontSize: 12,
                 resize: 'none',
                 boxSizing: 'border-box',
               }}
               rows={3}
-              placeholder="Any additional context about this resolution…"
+              placeholder="Any additional context about this resolutionâ€¦"
               value={notes}
               onChange={(e) => {
                 setNotes(e.target.value);
@@ -136,7 +136,7 @@ export function ResolveChangeRequestDialog({ requestId: _requestId, onClose }: P
             Cancel
           </Button>
           <Button size="sm" type="button" onClick={handleResolve} disabled={loading}>
-            {loading ? 'Resolving…' : 'Resolve'}
+            {loading ? 'Resolvingâ€¦' : 'Resolve'}
           </Button>
         </div>
       </div>

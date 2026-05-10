@@ -1,4 +1,4 @@
-import type { SelectHTMLAttributes } from 'react';
+import type { CSSProperties, SelectHTMLAttributes } from 'react';
 
 import { forwardRef } from 'react';
 
@@ -8,21 +8,36 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   error?: boolean;
 }
 
+const base: CSSProperties = {
+  display: 'flex',
+  height: 36,
+  width: '100%',
+  appearance: 'none',
+  borderRadius: 'var(--shell-radius-sm)',
+  border: '1px solid var(--border-default)',
+  background: 'var(--bg-input)',
+  color: 'var(--fg-primary)',
+  fontSize: 13,
+  padding: '0 28px 0 10px',
+  outline: 'none',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  transition: 'border-color 100ms, box-shadow 100ms',
+};
+
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, error, children, ...props }, ref) => {
+  ({ className, error, style, children, ...props }, ref) => {
     return (
       <select
         ref={ref}
         aria-invalid={error}
         className={cn(
-          'flex h-9 w-full appearance-none rounded-md border bg-background px-3 py-1 pr-8 text-sm shadow-xs',
-          'cursor-pointer',
-          'transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1',
+          'focus:border-[--border-focus] focus:shadow-[0_0_0_3px_oklch(0.50_0.20_250_/_0.15)]',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          error ? 'border-error focus-visible:ring-error' : 'border-input',
+          error && 'border-[--fg-danger]',
           className,
         )}
+        style={{ ...base, ...style }}
         {...props}
       >
         {children}

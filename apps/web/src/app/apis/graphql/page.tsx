@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 const QUERIES = ['contact(id)', 'contacts(filter)', 'deal(id)', 'deals(filter, sort)', 'me'];
 const MUTATIONS = [
@@ -55,7 +55,7 @@ const RESPONSE_TEXT = `{
 const codeBlockStyle: React.CSSProperties = {
   fontFamily: 'ui-monospace, monospace',
   fontSize: 12,
-  border: '1px solid var(--border-default)',
+  border: '1px solid var(--border)',
   borderRadius: 0,
   padding: '12px',
   margin: 0,
@@ -72,7 +72,7 @@ export default function GraphQLPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>GraphQL</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Auto-generated schema · 14 types · 8 queries · 5 mutations · 3 subscriptions
+            Auto-generated schema Â· 14 types Â· 8 queries Â· 5 mutations Â· 3 subscriptions
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -83,7 +83,7 @@ export default function GraphQLPage() {
             Persisted queries
           </Button>
           <Button size="sm" type="button">
-            ▶ Run query
+            â–¶ Run query
           </Button>
         </div>
       </div>
@@ -97,7 +97,7 @@ export default function GraphQLPage() {
             style={{
               fontFamily: 'ui-monospace, monospace',
               fontSize: 11,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
               padding: '6px 10px',
             }}
@@ -113,7 +113,7 @@ export default function GraphQLPage() {
             style={{
               fontFamily: 'ui-monospace, monospace',
               fontSize: 11,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
               padding: '6px 10px',
             }}
@@ -125,7 +125,7 @@ export default function GraphQLPage() {
           <div className="mb-3 flex items-center justify-between border-b pb-3">
             <div className="text-sm font-semibold">Persisted queries</div>
           </div>
-          <div style={{ fontSize: 13 }}>12 stored · 87% of traffic</div>
+          <div style={{ fontSize: 13 }}>12 stored Â· 87% of traffic</div>
           <div style={{ fontSize: 11, marginTop: 8 }}>
             Recommended for production. Reduces parse overhead.
           </div>
@@ -259,7 +259,7 @@ export default function GraphQLPage() {
               Query
             </span>
             <Button size="xs" type="button">
-              ▶ Run
+              â–¶ Run
             </Button>
           </div>
           <pre style={codeBlockStyle}>{QUERY_TEXT}</pre>
@@ -299,7 +299,7 @@ export default function GraphQLPage() {
             >
               Response
             </span>
-            <span style={{ fontSize: 12 }}>200 · 87ms</span>
+            <span style={{ fontSize: 12 }}>200 Â· 87ms</span>
           </div>
           <pre style={codeBlockStyle}>{RESPONSE_TEXT}</pre>
         </div>

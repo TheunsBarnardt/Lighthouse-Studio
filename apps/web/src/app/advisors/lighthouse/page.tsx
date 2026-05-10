@@ -1,4 +1,4 @@
-import type React from 'react';
+﻿import type React from 'react';
 
 import { Button } from '@/components/ui/button';
 
@@ -6,7 +6,7 @@ function ScoreRing({ score }: { score: number }) {
   const C = 2 * Math.PI * 44;
   const offset = C - (C * score) / 100;
   const color =
-    score >= 90 ? 'var(--fg-success)' : score >= 50 ? 'var(--fg-warning)' : 'var(--fg-danger)';
+    score >= 90 ? 'oklch(0.40 0.14 145)' : score >= 50 ? 'oklch(0.45 0.14 75)' : 'var(--destructive)';
   return (
     <div style={{ width: 80, height: 80, position: 'relative' }}>
       <svg
@@ -15,7 +15,7 @@ function ScoreRing({ score }: { score: number }) {
       >
         <circle
           fill="none"
-          stroke="var(--bg-hover, #e5e7eb)"
+          stroke="var(--muted, #e5e7eb)"
           strokeWidth={8}
           cx={50}
           cy={50}
@@ -67,7 +67,7 @@ const CWV = [
     value: '0.04',
     target: '< 0.1',
     status: 'good' as const,
-    desc: 'Visual stability — sum of layout shift scores.',
+    desc: 'Visual stability â€” sum of layout shift scores.',
   },
   {
     name: 'Interaction to Next Paint (INP)',
@@ -104,13 +104,13 @@ const OPPORTUNITIES = [
     name: 'Defer offscreen images',
     savings: '0.8s',
     desc: '5 images below the fold load eagerly. Add loading="lazy".',
-    evidence: 'product-1.jpg (240KB), hero-bg.png (480KB), feature-2.jpg (180KB)…',
+    evidence: 'product-1.jpg (240KB), hero-bg.png (480KB), feature-2.jpg (180KB)â€¦',
   },
   {
     name: 'Eliminate render-blocking resources',
     savings: '0.4s',
     desc: '2 stylesheets and 1 script block first paint.',
-    evidence: '/css/main.css (24KB) · /js/analytics.js (12KB)',
+    evidence: '/css/main.css (24KB) Â· /js/analytics.js (12KB)',
   },
   {
     name: 'Properly size images',
@@ -151,10 +151,10 @@ const TREND = [
 
 function auditIcon(status: AuditStatus) {
   if (status === 'pass')
-    return { icon: '✓', bg: 'var(--bg-success-subtle)', color: 'var(--fg-success)' };
+    return { icon: 'âœ“', bg: 'oklch(0.96 0.04 145)', color: 'oklch(0.40 0.14 145)' };
   if (status === 'fail')
-    return { icon: '✕', bg: 'var(--bg-danger-subtle)', color: 'var(--fg-danger)' };
-  return { icon: '!', bg: 'var(--bg-warning-subtle)', color: 'var(--fg-warning)' };
+    return { icon: 'âœ•', bg: 'oklch(0.96 0.04 25)', color: 'var(--destructive)' };
+  return { icon: '!', bg: 'oklch(0.97 0.05 75)', color: 'oklch(0.45 0.14 75)' };
 }
 
 export default function LighthousePage() {
@@ -164,7 +164,7 @@ export default function LighthousePage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Lighthouse / Performance</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Core Web Vitals · Last scan 12 minutes ago · Mobile · Slow 4G · 4× CPU throttle
+            Core Web Vitals Â· Last scan 12 minutes ago Â· Mobile Â· Slow 4G Â· 4Ã— CPU throttle
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -174,7 +174,7 @@ export default function LighthousePage() {
               height: 28,
               padding: '0 8px',
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: 12,
             }}
           >
@@ -189,7 +189,7 @@ export default function LighthousePage() {
               height: 28,
               padding: '0 8px',
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: 12,
             }}
           >
@@ -238,7 +238,7 @@ export default function LighthousePage() {
       >
         <div className="mb-3 flex items-center justify-between border-b pb-3">
           <div className="text-sm font-semibold">
-            Core Web Vitals · field data (real users · last 28d)
+            Core Web Vitals Â· field data (real users Â· last 28d)
           </div>
           <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
             Passing
@@ -248,14 +248,14 @@ export default function LighthousePage() {
           {CWV.map((m) => {
             const c =
               m.status === 'good'
-                ? 'var(--fg-success)'
+                ? 'oklch(0.40 0.14 145)'
                 : m.status === 'medium'
-                  ? 'var(--fg-warning)'
-                  : 'var(--fg-danger)';
+                  ? 'oklch(0.45 0.14 75)'
+                  : 'var(--destructive)';
             return (
               <div
                 key={m.name}
-                style={{ padding: 12, border: '1px solid var(--border-default)', borderRadius: 4 }}
+                style={{ padding: 12, border: '1px solid var(--border)', borderRadius: 4 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                   <div style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />
@@ -298,7 +298,7 @@ export default function LighthousePage() {
         <div className="mb-3 flex items-center justify-between border-b pb-3">
           <div className="text-sm font-semibold">Opportunities</div>
           <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-            3 found · ~1.4s savings
+            3 found Â· ~1.4s savings
           </span>
         </div>
         {OPPORTUNITIES.map((o) => (
@@ -323,7 +323,7 @@ export default function LighthousePage() {
                 fontWeight: 700,
                 flexShrink: 0,
                 marginTop: 2,
-                background: 'var(--bg-warning-subtle)',
+                background: 'oklch(0.97 0.05 75)',
               }}
             >
               !
@@ -392,7 +392,7 @@ export default function LighthousePage() {
               <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between' }}>
                 <div style={{ fontWeight: 500, fontSize: 13 }}>{d.name}</div>
                 <div style={{ fontSize: 11 }}>
-                  {d.value} · target {d.target}
+                  {d.value} Â· target {d.target}
                 </div>
               </div>
             </div>
@@ -403,7 +403,7 @@ export default function LighthousePage() {
       {/* Trend */}
       <div className="rounded-md border bg-card text-card-foreground p-4">
         <div className="mb-3 flex items-center justify-between border-b pb-3">
-          <div className="text-sm font-semibold">Trend · 30 days</div>
+          <div className="text-sm font-semibold">Trend Â· 30 days</div>
         </div>
         <div
           style={{
@@ -422,7 +422,7 @@ export default function LighthousePage() {
               style={{
                 flex: 1,
                 height: `${String(v - 70)}%`,
-                background: 'var(--accent-primary)',
+                background: 'var(--primary)',
                 borderRadius: '2px 2px 0 0',
               }}
             />
@@ -437,7 +437,7 @@ export default function LighthousePage() {
           }}
         >
           <span>30 days ago</span>
-          <span>Today · 92</span>
+          <span>Today Â· 92</span>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -78,7 +78,7 @@ function AcceptInvitationPageInner() {
     return (
       <div className="rounded-md border bg-card text-card-foreground p-4" style={cardStyle}>
         <p style={{ fontSize: 13 }} aria-live="polite">
-          Validating invitation…
+          Validating invitationâ€¦
         </p>
       </div>
     );
@@ -112,7 +112,7 @@ function AcceptInvitationPageInner() {
           style={{
             marginBottom: 16,
             borderRadius: 4,
-            background: 'var(--bg-danger-subtle)',
+            background: 'oklch(0.96 0.04 25)',
             padding: '10px 12px',
             fontSize: 13,
           }}
@@ -148,7 +148,7 @@ function AcceptInvitationPageInner() {
               }}
               disabled={accepting}
             >
-              {accepting ? 'Accepting…' : 'Accept invitation'}
+              {accepting ? 'Acceptingâ€¦' : 'Accept invitation'}
             </Button>
           )}
         </div>

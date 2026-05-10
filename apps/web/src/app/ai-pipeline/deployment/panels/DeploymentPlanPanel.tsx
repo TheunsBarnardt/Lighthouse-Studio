@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { AlertTriangle, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
@@ -94,7 +94,7 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
             }}
             disabled={isGenerating}
           >
-            {isGenerating ? 'Generating…' : 'Generate Deployment Plan'}
+            {isGenerating ? 'Generatingâ€¦' : 'Generate Deployment Plan'}
           </Button>
         </div>
       </div>
@@ -117,7 +117,7 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
         <div>
           <h2 style={{ fontWeight: 600, fontSize: 14 }}>Deployment Plan v0.0.1</h2>
           <p style={{ fontSize: 12, marginTop: 2 }}>
-            3 environments · {DEMO_MIGRATIONS.length} migrations · {DEMO_IRREVERSIBLE.length}{' '}
+            3 environments Â· {DEMO_MIGRATIONS.length} migrations Â· {DEMO_IRREVERSIBLE.length}{' '}
             irreversible operations
           </p>
         </div>
@@ -136,8 +136,8 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
         <div
           style={{
             borderRadius: 6,
-            border: '1px solid var(--fg-danger)',
-            background: 'color-mix(in srgb, var(--fg-danger) 6%, transparent)',
+            border: '1px solid var(--destructive)',
+            background: 'color-mix(in srgb, var(--destructive) 6%, transparent)',
             padding: 16,
           }}
         >
@@ -157,7 +157,7 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
 
       {/* Environments */}
       <div
-        style={{ border: '1px solid var(--border-default)', borderRadius: 6, overflow: 'hidden' }}
+        style={{ border: '1px solid var(--border)', borderRadius: 6, overflow: 'hidden' }}
       >
         <Button
           style={{
@@ -192,7 +192,7 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
                   display: 'flex',
                   alignItems: 'flex-start',
                   gap: 16,
-                  borderTop: idx > 0 ? '1px solid var(--border-default)' : undefined,
+                  borderTop: idx > 0 ? '1px solid var(--border)' : undefined,
                 }}
               >
                 <div style={{ flex: 1 }}>
@@ -231,7 +231,7 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
 
       {/* Schema migrations */}
       <div
-        style={{ border: '1px solid var(--border-default)', borderRadius: 6, overflow: 'hidden' }}
+        style={{ border: '1px solid var(--border)', borderRadius: 6, overflow: 'hidden' }}
       >
         <Button
           style={{
@@ -266,7 +266,7 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 12,
-                  borderTop: idx > 0 ? '1px solid var(--border-default)' : undefined,
+                  borderTop: idx > 0 ? '1px solid var(--border)' : undefined,
                 }}
               >
                 <span
@@ -294,7 +294,7 @@ export function DeploymentPlanPanel({ onApproved: onApprovedProp }: Props) {
       {/* Global config */}
       <div
         style={{
-          border: '1px solid var(--border-default)',
+          border: '1px solid var(--border)',
           borderRadius: 6,
           padding: 16,
           display: 'flex',

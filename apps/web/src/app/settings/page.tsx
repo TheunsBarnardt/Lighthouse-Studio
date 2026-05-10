@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import type { ChangeEvent } from 'react';
 
@@ -133,10 +133,10 @@ export default function SettingsPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  borderRadius: 'var(--shell-radius-md)',
+                  borderRadius: '6px',
                   padding: '8px 12px',
                   background: 'var(--muted)',
-                  border: '1px solid var(--border-default)',
+                  border: '1px solid var(--border)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
@@ -178,10 +178,10 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* AI Token Budget — full width */}
+      {/* AI Token Budget â€” full width */}
       <div className="rounded-md border bg-card text-card-foreground p-4">
         <div className="mb-3 flex items-center justify-between border-b pb-3">
-          <div className="text-sm font-semibold">AI Token Budget — this month</div>
+          <div className="text-sm font-semibold">AI Token Budget â€” this month</div>
         </div>
         <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           {/* Budget bar */}
@@ -198,7 +198,7 @@ export default function SettingsPage() {
               <div className="progress-fill" style={{ width: `${String(BUDGET_PCT)}%` }} />
             </div>
             <p style={{ fontSize: 12, margin: 0 }}>
-              {String(BUDGET_PCT)}% used · 16 days remaining in cycle
+              {String(BUDGET_PCT)}% used Â· 16 days remaining in cycle
             </p>
           </div>
 

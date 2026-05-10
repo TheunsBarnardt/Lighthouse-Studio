@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 // ---------------------------------------------------------------------------
 // Data
@@ -17,85 +17,85 @@ const INTEGRATIONS: Integration[] = [
     name: 'Stripe',
     category: 'Payments',
     status: 'connected',
-    description: 'Payments · 2 webhooks active · $12.4k processed today',
-    logo: '💳',
+    description: 'Payments Â· 2 webhooks active Â· $12.4k processed today',
+    logo: 'ðŸ’³',
   },
   {
     name: 'SendGrid',
     category: 'Messaging',
     status: 'connected',
-    description: 'Transactional email · 1.2k sent today',
-    logo: '✉️',
+    description: 'Transactional email Â· 1.2k sent today',
+    logo: 'âœ‰ï¸',
   },
   {
     name: 'Twilio',
     category: 'Messaging',
     status: 'available',
     description: 'SMS, voice, WhatsApp',
-    logo: '📱',
+    logo: 'ðŸ“±',
   },
   {
     name: 'Slack',
     category: 'Messaging',
     status: 'available',
     description: 'Notifications, slash commands',
-    logo: '💬',
+    logo: 'ðŸ’¬',
   },
   {
     name: 'Discord',
     category: 'Messaging',
     status: 'available',
     description: 'Webhooks for community alerts',
-    logo: '🎮',
+    logo: 'ðŸŽ®',
   },
   {
     name: 'Azure Blob',
     category: 'Storage',
     status: 'available',
     description: 'Alternative storage backend',
-    logo: '☁️',
+    logo: 'â˜ï¸',
   },
   {
     name: 'Backblaze B2',
     category: 'Storage',
     status: 'available',
     description: 'S3-compatible cold storage',
-    logo: '🗄️',
+    logo: 'ðŸ—„ï¸',
   },
   {
     name: 'Microsoft Graph',
     category: 'Office',
     status: 'available',
     description: 'Outlook, Teams, Calendar, OneDrive',
-    logo: '🔷',
+    logo: 'ðŸ”·',
   },
   {
     name: 'Google Workspace',
     category: 'Office',
     status: 'available',
     description: 'Gmail, Calendar, Drive, Sheets',
-    logo: '🔴',
+    logo: 'ðŸ”´',
   },
   {
     name: 'HubSpot',
     category: 'Analytics',
     status: 'available',
     description: 'CRM sync, contact lists',
-    logo: '🟠',
+    logo: 'ðŸŸ ',
   },
   {
     name: 'Salesforce',
     category: 'Analytics',
     status: 'available',
     description: 'CRM data sync',
-    logo: '☁️',
+    logo: 'â˜ï¸',
   },
   {
     name: 'Segment',
     category: 'Analytics',
     status: 'available',
     description: 'Event tracking, user analytics',
-    logo: '📊',
+    logo: 'ðŸ“Š',
   },
 ];
 
@@ -121,7 +121,7 @@ export default function IntegrationsPage() {
         <div>
           <h1 style={{ fontSize: 18, fontWeight: 600, marginBottom: 4 }}>Integrations</h1>
           <p style={{ fontSize: 13 }}>
-            Connect external services · {connected.length} connected · {available.length} available
+            Connect external services Â· {connected.length} connected Â· {available.length} available
           </p>
         </div>
         <Button variant="outline" size="sm" type="button">
@@ -178,7 +178,7 @@ export default function IntegrationsPage() {
                     variant="ghost"
                     size="sm"
                     type="button"
-                    style={{ color: 'var(--fg-danger, #dc2626)' }}
+                    style={{ color: 'var(--destructive, #dc2626)' }}
                   >
                     Disconnect
                   </Button>

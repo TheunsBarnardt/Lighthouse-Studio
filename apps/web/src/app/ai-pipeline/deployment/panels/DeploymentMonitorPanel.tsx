@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { CheckCircle2, XCircle, Clock, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -91,7 +91,7 @@ export function DeploymentMonitorPanel({ deploymentId }: Props) {
           <span
             className={`inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground ${isDone ? 'inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground'}`}
           >
-            {isDone ? 'Deployed' : 'Running…'}
+            {isDone ? 'Deployed' : 'Runningâ€¦'}
           </span>
         </div>
         {isDone && (
@@ -112,7 +112,7 @@ export function DeploymentMonitorPanel({ deploymentId }: Props) {
         <div
           style={{
             height: 6,
-            background: 'var(--border-default)',
+            background: 'var(--border)',
             borderRadius: 4,
             overflow: 'hidden',
           }}
@@ -120,7 +120,7 @@ export function DeploymentMonitorPanel({ deploymentId }: Props) {
           <div
             style={{
               height: '100%',
-              background: 'var(--accent-primary)',
+              background: 'var(--primary)',
               transition: 'width 0.7s',
               width: `${String((completedCount / steps.length) * 100)}%`,
             }}
@@ -140,19 +140,19 @@ export function DeploymentMonitorPanel({ deploymentId }: Props) {
               borderRadius: 6,
               border:
                 step.status === 'running'
-                  ? '1px solid var(--fg-warning)'
+                  ? '1px solid oklch(0.45 0.14 75)'
                   : step.status === 'completed'
-                    ? '1px solid var(--fg-success)'
+                    ? '1px solid oklch(0.40 0.14 145)'
                     : step.status === 'failed'
-                      ? '1px solid var(--fg-danger)'
-                      : '1px solid var(--border-default)',
+                      ? '1px solid var(--destructive)'
+                      : '1px solid var(--border)',
               background:
                 step.status === 'running'
-                  ? 'color-mix(in srgb, var(--fg-warning) 6%, transparent)'
+                  ? 'color-mix(in srgb, oklch(0.45 0.14 75) 6%, transparent)'
                   : step.status === 'completed'
-                    ? 'color-mix(in srgb, var(--fg-success) 4%, transparent)'
+                    ? 'color-mix(in srgb, oklch(0.40 0.14 145) 4%, transparent)'
                     : step.status === 'failed'
-                      ? 'color-mix(in srgb, var(--fg-danger) 6%, transparent)'
+                      ? 'color-mix(in srgb, var(--destructive) 6%, transparent)'
                       : 'transparent',
             }}
           >
@@ -176,8 +176,8 @@ export function DeploymentMonitorPanel({ deploymentId }: Props) {
         <div
           style={{
             borderRadius: 6,
-            border: '1px solid var(--fg-success)',
-            background: 'color-mix(in srgb, var(--fg-success) 6%, transparent)',
+            border: '1px solid oklch(0.40 0.14 145)',
+            background: 'color-mix(in srgb, oklch(0.40 0.14 145) 6%, transparent)',
             padding: 16,
           }}
         >

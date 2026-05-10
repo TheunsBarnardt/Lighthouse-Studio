@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useCallback } from 'react';
@@ -119,18 +119,18 @@ export function Topbar({ onSearchOpen }: TopbarProps) {
   return (
     <header
       className="flex items-center gap-3 border-b bg-white px-3 dark:bg-zinc-900"
-      style={{ gridArea: 'topbar', borderColor: 'var(--border-default, #e5e7eb)' }}
+      style={{ gridArea: 'topbar', borderColor: 'var(--border, #e5e7eb)' }}
     >
       {/* Logo */}
       <Link
         href="/"
         className="flex items-center gap-2 text-sm font-semibold no-underline hover:no-underline"
-        style={{ color: 'var(--fg-primary, #1a1a2e)' }}
+        style={{ color: 'var(--foreground, #1a1a2e)' }}
         aria-label="Lighthouse Studio home"
       >
         <span
           className="flex h-[22px] w-[22px] items-center justify-center rounded text-[11px] font-bold text-white"
-          style={{ background: 'var(--accent-primary, #3b6cf4)', borderRadius: '4px' }}
+          style={{ background: 'var(--primary, #3b6cf4)', borderRadius: '4px' }}
           aria-hidden="true"
         >
           L
@@ -157,25 +157,25 @@ export function Topbar({ onSearchOpen }: TopbarProps) {
         type="button"
         className="flex w-[220px] items-center gap-2 rounded border px-2.5 py-1 text-xs"
         style={{
-          borderColor: 'var(--border-default, #e5e7eb)',
-          color: 'var(--fg-tertiary, #9ca3af)',
+          borderColor: 'var(--border, #e5e7eb)',
+          color: 'var(--muted-foreground, #9ca3af)',
           background: 'transparent',
         }}
         onClick={onSearchOpen}
-        aria-label="Open command palette (⌘K)"
+        aria-label="Open command palette (âŒ˜K)"
       >
         <SearchIcon />
         <span>Search...</span>
         <kbd
           className="ml-auto rounded border px-1 text-[10px]"
           style={{
-            borderColor: 'var(--border-default, #e5e7eb)',
-            color: 'var(--fg-secondary, #6b7280)',
-            background: 'var(--bg-surface-2, #f9fafb)',
+            borderColor: 'var(--border, #e5e7eb)',
+            color: 'var(--muted-foreground, #6b7280)',
+            background: 'var(--muted, #f9fafb)',
           }}
           aria-hidden="true"
         >
-          ⌘K
+          âŒ˜K
         </kbd>
       </button>
 
@@ -203,8 +203,8 @@ export function Topbar({ onSearchOpen }: TopbarProps) {
           <span
             className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold"
             style={{
-              background: 'var(--accent-primary-subtle, #e8edfd)',
-              color: 'var(--accent-primary, #3b6cf4)',
+              background: 'var(--primary, #e8edfd)',
+              color: 'var(--primary, #3b6cf4)',
             }}
             aria-hidden="true"
           >

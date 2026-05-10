@@ -1,225 +1,108 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
-import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/auth-context';
+import { useWorkspaceTheme } from '@/hooks/useWorkspaceTheme';
+import { useThemeEditor } from '@/state/theme-editor-store';
 
-const BrandingSchema = z.object({
-  companyName: z.string().max(255).optional(),
-  primaryColor: z
-    .string()
-    .regex(/^#[0-9a-fA-F]{6}$/, 'Must be a hex color like #3b82f6')
-    .optional()
-    .or(z.literal('')),
-  emailFromName: z.string().max(255).optional(),
-  customCss: z.string().optional(),
-});
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-type BrandingValues = z.infer<typeof BrandingSchema>;
+import { AdvancedEditor } from '@/components/branding/advanced';
+import { PresetPicker } from '@/components/branding/preset-picker';
+import { ThemeExportDialog } from '@/components/branding/theme-export-dialog';
+import { TokensPanel } from '@/components/branding/tokens-panel';
 
-const inputStyle: React.CSSProperties = {
-  height: 36,
-  padding: '0 12px',
-  borderRadius: 4,
-  border: '1px solid var(--border-default)',
-  fontSize: 13,
-  width: '100%',
-  boxSizing: 'border-box',
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 12,
-  fontWeight: 500,
-  display: 'block',
-  marginBottom: 6,
-};
-
-export default function WorkspaceBrandingPage() {
+export default function WorkspaceBrandingPage(): JSX.Element {
   const { slug } = useParams<{ slug: string }>();
-  const [loading, setLoading] = useState(true);
-  const [saved, setSaved] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const auth = useAuth();
+  const userId = auth.user?.id ?? 'system';
+  const { theme, loading, error, save, saving, saveError } = useWorkspaceTheme(slug);
 
-  const form = useForm<BrandingValues>({
-    resolver: zodResolver(BrandingSchema),
-    defaultValues: { companyName: '', primaryColor: '', emailFromName: '', customCss: '' },
-  });
+  const setInitial = useThemeEditor((s) => s.setInitial);
+  const applyPreset = useThemeEditor((s) => s.applyPreset);
+  const current = useThemeEditor((s) => s.current);
+  const baseline = useThemeEditor((s) => s.baseline);
 
   useEffect(() => {
-    void fetch(`/api/v1/workspaces/${slug}/branding`, { credentials: 'include' })
-      .then((r) => r.json() as Promise<BrandingValues & { logoFileId?: string }>)
-      .then((d) => {
-        form.reset({
-          companyName: d.companyName ?? '',
-          primaryColor: d.primaryColor ?? '',
-          emailFromName: d.emailFromName ?? '',
-          customCss: d.customCss ?? '',
-        });
-        return;
-      })
-      .catch(() => {
-        /* ignore */
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [slug, form]);
+    if (theme) setInitial(theme);
+  }, [theme, setInitial]);
 
-  async function onSubmit(values: BrandingValues) {
-    setError(null);
-    setSaved(false);
-    const res = await fetch(`/api/v1/workspaces/${slug}/branding`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(values),
-    });
-    if (!res.ok) {
-      const body = (await res.json()) as { message?: string };
-      setError(body.message ?? 'Failed to save branding.');
-      return;
-    }
-    setSaved(true);
+  if (loading || !theme || !current || !baseline) {
+    return (
+      <div className="text-sm text-muted-foreground" aria-live="polite">
+        Loading theme…
+      </div>
+    );
   }
 
-  if (loading)
+  if (error) {
     return (
-      <p style={{ fontSize: 13 }} aria-live="polite">
-        Loading…
-      </p>
+      <div className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+        {error}
+      </div>
     );
+  }
+
+  function handleCustomize(next: typeof current): void {
+    if (!next) return;
+    setInitial(next);
+  }
+
+  async function handleSave(): Promise<void> {
+    if (!current) return;
+    const saved = await save(current);
+    if (saved) setInitial(saved);
+  }
 
   return (
     <div>
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Branding</h1>
+      <div className="mb-6 flex items-end justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold">Branding</h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            Define this workspace's visual identity. Every project inside the workspace inherits these tokens.
+          </p>
+        </div>
+        <ThemeExportDialog theme={current} />
       </div>
 
-      <div className="rounded-md border bg-card text-card-foreground p-4">
-        <div className="mb-3 flex items-center justify-between border-b pb-3">
-          <span className="text-sm font-semibold">Workspace branding</span>
-        </div>
-        <div style={{ padding: 16 }}>
-          <form
-            onSubmit={(e) => {
-              void form.handleSubmit(onSubmit)(e);
-            }}
-            style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
-            noValidate
-          >
-            <div>
-              <label style={labelStyle}>Company name</label>
-              <input style={inputStyle} placeholder="Acme Corp" {...form.register('companyName')} />
-              {form.formState.errors.companyName && (
-                <p style={{ fontSize: 12, marginTop: 4, marginBottom: 0 }}>
-                  {form.formState.errors.companyName.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label style={labelStyle}>Primary colour</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <input
-                  type="color"
-                  style={{
-                    height: 36,
-                    width: 56,
-                    padding: 2,
-                    borderRadius: 4,
-                    border: '1px solid var(--border-default)',
-                    cursor: 'pointer',
-                  }}
-                  {...form.register('primaryColor')}
-                />
-                <input
-                  style={{ ...inputStyle, flex: 1 }}
-                  placeholder="#3b82f6"
-                  {...form.register('primaryColor')}
-                />
-              </div>
-              {form.formState.errors.primaryColor && (
-                <p style={{ fontSize: 12, marginTop: 4, marginBottom: 0 }}>
-                  {form.formState.errors.primaryColor.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label style={labelStyle}>Email from name</label>
-              <input
-                style={inputStyle}
-                placeholder="Acme Corp"
-                {...form.register('emailFromName')}
-              />
-              {form.formState.errors.emailFromName && (
-                <p style={{ fontSize: 12, marginTop: 4, marginBottom: 0 }}>
-                  {form.formState.errors.emailFromName.message}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label style={labelStyle}>Custom CSS variables</label>
-              <textarea
-                style={{
-                  width: '100%',
-                  padding: '8px 12px',
-                  borderRadius: 4,
-                  border: '1px solid var(--border-default)',
-                  fontSize: 13,
-                  fontFamily: 'var(--font-mono, monospace)',
-                  minHeight: 120,
-                  boxSizing: 'border-box',
-                  resize: 'vertical',
-                }}
-                placeholder="--color-primary: #3b82f6;"
-                {...form.register('customCss')}
-              />
-              <p style={{ fontSize: 12, marginTop: 4, marginBottom: 0 }}>
-                Only CSS variable declarations are applied. Unsupported rules are stripped.
-              </p>
-            </div>
-
-            {saved && (
-              <div
-                style={{
-                  borderRadius: 6,
-                  border: '1px solid var(--fg-success)',
-                  background: 'color-mix(in srgb, var(--fg-success) 8%, var(--bg-canvas))',
-                  padding: '10px 14px',
-                  fontSize: 13,
-                }}
-              >
-                Branding saved successfully.
-              </div>
-            )}
-            {error && (
-              <div
-                style={{
-                  borderRadius: 6,
-                  border: '1px solid var(--fg-danger)',
-                  background: 'color-mix(in srgb, var(--fg-danger) 8%, var(--bg-canvas))',
-                  padding: '10px 14px',
-                  fontSize: 13,
-                }}
-              >
-                {error}
-              </div>
-            )}
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? 'Saving…' : 'Save branding'}
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <Tabs defaultValue="presets">
+        <TabsList>
+          <TabsTrigger value="presets">Presets</TabsTrigger>
+          <TabsTrigger value="tokens">Tokens</TabsTrigger>
+          <TabsTrigger value="advanced">Advanced</TabsTrigger>
+        </TabsList>
+        <TabsContent value="presets" className="mt-4">
+          <PresetPicker
+            theme={current}
+            onApplyPreset={(id) => applyPreset(id, userId)}
+            onCustomize={handleCustomize}
+            onSave={() => void handleSave()}
+            saving={saving}
+            saveError={saveError}
+            user={userId}
+          />
+        </TabsContent>
+        <TabsContent value="tokens" className="mt-4">
+          <TokensPanel
+            current={current}
+            onSave={() => void handleSave()}
+            saving={saving}
+            saveError={saveError}
+          />
+        </TabsContent>
+        <TabsContent value="advanced" className="mt-4">
+          <AdvancedEditor
+            baseline={baseline}
+            current={current}
+            onSave={() => void handleSave()}
+            saving={saving}
+            saveError={saveError}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

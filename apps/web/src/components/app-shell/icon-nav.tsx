@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -20,23 +20,23 @@ interface Spacer {
 type NavEntry = NavItem | Divider | Spacer;
 
 const ICON_NAV: NavEntry[] = [
-  { id: 'home', icon: '⌂', tooltip: 'Home', href: '/' },
-  { id: 'ai-pipeline', icon: '✦', tooltip: 'AI Pipeline', href: '/ai-pipeline/intent-capture' },
-  { id: 'approvals', icon: '✓', tooltip: 'Approvals', href: '/approvals', dot: true },
+  { id: 'home', icon: 'âŒ‚', tooltip: 'Home', href: '/' },
+  { id: 'ai-pipeline', icon: 'âœ¦', tooltip: 'AI Pipeline', href: '/ai-pipeline/intent-capture' },
+  { id: 'approvals', icon: 'âœ“', tooltip: 'Approvals', href: '/approvals', dot: true },
   { divider: true },
-  { id: 'table-editor', icon: '▦', tooltip: 'Table Editor', href: '/data-management' },
-  { id: 'designer', icon: '◰', tooltip: 'Schema Designer', href: '/schema-designer' },
-  { id: 'storage', icon: '⊞', tooltip: 'Storage', href: '/storage' },
-  { id: 'edge-functions', icon: '⌥', tooltip: 'Edge Functions', href: '/edge-functions' },
-  { id: 'realtime', icon: '⟳', tooltip: 'Realtime', href: '/realtime' },
-  { id: 'apis', icon: '⇌', tooltip: 'APIs', href: '/apis/rest' },
+  { id: 'table-editor', icon: 'â–¦', tooltip: 'Table Editor', href: '/data-management' },
+  { id: 'designer', icon: 'â—°', tooltip: 'Schema Designer', href: '/schema-designer' },
+  { id: 'storage', icon: 'âŠž', tooltip: 'Storage', href: '/storage' },
+  { id: 'edge-functions', icon: 'âŒ¥', tooltip: 'Edge Functions', href: '/edge-functions' },
+  { id: 'realtime', icon: 'âŸ³', tooltip: 'Realtime', href: '/realtime' },
+  { id: 'apis', icon: 'â‡Œ', tooltip: 'APIs', href: '/apis/rest' },
   { divider: true },
-  { id: 'observability', icon: '◉', tooltip: 'Observability', href: '/metrics' },
-  { id: 'advisors', icon: '◐', tooltip: 'Advisors', href: '/advisors', dot: true },
+  { id: 'observability', icon: 'â—‰', tooltip: 'Observability', href: '/metrics' },
+  { id: 'advisors', icon: 'â—', tooltip: 'Advisors', href: '/advisors', dot: true },
   { divider: true },
-  { id: 'settings', icon: '⚙', tooltip: 'Workspaces & Settings', href: '/workspaces' },
+  { id: 'settings', icon: 'âš™', tooltip: 'Workspaces & Settings', href: '/workspaces' },
   { spacer: true },
-  { id: 'account', icon: '◯', tooltip: 'Account', href: '/account/profile' },
+  { id: 'account', icon: 'â—¯', tooltip: 'Account', href: '/account/profile' },
 ];
 
 function isDivider(item: NavEntry): item is Divider {
@@ -84,7 +84,7 @@ export function IconNav() {
       className="flex flex-col overflow-hidden border-r bg-white py-2 dark:bg-zinc-900"
       style={{
         gridArea: 'iconnav',
-        borderColor: 'var(--border-default, #e5e7eb)',
+        borderColor: 'var(--border, #e5e7eb)',
         gap: '2px',
       }}
       aria-label="Primary navigation"
@@ -96,7 +96,7 @@ export function IconNav() {
               key={`divider-${String(i)}`}
               role="separator"
               className="mx-3 my-1.5"
-              style={{ height: '1px', background: 'var(--border-default, #e5e7eb)' }}
+              style={{ height: '1px', background: 'var(--border, #e5e7eb)' }}
             />
           );
         }
@@ -112,8 +112,8 @@ export function IconNav() {
             className="relative mx-2 flex h-9 w-10 items-center justify-center rounded text-base no-underline transition-colors hover:no-underline"
             style={{
               borderRadius: '4px',
-              background: isActive ? 'var(--bg-selected, #e8edfd)' : 'transparent',
-              color: isActive ? 'var(--accent-primary, #3b6cf4)' : 'var(--fg-secondary, #6b7280)',
+              background: isActive ? 'var(--accent, #e8edfd)' : 'transparent',
+              color: isActive ? 'var(--primary, #3b6cf4)' : 'var(--muted-foreground, #6b7280)',
             }}
             title={item.tooltip}
             aria-label={item.tooltip}
@@ -122,13 +122,13 @@ export function IconNav() {
             {isActive && (
               <span
                 className="absolute -left-2 top-1.5 bottom-1.5 w-0.5 rounded-r"
-                style={{ background: 'var(--accent-primary, #3b6cf4)' }}
+                style={{ background: 'var(--primary, #3b6cf4)' }}
               />
             )}
             {item.dot && !isActive && (
               <span
                 className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full"
-                style={{ background: 'var(--fg-warning, #d97706)' }}
+                style={{ background: 'oklch(0.55 0.15 75)' }}
               />
             )}
             {item.icon}

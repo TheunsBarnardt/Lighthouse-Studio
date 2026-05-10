@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { ExternalLink, Zap, Clock, Link2 } from 'lucide-react';
 
@@ -6,8 +6,8 @@ import type { DocNavItem } from '../page';
 
 const LINKED_SURFACES: Record<string, string[]> = {
   contact: [
-    'Schema Designer → Contact entity',
-    'API Reference → GET /contacts',
+    'Schema Designer â†’ Contact entity',
+    'API Reference â†’ GET /contacts',
     'ContactsTable component',
   ],
   'api-rest': ['Stage 7: API Generation', 'Deployment: REST endpoints'],
@@ -22,7 +22,7 @@ export function DocMetaPanel({ page }: { page: DocNavItem }) {
       style={{
         width: 224,
         flexShrink: 0,
-        borderLeft: '1px solid var(--border-default)',
+        borderLeft: '1px solid var(--border)',
         overflowY: 'auto',
         padding: '16px 16px',
         display: 'flex',

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -12,25 +12,25 @@ interface Props {
 const PRIORITY_OPTIONS = [
   {
     value: 'p0',
-    label: 'P0 — Critical',
+    label: 'P0 â€” Critical',
     badgeClass:
       'inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-medium text-destructive',
   },
   {
     value: 'p1',
-    label: 'P1 — High',
+    label: 'P1 â€” High',
     badgeClass:
       'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
   },
   {
     value: 'p2',
-    label: 'P2 — Medium',
+    label: 'P2 â€” Medium',
     badgeClass:
       'inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
   },
   {
     value: 'p3',
-    label: 'P3 — Low',
+    label: 'P3 â€” Low',
     badgeClass:
       'inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground',
   },
@@ -92,7 +92,7 @@ export function CreateChangeRequestDialog({ signalIds, onClose }: Props) {
                     padding: '4px 10px',
                     border:
                       priority === opt.value
-                        ? '2px solid var(--fg-primary)'
+                        ? '2px solid var(--foreground)'
                         : '2px solid transparent',
                     borderRadius: 4,
                     fontSize: 11,
@@ -142,7 +142,7 @@ export function CreateChangeRequestDialog({ signalIds, onClose }: Props) {
             Cancel
           </Button>
           <Button size="sm" type="button" onClick={handleCreate} disabled={loading}>
-            {loading ? 'Creating…' : 'Create'}
+            {loading ? 'Creatingâ€¦' : 'Create'}
           </Button>
         </div>
       </div>

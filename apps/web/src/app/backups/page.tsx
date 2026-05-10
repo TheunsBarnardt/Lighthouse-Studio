@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Button } from '@/components/ui/button';
 
@@ -6,7 +6,7 @@ const SNAPSHOTS = [
   {
     id: 'snap_20260502_0200',
     created: '2026-05-02 02:00 UTC',
-    type: 'auto · daily',
+    type: 'auto Â· daily',
     size: '38.2 GB',
     retention: '7d retention',
     replicas: 'us-east-1, eu-west-1',
@@ -14,7 +14,7 @@ const SNAPSHOTS = [
   {
     id: 'snap_20260501_0200',
     created: '2026-05-01 02:00 UTC',
-    type: 'auto · daily',
+    type: 'auto Â· daily',
     size: '38.1 GB',
     retention: '7d retention',
     replicas: 'us-east-1, eu-west-1',
@@ -22,7 +22,7 @@ const SNAPSHOTS = [
   {
     id: 'snap_20260430_1247',
     created: '2026-04-30 12:47 UTC',
-    type: 'manual · before migration',
+    type: 'manual Â· before migration',
     size: '37.9 GB',
     retention: '30d retention',
     replicas: 'us-east-1, eu-west-1',
@@ -30,7 +30,7 @@ const SNAPSHOTS = [
   {
     id: 'snap_20260430_0200',
     created: '2026-04-30 02:00 UTC',
-    type: 'auto · daily',
+    type: 'auto Â· daily',
     size: '37.8 GB',
     retention: '7d retention',
     replicas: 'us-east-1, eu-west-1',
@@ -38,7 +38,7 @@ const SNAPSHOTS = [
   {
     id: 'snap_20260429_0200',
     created: '2026-04-29 02:00 UTC',
-    type: 'auto · daily',
+    type: 'auto Â· daily',
     size: '37.7 GB',
     retention: '7d retention',
     replicas: 'us-east-1, eu-west-1',
@@ -46,7 +46,7 @@ const SNAPSHOTS = [
   {
     id: 'snap_20260428_0200',
     created: '2026-04-28 02:00 UTC',
-    type: 'auto · daily',
+    type: 'auto Â· daily',
     size: '37.5 GB',
     retention: '7d retention',
     replicas: 'us-east-1, eu-west-1',
@@ -54,7 +54,7 @@ const SNAPSHOTS = [
   {
     id: 'snap_20260501_W',
     created: '2026-04-27 02:00 UTC',
-    type: 'auto · weekly',
+    type: 'auto Â· weekly',
     size: '37.2 GB',
     retention: '12w retention',
     replicas: 'us-east-1, eu-west-1, glacier',
@@ -64,7 +64,7 @@ const SNAPSHOTS = [
 const DRILLS = [
   { when: '7 days ago', from: 'snap_20260424_W', duration: '14m', ok: true },
   { when: '14 days ago', from: 'snap_20260417_W', duration: '12m', ok: true },
-  { when: '21 days ago', from: 'PITR · point', duration: '8m', ok: true },
+  { when: '21 days ago', from: 'PITR Â· point', duration: '8m', ok: true },
 ];
 
 export default function BackupsPage() {
@@ -74,7 +74,7 @@ export default function BackupsPage() {
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Backups & Recovery</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            PostgreSQL · Last backup 8 hours ago · PITR window: 7 days · Cross-region replicated
+            PostgreSQL Â· Last backup 8 hours ago Â· PITR window: 7 days Â· Cross-region replicated
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -112,7 +112,7 @@ export default function BackupsPage() {
           </div>
           <div className="text-[22px] font-semibold tabular-nums">21</div>
           <div className="mt-1 text-[11px] text-muted-foreground">
-            7 daily · 12 weekly · 2 manual
+            7 daily Â· 12 weekly Â· 2 manual
           </div>
         </div>
         <div className="rounded-md border bg-card p-4">
@@ -135,27 +135,27 @@ export default function BackupsPage() {
         <div className="grid grid-cols-3 gap-4">
           <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
             <span className="text-muted-foreground">Daily snapshot</span>
-            <span className="font-medium">02:00 UTC · 7d retention</span>
+            <span className="font-medium">02:00 UTC Â· 7d retention</span>
           </div>
           <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
             <span className="text-muted-foreground">Weekly snapshot</span>
-            <span className="font-medium">Sun 02:00 UTC · 12w retention</span>
+            <span className="font-medium">Sun 02:00 UTC Â· 12w retention</span>
           </div>
           <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
             <span className="text-muted-foreground">Monthly snapshot</span>
-            <span className="font-medium">1st of month · 12 months</span>
+            <span className="font-medium">1st of month Â· 12 months</span>
           </div>
           <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
             <span className="text-muted-foreground">PITR</span>
-            <span className="font-medium">WAL streaming · 7d window</span>
+            <span className="font-medium">WAL streaming Â· 7d window</span>
           </div>
           <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
             <span className="text-muted-foreground">Replication</span>
-            <span className="font-medium">us-east-1 · eu-west-1 · Glacier (cold)</span>
+            <span className="font-medium">us-east-1 Â· eu-west-1 Â· Glacier (cold)</span>
           </div>
           <div className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0">
             <span className="text-muted-foreground">Encryption</span>
-            <span className="font-medium">AES-256 at rest · TLS in transit</span>
+            <span className="font-medium">AES-256 at rest Â· TLS in transit</span>
           </div>
         </div>
       </div>
@@ -244,7 +244,7 @@ export default function BackupsPage() {
               height: 28,
               padding: '0 8px',
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: 12,
             }}
           />
@@ -266,7 +266,7 @@ export default function BackupsPage() {
               height: 28,
               padding: '0 8px',
               borderRadius: 4,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               fontSize: 12,
             }}
           >

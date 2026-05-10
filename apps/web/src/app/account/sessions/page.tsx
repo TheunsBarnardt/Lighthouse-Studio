@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
@@ -102,7 +102,7 @@ export default function SessionsPage() {
         <div style={{ padding: '1.25rem' }}>
           {loading && (
             <p style={{ fontSize: '0.875rem' }} aria-live="polite">
-              Loading…
+              Loadingâ€¦
             </p>
           )}
           {!loading && sessions.length === 0 && (
@@ -128,7 +128,7 @@ export default function SessionsPage() {
                   justifyContent: 'space-between',
                   padding: '0.75rem',
                   borderRadius: '6px',
-                  border: '1px solid var(--border-default)',
+                  border: '1px solid var(--border)',
                 }}
               >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -158,7 +158,7 @@ export default function SessionsPage() {
                     void revokeSession(session.id);
                   }}
                   disabled={revoking === session.id}
-                  aria-label={`${t('revoke')} — ${parseUserAgent(session.userAgent)}`}
+                  aria-label={`${t('revoke')} â€” ${parseUserAgent(session.userAgent)}`}
                 >
                   {t('revoke')}
                 </Button>

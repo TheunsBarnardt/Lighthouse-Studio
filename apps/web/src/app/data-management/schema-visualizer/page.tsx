@@ -1,31 +1,31 @@
-import { Button } from '@/components/ui/button';
+﻿import { Button } from '@/components/ui/button';
 
 // ---------------------------------------------------------------------------
 // Static SVG ER diagram
 // ---------------------------------------------------------------------------
 //
-// Layout (600×400 viewBox):
-//   contacts  — top-left   (x:20,  y:20,  w:130, h:110)
-//   deals     — center     (x:220, y:140, w:150, h:130)
-//   activities— right      (x:420, y:80,  w:150, h:130)
-//   users     — top-right  (x:420, y:20,  w:130, h:80)
+// Layout (600Ã—400 viewBox):
+//   contacts  â€” top-left   (x:20,  y:20,  w:130, h:110)
+//   deals     â€” center     (x:220, y:140, w:150, h:130)
+//   activitiesâ€” right      (x:420, y:80,  w:150, h:130)
+//   users     â€” top-right  (x:420, y:20,  w:130, h:80)
 //
 // FK lines (center-of-column approximations):
-//   contacts.id → deals.contact_id
-//   users.id    → deals.owner_id
-//   deals.id    → activities.deal_id
-//   contacts.id → activities.contact_id
+//   contacts.id â†’ deals.contact_id
+//   users.id    â†’ deals.owner_id
+//   deals.id    â†’ activities.deal_id
+//   contacts.id â†’ activities.contact_id
 // ---------------------------------------------------------------------------
 
 function ErDiagram() {
   const tableBox = {
     rx: 4,
-    stroke: 'var(--border-emphasis)',
-    headerFill: 'var(--bg-surface-3)',
-    bodyFill: 'var(--bg-surface)',
-    textPrimary: 'var(--fg-primary)',
-    accentText: 'var(--accent-primary)',
-    fkLine: 'var(--accent-primary)',
+    stroke: 'var(--border)',
+    headerFill: 'var(--muted)',
+    bodyFill: 'var(--card)',
+    textPrimary: 'var(--foreground)',
+    accentText: 'var(--primary)',
+    fkLine: 'var(--primary)',
   };
 
   return (
@@ -35,7 +35,7 @@ function ErDiagram() {
       aria-label="Entity-relationship diagram for public schema"
       role="img"
     >
-      {/* ── contacts (x:20, y:20, w:140, h:114) ── */}
+      {/* â”€â”€ contacts (x:20, y:20, w:140, h:114) â”€â”€ */}
       <g aria-label="contacts table">
         <rect
           x="20"
@@ -97,7 +97,7 @@ function ErDiagram() {
         ))}
       </g>
 
-      {/* ── users (x:430, y:20, w:140, h:80) ── */}
+      {/* â”€â”€ users (x:430, y:20, w:140, h:80) â”€â”€ */}
       <g aria-label="users table">
         <rect
           x="430"
@@ -158,7 +158,7 @@ function ErDiagram() {
         ))}
       </g>
 
-      {/* ── deals (x:210, y:140, w:160, h:130) ── */}
+      {/* â”€â”€ deals (x:210, y:140, w:160, h:130) â”€â”€ */}
       <g aria-label="deals table">
         <rect
           x="210"
@@ -222,7 +222,7 @@ function ErDiagram() {
         ))}
       </g>
 
-      {/* ── activities (x:420, y:160, w:160, h:130) ── */}
+      {/* â”€â”€ activities (x:420, y:160, w:160, h:130) â”€â”€ */}
       <g aria-label="activities table">
         <rect
           x="420"
@@ -286,7 +286,7 @@ function ErDiagram() {
         ))}
       </g>
 
-      {/* ── FK lines ── */}
+      {/* â”€â”€ FK lines â”€â”€ */}
       <line
         x1="160"
         y1="58"
@@ -356,13 +356,13 @@ export default function SchemaVisualizerPage() {
         <div>
           <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>Schema Visualizer</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            22 tables · public schema · PostgreSQL 16
+            22 tables Â· public schema Â· PostgreSQL 16
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <select
             style={{
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
               fontSize: 12,
               padding: '3px 8px',
@@ -385,7 +385,7 @@ export default function SchemaVisualizerPage() {
 
       <div
         style={{
-          border: '1px solid var(--border-default)',
+          border: '1px solid var(--border)',
           borderRadius: 6,
           overflow: 'hidden',
           padding: 24,
@@ -405,12 +405,12 @@ export default function SchemaVisualizerPage() {
         }}
       >
         <span>
-          <span style={{ color: 'oklch(0.65 0.16 75)' }}>●</span> Primary key
+          <span style={{ color: 'oklch(0.65 0.16 75)' }}>â—</span> Primary key
         </span>
         <span>
           <span>- - -</span> Foreign key
         </span>
-        <span>○ Nullable</span>
+        <span>â—‹ Nullable</span>
       </div>
     </div>
   );

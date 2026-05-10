@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { ShieldAlert } from 'lucide-react';
 
@@ -82,7 +82,7 @@ export function DependencyAdvisoriesPanel() {
           <div
             key={adv.id}
             style={{
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 6,
               padding: 16,
               display: 'flex',
@@ -125,7 +125,7 @@ export function DependencyAdvisoriesPanel() {
                 </div>
                 <p style={{ fontSize: 12, marginBottom: 4 }}>
                   Installed: <span className="font-mono text-sm">{adv.installedVersion}</span>
-                  {' → '}
+                  {' â†’ '}
                   Fix: <span className="font-mono text-sm">{adv.fixedVersion}</span>
                 </p>
                 <p style={{ fontSize: 13 }}>{adv.description}</p>

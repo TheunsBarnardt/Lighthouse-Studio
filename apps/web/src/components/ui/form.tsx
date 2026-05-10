@@ -1,13 +1,12 @@
 'use client';
 
-import type { ComponentPropsWithoutRef, ElementRef, HTMLAttributes } from 'react';
+import type { ComponentPropsWithoutRef, ElementRef, HTMLAttributes, LabelHTMLAttributes } from 'react';
 import type {
   ControllerProps,
   FieldPath,
   FieldValues,
 } from 'react-hook-form';
 
-import * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
 import { createContext, forwardRef, useContext, useId } from 'react';
 import {
@@ -59,10 +58,8 @@ export const FormItem = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement
 );
 FormItem.displayName = 'FormItem';
 
-export const FormLabel = forwardRef<
-  ElementRef<typeof LabelPrimitive.Root>,
-  ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
->(({ className, ...props }, ref) => {
+export const FormLabel = forwardRef<HTMLLabelElement, LabelHTMLAttributes<HTMLLabelElement>>(
+  ({ className, ...props }, ref) => {
   const { error, formItemId } = useFormField();
   return (
     <Label

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 
@@ -25,7 +25,7 @@ const CODES = ['200', '201', '200', '200', '404', '200', '200', '500', '200', '2
 const ALL_LOG_ENTRIES = Array.from({ length: 20 }, (_, i) => ({
   time: `14:32:${String(15 - i).padStart(2, '0')}`,
   actor: ACTORS[i % ACTORS.length],
-  path: `GET /rest/v1/contacts${i % 3 === 0 ? ` · /by/id/${String(1000 + i)}` : ''}`,
+  path: `GET /rest/v1/contacts${i % 3 === 0 ? ` Â· /by/id/${String(1000 + i)}` : ''}`,
   status: CODES[i % CODES.length],
   latency: `${String(i * 3 + 12)}ms`,
 }));
@@ -77,7 +77,7 @@ export default function LogsPage() {
         <div>
           <h1 style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>{activeStream} Logs</h1>
           <div style={{ fontSize: 13, marginTop: 4 }}>
-            Live tail · 7-day retention · 2,347 entries today
+            Live tail Â· 7-day retention Â· 2,347 entries today
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
@@ -87,7 +87,7 @@ export default function LogsPage() {
               height: 28,
               padding: '0 8px',
               fontSize: 13,
-              border: '1px solid var(--border-default)',
+              border: '1px solid var(--border)',
               borderRadius: 4,
             }}
             placeholder="Filter logs..."
@@ -125,10 +125,10 @@ export default function LogsPage() {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: activeStream === stream ? 'var(--accent-primary)' : 'var(--fg-secondary)',
+              color: activeStream === stream ? 'var(--primary)' : 'var(--muted-foreground)',
               borderBottom:
                 activeStream === stream
-                  ? '2px solid var(--accent-primary)'
+                  ? '2px solid var(--primary)'
                   : '2px solid transparent',
               marginBottom: -1,
             }}
