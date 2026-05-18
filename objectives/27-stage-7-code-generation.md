@@ -21,6 +21,14 @@ Phase 1 (deferred) builds the three-pane shell with mocked diffs. Phase 2 wires 
 
 ---
 
+## 0a. Locked output rule — TS only
+
+Every file Stage 7 emits is **TypeScript**. Extensions: `.ts`. No `.js`. No `.cjs` / `.mjs` unless the runtime forces it (in which case it's still authored in `.ts` and the build emits the runtime form). Mirrors Objective 26 §0's TSX-only rule for the UI side.
+
+Rationale + enforcement parallel §0a of Obj 26. The artifact validator hard-rejects any `.js` file. The agent's system prompt repeats the rule. The diff viewer in the Phase-1 shell refuses to show a hunk that adds a `.js` file.
+
+---
+
 ## 1. Purpose
 
 The UI generated in Stage 6 calls APIs. Some of those APIs are auto-generated (CRUD via Objective 12) and need no custom code. Some require **custom server-side logic** — calculating deal scores in a CRM, publishing posts on a schedule in a blog, aggregating dashboard data nightly, sending notifications when conditions trigger, integrating with third-party APIs.

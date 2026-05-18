@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowUp, Globe, Paperclip, Plus, Sparkles, Wrench } from 'lucide-react';
+import { ArrowUp, Paperclip, Plus, Search, Sparkles, Wrench, Zap } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { ModelPicker } from '@/components/ai/ModelPicker';
@@ -301,18 +301,24 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
                   setModelId(id);
                 }}
               />
-              <ComposerIconButton
+              <ComposerPill title="Instant — faster, may be less thorough" disabled>
+                <Zap style={{ width: 11, height: 11 }} />
+                Instant
+              </ComposerPill>
+              <ComposerPill
                 title="Web search"
                 active={webOn}
                 onClick={() => {
                   setWebOn((v) => !v);
                 }}
               >
-                <Globe style={{ width: 13, height: 13 }} />
-              </ComposerIconButton>
-              <ComposerIconButton title="Attach (coming soon)" disabled>
-                <Paperclip style={{ width: 13, height: 13 }} />
-              </ComposerIconButton>
+                <Search style={{ width: 11, height: 11 }} />
+                Search
+              </ComposerPill>
+              <ComposerPill title="Attach (coming soon)" disabled>
+                <Paperclip style={{ width: 11, height: 11 }} />
+                Attach
+              </ComposerPill>
             </div>
             <button
               type="button"
@@ -320,20 +326,23 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
                 void send();
               }}
               disabled={!input.trim() || busy}
-              title="Send"
+              title="Send (Enter)"
               style={{
-                width: 28,
-                height: 28,
+                width: 32,
+                height: 32,
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: '50%',
+                borderRadius: 8,
                 border: 'none',
-                background: input.trim() && !busy ? 'var(--primary)' : 'var(--muted)',
-                color:
-                  input.trim() && !busy ? 'var(--primary-foreground)' : 'var(--muted-foreground)',
+                background:
+                  input.trim() && !busy
+                    ? 'linear-gradient(135deg, oklch(0.65 0.22 320), oklch(0.62 0.20 280))'
+                    : 'var(--muted)',
+                color: input.trim() && !busy ? 'white' : 'var(--muted-foreground)',
                 cursor: input.trim() && !busy ? 'pointer' : 'not-allowed',
-                transition: 'background 120ms',
+                transition: 'transform 120ms, background 120ms',
+                flexShrink: 0,
               }}
             >
               <ArrowUp style={{ width: 14, height: 14 }} />
@@ -493,7 +502,7 @@ function SystemEvent({
   );
 }
 
-function ComposerIconButton({
+function ComposerPill({
   children,
   title,
   active,
@@ -513,8 +522,10 @@ function ComposerIconButton({
       onClick={onClick}
       disabled={disabled}
       style={{
-        width: 26,
-        height: 26,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 4,
+        padding: '3px 9px',
         border: '1px solid var(--border)',
         borderRadius: 999,
         background: active ? 'var(--accent)' : 'transparent',
@@ -524,10 +535,10 @@ function ComposerIconButton({
             ? 'color-mix(in srgb, var(--muted-foreground) 50%, transparent)'
             : 'var(--muted-foreground)',
         cursor: disabled ? 'not-allowed' : 'pointer',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        fontSize: 11,
+        fontWeight: 500,
         fontFamily: 'inherit',
+        whiteSpace: 'nowrap',
       }}
     >
       {children}

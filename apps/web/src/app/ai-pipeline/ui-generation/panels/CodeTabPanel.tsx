@@ -1,7 +1,8 @@
 'use client';
 
-import { Copy } from 'lucide-react';
-import { useState } from 'react';
+import { Check, Copy, Download } from 'lucide-react';
+import dynamic from 'next/dynamic';
+import { useCallback, useMemo, useState } from 'react';
 
 import { getBlock } from '@/lib/blocks/registry';
 import { getBlockSource } from '@/lib/blocks/sources';
@@ -11,209 +12,287 @@ interface CodeTabPanelProps {
   insertedBlockIds: string[];
 }
 
+// Monaco is ~2MB; lazy-load on first open. Pattern mirrors the schema-designer
+// CodeView and the SQL/Mongo editors elsewhere in this app.
+const MonacoEditor = dynamic(() => import('@monaco-editor/react').then((m) => m.default), {
+  ssr: false,
+  loading: () => (
+    <div
+      style={{
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'var(--muted-foreground)',
+        fontSize: 12,
+      }}
+    >
+      Loading editor…
+    </div>
+  ),
+});
+
 /**
- * Live code view for the current composition.
+ * Live code view for the current composition — Monaco-backed.
  *
- * Shows the base mock component's identity at the top, then a numbered
- * sequence of source-string snippets for every block that's been inserted
- * (from BLOCK_SOURCES). One Copy button per snippet copies just that block's
- * source; one Copy-all at the top copies the full composition.
+ * Renders a single `Page.tsx` file built from:
+ *   - the base page header (`// <ArtifactId>` + import block)
+ *   - one exported component per inserted block (from BLOCK_SOURCES)
+ *   - a default-export Page that composes them in order
  *
- * The base component itself doesn't have a serializable source string yet
- * (mock-components.tsx renders JSX directly). When real artifact generation
- * lands the base will produce a real source artifact too — this panel will
- * concatenate it with the block sources without changes.
+ * Monaco runs in real TypeScript mode (not jsx) — Objective 26 §0 locks
+ * TSX/TS-only for all generated code. The editor surfaces TS diagnostics
+ * inline; we extend `lib.dom` + `react` ambient types so `useState`, JSX,
+ * `HTMLButtonElement`, etc. resolve without project context.
  */
 export function CodeTabPanel({ artifactId, insertedBlockIds }: CodeTabPanelProps) {
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  function copy(key: string, text: string) {
+  const fileSource = useMemo(
+    () => buildPageSource(artifactId, insertedBlockIds),
+    [artifactId, insertedBlockIds],
+  );
+
+  function copyAll() {
     if (typeof navigator === 'undefined') return;
-    void navigator.clipboard.writeText(text).then(() => {
-      setCopiedKey(key);
+    void navigator.clipboard.writeText(fileSource).then(() => {
+      setCopied(true);
       setTimeout(() => {
-        setCopiedKey(null);
-      }, 1200);
+        setCopied(false);
+      }, 1500);
       return undefined;
     });
   }
 
-  const insertedSources: { id: string; name: string; source: string }[] = [];
-  for (const id of insertedBlockIds) {
-    const block = getBlock(id);
-    const source = getBlockSource(id);
-    if (block && source) insertedSources.push({ id, name: block.name, source });
+  function download() {
+    if (typeof window === 'undefined') return;
+    const blob = new Blob([fileSource], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${artifactId}.tsx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
-  const baseHeader = `// Page: ${artifactId}
-// Composition: 1 base component${
-    insertedSources.length > 0
-      ? ` + ${String(insertedSources.length)} inserted block${insertedSources.length === 1 ? '' : 's'}`
-      : ''
-  }
-//
-// Base component lives at apps/web/src/app/preview/mock-components.tsx.
-// When real artifact generation lands (Objective 26 §6), this file is replaced
-// by the actual emitted .tsx for the page.\n`;
-
-  const allSource = [
-    baseHeader,
-    ...insertedSources.map((s) => `// ─── ${s.name} ───\n${s.source}\n`),
-  ].join('\n');
+  const handleMount = useCallback((_editor: unknown, monaco: unknown) => {
+    type MonacoTsApi = {
+      languages: {
+        typescript: {
+          typescriptDefaults: {
+            setCompilerOptions(o: Record<string, unknown>): void;
+            setDiagnosticsOptions(o: Record<string, unknown>): void;
+            addExtraLib(content: string, filePath?: string): void;
+          };
+          JsxEmit: { Preserve: number };
+          ScriptTarget: { ESNext: number };
+          ModuleKind: { ESNext: number };
+          ModuleResolutionKind: { NodeJs: number };
+        };
+      };
+    };
+    const ts = (monaco as MonacoTsApi).languages.typescript;
+    ts.typescriptDefaults.setCompilerOptions({
+      target: ts.ScriptTarget.ESNext,
+      module: ts.ModuleKind.ESNext,
+      moduleResolution: ts.ModuleResolutionKind.NodeJs,
+      jsx: ts.JsxEmit.Preserve,
+      strict: true,
+      esModuleInterop: true,
+      allowSyntheticDefaultImports: true,
+      noEmit: true,
+      isolatedModules: true,
+      skipLibCheck: true,
+    });
+    ts.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: false,
+      noSyntaxValidation: false,
+    });
+    // Minimal React types so JSX in the buffer doesn't show as a parse error.
+    ts.typescriptDefaults.addExtraLib(
+      `declare module 'react' {
+         export type ReactNode = unknown;
+         export type FC<P = unknown> = (props: P) => ReactNode;
+         export function useState<T>(initial: T): [T, (next: T) => void];
+         export function useEffect(fn: () => void | (() => void), deps?: unknown[]): void;
+         export function useMemo<T>(fn: () => T, deps: unknown[]): T;
+         export function useRef<T>(initial: T | null): { current: T | null };
+       }
+       declare namespace JSX {
+         interface IntrinsicElements { [tag: string]: unknown; }
+       }`,
+      'file:///node_modules/@types/react/index.d.ts',
+    );
+  }, []);
 
   return (
-    <div style={{ height: '100%', overflowY: 'auto', background: 'var(--card)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div
         style={{
-          padding: '10px 16px',
+          padding: '8px 14px',
           borderBottom: '1px solid var(--border)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           gap: 8,
           background: 'var(--muted)',
-          position: 'sticky',
-          top: 0,
-          zIndex: 1,
+          flexShrink: 0,
         }}
       >
-        <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--muted-foreground)' }}>
-          {insertedSources.length === 0
-            ? 'Base page · no inserted blocks yet'
-            : `${String(insertedSources.length)} inserted block${insertedSources.length === 1 ? '' : 's'}`}
-        </span>
-        <button
-          type="button"
-          onClick={() => {
-            copy('all', allSource);
-          }}
-          disabled={insertedSources.length === 0}
-          style={{
-            padding: '4px 8px',
-            fontSize: 11,
-            border: '1px solid var(--border)',
-            borderRadius: 4,
-            background: copiedKey === 'all' ? 'var(--accent)' : 'transparent',
-            color: copiedKey === 'all' ? 'var(--primary)' : 'var(--foreground)',
-            cursor: insertedSources.length === 0 ? 'not-allowed' : 'pointer',
-            opacity: insertedSources.length === 0 ? 0.5 : 1,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-            fontFamily: 'inherit',
-          }}
-        >
-          <Copy style={{ width: 11, height: 11 }} />
-          {copiedKey === 'all' ? 'Copied' : 'Copy all'}
-        </button>
-      </div>
-
-      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <Snippet
-          name={`Base · ${artifactId}`}
-          source={`// ${artifactId} (base mock component)
-// Source: apps/web/src/app/preview/mock-components.tsx
-// Edit this file directly to change the base page.`}
-          copyKey="base"
-          copiedKey={copiedKey}
-          onCopy={copy}
-        />
-        {insertedSources.map((s, i) => (
-          <Snippet
-            key={`${s.id}-${String(i)}`}
-            name={`${String(i + 1)}. ${s.name}`}
-            source={s.source}
-            copyKey={`block-${String(i)}`}
-            copiedKey={copiedKey}
-            onCopy={copy}
-          />
-        ))}
-        {insertedSources.length === 0 && (
-          <p
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+          <span
             style={{
-              fontSize: 12,
-              color: 'var(--muted-foreground)',
-              textAlign: 'center',
-              padding: 16,
+              fontFamily: 'ui-monospace, SFMono-Regular, monospace',
+              fontSize: 11,
+              color: 'var(--foreground)',
             }}
           >
-            Insert a block from the BlocksPanel to see its source here.
-          </p>
-        )}
+            {artifactId}.tsx
+          </span>
+          <span style={{ fontSize: 10, color: 'var(--muted-foreground)' }}>
+            {insertedBlockIds.length} inserted block{insertedBlockIds.length === 1 ? '' : 's'}
+          </span>
+          <span
+            style={{
+              fontSize: 9,
+              padding: '1px 6px',
+              borderRadius: 999,
+              background: 'color-mix(in srgb, var(--primary) 14%, transparent)',
+              color: 'var(--primary)',
+              fontWeight: 600,
+              letterSpacing: '0.02em',
+              textTransform: 'uppercase',
+            }}
+          >
+            TSX · TypeScript strict
+          </span>
+        </div>
+        <div style={{ display: 'flex', gap: 6 }}>
+          <button type="button" onClick={copyAll} style={iconBtn(copied)} title="Copy file">
+            {copied ? (
+              <Check style={{ width: 12, height: 12 }} />
+            ) : (
+              <Copy style={{ width: 12, height: 12 }} />
+            )}
+            {copied ? 'Copied' : 'Copy'}
+          </button>
+          <button type="button" onClick={download} style={iconBtn(false)} title="Download .tsx">
+            <Download style={{ width: 12, height: 12 }} />
+            .tsx
+          </button>
+        </div>
+      </div>
+
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <MonacoEditor
+          height="100%"
+          defaultLanguage="typescript"
+          path={`file:///${artifactId}.tsx`}
+          value={fileSource}
+          theme="vs-dark"
+          onMount={handleMount}
+          options={{
+            readOnly: false,
+            minimap: { enabled: false },
+            fontSize: 12,
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+            lineNumbers: 'on',
+            scrollBeyondLastLine: false,
+            wordWrap: 'on',
+            tabSize: 2,
+            renderLineHighlight: 'gutter',
+            scrollbar: { useShadows: false },
+            automaticLayout: true,
+          }}
+        />
       </div>
     </div>
   );
 }
 
-function Snippet({
-  name,
-  source,
-  copyKey,
-  copiedKey,
-  onCopy,
-}: {
-  name: string;
-  source: string;
-  copyKey: string;
-  copiedKey: string | null;
-  onCopy: (key: string, text: string) => void;
-}) {
+function iconBtn(active: boolean): React.CSSProperties {
+  return {
+    padding: '4px 10px',
+    fontSize: 11,
+    border: '1px solid var(--border)',
+    borderRadius: 4,
+    background: active ? 'var(--accent)' : 'transparent',
+    color: active ? 'var(--primary)' : 'var(--foreground)',
+    cursor: 'pointer',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+    fontFamily: 'inherit',
+  };
+}
+
+/**
+ * Build a single full Page.tsx file string from the composition.
+ *
+ * Each inserted block is included as its named export from BLOCK_SOURCES, then
+ * referenced from the default `Page` component. The result compiles standalone
+ * if dropped into a real Next/React project (no platform-specific imports).
+ */
+function buildPageSource(artifactId: string, insertedBlockIds: string[]): string {
+  const seen = new Set<string>();
+  const blocks: { name: string; component: string; source: string }[] = [];
+  for (const id of insertedBlockIds) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const block = getBlock(id);
+    const source = getBlockSource(id);
+    if (!block || !source) continue;
+    const component = inferComponentName(source) ?? toPascal(id);
+    blocks.push({ name: block.name, component, source });
+  }
+
+  const header = `// ${artifactId}.tsx — generated by Lighthouse UI generation.
+// Inserted blocks: ${blocks.length === 0 ? 'none' : blocks.map((b) => b.name).join(', ')}.
+// All output is TSX with TypeScript strict — no JSX/JS variants per Objective 26 §0.
+
+import type { ReactNode } from 'react';
+`;
+
+  const blockSection =
+    blocks.length === 0
+      ? `// No inserted blocks yet — drag from the Blocks tab or use Generate UI to compose.
+`
+      : blocks
+          .map(
+            (b) => `// ── ${b.name} ──────────────────────────────────────────────
+${b.source}
+`,
+          )
+          .join('\n');
+
+  const componentRefs =
+    blocks.length === 0
+      ? '      <p>Base page · drop blocks in to see them composed here.</p>'
+      : blocks.map((b) => `      <${b.component} />`).join('\n');
+
+  const pageDecl = `export default function Page(): ReactNode {
   return (
-    <div style={{ border: '1px solid var(--border)', borderRadius: 6, overflow: 'hidden' }}>
-      <div
-        style={{
-          padding: '6px 12px',
-          borderBottom: '1px solid var(--border)',
-          background: 'var(--muted)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <span
-          style={{
-            fontFamily: 'ui-monospace, SFMono-Regular, monospace',
-            fontSize: 11,
-            color: 'var(--foreground)',
-          }}
-        >
-          {name}
-        </span>
-        <button
-          type="button"
-          onClick={() => {
-            onCopy(copyKey, source);
-          }}
-          title="Copy"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: copiedKey === copyKey ? 'var(--primary)' : 'var(--muted-foreground)',
-            cursor: 'pointer',
-            fontSize: 11,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-          }}
-        >
-          <Copy style={{ width: 11, height: 11 }} />
-          {copiedKey === copyKey ? 'Copied' : 'Copy'}
-        </button>
-      </div>
-      <pre
-        style={{
-          margin: 0,
-          padding: 12,
-          fontSize: 11,
-          fontFamily: 'ui-monospace, SFMono-Regular, monospace',
-          background: 'var(--background)',
-          color: 'var(--foreground)',
-          overflowX: 'auto',
-          lineHeight: 1.5,
-        }}
-      >
-        {source}
-      </pre>
-    </div>
+    <main className="min-h-screen bg-white dark:bg-zinc-950">
+${componentRefs}
+    </main>
   );
+}
+`;
+
+  return `${header}\n${blockSection}\n${pageDecl}`;
+}
+
+function inferComponentName(source: string): string | undefined {
+  const match = /export function (\w+)/.exec(source);
+  return match ? match[1] : undefined;
+}
+
+function toPascal(slug: string): string {
+  return slug
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join('');
 }

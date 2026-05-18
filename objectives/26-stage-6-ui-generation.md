@@ -40,6 +40,20 @@ Together these four capabilities make UI generation feel like Lovable / shadcn s
 
 The locked decisions below cover the visual-edit inspector specifically. Capabilities 1, 3, and the AI-chat half of 4 will accrete their own ADRs as they ship.
 
+### Locked output rule — TSX / TS only, no JSX / JS
+
+Every artifact emitted by Stage 6 — pages, components, hooks, route handlers, build config — is **TypeScript**. File extensions are `.tsx` for anything that renders JSX, `.ts` otherwise. `.jsx` and `.js` are forbidden in the customer project's source tree.
+
+Rationale: strict TS catches the dominant class of generated-code bugs (typos in prop names, missing required fields, wrong return types) before the user ever runs the app. Mixing in JavaScript files defeats this and produces silent-failure surface area we cannot afford.
+
+Enforcement points:
+
+- The Code tab in `/ai-pipeline/ui-generation` runs Monaco in TypeScript-strict mode with `jsx: 'preserve'`; the buffer is a `.tsx` file and diagnostics show inline.
+- The `composeUi` prompt's system message states the rule explicitly; the artifact validator rejects any file whose path ends in `.jsx` or `.js`.
+- `Page.tsx`, `<Block>.tsx`, hooks, and types files all end in `.ts(x)`. No exceptions for "throwaway" scaffolding.
+
+The same rule applies to Stage 7 server-side code (`.ts` only — no `.js` modules) and is locked in Objective 27 §0a.
+
 ---
 
 ## 0a. Visual Edits Addendum (2026-05-18)
