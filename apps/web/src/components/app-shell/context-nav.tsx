@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { PanelLeftClose } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
@@ -8,9 +9,10 @@ import type { ContextNavConfig } from './shell-config';
 
 interface ContextNavProps {
   config: ContextNavConfig;
+  onCollapse?: () => void;
 }
 
-function ContextNavInner({ config }: ContextNavProps) {
+function ContextNavInner({ config, onCollapse }: ContextNavProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -42,20 +44,40 @@ function ContextNavInner({ config }: ContextNavProps) {
     >
       {/* Header */}
       <div
-        className="sticky top-0 z-10 border-b bg-white px-4 py-4 dark:bg-zinc-900"
+        className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-4 py-4 dark:bg-zinc-900"
         style={{ borderColor: 'var(--border, #e5e7eb)' }}
       >
         <p className="text-sm font-semibold" style={{ color: 'var(--foreground, #1a1a2e)' }}>
           {config.title}
         </p>
+        {onCollapse && (
+          <button
+            type="button"
+            onClick={onCollapse}
+            title="Collapse sidebar (⌘.)"
+            aria-label="Collapse sidebar"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 24,
+              height: 24,
+              borderRadius: 4,
+              border: 'none',
+              background: 'transparent',
+              color: 'var(--muted-foreground, #6b7280)',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <PanelLeftClose style={{ width: 14, height: 14 }} />
+          </button>
+        )}
       </div>
 
       {/* Action button */}
       {config.actionLabel && config.actionHref && (
-        <div
-          className="border-b px-3 py-2.5"
-          style={{ borderColor: 'var(--border, #e5e7eb)' }}
-        >
+        <div className="border-b px-3 py-2.5" style={{ borderColor: 'var(--border, #e5e7eb)' }}>
           <Link
             href={config.actionHref}
             className="flex w-full items-center justify-center gap-1.5 rounded px-3 py-1.5 text-xs font-medium text-white no-underline transition-opacity hover:opacity-90 hover:no-underline"
@@ -132,3 +154,5 @@ export function ContextNav(props: ContextNavProps) {
     </Suspense>
   );
 }
+
+export { ContextNavInner };
