@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "turbo dev",
+    "app": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
     "format": "prettier --write .",
