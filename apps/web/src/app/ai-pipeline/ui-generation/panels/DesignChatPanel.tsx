@@ -286,17 +286,56 @@ function Turn({ turn }: { turn: ChatTurn }) {
       style={{
         alignSelf: isUser ? 'flex-end' : 'flex-start',
         maxWidth: '92%',
-        background: isUser ? 'var(--accent)' : 'var(--muted)',
+        background: isUser ? 'var(--accent)' : 'transparent',
         color: 'var(--foreground)',
-        borderRadius: 8,
-        padding: '6px 10px',
+        borderRadius: 10,
+        padding: isUser ? '6px 10px' : '4px 2px',
         fontSize: 12,
-        lineHeight: 1.4,
+        lineHeight: 1.5,
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+        border: isUser ? '1px solid color-mix(in srgb, var(--primary) 14%, transparent)' : 'none',
       }}
     >
+      {!isUser && (
+        <div
+          style={{
+            fontSize: 9,
+            textTransform: 'uppercase',
+            letterSpacing: '0.06em',
+            color: 'var(--muted-foreground)',
+            marginBottom: 2,
+            fontWeight: 600,
+          }}
+        >
+          AI
+        </div>
+      )}
       {turn.content}
+      {turn.isStreaming && (
+        <span
+          aria-hidden
+          style={{
+            display: 'inline-block',
+            width: 7,
+            height: 11,
+            marginLeft: 2,
+            verticalAlign: 'text-bottom',
+            background: 'var(--primary)',
+            opacity: 0.75,
+            animation: 'lh-blink 800ms steps(2) infinite',
+          }}
+        />
+      )}
     </div>
   );
+}
+
+if (typeof document !== 'undefined' && !document.getElementById('lh-blink-style')) {
+  const style = document.createElement('style');
+  style.id = 'lh-blink-style';
+  style.textContent = `@keyframes lh-blink { 0%, 100% { opacity: 0.85; } 50% { opacity: 0.15; } }`;
+  document.head.appendChild(style);
 }
 
 function SystemEvent({

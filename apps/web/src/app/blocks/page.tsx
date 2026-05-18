@@ -1,7 +1,8 @@
 'use client';
 
-import { Search } from 'lucide-react';
+import { Check, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 import { BLOCKS } from '@/lib/blocks/registry';
@@ -17,8 +18,36 @@ import { BLOCK_CATEGORIES, type BlockCategory } from '@/lib/blocks/types';
  * matches exactly what will be rendered when the block is dropped.
  */
 export default function BlocksGalleryPage() {
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<BlockCategory | 'all'>('all');
+  const [recentlyAdded, setRecentlyAdded] = useState<Set<string>>(new Set());
+
+  function quickAdd(blockId: string, e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = window.localStorage.getItem('lighthouse.pendingBlocks');
+      const ids = raw ? (JSON.parse(raw) as string[]) : [];
+      if (!ids.includes(blockId)) ids.push(blockId);
+      window.localStorage.setItem('lighthouse.pendingBlocks', JSON.stringify(ids));
+      setRecentlyAdded((prev) => new Set(prev).add(blockId));
+      setTimeout(() => {
+        setRecentlyAdded((prev) => {
+          const next = new Set(prev);
+          next.delete(blockId);
+          return next;
+        });
+      }, 1400);
+    } catch {
+      // ignore localStorage failure
+    }
+  }
+
+  function jumpToUi() {
+    router.push('/ai-pipeline/ui-generation');
+  }
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -41,9 +70,29 @@ export default function BlocksGalleryPage() {
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 600, margin: 0 }}>Blocks</h1>
           <div style={{ fontSize: 13, color: 'var(--muted-foreground)', marginTop: 4 }}>
-            {BLOCKS.length} pre-built UI patterns. Preview, copy, or drag into UI generation.
+            {BLOCKS.length} pre-built UI patterns. Click <strong>Add</strong> on any card, then open
+            UI generation.
           </div>
         </div>
+        {recentlyAdded.size > 0 && (
+          <button
+            type="button"
+            onClick={jumpToUi}
+            style={{
+              padding: '6px 14px',
+              border: 'none',
+              borderRadius: 6,
+              background: 'var(--primary)',
+              color: 'var(--primary-foreground)',
+              fontSize: 12,
+              fontWeight: 500,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            Open UI generation →
+          </button>
+        )}
       </div>
 
       <div
@@ -141,6 +190,7 @@ export default function BlocksGalleryPage() {
               key={block.id}
               href={`/blocks/${block.id}`}
               style={{
+                position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
                 border: '1px solid var(--border)',
@@ -152,6 +202,51 @@ export default function BlocksGalleryPage() {
                 transition: 'border-color 120ms, transform 120ms',
               }}
             >
+              <button
+                type="button"
+                onClick={(e) => {
+                  quickAdd(block.id, e);
+                }}
+                title={
+                  recentlyAdded.has(block.id)
+                    ? 'Added to UI generation queue'
+                    : 'Add to UI generation'
+                }
+                style={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  zIndex: 2,
+                  padding: '4px 8px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  border: 'none',
+                  borderRadius: 999,
+                  background: recentlyAdded.has(block.id)
+                    ? 'oklch(0.55 0.18 145)'
+                    : 'rgba(15,15,15,0.85)',
+                  color: 'white',
+                  fontSize: 11,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  backdropFilter: 'blur(4px)',
+                  transition: 'background 200ms',
+                }}
+              >
+                {recentlyAdded.has(block.id) ? (
+                  <>
+                    <Check style={{ width: 12, height: 12 }} />
+                    Added
+                  </>
+                ) : (
+                  <>
+                    <Plus style={{ width: 12, height: 12 }} />
+                    Add
+                  </>
+                )}
+              </button>
               <div
                 style={{
                   height: 240,

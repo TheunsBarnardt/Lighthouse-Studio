@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowDown, ArrowUp, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, GripVertical, X } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 
 import type { EditOverlay } from '@/lib/visual-edits/edit-overlay';
@@ -66,8 +66,25 @@ export function PreviewClient({ artifactId, initialOverlay }: PreviewClientProps
     }
 
     window.addEventListener('message', onMessage);
+
+    function onReorder(event: Event) {
+      const detail = (event as CustomEvent<{ dragged: string; target: string }>).detail;
+      setInsertedBlocks((prev) => {
+        const dragIdx = prev.findIndex((b) => b.instanceId === detail.dragged);
+        const dropIdx = prev.findIndex((b) => b.instanceId === detail.target);
+        if (dragIdx === -1 || dropIdx === -1 || dragIdx === dropIdx) return prev;
+        const next = [...prev];
+        // splice always returns the removed element here because dragIdx is in range.
+        const moved = next.splice(dragIdx, 1)[0];
+        next.splice(dropIdx, 0, moved);
+        return next;
+      });
+    }
+
+    window.addEventListener('lighthouse-reorder', onReorder as EventListener);
     return () => {
       window.removeEventListener('message', onMessage);
+      window.removeEventListener('lighthouse-reorder', onReorder as EventListener);
     };
   }, []);
 
@@ -146,6 +163,7 @@ function BlockInstanceWrapper({
   children: ReactNode;
 }) {
   const [hover, setHover] = useState(false);
+  const [draggingOver, setDraggingOver] = useState(false);
   return (
     <div
       data-block-instance={instanceId}
@@ -155,10 +173,35 @@ function BlockInstanceWrapper({
       onMouseLeave={() => {
         setHover(false);
       }}
+      onDragOver={(e) => {
+        if (e.dataTransfer.types.includes('application/x-lighthouse-block-instance')) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          setDraggingOver(true);
+        }
+      }}
+      onDragLeave={() => {
+        setDraggingOver(false);
+      }}
+      onDrop={(e) => {
+        setDraggingOver(false);
+        const draggedId = e.dataTransfer.getData('application/x-lighthouse-block-instance');
+        if (!draggedId || draggedId === instanceId) return;
+        e.preventDefault();
+        window.dispatchEvent(
+          new CustomEvent('lighthouse-reorder', {
+            detail: { dragged: draggedId, target: instanceId },
+          }),
+        );
+      }}
       style={{
         position: 'relative',
         marginTop: 16,
-        outline: hover ? '2px dashed oklch(0.65 0.18 245)' : 'none',
+        outline: draggingOver
+          ? '3px solid oklch(0.55 0.18 145)'
+          : hover
+            ? '2px dashed oklch(0.65 0.18 245)'
+            : 'none',
         outlineOffset: 2,
         borderRadius: 4,
       }}
@@ -181,12 +224,29 @@ function BlockInstanceWrapper({
           }}
         >
           <span
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.setData('application/x-lighthouse-block-instance', instanceId);
+              e.dataTransfer.effectAllowed = 'move';
+            }}
+            title="Drag to reorder"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '2px 4px',
+              color: 'rgba(255,255,255,0.7)',
+              cursor: 'grab',
+            }}
+          >
+            <GripVertical style={{ width: 12, height: 12 }} />
+          </span>
+          <span
             style={{
               fontSize: 10,
               fontFamily: 'ui-monospace, SFMono-Regular, monospace',
               color: 'rgba(255,255,255,0.85)',
               padding: '0 4px',
-              maxWidth: 160,
+              maxWidth: 140,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',

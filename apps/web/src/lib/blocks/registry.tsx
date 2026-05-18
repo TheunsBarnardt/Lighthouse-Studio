@@ -83,7 +83,7 @@ const heroSplit: BlockDefinition = {
   },
   render: () => (
     <section className="px-6 py-16 bg-white dark:bg-zinc-950" data-edit-id="HeroSplit.root">
-      <div className="mx-auto max-w-5xl grid grid-cols-2 gap-12 items-center">
+      <div className="mx-auto max-w-5xl grid grid-cols-1 sm:grid-cols-2 gap-12 items-center">
         <div data-edit-id="HeroSplit.text">
           <h1
             className="text-4xl font-semibold text-zinc-900 dark:text-white mb-3"
@@ -166,7 +166,7 @@ const featureGrid3Col: BlockDefinition = {
         >
           Everything you need
         </h2>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {[
             { id: 'one', title: 'Fast' },
             { id: 'two', title: 'Reliable' },
@@ -216,7 +216,7 @@ const pricing3Tier: BlockDefinition = {
         >
           Pricing
         </h2>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { id: 'free', name: 'Free', price: '$0', featured: false },
             { id: 'pro', name: 'Pro', price: '$29', featured: true },
@@ -303,7 +303,7 @@ const statsRow: BlockDefinition = {
   placeholders: { stat1: '99.9%', stat2: '12k+', stat3: '3.2s', stat4: '24/7' },
   render: () => (
     <section className="px-6 py-12 bg-white dark:bg-zinc-950" data-edit-id="StatsRow.root">
-      <div className="mx-auto max-w-5xl grid grid-cols-4 gap-6">
+      <div className="mx-auto max-w-5xl grid grid-cols-2 sm:grid-cols-4 gap-6">
         {[
           { id: 'uptime', value: '99.9%', label: 'Uptime' },
           { id: 'users', value: '12k+', label: 'Active users' },
@@ -540,7 +540,7 @@ const footer4Col: BlockDefinition = {
       data-edit-id="Footer4Col.root"
     >
       <div className="mx-auto max-w-6xl">
-        <div className="grid grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 mb-8">
           <div data-edit-id="Footer4Col.brand">
             <div className="text-sm font-semibold text-zinc-900 dark:text-white mb-2">Essence</div>
             <p className="text-xs text-zinc-600 dark:text-zinc-400">
@@ -647,7 +647,7 @@ const dashboardStatsCards: BlockDefinition = {
         >
           Dashboard
         </h2>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { id: 'mrr', label: 'MRR', value: '$48,210', delta: '+12%' },
             { id: 'users', label: 'Active users', value: '8,140', delta: '+4%' },

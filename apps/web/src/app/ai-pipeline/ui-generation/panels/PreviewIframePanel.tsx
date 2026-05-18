@@ -155,41 +155,101 @@ export function PreviewIframePanel({
         style={{
           flex: 1,
           overflow: 'auto',
-          background: 'var(--muted)',
+          background:
+            'repeating-linear-gradient(45deg, color-mix(in srgb, var(--muted) 80%, transparent), color-mix(in srgb, var(--muted) 80%, transparent) 12px, color-mix(in srgb, var(--muted) 60%, transparent) 12px, color-mix(in srgb, var(--muted) 60%, transparent) 24px)',
           display: 'flex',
           justifyContent: 'center',
           padding: 16,
         }}
       >
-        <iframe
-          ref={iframeRef}
-          key={`${artifactId}-${String(reloadKey)}`}
-          src={`/preview/${encodeURIComponent(artifactId)}`}
-          title={`Preview of ${artifactId}`}
-          sandbox="allow-scripts allow-same-origin"
-          onDragOver={(e) => {
-            // Allow drops from the BlocksPanel inside the same document.
-            if (e.dataTransfer.types.includes('application/x-lighthouse-block-id')) {
-              e.preventDefault();
-              e.dataTransfer.dropEffect = 'copy';
-            }
-          }}
-          onDrop={(e) => {
-            const blockId = e.dataTransfer.getData('application/x-lighthouse-block-id');
-            if (!blockId) return;
-            e.preventDefault();
-            insertBlockRef.current?.(blockId);
-          }}
+        <div
           style={{
             width: VIEWPORT_WIDTH[viewport],
             maxWidth: '100%',
-            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
             border: '1px solid var(--border)',
-            borderRadius: 6,
+            borderRadius: 8,
             background: 'var(--background)',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+            overflow: 'hidden',
             transition: 'width 150ms ease',
           }}
-        />
+        >
+          {/* Browser-chrome bar: makes it obvious this is the GENERATED app, not the platform shell. */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '6px 12px',
+              borderBottom: '1px solid var(--border)',
+              background: 'var(--muted)',
+              flexShrink: 0,
+            }}
+          >
+            <div style={{ display: 'flex', gap: 4 }}>
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f57' }} />
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#febc2e' }} />
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#28c840' }} />
+            </div>
+            <div
+              style={{
+                flex: 1,
+                fontFamily: 'ui-monospace, SFMono-Regular, monospace',
+                fontSize: 10,
+                color: 'var(--muted-foreground)',
+                padding: '2px 8px',
+                borderRadius: 4,
+                background: 'var(--background)',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              your-app.example.com / {artifactId}
+            </div>
+            <span
+              style={{
+                fontSize: 9,
+                padding: '1px 6px',
+                borderRadius: 999,
+                background: 'color-mix(in srgb, var(--primary) 14%, transparent)',
+                color: 'var(--primary)',
+                fontWeight: 600,
+                letterSpacing: '0.02em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Generated
+            </span>
+          </div>
+          <iframe
+            ref={iframeRef}
+            key={`${artifactId}-${String(reloadKey)}`}
+            src={`/preview/${encodeURIComponent(artifactId)}`}
+            title={`Preview of ${artifactId}`}
+            sandbox="allow-scripts allow-same-origin"
+            onDragOver={(e) => {
+              if (e.dataTransfer.types.includes('application/x-lighthouse-block-id')) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+              }
+            }}
+            onDrop={(e) => {
+              const blockId = e.dataTransfer.getData('application/x-lighthouse-block-id');
+              if (!blockId) return;
+              e.preventDefault();
+              insertBlockRef.current?.(blockId);
+            }}
+            style={{
+              flex: 1,
+              border: 'none',
+              background: 'var(--background)',
+              minHeight: 480,
+            }}
+          />
+        </div>
       </div>
     </div>
   );

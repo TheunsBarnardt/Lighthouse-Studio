@@ -15,6 +15,83 @@ import {
   type SerializedComputedStyle,
 } from './protocol';
 
+declare global {
+  interface Window {
+    axe?: {
+      run: (target: Document | HTMLElement) => Promise<{
+        violations: {
+          id: string;
+          impact: 'minor' | 'moderate' | 'serious' | 'critical' | null;
+          description: string;
+          help: string;
+          helpUrl: string;
+          nodes: { target: string[]; html: string }[];
+        }[];
+        passes: unknown[];
+        incomplete: unknown[];
+      }>;
+    };
+  }
+}
+
+const AXE_CDN_URL = 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.10.2/axe.min.js';
+
+async function loadAxe(): Promise<void> {
+  if (typeof window === 'undefined') return;
+  if (window.axe) return;
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = AXE_CDN_URL;
+    script.async = true;
+    script.crossOrigin = 'anonymous';
+    script.onload = () => {
+      resolve();
+    };
+    script.onerror = () => {
+      reject(new Error('Failed to load axe-core'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
+async function runAxeScan(): Promise<void> {
+  if (typeof window === 'undefined' || window.parent === window) return;
+  try {
+    await loadAxe();
+    if (!window.axe) throw new Error('axe-core not available after load');
+    const result = await window.axe.run(document);
+    const report = {
+      violations: result.violations.map((v) => ({
+        id: v.id,
+        impact: v.impact,
+        description: v.description,
+        help: v.help,
+        helpUrl: v.helpUrl,
+        nodes: v.nodes.map((n) => ({
+          target: n.target.join(' '),
+          html: n.html.slice(0, 200),
+        })),
+      })),
+      passes: result.passes.length,
+      incomplete: result.incomplete.length,
+      ranAt: new Date().toISOString(),
+    };
+    window.parent.postMessage(
+      { source: 'lighthouse-a11y', type: 'a11y-report', report },
+      window.location.origin,
+    );
+  } catch (e) {
+    window.parent.postMessage(
+      {
+        source: 'lighthouse-a11y',
+        type: 'a11y-error',
+        error: e instanceof Error ? e.message : String(e),
+      },
+      window.location.origin,
+    );
+  }
+}
+
 /**
  * Client-side script that lives inside the preview iframe.
  *
@@ -136,6 +213,12 @@ export function SelectionAgent({ initialOverlay }: { initialOverlay: EditOverlay
     if (typeof window === 'undefined') return;
     function onMessage(event: MessageEvent) {
       if (event.origin !== window.location.origin) return;
+      // axe-core a11y scan request (separate envelope, not preview protocol).
+      const maybeA11y = event.data as { source?: string; type?: string } | null;
+      if (maybeA11y && maybeA11y.source === 'lighthouse-a11y' && maybeA11y.type === 'run-a11y') {
+        void runAxeScan();
+        return;
+      }
       if (!isPreviewEnvelope(event.data)) return;
       const payload = event.data.payload as PreviewEventIn;
       switch (payload.type) {
