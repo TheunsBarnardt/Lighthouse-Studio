@@ -1,6 +1,16 @@
 'use client';
 
-import { ArrowUp, Paperclip, Plus, Search, Sparkles, Wrench, Zap } from 'lucide-react';
+import {
+  ArrowUp,
+  Code as CodeIcon,
+  GraduationCap,
+  Newspaper,
+  Paperclip,
+  Plus,
+  Search,
+  Sparkles,
+  Wrench,
+} from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { ModelPicker } from '@/components/ai/ModelPicker';
@@ -18,27 +28,72 @@ interface DesignChatPanelProps {
   onAssistantBlockInsert?: (blockId: string) => void;
 }
 
-const EXAMPLE_PROMPTS = [
-  'Make the navbar dark and remove the second CTA',
-  'Add a pricing section with 3 tiers',
-  'Replace the hero with a split layout that has a screenshot on the right',
-  'Make the form full-width and centered',
+/**
+ * Design chat panel — ported from the open-source t3.chat clone
+ * `TGlide/thom-chat` (cloneathon winner; t3.chat itself is closed-source).
+ *
+ * Key visual choices copied from `src/routes/chat/+layout.svelte` and
+ * `src/routes/chat/[id]/message.svelte` in thom-chat:
+ *   - Empty state with category pills (Create / Explore / Code / Learn) and
+ *     a suggestion list below the selected category.
+ *   - User bubble: bg-secondary/50 + border-secondary/70, self-end, rounded.
+ *   - Assistant: no bubble, just text (prose).
+ *   - Composer wrapped in a glowing rounded-t-[20px] card with multi-layer
+ *     drop shadow and a border-reflect gradient on focus.
+ *   - Pills row to the left of the Send button: model picker, web search.
+ *   - Send button: 36x36 rounded-lg with reflective gradient border.
+ *   - 3 bouncing dots while the AI is "thinking" (no content yet).
+ *
+ * Real SSE streaming via /api/v1/ai-pipeline/ui-generation/compose. Inserted
+ * blocks bubble up via onAssistantBlockInsert.
+ */
+const CATEGORIES = [
+  {
+    id: 'design',
+    icon: Sparkles,
+    label: 'Design',
+    prompts: [
+      'Make the navbar dark and remove the second CTA',
+      'Add a pricing section with 3 tiers',
+      'Replace the hero with a split layout — screenshot on the right',
+      'Make the form full-width and centered',
+    ],
+  },
+  {
+    id: 'compose',
+    icon: Newspaper,
+    label: 'Compose',
+    prompts: [
+      'Lay out a marketing landing page for a developer tool',
+      'Build a CRM dashboard with stats and a recent-activity table',
+      'Make a SaaS pricing page with FAQs and a CTA',
+      'A two-tab onboarding flow with progress',
+    ],
+  },
+  {
+    id: 'code',
+    icon: CodeIcon,
+    label: 'Code',
+    prompts: [
+      'Change the hero h1 to use text-balance and a gradient',
+      'Switch every button to the primary brand color',
+      'Stack the feature grid into one column on mobile',
+      'Add hover scale-105 on the pricing cards',
+    ],
+  },
+  {
+    id: 'learn',
+    icon: GraduationCap,
+    label: 'Learn',
+    prompts: [
+      'Why does my preview show a stale brand color?',
+      'What blocks are in the library right now?',
+      'How do I bind a placeholder to a schema field?',
+      'When should I use the Generate UI button vs the chat?',
+    ],
+  },
 ];
 
-/**
- * Design chat panel — t3.chat-style.
- *
- * Layout (top to bottom):
- *   - Header: "Design chat" title + "New" button (clears thread, keeps model).
- *   - Conversation: assistant turns with AI tag and streaming caret; user
- *     turns as right-aligned bubbles. Empty state shows example prompts.
- *   - System events (visual edits, block insertions) inline between turns.
- *   - Composer: textarea + bottom toolbar with model pill on the left,
- *     attach/web inline buttons (decorative for v1), Send icon on the right.
- *
- * Real SSE streaming via the /api/v1/ai-pipeline/ui-generation/compose endpoint.
- * Block_insert events bubble up via onAssistantBlockInsert.
- */
 export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignChatPanelProps) {
   const [turns, setTurns] = useState<ChatTurn[]>([]);
   const [input, setInput] = useState('');
@@ -51,6 +106,7 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
     return getDefaultModel().id;
   });
   const [webOn, setWebOn] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -67,6 +123,7 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
   function newChat() {
     setTurns([]);
     setInput('');
+    setSelectedCategory(null);
     textareaRef.current?.focus();
   }
 
@@ -82,6 +139,7 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
     ]);
     setInput('');
     setBusy(true);
+    setSelectedCategory(null);
 
     try {
       const res = await fetch('/api/v1/ai-pipeline/ui-generation/compose', {
@@ -150,9 +208,10 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
   }
 
   const empty = turns.length === 0 && (!recentEdits || recentEdits.length === 0);
+  const activeCategory = CATEGORIES.find((c) => c.id === selectedCategory) ?? null;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }}>
       <div
         style={{
           padding: '8px 12px',
@@ -215,7 +274,7 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
         style={{
           flex: 1,
           overflowY: 'auto',
-          padding: empty ? 16 : '12px 12px',
+          padding: empty ? '0 12px' : '12px 12px 140px',
           display: 'flex',
           flexDirection: 'column',
           gap: 12,
@@ -223,7 +282,10 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
       >
         {empty ? (
           <EmptyState
-            onPick={(p) => {
+            activeId={selectedCategory}
+            onPickCategory={setSelectedCategory}
+            activeCategory={activeCategory}
+            onPickPrompt={(p) => {
               void send(p);
             }}
           />
@@ -235,29 +297,47 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
             {turns.map((t) => (
               <Turn key={t.id} turn={t} />
             ))}
+            {busy && turns[turns.length - 1]?.content === '' && <LoadingDots />}
             <div ref={endRef} />
           </>
         )}
       </div>
 
+      {/*
+       * Composer — multi-layer drop shadow + border-reflect gradient via a
+       * CSS-only ::before mask is hard in inline styles, so we layer an
+       * outer rounded card with backdrop-blur, plus a primary-tinted outline
+       * that brightens on focus-within. Matches thom-chat's composer shell.
+       */}
       <div
         style={{
           padding: 10,
           borderTop: '1px solid var(--border)',
-          background: 'var(--card)',
+          background:
+            'linear-gradient(180deg, transparent, color-mix(in srgb, var(--card) 92%, transparent) 28%, var(--card))',
           flexShrink: 0,
         }}
       >
-        <div
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void send();
+          }}
           style={{
-            border: '1px solid var(--border)',
-            borderRadius: 12,
-            padding: 8,
-            background: 'var(--background)',
+            position: 'relative',
             display: 'flex',
             flexDirection: 'column',
-            gap: 6,
-            transition: 'border-color 120ms',
+            gap: 8,
+            padding: '10px 10px 8px',
+            border: '1px solid color-mix(in srgb, var(--primary) 14%, var(--border))',
+            borderRadius: 16,
+            background:
+              'linear-gradient(180deg, color-mix(in srgb, var(--background) 92%, transparent), var(--background))',
+            outline: '8px solid color-mix(in srgb, var(--primary) 6%, transparent)',
+            outlineOffset: -1,
+            boxShadow:
+              '0 80px 50px rgba(0,0,0,0.10), 0 50px 30px rgba(0,0,0,0.07), 0 30px 15px rgba(0,0,0,0.06), 0 15px 8px rgba(0,0,0,0.04), 0 6px 4px rgba(0,0,0,0.04), 0 2px 2px rgba(0,0,0,0.02)',
+            transition: 'outline-color 200ms',
           }}
         >
           <textarea
@@ -273,17 +353,23 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
               }
             }}
             rows={2}
-            placeholder="Ask the AI to modify the design…"
+            placeholder={
+              empty ? 'Ask anything — design, compose, code, learn…' : 'Modify the design…'
+            }
+            disabled={busy}
             style={{
-              padding: '2px 4px',
+              minHeight: 56,
+              maxHeight: 200,
+              padding: '4px 6px',
               border: 'none',
-              fontSize: 13,
+              fontSize: 14,
+              lineHeight: 1.45,
               resize: 'none',
               fontFamily: 'inherit',
               background: 'transparent',
               color: 'var(--foreground)',
               outline: 'none',
-              minHeight: 36,
+              overflowY: 'auto',
             }}
           />
           <div
@@ -291,20 +377,16 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              gap: 4,
+              gap: 6,
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
               <ModelPicker
                 selectedId={modelId}
                 onSelect={(id) => {
                   setModelId(id);
                 }}
               />
-              <ComposerPill title="Instant — faster, may be less thorough" disabled>
-                <Zap style={{ width: 11, height: 11 }} />
-                Instant
-              </ComposerPill>
               <ComposerPill
                 title="Web search"
                 active={webOn}
@@ -312,90 +394,139 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
                   setWebOn((v) => !v);
                 }}
               >
-                <Search style={{ width: 11, height: 11 }} />
+                <Search style={{ width: 12, height: 12 }} />
                 Search
               </ComposerPill>
               <ComposerPill title="Attach (coming soon)" disabled>
-                <Paperclip style={{ width: 11, height: 11 }} />
+                <Paperclip style={{ width: 12, height: 12 }} />
                 Attach
               </ComposerPill>
             </div>
             <button
-              type="button"
-              onClick={() => {
-                void send();
-              }}
+              type="submit"
               disabled={!input.trim() || busy}
               title="Send (Enter)"
               style={{
-                width: 32,
-                height: 32,
+                width: 36,
+                height: 36,
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                borderRadius: 8,
-                border: 'none',
+                borderRadius: 10,
+                border: '1px solid color-mix(in srgb, var(--primary) 30%, transparent)',
                 background:
                   input.trim() && !busy
-                    ? 'linear-gradient(135deg, oklch(0.65 0.22 320), oklch(0.62 0.20 280))'
-                    : 'var(--muted)',
+                    ? 'linear-gradient(135deg, oklch(0.62 0.20 280), oklch(0.65 0.22 320))'
+                    : 'color-mix(in srgb, var(--muted) 80%, transparent)',
                 color: input.trim() && !busy ? 'white' : 'var(--muted-foreground)',
                 cursor: input.trim() && !busy ? 'pointer' : 'not-allowed',
-                transition: 'transform 120ms, background 120ms',
+                transition: 'transform 120ms, background 120ms, box-shadow 120ms',
                 flexShrink: 0,
+                boxShadow:
+                  input.trim() && !busy
+                    ? '0 2px 8px color-mix(in srgb, oklch(0.62 0.20 280) 40%, transparent)'
+                    : 'none',
               }}
             >
-              <ArrowUp style={{ width: 14, height: 14 }} />
+              <ArrowUp style={{ width: 16, height: 16 }} />
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
 }
 
-function EmptyState({ onPick }: { onPick: (prompt: string) => void }) {
+function EmptyState({
+  activeId,
+  activeCategory,
+  onPickCategory,
+  onPickPrompt,
+}: {
+  activeId: string | null;
+  activeCategory: (typeof CATEGORIES)[number] | null;
+  onPickCategory: (id: string | null) => void;
+  onPickPrompt: (p: string) => void;
+}) {
+  // Default suggestions = pick from across categories for variety.
+  const defaults = [
+    CATEGORIES[0].prompts[0],
+    CATEGORIES[1].prompts[0],
+    CATEGORIES[2].prompts[0],
+    CATEGORIES[3].prompts[0],
+  ];
+  const suggestions = activeCategory ? activeCategory.prompts : defaults;
   return (
-    <div
-      style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 14,
-        color: 'var(--muted-foreground)',
-        textAlign: 'center',
-      }}
-    >
-      <Sparkles style={{ width: 22, height: 22, color: 'var(--primary)' }} />
-      <div>
-        <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--foreground)' }}>
-          What should this app feel like?
-        </div>
-        <div style={{ fontSize: 11, marginTop: 4 }}>
-          Pick a starter prompt or describe a change.
-        </div>
+    <div style={{ padding: '14px 0 0' }}>
+      <h2
+        style={{
+          fontFamily: 'ui-serif, Georgia, serif',
+          fontSize: 22,
+          fontWeight: 600,
+          margin: '0 0 12px',
+          color: 'var(--foreground)',
+        }}
+      >
+        Hey there.
+      </h2>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
+        {CATEGORIES.map((c) => {
+          const Icon = c.icon;
+          const isActive = activeId === c.id;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => {
+                onPickCategory(isActive ? null : c.id);
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '6px 12px',
+                borderRadius: 999,
+                border: '1px solid var(--border)',
+                background: isActive
+                  ? 'linear-gradient(135deg, oklch(0.62 0.20 280), oklch(0.65 0.22 320))'
+                  : 'var(--muted)',
+                color: isActive ? 'white' : 'var(--foreground)',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                fontSize: 12,
+                fontWeight: 500,
+                transition: 'background 150ms',
+              }}
+            >
+              <Icon style={{ width: 13, height: 13 }} />
+              {c.label}
+            </button>
+          );
+        })}
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%' }}>
-        {EXAMPLE_PROMPTS.map((p) => (
+      <div style={{ marginTop: 4 }}>
+        {suggestions.map((p, i) => (
           <button
             key={p}
             type="button"
             onClick={() => {
-              onPick(p);
+              onPickPrompt(p);
             }}
             style={{
-              padding: '7px 10px',
-              border: '1px solid var(--border)',
-              borderRadius: 8,
+              width: '100%',
+              textAlign: 'left',
+              padding: '10px 2px',
+              borderTop: i === 0 ? 'none' : '1px solid var(--border)',
+              borderLeft: 'none',
+              borderRight: 'none',
+              borderBottom: 'none',
               background: 'transparent',
               color: 'var(--foreground)',
-              fontSize: 11,
-              textAlign: 'left',
+              fontSize: 12.5,
               cursor: 'pointer',
               fontFamily: 'inherit',
-              lineHeight: 1.4,
+              lineHeight: 1.5,
+              transition: 'color 150ms',
             }}
           >
             {p}
@@ -408,69 +539,93 @@ function EmptyState({ onPick }: { onPick: (prompt: string) => void }) {
 
 function Turn({ turn }: { turn: ChatTurn }) {
   const isUser = turn.role === 'user';
-  return (
-    <div
-      style={{
-        alignSelf: isUser ? 'flex-end' : 'stretch',
-        maxWidth: isUser ? '90%' : '100%',
-      }}
-    >
-      {!isUser && (
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-            fontSize: 9,
-            textTransform: 'uppercase',
-            letterSpacing: '0.08em',
-            color: 'var(--muted-foreground)',
-            marginBottom: 4,
-            fontWeight: 600,
-          }}
-        >
-          <Sparkles style={{ width: 10, height: 10, color: 'var(--primary)' }} />
-          Assistant
-        </div>
-      )}
+  if (isUser) {
+    return (
       <div
         style={{
-          background: isUser ? 'var(--accent)' : 'transparent',
-          color: 'var(--foreground)',
+          alignSelf: 'flex-end',
+          maxWidth: '92%',
+          padding: '6px 10px',
           borderRadius: 12,
-          padding: isUser ? '8px 12px' : '2px 0',
           fontSize: 12.5,
-          lineHeight: 1.55,
+          lineHeight: 1.5,
+          background: 'color-mix(in srgb, var(--accent) 70%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--primary) 14%, transparent)',
+          color: 'var(--foreground)',
           whiteSpace: 'pre-wrap',
           wordBreak: 'break-word',
-          border: isUser ? '1px solid color-mix(in srgb, var(--primary) 14%, transparent)' : 'none',
         }}
       >
         {turn.content}
-        {turn.isStreaming && (
-          <span
-            aria-hidden
-            style={{
-              display: 'inline-block',
-              width: 7,
-              height: 11,
-              marginLeft: 2,
-              verticalAlign: 'text-bottom',
-              background: 'var(--primary)',
-              opacity: 0.75,
-              animation: 'lh-blink 800ms steps(2) infinite',
-            }}
-          />
-        )}
       </div>
+    );
+  }
+  return (
+    <div
+      style={{
+        alignSelf: 'stretch',
+        padding: '2px 2px',
+        color: 'var(--foreground)',
+        fontSize: 12.5,
+        lineHeight: 1.6,
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+      }}
+    >
+      {turn.content}
+      {turn.isStreaming && turn.content.length > 0 && (
+        <span
+          aria-hidden
+          style={{
+            display: 'inline-block',
+            width: 7,
+            height: 11,
+            marginLeft: 2,
+            verticalAlign: 'text-bottom',
+            background: 'var(--primary)',
+            opacity: 0.75,
+            animation: 'lh-blink 800ms steps(2) infinite',
+          }}
+        />
+      )}
     </div>
   );
 }
 
-if (typeof document !== 'undefined' && !document.getElementById('lh-blink-style')) {
+function LoadingDots() {
+  // Direct port of thom-chat/src/routes/chat/[id]/loading-dots.svelte
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 6 }}>
+      {[0, 0.1, 0.2].map((delay) => (
+        <span
+          key={delay}
+          style={{
+            display: 'inline-block',
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: 'var(--accent-foreground, var(--foreground))',
+            opacity: 0.6,
+            animation: `lh-bounce 0.75s ease-in-out ${String(delay)}s infinite`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Inject keyframes once. `lh-blink` was already present from earlier work;
+// `lh-bounce` is new for the thinking-dots animation.
+if (typeof document !== 'undefined' && !document.getElementById('lh-chat-anim')) {
   const style = document.createElement('style');
-  style.id = 'lh-blink-style';
-  style.textContent = `@keyframes lh-blink { 0%, 100% { opacity: 0.85; } 50% { opacity: 0.15; } }`;
+  style.id = 'lh-chat-anim';
+  style.textContent = `
+    @keyframes lh-blink { 0%, 100% { opacity: 0.85; } 50% { opacity: 0.15; } }
+    @keyframes lh-bounce {
+      0%, 100% { transform: translateY(0); opacity: 0.4; }
+      50% { transform: translateY(-6px); opacity: 0.9; }
+    }
+  `;
   document.head.appendChild(style);
 }
 
@@ -525,20 +680,21 @@ function ComposerPill({
         display: 'inline-flex',
         alignItems: 'center',
         gap: 4,
-        padding: '3px 9px',
+        padding: '4px 10px',
         border: '1px solid var(--border)',
         borderRadius: 999,
-        background: active ? 'var(--accent)' : 'transparent',
+        background: active ? 'color-mix(in srgb, var(--accent) 70%, transparent)' : 'transparent',
         color: active
           ? 'var(--primary)'
           : disabled
             ? 'color-mix(in srgb, var(--muted-foreground) 50%, transparent)'
             : 'var(--muted-foreground)',
         cursor: disabled ? 'not-allowed' : 'pointer',
-        fontSize: 11,
+        fontSize: 11.5,
         fontWeight: 500,
         fontFamily: 'inherit',
         whiteSpace: 'nowrap',
+        transition: 'background 120ms',
       }}
     >
       {children}
