@@ -6,6 +6,19 @@
 
 ---
 
+## 0a. UI Surface Note (2026-05-18) — maintenance relocation
+
+The build pipeline UI is **9 stages** (Intent → Deployment). The Maintenance & Evolution capability — signals, change requests, outcomes, dependency advisories — is **continuous**, not a sequential stage, so the dedicated `/ai-pipeline/maintenance` page has been retired. Its panels were redistributed:
+
+- **Signals** → `/observability/signals` (continuous monitoring fits observability)
+- **Outcome tracking** → `/observability/outcomes` (post-deployment metric deltas)
+- **Change requests** → `/operations/change-requests` (the re-engagement bridge back into the pipeline; surfaced as a Cross-cutting link inside the AI Pipeline nav as well)
+- **Dependency advisories** → folded into the existing `/advisors/cve` page
+
+The **logical stage** (signal collection → classification → change request → pipeline re-engagement → outcome tracking) is unchanged. Only the UI consolidation page is gone. See `docs/adr/0280-maintenance-ui-relocated.md`.
+
+---
+
 ## 1. Purpose
 
 Apps don't end at deployment. Bugs surface in production. Users request features. Performance degrades. Requirements evolve. Security advisories emerge. The stage that handles this — the **Maintenance & Evolution** stage — closes the AI pipeline's loop. Production reality feeds back into the pipeline; specific stages re-engage with that feedback; updates flow through the full pipeline (re-test, re-deploy) without starting from scratch.

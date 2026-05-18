@@ -5,6 +5,9 @@ import type { BriefDraft, ConversationEvent } from '@platform/core';
 import { Send, AlertTriangle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+import { ModelPicker } from '@/components/ai/ModelPicker';
+import { getDefaultModel } from '@/lib/ai/model-registry';
+
 import { CostIndicator } from '../components/CostIndicator';
 import { MessageBubble } from '../components/MessageBubble';
 
@@ -38,8 +41,21 @@ export function ChatPanel({
   const [turnCount, setTurnCount] = useState(0);
   const [totalCostUsd, setTotalCostUsd] = useState(0);
   const [lastTurnCostUsd, setLastTurnCostUsd] = useState(0);
+  const [modelId, setModelId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = window.localStorage.getItem('lighthouse.chatModelId');
+      if (saved) return saved;
+    }
+    return getDefaultModel().id;
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem('lighthouse.chatModelId', modelId);
+    }
+  }, [modelId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -80,7 +96,7 @@ export function ChatPanel({
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: trimmed }),
+          body: JSON.stringify({ message: trimmed, model: modelId }),
           signal: abort.signal,
         },
       );
@@ -251,7 +267,13 @@ export function ChatPanel({
             <Send className="w-4 h-4" />
           </button>
         </div>
-        <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center justify-between mt-2 gap-2 flex-wrap">
+          <ModelPicker
+            selectedId={modelId}
+            onSelect={(id) => {
+              setModelId(id);
+            }}
+          />
           <span className="text-xs text-gray-400">
             {turnCount}/{MAX_TURNS} turns
           </span>

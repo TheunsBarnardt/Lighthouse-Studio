@@ -1,8 +1,23 @@
 # Objective 23: Stage 3 — Design Tokens
 
-**Status:** Ready for development
+**Status:** REMOVED FROM PIPELINE (2026-05-18) — see Section 0 below.
 **Prerequisites:** Objectives 20 (AI Pipeline Foundation), 22 (Stage 2: PRD Generation) complete
 **Blocks:** Objective 26 (Stage 6: UI Generation — consumes design tokens directly)
+
+---
+
+## 0. Removed-From-Pipeline Note (2026-05-18)
+
+Design tokens are no longer a standalone pipeline stage. The capability now lives in two places:
+
+- **Workspace branding** (`/workspaces/[slug]/branding/`) — the canonical brand layer (presets, advanced token editor, preview). Per ADR-0279, workspace = company identity, and every project inside it inherits this brand. This is the authoring surface users actually want.
+- **UI generation** (Stage 3, formerly Stage 6) — applies workspace tokens to the live preview iframe as CSS variables. No separate token-generation step; UI gen consumes whatever the workspace defines.
+
+The reasoning: you don't know the right tokens until you see the UI, and the workspace branding surface already does both authoring (presets + advanced editor) and preview far better than a one-shot Stage 3 generation could. The pipeline reorder (intent → PRD → **UI gen** → schema → migration → code → tests → deploy) reflects this: **you only really know the schema after you know what you're building**, and visual decisions belong with the UI step.
+
+The UI files at `apps/web/src/app/ai-pipeline/design-tokens/` have been deleted. The `DesignTokensService` in `packages/core/src/services/ai/design-tokens/` remains for now — it may still be useful as a token-suggestion helper invoked from UI generation, but it is no longer wired to a pipeline stage. A follow-up will either repurpose it or remove it depending on whether UI gen wants AI-suggested token tweaks distinct from workspace branding.
+
+See `docs/adr/0283-pipeline-reorder-drop-design-tokens.md`.
 
 ---
 

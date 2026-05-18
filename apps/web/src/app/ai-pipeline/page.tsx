@@ -9,17 +9,12 @@ function PipelineStepper({ active }: { active: string }) {
   const steps = [
     { id: 'intent', label: 'Intent', href: '/ai-pipeline/intent-capture', status: 'complete' },
     { id: 'prd', label: 'Requirements', href: '/ai-pipeline/prd-generation', status: 'complete' },
-    {
-      id: 'design-tokens',
-      label: 'Design tokens',
-      href: '/ai-pipeline/design-tokens',
-      status: 'complete',
-    },
+    { id: 'ui-gen', label: 'UI gen', href: '/ai-pipeline/ui-generation', status: 'in_review' },
     {
       id: 'schema-synthesis',
       label: 'Schema',
       href: '/ai-pipeline/schema-synthesis',
-      status: 'complete',
+      status: 'pending',
     },
     {
       id: 'data-migration',
@@ -27,16 +22,9 @@ function PipelineStepper({ active }: { active: string }) {
       href: '/ai-pipeline/data-migration',
       status: 'pending',
     },
-    { id: 'ui-gen', label: 'UI gen', href: '/ai-pipeline/ui-generation', status: 'in_review' },
     { id: 'code-gen', label: 'Code gen', href: '/ai-pipeline/code-generation', status: 'pending' },
     { id: 'test-gen', label: 'Tests', href: '/ai-pipeline/test-generation', status: 'pending' },
     { id: 'deployment', label: 'Deployment', href: '/ai-pipeline/deployment', status: 'pending' },
-    {
-      id: 'maintenance',
-      label: 'Maintenance',
-      href: '/ai-pipeline/maintenance',
-      status: 'pending',
-    },
   ];
 
   return (
@@ -50,7 +38,9 @@ function PipelineStepper({ active }: { active: string }) {
             <span className="h-1.5 w-1.5 rounded-full bg-current opacity-60" />
             {step.label}
           </Link>
-          {i < steps.length - 1 && <span className="mx-0.5 text-sm text-muted-foreground">â€º</span>}
+          {i < steps.length - 1 && (
+            <span className="mx-0.5 text-sm text-muted-foreground">â€º</span>
+          )}
         </span>
       ))}
     </div>
@@ -69,72 +59,58 @@ const STAGES: Stage[] = [
   {
     number: 1,
     name: 'Intent capture',
-    status: 'approved',
-    detail: '5 turns Â· $0.34 Â· Approved by Joana',
+    status: 'pending',
+    detail: 'Not started',
     href: '/ai-pipeline/intent-capture',
   },
   {
     number: 2,
     name: 'Requirements (PRD)',
-    status: 'approved',
-    detail: '10 sections Â· $2.10 Â· Approved by Marcus',
+    status: 'pending',
+    detail: 'Not started',
     href: '/ai-pipeline/prd-generation',
   },
   {
     number: 3,
-    name: 'Design tokens',
-    status: 'approved',
-    detail: 'Light + dark Â· WCAG AA Â· $0.85',
-    href: '/ai-pipeline/design-tokens',
+    name: 'UI generation',
+    status: 'pending',
+    detail: 'Not started',
+    href: '/ai-pipeline/ui-generation',
   },
   {
     number: 4,
     name: 'Schema synthesis',
-    status: 'approved',
-    detail: '8 tables Â· 47 columns Â· 12 PII flags Â· $1.20',
+    status: 'pending',
+    detail: 'Not started',
     href: '/ai-pipeline/schema-synthesis',
   },
   {
     number: 5,
     name: 'Data migration',
     status: 'pending',
-    detail: 'Greenfield project â€” no migration needed',
+    detail: 'Not started',
     href: '/ai-pipeline/data-migration',
   },
   {
     number: 6,
-    name: 'UI generation',
-    status: 'in_review',
-    detail: '14 components Â· 4 awaiting review Â· $18.50',
-    href: '/ai-pipeline/ui-generation',
-  },
-  {
-    number: 7,
     name: 'Code generation',
     status: 'pending',
-    detail: '7 functions inventoried Â· 0 generated',
+    detail: 'Not started',
     href: '/ai-pipeline/code-generation',
   },
   {
-    number: 8,
+    number: 7,
     name: 'Tests',
     status: 'pending',
     detail: 'Not started',
     href: '/ai-pipeline/test-generation',
   },
   {
-    number: 9,
+    number: 8,
     name: 'Deployment',
     status: 'pending',
     detail: 'Not started',
     href: '/ai-pipeline/deployment',
-  },
-  {
-    number: 10,
-    name: 'Maintenance',
-    status: 'pending',
-    detail: 'Not started',
-    href: '/ai-pipeline/maintenance',
   },
 ];
 
@@ -208,7 +184,7 @@ export default function AiPipelineOverviewPage() {
 
         <div className="grid grid-cols-4 gap-4 mb-6">
           {[
-            { label: 'Stages complete', value: `${String(stagesComplete)} / 10` },
+            { label: 'Stages complete', value: `${String(stagesComplete)} / 8` },
             { label: 'Total cost', value: '$22.99' },
             { label: 'Components', value: '14' },
             { label: 'Tests passing', value: '87 / 87' },

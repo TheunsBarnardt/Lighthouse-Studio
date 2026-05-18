@@ -5,17 +5,12 @@ import Link from 'next/link';
 const STEPS = [
   { id: 'intent', label: 'Intent', href: '/ai-pipeline/intent-capture', status: 'complete' },
   { id: 'prd', label: 'Requirements', href: '/ai-pipeline/prd-generation', status: 'complete' },
-  {
-    id: 'design-tokens',
-    label: 'Design tokens',
-    href: '/ai-pipeline/design-tokens',
-    status: 'complete',
-  },
+  { id: 'ui-gen', label: 'UI gen', href: '/ai-pipeline/ui-generation', status: 'in_review' },
   {
     id: 'schema-synthesis',
     label: 'Schema',
     href: '/ai-pipeline/schema-synthesis',
-    status: 'complete',
+    status: 'pending',
   },
   {
     id: 'data-migration',
@@ -23,11 +18,9 @@ const STEPS = [
     href: '/ai-pipeline/data-migration',
     status: 'pending',
   },
-  { id: 'ui-gen', label: 'UI gen', href: '/ai-pipeline/ui-generation', status: 'in_review' },
   { id: 'code-gen', label: 'Code gen', href: '/ai-pipeline/code-generation', status: 'pending' },
   { id: 'test-gen', label: 'Tests', href: '/ai-pipeline/test-generation', status: 'pending' },
   { id: 'deployment', label: 'Deployment', href: '/ai-pipeline/deployment', status: 'pending' },
-  { id: 'maintenance', label: 'Maintenance', href: '/ai-pipeline/maintenance', status: 'pending' },
 ];
 
 export function PipelineStepper({ active }: { active: string }) {

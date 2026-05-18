@@ -6,6 +6,79 @@
 
 ---
 
+## 0. Definition of UI Generation (2026-05-18)
+
+UI Generation is the stage where the user **sees the app they're building** for the first time. It has four capabilities, each of which gates a piece of the user's workflow. None is optional in the final spec; they ship in phases.
+
+1. **AI generates a UI idea** from inputs:
+
+   - the PRD (Objective 22 brief)
+   - workspace branding tokens (per ADR-0279)
+   - schema if known (Objective 24 — but per ADR-0283 schema comes _after_ UI now, so often not yet known)
+   - The output is a composition: a tree of blocks + per-element placeholder content. Reasoning is captured per Objective 20.
+   - **Status:** not yet built. Requires a `composeUi` prompt taking the brief + tokens and emitting a `UiComposition` artifact (list of block instances with placeholder bindings). The current preview renders 5 hardcoded mock components; once the AI compose path lands, those become starter templates the AI picks from when scaffolding.
+
+2. **Drag extra blocks** from the global Blocks Library into the design.
+
+   - The library lives at `/blocks` (per ADR-0284). 14 starter blocks tagged with `data-edit-id` for visual edits.
+   - User can drop a block at the end of the composition, between existing blocks, or replace a selected block.
+   - **Status:** Phase 2 in progress. v1 ships click-to-insert (BlocksPanel + appended block); HTML5 cross-iframe DnD is the v1.1 follow-up.
+
+3. **Move and reorder** layout and components.
+
+   - Reorder blocks within the composition, nest sections, remove blocks.
+   - Inside a block, the visual-edit inspector (per ADR-0281) handles text / class / color edits but not structural moves.
+   - **Status:** not yet built. Needs reorder controls on each block (up/down/delete + drag handle) wired to mutations on the composition artifact.
+
+4. **Chat to AI** to change the design.
+   - Per-element prompt ("Ask AI to modify H1…") and whole-design prompt ("Make the navbar dark").
+   - Streaming, model-picker-aware (the model picker from intent capture is reusable here).
+   - Chat history is a sidebar showing turns + the edits each turn applied (`Edited Hero.title`, `Inserted Pricing · 3-tier`).
+   - **Status:** Phase 2 — skeleton chat panel ships now (model picker + textarea + mock thread); real AI threading lives behind the same `_selectedModel` plumbing the intent-capture chat uses.
+
+Together these four capabilities make UI generation feel like Lovable / shadcn studio / v0 — the user sees a draft, mutates it directly (drag/edit/reorder), or asks the AI to mutate it for them. The visual-edits inspector (ADR-0281) and the Blocks Library (ADR-0284) are the two foundations these capabilities are built on.
+
+The locked decisions below cover the visual-edit inspector specifically. Capabilities 1, 3, and the AI-chat half of 4 will accrete their own ADRs as they ship.
+
+---
+
+## 0a. Visual Edits Addendum (2026-05-18)
+
+Stage 6's code-review surface gains a **direct-manipulation visual editing capability** alongside the existing Preview/Code/Storybook/A11y tabs. Modeled on Lovable's Visual Edits feature: the user clicks any element in the live preview, an inspector appears, and they edit text / Tailwind classes / colors / spacing inline with optimistic preview, then save.
+
+**Locked decisions:**
+
+1. **Element identity is the only contract.** Every element in a generated artifact carries a stable identifier — `data-edit-id` (v1, hand-applied to mock components) or `data-loc="<path>:<line>:<col>"` (v2, emitted by a Babel/SWC plugin at the preview's build step). The identifier is what the inspector sends back when persisting an edit. No DOM-walking heuristics, no fragile selectors.
+2. **Iframe sandbox is the boundary.** The preview runs at `/preview/[artifactId]` in a same-origin iframe with `sandbox="allow-scripts allow-same-origin"`. The selection agent inside the iframe communicates with the parent via `postMessage`, enveloped under `source: 'lighthouse-preview'` with version + origin checks.
+3. **Optimistic apply, then persist.** Inspector changes apply to the DOM inside the iframe immediately via `postMessage`. The user explicitly clicks Save before any server-side write. Discard reloads the iframe from the last saved state.
+4. **Persistence is an edit overlay, not a source rewrite (v1).** Saved edits are a `Record<editId, EditMutation>` JSON attached to the UI artifact. On preview load, the overlay is replayed on top of the base render. This decouples the UX from real source generation existing.
+5. **AST round-trip is v2.** Once real generated artifacts exist (per §6.2), a follow-up objective adds Babel-parse / mutate / write-back so saved edits land in the source `.tsx` files. The overlay format is forward-compatible: each `EditMutation` translates cleanly to an AST patch.
+6. **Same approval gate.** Visual edits use Stage 6's existing per-component Approve flow. Edits to an unapproved component stay overlay-only until the parent component is approved, at which point edits are folded into the artifact's source.
+
+**Architecture summary** (file paths, current implementation):
+
+- `apps/web/src/app/preview/[artifactId]/page.tsx` — iframe target
+- `apps/web/src/app/preview/selection-agent.tsx` — DOM hover/click → postMessage; renders hover + selection outlines
+- `apps/web/src/app/preview/protocol.ts` — typed envelope, inbound/outbound event shapes, version + origin handling
+- `apps/web/src/app/preview/mock-components.tsx` — v1 mock components with hand-applied `data-edit-id`
+- `apps/web/src/app/ai-pipeline/ui-generation/panels/PreviewIframePanel.tsx` — host iframe in the Stage 6 page
+- `apps/web/src/app/ai-pipeline/ui-generation/panels/VisualEditInspector.tsx` — text/class/color/weight controls
+- `apps/web/src/lib/visual-edits/edit-overlay.ts` — pure overlay merge + apply
+- `apps/web/src/lib/visual-edits/overlay-store.ts` — v1 in-memory persistence
+- `apps/web/src/app/api/v1/ai-pipeline/ui-generation/visual-edit/route.ts` — Save endpoint
+
+See `docs/adr/0281-stage-6-visual-edits.md` for the decision record.
+
+**Out of scope for this slice:**
+
+- Real Babel/SWC `data-loc` plugin (synthetic ids only)
+- AST source mutation (overlay only)
+- Multi-user concurrent edit conflict resolution (single editor assumed in v1)
+- Drag-to-resize, move/reorder elements (text + class edits only)
+- Adding/removing whole elements via the inspector
+
+---
+
 ## 1. Purpose
 
 This is the stage where the AI pipeline starts producing **the actual product**. Not artifacts about the product, not specifications, not schema definitions — actual React components, page layouts, forms, tables, navigation. The customer can run what comes out of this stage.

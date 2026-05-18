@@ -18,22 +18,28 @@ const CMDK_ITEMS: CmdkItem[] = [
     label: 'Stage 2 Â· Requirements (PRD)',
     href: '/ai-pipeline/prd-generation',
   },
-  { group: 'AI Pipeline', label: 'Stage 3 Â· Design tokens', href: '/ai-pipeline/design-tokens' },
+  { group: 'AI Pipeline', label: 'Stage 3 Â· UI generation', href: '/ai-pipeline/ui-generation' },
   {
     group: 'AI Pipeline',
     label: 'Stage 4 Â· Schema synthesis',
     href: '/ai-pipeline/schema-synthesis',
   },
   { group: 'AI Pipeline', label: 'Stage 5 Â· Data migration', href: '/ai-pipeline/data-migration' },
-  { group: 'AI Pipeline', label: 'Stage 6 Â· UI generation', href: '/ai-pipeline/ui-generation' },
   {
     group: 'AI Pipeline',
-    label: 'Stage 7 Â· Code generation',
+    label: 'Stage 6 Â· Code generation',
     href: '/ai-pipeline/code-generation',
   },
-  { group: 'AI Pipeline', label: 'Stage 8 Â· Tests', href: '/ai-pipeline/test-generation' },
-  { group: 'AI Pipeline', label: 'Stage 9 Â· Deployment', href: '/ai-pipeline/deployment' },
-  { group: 'AI Pipeline', label: 'Stage 10 Â· Maintenance', href: '/ai-pipeline/maintenance' },
+  { group: 'AI Pipeline', label: 'Stage 7 Â· Tests', href: '/ai-pipeline/test-generation' },
+  { group: 'AI Pipeline', label: 'Stage 8 Â· Deployment', href: '/ai-pipeline/deployment' },
+  { group: 'Blocks', label: 'Blocks library', href: '/blocks' },
+  {
+    group: 'Operations',
+    label: 'Change requests',
+    href: '/operations/change-requests',
+  },
+  { group: 'Observability', label: 'Signals', href: '/observability/signals' },
+  { group: 'Observability', label: 'Outcome tracking', href: '/observability/outcomes' },
   { group: 'Data', label: 'Table Editor', href: '/data-management' },
   { group: 'Data', label: 'Schema Designer', href: '/schema-designer' },
   { group: 'Data', label: 'Storage', href: '/storage' },
@@ -112,9 +118,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         />
         <div className="max-h-[400px] overflow-y-auto p-1.5" role="listbox">
           {Object.entries(grouped).length === 0 ? (
-            <div className="p-4 text-[13px] text-muted-foreground">
-              No results
-            </div>
+            <div className="p-4 text-[13px] text-muted-foreground">No results</div>
           ) : (
             Object.entries(grouped).map(([group, items]) => (
               <div key={group}>

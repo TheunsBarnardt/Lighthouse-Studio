@@ -1,11 +1,13 @@
 'use client';
 
+import { Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 import type { WorkspaceSummary } from '@/lib/api-client';
 
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogFooter } from '@/components/ui/dialog';
 import { workspaceApi } from '@/lib/api-client';
 
 function WorkspacesSkeleton() {
@@ -32,6 +34,9 @@ export default function WorkspacesPage() {
   const [workspaces, setWorkspaces] = useState<WorkspaceSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [wsToDelete, setWsToDelete] = useState<WorkspaceSummary | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     void (async () => {
@@ -45,6 +50,23 @@ export default function WorkspacesPage() {
       }
     })();
   }, []);
+
+  async function confirmDelete() {
+    if (!wsToDelete || deleting) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await workspaceApi.delete(wsToDelete.id);
+      // Optimistic local removal — no full refetch needed because the server
+      // archives the row and the GET endpoint now excludes archived rows.
+      setWorkspaces((prev) => prev.filter((w) => w.id !== wsToDelete.id));
+      setWsToDelete(null);
+    } catch (err) {
+      setDeleteError(err instanceof Error ? err.message : 'Failed to delete workspace');
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-[1280px] p-6">
@@ -83,7 +105,7 @@ export default function WorkspacesPage() {
           {workspaces.map((ws) => (
             <div
               key={ws.id}
-              className="flex items-center gap-4 rounded-lg border border-border bg-card p-4"
+              className="group flex items-center gap-4 rounded-lg border border-border bg-card p-4"
             >
               <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center text-[13px] font-bold text-white flex-shrink-0">
                 {ws.name.slice(0, 2).toUpperCase()}
@@ -100,10 +122,66 @@ export default function WorkspacesPage() {
                   Open
                 </Button>
               </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setWsToDelete(ws);
+                }}
+                className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                aria-label={`Delete ${ws.name}`}
+                title="Delete workspace"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
           ))}
         </div>
       )}
+
+      <Dialog
+        open={!!wsToDelete}
+        onClose={() => {
+          if (!deleting) {
+            setWsToDelete(null);
+            setDeleteError(null);
+          }
+        }}
+        title="Delete workspace"
+        size="sm"
+      >
+        <div className="space-y-3">
+          <p className="text-sm text-foreground">
+            Are you sure you want to delete{' '}
+            <span className="font-semibold">{wsToDelete?.name}</span>? This action cannot be undone.
+          </p>
+          {deleteError && <p className="text-[13px] text-destructive">{deleteError}</p>}
+        </div>
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setWsToDelete(null);
+              setDeleteError(null);
+            }}
+            disabled={deleting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            onClick={() => {
+              void confirmDelete();
+            }}
+            disabled={deleting}
+          >
+            {deleting ? 'Deleting…' : 'Delete workspace'}
+          </Button>
+        </DialogFooter>
+      </Dialog>
     </div>
   );
 }

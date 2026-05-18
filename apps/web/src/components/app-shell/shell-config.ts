@@ -39,8 +39,6 @@ function workspacesContextNav(slug: string): ContextNavConfig {
       {
         heading: 'Auth Management',
         items: [
-          { id: 'auth-users', label: 'Users', href: `/workspaces/${slug}/auth/users` },
-          { id: 'auth-roles', label: 'Roles', href: `/workspaces/${slug}/auth/roles` },
           { id: 'auth-policies', label: 'Policies', href: `/workspaces/${slug}/auth/policies` },
           { id: 'auth-sessions', label: 'Sessions', href: `/workspaces/${slug}/auth/sessions` },
           {
@@ -51,14 +49,63 @@ function workspacesContextNav(slug: string): ContextNavConfig {
         ],
       },
       {
+        heading: 'Branding',
+        items: [
+          {
+            id: 'branding-presets',
+            label: 'Presets',
+            href: `/workspaces/${slug}/branding/presets`,
+          },
+          { id: 'branding-tokens', label: 'Tokens', href: `/workspaces/${slug}/branding/tokens` },
+          {
+            id: 'branding-advanced',
+            label: 'Advanced',
+            href: `/workspaces/${slug}/branding/advanced`,
+          },
+          {
+            id: 'branding-preview',
+            label: 'Preview',
+            href: `/workspaces/${slug}/branding/preview`,
+          },
+        ],
+      },
+      {
         heading: 'Settings',
         items: [
-          { id: 'branding', label: 'Branding', href: `/workspaces/${slug}/branding` },
           {
             id: 'email-templates',
             label: 'Email templates',
             href: `/workspaces/${slug}/email-templates`,
           },
+        ],
+      },
+    ],
+  };
+}
+
+function blocksContextNav(): ContextNavConfig {
+  return {
+    title: 'Blocks',
+    sections: [
+      {
+        heading: 'Library',
+        items: [{ id: 'all', label: 'All blocks', href: '/blocks' }],
+      },
+      {
+        heading: 'Categories',
+        items: [
+          { id: 'hero', label: 'Hero', href: '/blocks?category=hero' },
+          { id: 'cta', label: 'CTA', href: '/blocks?category=cta' },
+          { id: 'features', label: 'Features', href: '/blocks?category=features' },
+          { id: 'pricing', label: 'Pricing', href: '/blocks?category=pricing' },
+          { id: 'testimonial', label: 'Testimonial', href: '/blocks?category=testimonial' },
+          { id: 'stats', label: 'Stats', href: '/blocks?category=stats' },
+          { id: 'auth', label: 'Auth', href: '/blocks?category=auth' },
+          { id: 'form', label: 'Form', href: '/blocks?category=form' },
+          { id: 'header', label: 'Header (Chrome)', href: '/blocks?category=header' },
+          { id: 'footer', label: 'Footer (Chrome)', href: '/blocks?category=footer' },
+          { id: 'table', label: 'Table', href: '/blocks?category=table' },
+          { id: 'dashboard', label: 'Dashboard', href: '/blocks?category=dashboard' },
         ],
       },
     ],
@@ -78,23 +125,24 @@ function aiPipelineContextNav(_activePath: string): ContextNavConfig {
         items: [
           { id: 'intent', label: '1. Intent capture', href: '/ai-pipeline/intent-capture' },
           { id: 'prd', label: '2. Requirements', href: '/ai-pipeline/prd-generation' },
-          { id: 'design-tokens', label: '3. Design tokens', href: '/ai-pipeline/design-tokens' },
+          { id: 'ui-gen', label: '3. UI generation', href: '/ai-pipeline/ui-generation' },
           {
             id: 'schema-synthesis',
             label: '4. Schema synthesis',
             href: '/ai-pipeline/schema-synthesis',
           },
           { id: 'data-migration', label: '5. Data migration', href: '/ai-pipeline/data-migration' },
-          { id: 'ui-gen', label: '6. UI generation', href: '/ai-pipeline/ui-generation' },
-          { id: 'code-gen', label: '7. Code generation', href: '/ai-pipeline/code-generation' },
-          { id: 'test-gen', label: '8. Tests', href: '/ai-pipeline/test-generation' },
-          { id: 'deployment', label: '9. Deployment', href: '/ai-pipeline/deployment' },
-          { id: 'maintenance', label: '10. Maintenance', href: '/ai-pipeline/maintenance' },
+          { id: 'code-gen', label: '6. Code generation', href: '/ai-pipeline/code-generation' },
+          { id: 'test-gen', label: '7. Tests', href: '/ai-pipeline/test-generation' },
+          { id: 'deployment', label: '8. Deployment', href: '/ai-pipeline/deployment' },
         ],
       },
       {
         heading: 'Cross-cutting',
-        items: [{ id: 'history', label: 'Generation history', href: '/ai-pipeline/history' }],
+        items: [
+          { id: 'history', label: 'Generation history', href: '/ai-pipeline/history' },
+          { id: 'change-requests', label: 'Change requests', href: '/operations/change-requests' },
+        ],
       },
     ],
   };
@@ -335,10 +383,35 @@ function observabilityContextNav(): ContextNavConfig {
         ],
       },
       {
+        heading: 'Continuous',
+        items: [
+          { id: 'signals', label: 'Signals', href: '/observability/signals' },
+          { id: 'outcomes', label: 'Outcome tracking', href: '/observability/outcomes' },
+        ],
+      },
+      {
         heading: 'Alerts',
         items: [
           { id: 'alerts', label: 'Alerts', href: '/alerts' },
           { id: 'uptime', label: 'Uptime / Status', href: '/uptime' },
+        ],
+      },
+    ],
+  };
+}
+
+function operationsContextNav(): ContextNavConfig {
+  return {
+    title: 'Operations',
+    sections: [
+      {
+        heading: 'Change management',
+        items: [
+          {
+            id: 'change-requests',
+            label: 'Change requests',
+            href: '/operations/change-requests',
+          },
         ],
       },
     ],
@@ -477,6 +550,10 @@ export function getShellConfig(pathname: string): ShellConfig {
     return { mode: 'ai-pipeline', contextNav: aiPipelineContextNav(pathname) };
   }
 
+  if (pathname.startsWith('/blocks')) {
+    return { mode: 'blocks', contextNav: blocksContextNav() };
+  }
+
   if (pathname.startsWith('/approvals')) {
     return { mode: 'approvals', contextNav: approvalsContextNav() };
   }
@@ -510,9 +587,14 @@ export function getShellConfig(pathname: string): ShellConfig {
     pathname.startsWith('/metrics') ||
     pathname.startsWith('/traces') ||
     pathname.startsWith('/alerts') ||
-    pathname.startsWith('/uptime')
+    pathname.startsWith('/uptime') ||
+    pathname.startsWith('/observability')
   ) {
     return { mode: 'observability', contextNav: observabilityContextNav() };
+  }
+
+  if (pathname.startsWith('/operations')) {
+    return { mode: 'operations', contextNav: operationsContextNav() };
   }
 
   if (pathname.startsWith('/advisors')) {

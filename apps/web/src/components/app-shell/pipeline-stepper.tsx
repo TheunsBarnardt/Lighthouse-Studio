@@ -5,14 +5,12 @@ import Link from 'next/link';
 const PIPELINE_STAGES = [
   { key: 'intent-capture', label: 'Intent', href: '/ai-pipeline/intent-capture' },
   { key: 'prd-generation', label: 'PRD', href: '/ai-pipeline/prd-generation' },
-  { key: 'design-tokens', label: 'Tokens', href: '/ai-pipeline/design-tokens' },
+  { key: 'ui-generation', label: 'UI', href: '/ai-pipeline/ui-generation' },
   { key: 'schema-synthesis', label: 'Schema', href: '/ai-pipeline/schema-synthesis' },
   { key: 'data-migration', label: 'Migrate', href: '/ai-pipeline/data-migration' },
-  { key: 'ui-generation', label: 'UI', href: '/ai-pipeline/ui-generation' },
   { key: 'code-generation', label: 'Code', href: '/ai-pipeline/code-generation' },
   { key: 'test-generation', label: 'Tests', href: '/ai-pipeline/test-generation' },
   { key: 'deployment', label: 'Deploy', href: '/ai-pipeline/deployment' },
-  { key: 'maintenance', label: 'Maintain', href: '/ai-pipeline/maintenance' },
 ];
 
 // Ordered stage keys for determining completion

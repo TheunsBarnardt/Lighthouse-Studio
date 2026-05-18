@@ -1,235 +1,151 @@
-﻿'use client';
+'use client';
 
-import { useState } from 'react';
+import { Sparkles } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import type { MockArtifactId } from '@/app/preview/mock-components';
+import type { EditMutation } from '@/app/preview/protocol';
 
 import { Button } from '@/components/ui/button';
+import { getBlock } from '@/lib/blocks/registry';
+import { mergeMutation } from '@/lib/visual-edits/edit-overlay';
 
 import { PipelineStepper } from '../stepper';
+import { GenerateUiDialog } from './dialogs/GenerateUiDialog';
+import { BlocksPanel } from './panels/BlocksPanel';
+import { DesignChatPanel } from './panels/DesignChatPanel';
+import { PreviewIframePanel, type SelectedElement } from './panels/PreviewIframePanel';
+import { VisualEditInspector } from './panels/VisualEditInspector';
 
-type ComponentStatus = 'approved' | 'in_review' | 'pending';
 type ViewTab = 'preview' | 'code' | 'storybook' | 'a11y';
 
-interface ComponentItem {
-  name: string;
-  status: ComponentStatus;
-}
-
-interface ComponentGroup {
-  label: string;
-  items: ComponentItem[];
-}
-
-const COMPONENT_GROUPS: ComponentGroup[] = [
-  {
-    label: 'Pages',
-    items: [
-      { name: 'ContactsListPage', status: 'approved' },
-      { name: 'ContactDetailPage', status: 'approved' },
-      { name: 'DealKanbanPage', status: 'in_review' },
-      { name: 'DealDetailPage', status: 'in_review' },
-    ],
-  },
-  {
-    label: 'Forms',
-    items: [
-      { name: 'ContactForm', status: 'approved' },
-      { name: 'DealForm', status: 'in_review' },
-      { name: 'ActivityForm', status: 'pending' },
-    ],
-  },
-  {
-    label: 'Tables',
-    items: [
-      { name: 'ContactsTable', status: 'approved' },
-      { name: 'ActivitiesTimeline', status: 'approved' },
-    ],
-  },
-  {
-    label: 'Workflows',
-    items: [
-      { name: 'DealStageTransition', status: 'in_review' },
-      { name: 'CSVContactImport', status: 'pending' },
-    ],
-  },
-  {
-    label: 'Auth',
-    items: [
-      { name: 'SignInPage', status: 'approved' },
-      { name: 'MFASetup', status: 'approved' },
-    ],
-  },
+const COMPONENT_LIST: { id: MockArtifactId; label: string }[] = [
+  { id: 'AppShell', label: 'AppShell' },
+  { id: 'ContactsListPage', label: 'ContactsListPage' },
+  { id: 'ContactDetailPage', label: 'ContactDetailPage' },
+  { id: 'Dashboard', label: 'Dashboard' },
+  { id: 'SignInPage', label: 'SignInPage' },
 ];
 
-function statusDot(status: ComponentStatus) {
-  const colors: Record<ComponentStatus, string> = {
-    approved: 'oklch(0.40 0.14 145)',
-    in_review: 'oklch(0.45 0.14 75)',
-    pending: 'var(--border)',
-  };
-  return (
-    <span
-      style={{
-        width: 6,
-        height: 6,
-        borderRadius: '50%',
-        background: colors[status],
-        flexShrink: 0,
-        display: 'inline-block',
-      }}
-    />
-  );
-}
-
-// Mock deal kanban preview
-function KanbanPreview() {
-  const stages = ['Lead', 'Qualified', 'Proposal', 'Negotiation', 'Won', 'Lost'];
-  const dealCounts = [3, 2, 3, 2, 1, 1];
-  const companies = ['Acme', 'Beta', 'Globex', 'Initech', 'Pied Piper', 'Hooli'];
-  const amounts = [12, 24, 47, 89, 130, 56];
-
-  return (
-    <div
-      style={{
-        flex: 1,
-        overflow: 'auto',
-        background: 'oklch(0.99 0.002 145)',
-        padding: 16,
-        fontFamily: 'Inter, sans-serif',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 16,
-        }}
-      >
-        <div>
-          <div style={{ fontSize: 20, fontWeight: 600, color: 'oklch(0.20 0.01 145)' }}>
-            Deal Pipeline
-          </div>
-          <div style={{ fontSize: 12, color: 'oklch(0.50 0.005 145)' }}>14 active Â· $387,420</div>
-        </div>
-        <Button
-          style={{
-            background: 'oklch(0.50 0.16 145)',
-            color: 'white',
-            padding: '8px 14px',
-            borderRadius: 6,
-            border: 'none',
-            fontSize: 13,
-            fontWeight: 500,
-            cursor: 'pointer',
-          }}
-        >
-          + New deal
-        </Button>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
-        {stages.map((stage, i) => (
-          <div
-            key={stage}
-            style={{ background: 'oklch(0.96 0.005 145)', borderRadius: 6, padding: 10 }}
-          >
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                color: 'oklch(0.40 0.005 145)',
-                marginBottom: 8,
-              }}
-            >
-              {stage}
-            </div>
-            {Array.from({ length: dealCounts[i] ?? 0 }).map((_, j) => (
-              <div
-                key={j}
-                style={{
-                  background: 'white',
-                  border: '1px solid oklch(0.90 0.005 145)',
-                  borderRadius: 4,
-                  padding: 8,
-                  marginBottom: 6,
-                }}
-              >
-                <div style={{ fontSize: 12, fontWeight: 500, color: 'oklch(0.20 0.01 145)' }}>
-                  {companies[(i * 3 + j) % 6]}
-                </div>
-                <div style={{ fontSize: 11, color: 'oklch(0.50 0.005 145)', marginTop: 2 }}>
-                  ${amounts[(i * 3 + j) % 6]}k
-                </div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-const MOCK_CODE = `'use client';
-
-import { useQuery } from '@tanstack/react-query';
-import { platform } from '../lib/platform';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-
-import { Button } from '@/components/ui/button';
-
-const STAGES = ['lead', 'qualified', 'proposal', 'negotiation', 'won', 'lost'] as const;
-
-export function DealKanbanPage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['deals'],
-    queryFn: () => platform.data('deals').list({ limit: 100 })
-  });
-
-  const byStage = STAGES.reduce((acc, stage) => {
-    acc[stage] = data?.rows.filter(d => d.stage === stage) ?? [];
-    return acc;
-  }, {} as Record<string, any[]>);
-
-  return (
-    <div className="px-6 py-4">
-      <h1 className="text-xl font-semibold mb-4">Deal Pipeline</h1>
-      <div className="grid grid-cols-6 gap-3">
-        {STAGES.map(stage => (
-          <div key={stage} className="bg-muted/40 rounded-lg p-3">
-            <div className="text-xs font-semibold uppercase mb-2">{stage}</div>
-            {byStage[stage].map(deal => (
-              <div key={deal.id} className="bg-background border rounded p-2 mb-2">
-                <div className="text-sm font-medium">{deal.title}</div>
-                <div className="text-xs text-muted-foreground">\${deal.amount}k</div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}`;
+type ChatEdit = { kind: 'edited' | 'inserted' | 'removed'; target: string };
 
 export default function UiGenerationPage() {
-  const [selectedComponent, setSelectedComponent] = useState('DealKanbanPage');
+  const [selectedComponent, setSelectedComponent] = useState<MockArtifactId>('Dashboard');
   const [activeTab, setActiveTab] = useState<ViewTab>('preview');
-  const [approvedSet, setApprovedSet] = useState<Set<string>>(
-    new Set([
-      'ContactsListPage',
-      'ContactDetailPage',
-      'ContactForm',
-      'ContactsTable',
-      'ActivitiesTimeline',
-      'SignInPage',
-      'MFASetup',
-    ]),
-  );
+  const [approvedSet, setApprovedSet] = useState<Set<string>>(new Set());
 
-  const totalComponents = COMPONENT_GROUPS.reduce((sum, g) => sum + g.items.length, 0);
+  const [selection, setSelection] = useState<SelectedElement | null>(null);
+  const [pendingEdits, setPendingEdits] = useState<Record<string, EditMutation>>({});
+  const [saving, setSaving] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [chatEdits, setChatEdits] = useState<ChatEdit[]>([]);
+  const [generateOpen, setGenerateOpen] = useState(false);
+
+  const applyEditRef = useRef<((editId: string, edit: EditMutation) => void) | null>(null);
+  const insertBlockRef = useRef<((blockId: string) => void) | null>(null);
+  const consumedPendingRef = useRef(false);
+
+  const totalComponents = COMPONENT_LIST.length;
   const approvedCount = approvedSet.size;
+
+  // Pick up blocks queued from `/blocks/[id]` ("Add to UI generation") and
+  // insert them into the iframe once it's ready. The localStorage key is the
+  // Phase 1 handoff; Phase 2 (this change) actually inserts.
+  useEffect(() => {
+    if (typeof window === 'undefined' || consumedPendingRef.current) return;
+    try {
+      const raw = window.localStorage.getItem('lighthouse.pendingBlocks');
+      const ids = raw ? (JSON.parse(raw) as string[]) : [];
+      if (ids.length === 0) return;
+      // Defer until the iframe has wired up its insertBlock handle.
+      const t = setTimeout(() => {
+        for (const id of ids) {
+          insertBlockRef.current?.(id);
+          const block = getBlock(id);
+          if (block) {
+            setChatEdits((prev) => [...prev, { kind: 'inserted', target: block.name }]);
+          }
+        }
+        window.localStorage.removeItem('lighthouse.pendingBlocks');
+        consumedPendingRef.current = true;
+      }, 400);
+      return () => {
+        clearTimeout(t);
+      };
+    } catch {
+      // ignore
+    }
+  }, [reloadKey, selectedComponent]);
+
+  const handleSelection = useCallback((sel: SelectedElement | null) => {
+    setSelection(sel);
+  }, []);
 
   function handleApprove() {
     setApprovedSet((prev) => new Set([...prev, selectedComponent]));
+  }
+
+  function handleSelectComponent(id: MockArtifactId) {
+    setSelectedComponent(id);
+    setSelection(null);
+    setPendingEdits({});
+    setChatEdits([]);
+    consumedPendingRef.current = false;
+  }
+
+  function handleApplyEdit(editId: string, edit: EditMutation) {
+    applyEditRef.current?.(editId, edit);
+    setPendingEdits((prev) => mergeMutation(prev, editId, edit));
+    setSelection((prev) => {
+      if (!prev || prev.editId !== editId) return prev;
+      let className = prev.className;
+      if (typeof edit.setClass === 'string') {
+        className = edit.setClass;
+      }
+      const classes = new Set(className.split(/\s+/).filter(Boolean));
+      if (edit.removeClass) for (const c of edit.removeClass) classes.delete(c);
+      if (edit.addClass) for (const c of edit.addClass) classes.add(c);
+      return {
+        ...prev,
+        className: [...classes].join(' '),
+        textContent: typeof edit.text === 'string' ? edit.text : prev.textContent,
+      };
+    });
+    setChatEdits((prev) => [...prev, { kind: 'edited', target: editId }]);
+  }
+
+  function handleInsertBlock(blockId: string) {
+    insertBlockRef.current?.(blockId);
+    const block = getBlock(blockId);
+    if (block) {
+      setChatEdits((prev) => [...prev, { kind: 'inserted', target: block.name }]);
+    }
+  }
+
+  async function handleSave() {
+    if (Object.keys(pendingEdits).length === 0) return;
+    setSaving(true);
+    try {
+      const res = await fetch('/api/v1/ai-pipeline/ui-generation/visual-edit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ artifactId: selectedComponent, edits: pendingEdits }),
+      });
+      if (!res.ok) throw new Error(`save_failed_${String(res.status)}`);
+      setPendingEdits({});
+      setReloadKey((k) => k + 1);
+      setSelection(null);
+    } catch {
+      // Surfaced via the saving-flag flicker; keep silent so console isn't spammed.
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleDiscard() {
+    setPendingEdits({});
+    setReloadKey((k) => k + 1);
+    setSelection(null);
   }
 
   return (
@@ -239,87 +155,101 @@ export default function UiGenerationPage() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '220px 1fr 280px',
+          gridTemplateColumns: '260px 1fr 320px',
           flex: 1,
           overflow: 'hidden',
         }}
       >
-        {/* Left: component tree */}
+        {/* Left rail: top → component list, middle → blocks, bottom → chat */}
         <div
           style={{
             borderRight: '1px solid var(--border)',
-            overflowY: 'auto',
-            padding: 12,
-          }}
-        >
-          <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>Generated components</div>
-          <div style={{ fontSize: 11, marginBottom: 12 }}>14 Â· Permission-aware Â· WCAG AA</div>
-          {COMPONENT_GROUPS.map((group) => (
-            <div key={group.label}>
-              <div
-                style={{
-                  fontSize: 10,
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  padding: '8px 8px 4px',
-                }}
-              >
-                {group.label}
-              </div>
-              {group.items.map((item) => {
-                const status = approvedSet.has(item.name)
-                  ? ('approved' as ComponentStatus)
-                  : item.status;
-                return (
-                  <Button
-                    key={item.name}
-                    onClick={() => {
-                      setSelectedComponent(item.name);
-                    }}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      width: '100%',
-                      textAlign: 'left',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      marginBottom: 1,
-                      background:
-                        item.name === selectedComponent ? 'var(--accent)' : 'transparent',
-                      color:
-                        item.name === selectedComponent
-                          ? 'var(--primary)'
-                          : 'var(--muted-foreground)',
-                      border: 'none',
-                      cursor: 'pointer',
-                      fontFamily: 'monospace',
-                      fontSize: 12,
-                    }}
-                  >
-                    {statusDot(status)}
-                    <span>{item.name}</span>
-                  </Button>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-
-        {/* Center: component viewer */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
+            display: 'grid',
+            gridTemplateRows: 'auto minmax(140px, 1fr) minmax(220px, 1fr)',
             overflow: 'hidden',
           }}
         >
-          {/* Header */}
+          <div
+            style={{
+              padding: '8px 12px',
+              borderBottom: '1px solid var(--border)',
+              overflowY: 'auto',
+              maxHeight: 200,
+            }}
+          >
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                color: 'var(--muted-foreground)',
+                marginBottom: 6,
+              }}
+            >
+              Components
+            </div>
+            {COMPONENT_LIST.map((item) => {
+              const isApproved = approvedSet.has(item.id);
+              const isActive = item.id === selectedComponent;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    handleSelectComponent(item.id);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '4px 8px',
+                    borderRadius: 4,
+                    marginBottom: 1,
+                    background: isActive ? 'var(--accent)' : 'transparent',
+                    color: isActive ? 'var(--primary)' : 'var(--muted-foreground)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontFamily: 'monospace',
+                    fontSize: 11,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: '50%',
+                      background: isApproved ? 'oklch(0.40 0.14 145)' : 'var(--border)',
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div style={{ borderBottom: '1px solid var(--border)', overflow: 'hidden' }}>
+            <BlocksPanel onInsert={handleInsertBlock} />
+          </div>
+
+          <div style={{ overflow: 'hidden' }}>
+            <DesignChatPanel
+              recentEdits={chatEdits.slice(-6)}
+              onAssistantBlockInsert={handleInsertBlock}
+            />
+          </div>
+        </div>
+
+        {/* Center: preview */}
+        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <div
             style={{
               padding: '12px 20px',
               flexShrink: 0,
+              borderBottom: '1px solid var(--border)',
             }}
           >
             <div
@@ -331,12 +261,23 @@ export default function UiGenerationPage() {
               }}
             >
               <div>
-                <h1 style={{ fontSize: 18 }}>{selectedComponent}</h1>
-                <div style={{ fontSize: 12 }}>
-                  142 lines Â· React + Tailwind Â· 0 lint errors Â· 0 a11y failures
+                <h1 style={{ fontSize: 18, margin: 0 }}>{selectedComponent}</h1>
+                <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>
+                  Drag blocks in · click elements to edit · ask the AI to change the design
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
+                <Button
+                  size="sm"
+                  type="button"
+                  onClick={() => {
+                    setGenerateOpen(true);
+                  }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                >
+                  <Sparkles style={{ width: 12, height: 12 }} />
+                  Generate UI
+                </Button>
                 <Button variant="outline" size="sm" type="button">
                   Regenerate
                 </Button>
@@ -346,14 +287,15 @@ export default function UiGenerationPage() {
                   onClick={handleApprove}
                   disabled={approvedSet.has(selectedComponent)}
                 >
-                  {approvedSet.has(selectedComponent) ? 'âœ“ Approved' : 'Approve'}
+                  {approvedSet.has(selectedComponent) ? '✓ Approved' : 'Approve'}
                 </Button>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 0, borderBottom: 'none' }}>
+            <div style={{ display: 'flex', gap: 0 }}>
               {(['preview', 'code', 'storybook', 'a11y'] as ViewTab[]).map((tab) => (
-                <Button
+                <button
                   key={tab}
+                  type="button"
                   onClick={() => {
                     setActiveTab(tab);
                   }}
@@ -366,266 +308,125 @@ export default function UiGenerationPage() {
                     fontFamily: 'inherit',
                     color: activeTab === tab ? 'var(--primary)' : 'var(--muted-foreground)',
                     borderBottom:
-                      activeTab === tab
-                        ? '2px solid var(--primary)'
-                        : '2px solid transparent',
+                      activeTab === tab ? '2px solid var(--primary)' : '2px solid transparent',
                     fontWeight: activeTab === tab ? 500 : 400,
                   }}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                </Button>
+                </button>
               ))}
             </div>
           </div>
 
-          {/* App preview bar + content */}
-          {activeTab === 'preview' && (
-            <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-              <div
-                style={{
-                  padding: '8px 12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  fontSize: 11,
-                }}
-              >
-                <span style={{ display: 'inline-flex', gap: 4 }}>
-                  <span
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      background: '#FF5F57',
-                      display: 'inline-block',
-                    }}
-                  />
-                  <span
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      background: '#FFBD2E',
-                      display: 'inline-block',
-                    }}
-                  />
-                  <span
-                    style={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: '50%',
-                      background: '#28C840',
-                      display: 'inline-block',
-                    }}
-                  />
-                </span>
-                <div
-                  style={{
-                    flex: 1,
-                    background: 'var(--muted)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '4px',
-                    padding: '4px 12px',
-                    fontFamily: 'monospace',
-                    fontSize: 11,
-                  }}
-                >
-                  app.acme.example.com/deals
-                </div>
-                <span>Mock Â· 14 deals</span>
-              </div>
-              <KanbanPreview />
-            </div>
-          )}
-
-          {activeTab === 'code' && (
-            <div style={{ flex: 1, overflow: 'auto', padding: 20 }}>
-              <pre
-                style={{
-                  fontFamily: 'monospace',
-                  fontSize: 11,
-                  lineHeight: '18px',
-                  margin: 0,
-                  padding: 16,
-                  borderRadius: '6px',
-                  border: '1px solid var(--border)',
-                  overflow: 'auto',
-                }}
-              >
-                {MOCK_CODE}
-              </pre>
-            </div>
-          )}
-
-          {(activeTab === 'storybook' || activeTab === 'a11y') && (
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 13,
-              }}
-            >
-              {activeTab === 'storybook'
-                ? 'Storybook story would render here'
-                : 'Axe-core a11y report: 0 violations'}
-            </div>
-          )}
-        </div>
-
-        {/* Right: inspector */}
-        <div
-          style={{
-            borderLeft: '1px solid var(--border)',
-            overflowY: 'auto',
-            padding: 16,
-          }}
-        >
-          <div style={{ marginBottom: 16 }}>
-            <div
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                marginBottom: 8,
-              }}
-            >
-              REASONING
-            </div>
-            <div style={{ fontSize: 13, lineHeight: '20px' }}>
-              Kanban generated because PRD FR-5 specified drag-between-stages.
-            </div>
-          </div>
-
-          <div
-            style={{
-              marginBottom: 16,
-              paddingTop: 12,
-            }}
-          >
-            <div
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                marginBottom: 8,
-              }}
-            >
-              QUALITY
-            </div>
-            {[
-              ['TypeScript', 'âœ“', 'oklch(0.40 0.14 145)'],
-              ['ESLint', 'âœ“', 'oklch(0.40 0.14 145)'],
-              ['axe-core', 'âœ“ AA', 'oklch(0.40 0.14 145)'],
-              ['Mobile', 'âœ“', 'oklch(0.40 0.14 145)'],
-            ].map(([k, v, c]) => (
-              <div
-                key={k}
-                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
-              >
-                <span className="text-muted-foreground">{k}</span>
-                <span style={{ color: c, fontWeight: 500, fontSize: 13 }}>{v}</span>
-              </div>
-            ))}
-          </div>
-
-          <div
-            style={{
-              marginBottom: 16,
-              paddingTop: 12,
-            }}
-          >
-            <div
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                marginBottom: 8,
-              }}
-            >
-              PERMISSIONS
-            </div>
-            {[
-              ['View deals', 'deals.read'],
-              ['Edit deals', 'deals.update'],
-            ].map(([k, v]) => (
-              <div
-                key={k}
-                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
-              >
-                <span className="text-muted-foreground">{k}</span>
-                <span style={{ fontFamily: 'monospace', fontSize: 11 }}>{v}</span>
-              </div>
-            ))}
-          </div>
-
-          <div
-            style={{
-              marginBottom: 16,
-              paddingTop: 12,
-            }}
-          >
-            <div
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.06em',
-                marginBottom: 8,
-              }}
-            >
-              COST
-            </div>
-            {[
-              ['This component', '$1.84'],
-              ['Total project', '$18.50'],
-            ].map(([k, v]) => (
-              <div
-                key={k}
-                className="flex items-center justify-between border-b py-1.5 text-sm last:border-b-0"
-              >
-                <span className="text-muted-foreground">{k}</span>
-                <span className="font-medium">{v}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Progress */}
-          <div style={{ paddingTop: 12 }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: 12,
-                marginBottom: 6,
-              }}
-            >
-              <span>Progress</span>
-              <span>
-                {approvedCount}/{totalComponents} approved
-              </span>
-            </div>
-            <div
-              style={{
-                height: 4,
-                borderRadius: 2,
-                overflow: 'hidden',
-              }}
-            >
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            {activeTab === 'preview' && (
+              <PreviewIframePanel
+                artifactId={selectedComponent}
+                onSelectionChange={handleSelection}
+                reloadKey={reloadKey}
+                applyEditRef={applyEditRef}
+                insertBlockRef={insertBlockRef}
+              />
+            )}
+            {activeTab === 'code' && (
               <div
                 style={{
                   height: '100%',
-                  background: 'var(--primary)',
-                  width: `${String((approvedCount / totalComponents) * 100)}%`,
-                  borderRadius: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 13,
+                  color: 'var(--muted-foreground)',
                 }}
-              />
-            </div>
+              >
+                Code view — wires up when real artifact generation lands.
+              </div>
+            )}
+            {(activeTab === 'storybook' || activeTab === 'a11y') && (
+              <div
+                style={{
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 13,
+                  color: 'var(--muted-foreground)',
+                }}
+              >
+                {activeTab === 'storybook'
+                  ? 'Storybook story would render here'
+                  : 'Axe-core a11y report: pending'}
+              </div>
+            )}
           </div>
+        </div>
+
+        {/* Right: inspector */}
+        <div style={{ borderLeft: '1px solid var(--border)', overflow: 'hidden' }}>
+          <VisualEditInspector
+            selection={selection}
+            pendingEdits={pendingEdits}
+            onApply={handleApplyEdit}
+            onSave={() => {
+              void handleSave();
+            }}
+            onDiscard={handleDiscard}
+            saving={saving}
+          />
+        </div>
+      </div>
+
+      <GenerateUiDialog
+        open={generateOpen}
+        onClose={() => {
+          setGenerateOpen(false);
+        }}
+        onBlock={(blockId) => {
+          handleInsertBlock(blockId);
+        }}
+        onReasoning={(text) => {
+          setChatEdits((prev) => [...prev, { kind: 'edited', target: text.slice(0, 64) }]);
+        }}
+        onAssistantDelta={() => {
+          // Streaming text is rendered in the chat panel via its own send flow;
+          // the GenerateUiDialog doesn't need to mirror it. Kept for future use.
+        }}
+        onDone={() => {
+          // Composition complete; chat banner already updated.
+        }}
+      />
+
+      <div
+        style={{
+          padding: '6px 16px',
+          borderTop: '1px solid var(--border)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          fontSize: 11,
+          color: 'var(--muted-foreground)',
+          flexShrink: 0,
+        }}
+      >
+        <span>
+          {approvedCount}/{totalComponents} components approved
+        </span>
+        <div
+          style={{
+            flex: 1,
+            height: 3,
+            borderRadius: 2,
+            background: 'var(--muted)',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              height: '100%',
+              background: 'var(--primary)',
+              width: `${String((approvedCount / Math.max(1, totalComponents)) * 100)}%`,
+            }}
+          />
         </div>
       </div>
     </div>

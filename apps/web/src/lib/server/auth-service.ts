@@ -5,20 +5,65 @@
 /* eslint-disable no-restricted-syntax */
 import type { AuthService } from '@platform/core';
 import type { AuditPort } from '@platform/ports-audit';
-import type { SessionPort, UserDirectoryPort } from '@platform/ports-identity';
+import type {
+  IdentityProviderPort,
+  SessionPort,
+  UserDirectoryPort,
+} from '@platform/ports-identity';
 
-import { composeAuthMemory, type AuthMemoryBundle } from '@platform/composition/auth-memory';
+// eslint-disable-next-line no-restricted-imports -- intentional dev-only composition: the web app pairs the in-memory identity provider + session adapter with a file-backed user directory (FileBackedUserDirectory) so password hashes survive restart. composeAuthMemory in @platform/composition uses InMemoryUserDirectory which has the bug fixed by ADR-0282; until a parallel composeAuthFileBacked lands in composition, we import the two ephemeral adapters here.
+import {
+  InMemoryIdentityProvider,
+  InMemorySessionAdapter,
+} from '@platform/adapter-identity-memory';
+import { AuthService as CoreAuthService } from '@platform/core';
 import {
   createInMemoryAudit,
   createInMemoryAuthz,
   createInMemoryLogger,
 } from '@platform/core/testing';
 
+import { FileBackedUserDirectory } from './file-user-directory';
+
+interface AuthBundle {
+  authService: AuthService;
+  identity: IdentityProviderPort;
+  session: SessionPort;
+  userDirectory: FileBackedUserDirectory;
+}
+
 interface ServerBundle {
-  authBundle: AuthMemoryBundle;
+  authBundle: AuthBundle;
   audit: AuditPort;
   /** User IDs granted installation-admin privileges in the current dev session. */
   installationAdmins: Set<string>;
+}
+
+// Derive the dep types from the CoreAuthService constructor so we don't need
+// to import @platform/ports-authorization or @platform/ports-observability
+// (which aren't direct deps of apps/web).
+type AuthServiceCtorArgs = ConstructorParameters<typeof CoreAuthService>;
+type AuthzDep = AuthServiceCtorArgs[3];
+type AuditDep = AuthServiceCtorArgs[4];
+type LoggerDep = AuthServiceCtorArgs[5];
+
+function composeAuthFileBacked(deps: {
+  authz: AuthzDep;
+  audit: AuditDep;
+  logger: LoggerDep;
+}): AuthBundle {
+  const identity = new InMemoryIdentityProvider();
+  const session = new InMemorySessionAdapter();
+  const userDirectory = new FileBackedUserDirectory();
+  const authService = new CoreAuthService(
+    identity,
+    session,
+    userDirectory,
+    deps.authz,
+    deps.audit,
+    deps.logger,
+  );
+  return { authService, identity, session, userDirectory };
 }
 
 // Use globalThis so the singleton survives Next.js hot module replacement in dev mode
@@ -28,7 +73,7 @@ function getServer(): ServerBundle {
   if (!g._lighthouseServer) {
     const audit = createInMemoryAudit();
     g._lighthouseServer = {
-      authBundle: composeAuthMemory({
+      authBundle: composeAuthFileBacked({
         authz: createInMemoryAuthz(),
         audit,
         logger: createInMemoryLogger(),
@@ -66,8 +111,13 @@ function getServer(): ServerBundle {
   return g._lighthouseServer;
 }
 
-function getBundle(): AuthMemoryBundle {
+function getBundle(): AuthBundle {
   return getServer().authBundle;
+}
+
+/** Persisted user IDs known to the directory — used for orphan-workspace recovery. */
+export function getKnownUserIds(): Set<string> {
+  return getBundle().userDirectory.allUserIds();
 }
 
 export function getAuditAdapter(): AuditPort {
