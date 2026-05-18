@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { MockArtifactId } from '@/app/preview/mock-components';
@@ -17,6 +17,8 @@ import { A11yTabPanel } from './panels/A11yTabPanel';
 import { BlocksPanel } from './panels/BlocksPanel';
 import { CodeTabPanel } from './panels/CodeTabPanel';
 import { DesignChatPanel } from './panels/DesignChatPanel';
+import { LeftRailTabs } from './panels/LeftRailTabs';
+import { PagesPanel } from './panels/PagesPanel';
 import { PreviewIframePanel, type SelectedElement } from './panels/PreviewIframePanel';
 import { VisualEditInspector } from './panels/VisualEditInspector';
 
@@ -55,6 +57,7 @@ export default function UiGenerationPage() {
   const [generateOpen, setGenerateOpen] = useState(false);
   const [newPageOpen, setNewPageOpen] = useState(false);
   const [insertedBlockIds, setInsertedBlockIds] = useState<string[]>([]);
+  const [chatAttention, setChatAttention] = useState(0);
 
   const applyEditRef = useRef<((editId: string, edit: EditMutation) => void) | null>(null);
   const insertBlockRef = useRef<((blockId: string) => void) | null>(null);
@@ -146,6 +149,7 @@ export default function UiGenerationPage() {
     const block = getBlock(blockId);
     if (block) {
       setChatEdits((prev) => [...prev, { kind: 'inserted', target: block.name }]);
+      setChatAttention((c) => c + 1);
     }
   }
 
@@ -187,118 +191,30 @@ export default function UiGenerationPage() {
           overflow: 'hidden',
         }}
       >
-        {/* Left rail: top → component list, middle → blocks, bottom → chat */}
-        <div
-          style={{
-            borderRight: '1px solid var(--border)',
-            display: 'grid',
-            gridTemplateRows: 'auto minmax(140px, 1fr) minmax(220px, 1fr)',
-            overflow: 'hidden',
-          }}
-        >
-          <div
-            style={{
-              padding: '8px 12px',
-              borderBottom: '1px solid var(--border)',
-              overflowY: 'auto',
-              maxHeight: 200,
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 6,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  color: 'var(--muted-foreground)',
-                }}
-              >
-                Components
-              </span>
-              <button
-                type="button"
-                onClick={() => {
+        {/* Left rail: tabbed — Pages / Blocks / Chat */}
+        <div style={{ borderRight: '1px solid var(--border)', overflow: 'hidden' }}>
+          <LeftRailTabs
+            pagesBadge={componentList.length}
+            chatAttention={chatAttention}
+            pages={
+              <PagesPanel
+                pages={componentList}
+                selectedId={selectedComponent.id}
+                onSelect={handleSelectComponent}
+                onNew={() => {
                   setNewPageOpen(true);
                 }}
-                title="New page"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 2,
-                  padding: '2px 6px',
-                  border: '1px solid var(--border)',
-                  borderRadius: 4,
-                  background: 'transparent',
-                  color: 'var(--primary)',
-                  fontSize: 10,
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
-                <Plus style={{ width: 11, height: 11 }} />
-                New page
-              </button>
-            </div>
-            {componentList.map((item) => {
-              const isApproved = approvedSet.has(item.id);
-              const isActive = item.id === selectedComponent.id;
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => {
-                    handleSelectComponent(item);
-                  }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    width: '100%',
-                    textAlign: 'left',
-                    padding: '4px 8px',
-                    borderRadius: 4,
-                    marginBottom: 1,
-                    background: isActive ? 'var(--accent)' : 'transparent',
-                    color: isActive ? 'var(--primary)' : 'var(--muted-foreground)',
-                    border: 'none',
-                    cursor: 'pointer',
-                    fontFamily: 'monospace',
-                    fontSize: 11,
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: '50%',
-                      background: isApproved ? 'oklch(0.40 0.14 145)' : 'var(--border)',
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          <div style={{ borderBottom: '1px solid var(--border)', overflow: 'hidden' }}>
-            <BlocksPanel onInsert={handleInsertBlock} />
-          </div>
-
-          <div style={{ overflow: 'hidden' }}>
-            <DesignChatPanel
-              recentEdits={chatEdits.slice(-6)}
-              onAssistantBlockInsert={handleInsertBlock}
-            />
-          </div>
+                approvedSet={approvedSet}
+              />
+            }
+            blocks={<BlocksPanel onInsert={handleInsertBlock} />}
+            chat={
+              <DesignChatPanel
+                recentEdits={chatEdits.slice(-6)}
+                onAssistantBlockInsert={handleInsertBlock}
+              />
+            }
+          />
         </div>
 
         {/* Center: preview */}

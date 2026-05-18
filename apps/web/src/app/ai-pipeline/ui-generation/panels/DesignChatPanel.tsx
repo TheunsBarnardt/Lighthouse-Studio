@@ -1,6 +1,6 @@
 'use client';
 
-import { Send, Wrench } from 'lucide-react';
+import { ArrowUp, Globe, Paperclip, Plus, Sparkles, Wrench } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 import { ModelPicker } from '@/components/ai/ModelPicker';
@@ -14,27 +14,30 @@ interface ChatTurn {
 }
 
 interface DesignChatPanelProps {
-  /** Most recent visual edits applied by the user, surfaced as system turns. */
   recentEdits?: { kind: 'edited' | 'inserted' | 'removed'; target: string }[];
-  /** Called once per block the assistant decides to insert. */
   onAssistantBlockInsert?: (blockId: string) => void;
 }
 
+const EXAMPLE_PROMPTS = [
+  'Make the navbar dark and remove the second CTA',
+  'Add a pricing section with 3 tiers',
+  'Replace the hero with a split layout that has a screenshot on the right',
+  'Make the form full-width and centered',
+];
+
 /**
- * Chat-with-AI panel for UI generation.
+ * Design chat panel — t3.chat-style.
  *
- * v1 (this PR) is a skeleton: it renders the Lovable-style turn list, accepts
- * input, shows the model picker, and echoes the user's last message back as a
- * mock assistant turn. There is no real AI wiring yet — that lands when the
- * `composeUi` prompt + per-element "Ask AI to modify" backend ship (see
- * Objective 26 §0 capability 4).
+ * Layout (top to bottom):
+ *   - Header: "Design chat" title + "New" button (clears thread, keeps model).
+ *   - Conversation: assistant turns with AI tag and streaming caret; user
+ *     turns as right-aligned bubbles. Empty state shows example prompts.
+ *   - System events (visual edits, block insertions) inline between turns.
+ *   - Composer: textarea + bottom toolbar with model pill on the left,
+ *     attach/web inline buttons (decorative for v1), Send icon on the right.
  *
- * What this panel intentionally already does correctly:
- *   - Model selection is persisted to `localStorage.lighthouse.designChatModelId`
- *     (separate from intent-capture's model key so the two surfaces can diverge).
- *   - The "recent edits" prop lets the chat list show what visual changes the
- *     user has applied between AI turns, matching Lovable's UX where the chat
- *     thread shows both AI actions and manual ones.
+ * Real SSE streaming via the /api/v1/ai-pipeline/ui-generation/compose endpoint.
+ * Block_insert events bubble up via onAssistantBlockInsert.
  */
 export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignChatPanelProps) {
   const [turns, setTurns] = useState<ChatTurn[]>([]);
@@ -47,7 +50,9 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
     }
     return getDefaultModel().id;
   });
+  const [webOn, setWebOn] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -59,22 +64,22 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [turns.length, recentEdits?.length]);
 
-  async function send() {
-    const trimmed = input.trim();
-    if (!trimmed || busy) return;
-    const userTurn: ChatTurn = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: trimmed,
-    };
+  function newChat() {
+    setTurns([]);
+    setInput('');
+    textareaRef.current?.focus();
+  }
+
+  async function send(initial?: string) {
+    const text = (initial ?? input).trim();
+    if (!text || busy) return;
+    const userTurn: ChatTurn = { id: crypto.randomUUID(), role: 'user', content: text };
     const assistantId = crypto.randomUUID();
-    const assistantTurn: ChatTurn = {
-      id: assistantId,
-      role: 'assistant',
-      content: '',
-      isStreaming: true,
-    };
-    setTurns((prev) => [...prev, userTurn, assistantTurn]);
+    setTurns((prev) => [
+      ...prev,
+      userTurn,
+      { id: assistantId, role: 'assistant', content: '', isStreaming: true },
+    ]);
     setInput('');
     setBusy(true);
 
@@ -82,7 +87,7 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
       const res = await fetch('/api/v1/ai-pipeline/ui-generation/compose', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ brief: trimmed, model: modelId, mode: 'modify' }),
+        body: JSON.stringify({ brief: text, model: modelId, mode: 'modify' }),
       });
       if (!res.body) throw new Error('No response body');
       const reader = res.body.getReader();
@@ -112,7 +117,6 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
             } else if (ev.type === 'block_insert' && typeof ev['blockId'] === 'string') {
               onAssistantBlockInsert?.(ev['blockId']);
             } else if (ev.type === 'reasoning' && typeof ev['text'] === 'string') {
-              // Reasoning is appended discreetly under the response.
               const note = `\n\n_${ev['text']}_`;
               assistantText += note;
               const snapshot = assistantText;
@@ -121,11 +125,10 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
               );
             }
           } catch {
-            // skip
+            // skip malformed events
           }
         }
       }
-
       setTurns((prev) =>
         prev.map((t) => (t.id === assistantId ? { ...t, isStreaming: false } : t)),
       );
@@ -146,6 +149,8 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
     }
   }
 
+  const empty = turns.length === 0 && (!recentEdits || recentEdits.length === 0);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div
@@ -160,120 +165,233 @@ export function DesignChatPanel({ recentEdits, onAssistantBlockInsert }: DesignC
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          gap: 8,
+          flexShrink: 0,
         }}
       >
-        <span>Design chat</span>
-        <span
-          style={{
-            fontSize: 9,
-            padding: '1px 6px',
-            borderRadius: 999,
-            background: 'color-mix(in srgb, var(--primary) 14%, transparent)',
-            color: 'var(--primary)',
-            fontWeight: 600,
-            letterSpacing: 0,
-          }}
-        >
-          PREVIEW
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          Design chat
+          <span
+            style={{
+              fontSize: 9,
+              padding: '1px 6px',
+              borderRadius: 999,
+              background: 'color-mix(in srgb, var(--primary) 14%, transparent)',
+              color: 'var(--primary)',
+              letterSpacing: 0,
+            }}
+          >
+            PREVIEW
+          </span>
         </span>
+        {!empty && (
+          <button
+            type="button"
+            onClick={newChat}
+            title="New conversation"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              fontSize: 10,
+              padding: '3px 7px',
+              border: '1px solid var(--border)',
+              borderRadius: 4,
+              background: 'transparent',
+              color: 'var(--muted-foreground)',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              letterSpacing: 0,
+              textTransform: 'none',
+            }}
+          >
+            <Plus style={{ width: 10, height: 10 }} />
+            New
+          </button>
+        )}
       </div>
 
       <div
         style={{
           flex: 1,
           overflowY: 'auto',
-          padding: 10,
+          padding: empty ? 16 : '12px 12px',
           display: 'flex',
           flexDirection: 'column',
-          gap: 8,
+          gap: 12,
         }}
       >
-        {turns.length === 0 && (!recentEdits || recentEdits.length === 0) && (
-          <div
-            style={{
-              padding: 16,
-              fontSize: 11,
-              color: 'var(--muted-foreground)',
-              textAlign: 'center',
+        {empty ? (
+          <EmptyState
+            onPick={(p) => {
+              void send(p);
             }}
-          >
-            Ask the AI to change the design, or pick blocks / edit elements directly.
-          </div>
+          />
+        ) : (
+          <>
+            {recentEdits?.map((e, i) => (
+              <SystemEvent key={`e-${String(i)}`} kind={e.kind} target={e.target} />
+            ))}
+            {turns.map((t) => (
+              <Turn key={t.id} turn={t} />
+            ))}
+            <div ref={endRef} />
+          </>
         )}
-        {recentEdits?.map((e, i) => (
-          <SystemEvent key={`e-${String(i)}`} kind={e.kind} target={e.target} />
-        ))}
-        {turns.map((t) => (
-          <Turn key={t.id} turn={t} />
-        ))}
-        <div ref={endRef} />
       </div>
 
       <div
         style={{
-          padding: 8,
+          padding: 10,
           borderTop: '1px solid var(--border)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
+          background: 'var(--card)',
+          flexShrink: 0,
         }}
       >
-        <textarea
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              void send();
-            }
-          }}
-          rows={2}
-          placeholder="Ask the AI to modify the design…"
-          style={{
-            padding: '6px 8px',
-            borderRadius: 4,
-            border: '1px solid var(--border)',
-            fontSize: 12,
-            resize: 'none',
-            fontFamily: 'inherit',
-            background: 'var(--background)',
-            color: 'var(--foreground)',
-          }}
-        />
         <div
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}
+          style={{
+            border: '1px solid var(--border)',
+            borderRadius: 12,
+            padding: 8,
+            background: 'var(--background)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6,
+            transition: 'border-color 120ms',
+          }}
         >
-          <ModelPicker
-            selectedId={modelId}
-            onSelect={(id) => {
-              setModelId(id);
+          <textarea
+            ref={textareaRef}
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                void send();
+              }
+            }}
+            rows={2}
+            placeholder="Ask the AI to modify the design…"
+            style={{
+              padding: '2px 4px',
+              border: 'none',
+              fontSize: 13,
+              resize: 'none',
+              fontFamily: 'inherit',
+              background: 'transparent',
+              color: 'var(--foreground)',
+              outline: 'none',
+              minHeight: 36,
             }}
           />
-          <button
-            type="button"
-            onClick={() => {
-              void send();
-            }}
-            disabled={!input.trim() || busy}
+          <div
             style={{
-              padding: '5px 10px',
-              borderRadius: 4,
-              border: 'none',
-              background: input.trim() && !busy ? 'var(--primary)' : 'var(--muted)',
-              color:
-                input.trim() && !busy ? 'var(--primary-foreground)' : 'var(--muted-foreground)',
-              fontSize: 12,
-              cursor: input.trim() && !busy ? 'pointer' : 'not-allowed',
-              display: 'inline-flex',
+              display: 'flex',
               alignItems: 'center',
+              justifyContent: 'space-between',
               gap: 4,
             }}
           >
-            <Send style={{ width: 12, height: 12 }} /> Ask
-          </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <ModelPicker
+                selectedId={modelId}
+                onSelect={(id) => {
+                  setModelId(id);
+                }}
+              />
+              <ComposerIconButton
+                title="Web search"
+                active={webOn}
+                onClick={() => {
+                  setWebOn((v) => !v);
+                }}
+              >
+                <Globe style={{ width: 13, height: 13 }} />
+              </ComposerIconButton>
+              <ComposerIconButton title="Attach (coming soon)" disabled>
+                <Paperclip style={{ width: 13, height: 13 }} />
+              </ComposerIconButton>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                void send();
+              }}
+              disabled={!input.trim() || busy}
+              title="Send"
+              style={{
+                width: 28,
+                height: 28,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+                border: 'none',
+                background: input.trim() && !busy ? 'var(--primary)' : 'var(--muted)',
+                color:
+                  input.trim() && !busy ? 'var(--primary-foreground)' : 'var(--muted-foreground)',
+                cursor: input.trim() && !busy ? 'pointer' : 'not-allowed',
+                transition: 'background 120ms',
+              }}
+            >
+              <ArrowUp style={{ width: 14, height: 14 }} />
+            </button>
+          </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({ onPick }: { onPick: (prompt: string) => void }) {
+  return (
+    <div
+      style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 14,
+        color: 'var(--muted-foreground)',
+        textAlign: 'center',
+      }}
+    >
+      <Sparkles style={{ width: 22, height: 22, color: 'var(--primary)' }} />
+      <div>
+        <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--foreground)' }}>
+          What should this app feel like?
+        </div>
+        <div style={{ fontSize: 11, marginTop: 4 }}>
+          Pick a starter prompt or describe a change.
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, width: '100%' }}>
+        {EXAMPLE_PROMPTS.map((p) => (
+          <button
+            key={p}
+            type="button"
+            onClick={() => {
+              onPick(p);
+            }}
+            style={{
+              padding: '7px 10px',
+              border: '1px solid var(--border)',
+              borderRadius: 8,
+              background: 'transparent',
+              color: 'var(--foreground)',
+              fontSize: 11,
+              textAlign: 'left',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              lineHeight: 1.4,
+            }}
+          >
+            {p}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -284,49 +402,58 @@ function Turn({ turn }: { turn: ChatTurn }) {
   return (
     <div
       style={{
-        alignSelf: isUser ? 'flex-end' : 'flex-start',
-        maxWidth: '92%',
-        background: isUser ? 'var(--accent)' : 'transparent',
-        color: 'var(--foreground)',
-        borderRadius: 10,
-        padding: isUser ? '6px 10px' : '4px 2px',
-        fontSize: 12,
-        lineHeight: 1.5,
-        whiteSpace: 'pre-wrap',
-        wordBreak: 'break-word',
-        border: isUser ? '1px solid color-mix(in srgb, var(--primary) 14%, transparent)' : 'none',
+        alignSelf: isUser ? 'flex-end' : 'stretch',
+        maxWidth: isUser ? '90%' : '100%',
       }}
     >
       {!isUser && (
         <div
           style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
             fontSize: 9,
             textTransform: 'uppercase',
-            letterSpacing: '0.06em',
+            letterSpacing: '0.08em',
             color: 'var(--muted-foreground)',
-            marginBottom: 2,
+            marginBottom: 4,
             fontWeight: 600,
           }}
         >
-          AI
+          <Sparkles style={{ width: 10, height: 10, color: 'var(--primary)' }} />
+          Assistant
         </div>
       )}
-      {turn.content}
-      {turn.isStreaming && (
-        <span
-          aria-hidden
-          style={{
-            display: 'inline-block',
-            width: 7,
-            height: 11,
-            marginLeft: 2,
-            verticalAlign: 'text-bottom',
-            background: 'var(--primary)',
-            opacity: 0.75,
-            animation: 'lh-blink 800ms steps(2) infinite',
-          }}
-        />
-      )}
+      <div
+        style={{
+          background: isUser ? 'var(--accent)' : 'transparent',
+          color: 'var(--foreground)',
+          borderRadius: 12,
+          padding: isUser ? '8px 12px' : '2px 0',
+          fontSize: 12.5,
+          lineHeight: 1.55,
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          border: isUser ? '1px solid color-mix(in srgb, var(--primary) 14%, transparent)' : 'none',
+        }}
+      >
+        {turn.content}
+        {turn.isStreaming && (
+          <span
+            aria-hidden
+            style={{
+              display: 'inline-block',
+              width: 7,
+              height: 11,
+              marginLeft: 2,
+              verticalAlign: 'text-bottom',
+              background: 'var(--primary)',
+              opacity: 0.75,
+              animation: 'lh-blink 800ms steps(2) infinite',
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -363,5 +490,47 @@ function SystemEvent({
         {verb} <span style={{ fontFamily: 'monospace', color: 'var(--foreground)' }}>{target}</span>
       </span>
     </div>
+  );
+}
+
+function ComposerIconButton({
+  children,
+  title,
+  active,
+  disabled,
+  onClick,
+}: {
+  children: React.ReactNode;
+  title: string;
+  active?: boolean;
+  disabled?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        width: 26,
+        height: 26,
+        border: '1px solid var(--border)',
+        borderRadius: 999,
+        background: active ? 'var(--accent)' : 'transparent',
+        color: active
+          ? 'var(--primary)'
+          : disabled
+            ? 'color-mix(in srgb, var(--muted-foreground) 50%, transparent)'
+            : 'var(--muted-foreground)',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'inherit',
+      }}
+    >
+      {children}
+    </button>
   );
 }

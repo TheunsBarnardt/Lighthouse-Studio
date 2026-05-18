@@ -6,6 +6,21 @@
 
 ---
 
+## 0. UX direction (2026-05-18) — t3code-style agent loop
+
+The Code Generation page is **not** an in-browser Monaco editor. The pattern we are copying is `pingdotgg/t3code`: a thin web GUI for coding agents that operates over a file tree. The user's experience here is closer to a code review with an AI pair than to writing code by hand.
+
+Locked decisions for the surface:
+
+- **Three-pane layout**: file tree (left) → diff viewer (center) → agent chat (right). The center pane shows the AI's proposed change as a unified diff with accept/reject per-hunk; the agent chat on the right is where the user steers ("apply the change you just proposed", "rewrite this without the helper class").
+- **Build + preview gate**: every accepted change runs the customer-project build in the sandbox (Objective 9). A "Preview" button next to each accepted diff opens the affected page in the existing `/preview/<artifactId>` iframe so the user sees the runtime effect immediately.
+- **No raw text editor for v1.** Edits happen via the agent. Power users get an "Edit manually" affordance that opens the file's source in a textarea — but it's a fallback, not the primary path.
+- **The Code tab inside UI Generation is a _different_ thing.** That tab shows the source of the current composition (per ADR-0285). This page is about server-side logic, mutations, server actions, business rules — files that don't render directly in the UI preview.
+
+Phase 1 (deferred) builds the three-pane shell with mocked diffs. Phase 2 wires the agent to `GenerationService.generateStream` with the existing code-generation prompts in `packages/core/src/ai/prompts/code-generation/`. Phase 3 plugs the sandbox build into the accept path.
+
+---
+
 ## 1. Purpose
 
 The UI generated in Stage 6 calls APIs. Some of those APIs are auto-generated (CRUD via Objective 12) and need no custom code. Some require **custom server-side logic** — calculating deal scores in a CRM, publishing posts on a schedule in a blog, aggregating dashboard data nightly, sending notifications when conditions trigger, integrating with third-party APIs.
