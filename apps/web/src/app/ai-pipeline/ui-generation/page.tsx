@@ -20,7 +20,15 @@ import { DesignChatPanel } from './panels/DesignChatPanel';
 import { LeftRailTabs } from './panels/LeftRailTabs';
 import { PagesPanel } from './panels/PagesPanel';
 import { PreviewIframePanel, type SelectedElement } from './panels/PreviewIframePanel';
+import { ResizeHandle } from './panels/ResizeHandle';
 import { VisualEditInspector } from './panels/VisualEditInspector';
+
+const LEFT_WIDTH_KEY = 'lighthouse.uiGen.leftWidth';
+const RIGHT_WIDTH_KEY = 'lighthouse.uiGen.rightWidth';
+const DEFAULT_LEFT = 260;
+const DEFAULT_RIGHT = 320;
+const PANEL_MIN = 220;
+const PANEL_MAX = 600;
 
 type ViewTab = 'preview' | 'code' | 'a11y';
 
@@ -56,6 +64,28 @@ export default function UiGenerationPage() {
   const [chatEdits, setChatEdits] = useState<ChatEdit[]>([]);
   const [generateOpen, setGenerateOpen] = useState(false);
   const [newPageOpen, setNewPageOpen] = useState(false);
+  // Column widths persist across sessions. SSR-safe defaults; hydrated in effect.
+  const [leftWidth, setLeftWidth] = useState(DEFAULT_LEFT);
+  const [rightWidth, setRightWidth] = useState(DEFAULT_RIGHT);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const l = Number(window.localStorage.getItem(LEFT_WIDTH_KEY));
+    const r = Number(window.localStorage.getItem(RIGHT_WIDTH_KEY));
+    if (Number.isFinite(l) && l >= PANEL_MIN && l <= PANEL_MAX) setLeftWidth(l);
+    if (Number.isFinite(r) && r >= PANEL_MIN && r <= PANEL_MAX) setRightWidth(r);
+  }, []);
+  function persistLeft(w: number) {
+    setLeftWidth(w);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(LEFT_WIDTH_KEY, String(w));
+    }
+  }
+  function persistRight(w: number) {
+    setRightWidth(w);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(RIGHT_WIDTH_KEY, String(w));
+    }
+  }
   const [insertedBlockIds, setInsertedBlockIds] = useState<string[]>([]);
   const [chatAttention, setChatAttention] = useState(0);
 
@@ -186,13 +216,26 @@ export default function UiGenerationPage() {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '260px 1fr 320px',
+          gridTemplateColumns: `${String(leftWidth)}px 1fr ${String(rightWidth)}px`,
           flex: 1,
           overflow: 'hidden',
         }}
       >
         {/* Left rail: tabbed — Pages / Blocks / Chat */}
-        <div style={{ borderRight: '1px solid var(--border)', overflow: 'hidden' }}>
+        <div
+          style={{
+            position: 'relative',
+            borderRight: '1px solid var(--border)',
+            overflow: 'hidden',
+          }}
+        >
+          <ResizeHandle
+            side="right"
+            startWidth={leftWidth}
+            onResize={persistLeft}
+            min={PANEL_MIN}
+            max={PANEL_MAX}
+          />
           <LeftRailTabs
             pagesBadge={componentList.length}
             chatAttention={chatAttention}
@@ -315,7 +358,20 @@ export default function UiGenerationPage() {
         </div>
 
         {/* Right: inspector */}
-        <div style={{ borderLeft: '1px solid var(--border)', overflow: 'hidden' }}>
+        <div
+          style={{
+            position: 'relative',
+            borderLeft: '1px solid var(--border)',
+            overflow: 'hidden',
+          }}
+        >
+          <ResizeHandle
+            side="left"
+            startWidth={rightWidth}
+            onResize={persistRight}
+            min={PANEL_MIN}
+            max={PANEL_MAX}
+          />
           <VisualEditInspector
             selection={selection}
             pendingEdits={pendingEdits}
